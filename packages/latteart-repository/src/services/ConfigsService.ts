@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@
  */
 
 import { ProjectConfig, PutConfigDto } from "../interfaces/Configs";
-import { getRepository } from "typeorm";
 import { ConfigEntity } from "../entities/ConfigEntity";
 import { SettingsUtility } from "../gateways/settings/SettingsUtility";
 import { parseProjectConfig } from "./helper/configHelper";
+import { DataSource } from "typeorm";
 
 export class ConfigsService {
+  constructor(private dataSource: DataSource) {}
+
   public async getProjectConfig(projectId: string): Promise<ProjectConfig> {
     const configEntity = await this.getConfigSource(projectId);
     return parseProjectConfig(configEntity.text);
@@ -34,15 +36,15 @@ export class ConfigsService {
 
     configEntity.text = JSON.stringify(requestBody);
 
-    const savedConfigEntity = await getRepository(ConfigEntity).save(
-      configEntity
-    );
+    const savedConfigEntity = await this.dataSource
+      .getRepository(ConfigEntity)
+      .save(configEntity);
 
     return parseProjectConfig(savedConfigEntity.text);
   }
 
   private async getConfigSource(projectId: string): Promise<ConfigEntity> {
-    const configRepository = getRepository(ConfigEntity);
+    const configRepository = this.dataSource.getRepository(ConfigEntity);
     let config = await configRepository.find();
     if (!config[0]) {
       const settings = SettingsUtility.settingsProvider.settings;

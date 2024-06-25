@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-import {
-  ActionFailure,
-  ActionResult,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
-import { Group } from "../types";
+import { ActionFailure, type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
+import { type Group } from "../types";
 
 export class AddNewGroupAction {
   public async addNewGroup(
@@ -33,12 +29,12 @@ export class AddNewGroupAction {
     const testTargetGroupResult =
       await repositoryService.testTargetGroupRepository.postTestTargetGroup({
         testMatrixId: payload.testMatrixId,
-        name: payload.name,
+        name: payload.name
       });
 
     if (testTargetGroupResult.isFailure()) {
       return new ActionFailure({
-        messageKey: testTargetGroupResult.error.message ?? "",
+        messageKey: testTargetGroupResult.error.message ?? ""
       });
     }
 

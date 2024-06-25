@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { AppDataSource } from "@/data-source";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { Video } from "@/interfaces/Videos";
 import { createLogger } from "@/logger/logger";
@@ -47,9 +48,9 @@ export class Videos extends Controller {
       const fileRepositoryManager = await createFileRepositoryManager();
       const videoFileRepository = fileRepositoryManager.getRepository("video");
 
-      return await new VideoService({ videoFileRepository }).createVideo(
-        requestBody
-      );
+      return await new VideoService(AppDataSource, {
+        videoFileRepository,
+      }).createVideo(requestBody);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Create video failed", error);
@@ -77,10 +78,9 @@ export class Videos extends Controller {
       const fileRepositoryManager = await createFileRepositoryManager();
       const videoFileRepository = fileRepositoryManager.getRepository("video");
 
-      return await new VideoService({ videoFileRepository }).append(
-        videoId,
-        requestBody.base64
-      );
+      return await new VideoService(AppDataSource, {
+        videoFileRepository,
+      }).append(videoId, requestBody.base64);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Save video failed.", error);

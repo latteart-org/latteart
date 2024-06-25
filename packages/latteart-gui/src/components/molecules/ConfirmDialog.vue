@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
   <execute-dialog
     :opened="opened"
     :title="title"
+    strong
     @accept="
       accept();
       close();
@@ -26,39 +27,39 @@
       cancel();
       close();
     "
-    strong
   >
-    <template>
-      <span class="pre-wrap break-word">{{ message }}</span>
-    </template>
+    <span class="pre-wrap break-word">{{ message }}</span>
   </execute-dialog>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { defineComponent, type PropType } from "vue";
 
-@Component({
+export default defineComponent({
   components: {
-    "execute-dialog": ExecuteDialog,
+    "execute-dialog": ExecuteDialog
   },
-})
-export default class ConfirmDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: String, default: "" }) public readonly title!: string;
-  @Prop({ type: String, default: "" }) public readonly message!: string;
-  @Prop(Function) public readonly onAccept!: () => void;
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    title: { type: String, default: "", required: true },
+    message: { type: String, default: "", required: true },
+    onAccept: { type: Function as PropType<() => void>, required: true }
+  },
+  setup(props, context) {
+    const accept = (): void => {
+      props.onAccept();
+    };
 
-  private accept(): void {
-    this.onAccept();
-  }
+    const cancel = (): void => {
+      context.emit("cancel");
+    };
 
-  private cancel(): void {
-    this.$emit("cancel");
-  }
+    const close = (): void => {
+      context.emit("close");
+    };
 
-  private close(): void {
-    this.$emit("close");
+    return { accept, cancel, close };
   }
-}
+});
 </script>

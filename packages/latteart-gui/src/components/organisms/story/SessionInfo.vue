@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,40 +15,34 @@
 -->
 
 <template>
-  <v-container fluid class="pt-0" v-if="session">
-    <v-card class="ma-2" color="blue-grey lighten-4">
-      <v-card-title>{{
-        store.getters.message("session-info.charter")
-      }}</v-card-title>
+  <v-container v-if="session" fluid class="pt-0">
+    <v-card class="ma-2" color="blue-grey-lighten-4">
+      <v-card-title>{{ $t("session-info.charter") }}</v-card-title>
 
       <v-card-text class="pt-0">
         <v-text-field
+          variant="underlined"
           class="pt-0"
-          :label="store.getters.message('session-info.tester-name')"
-          :value="session.testerName"
-          @change="(value) => updateSession({ testerName: value })"
+          :label="$t('session-info.tester-name')"
+          :model-value="session.testerName"
           :readonly="isViewerMode"
+          @change="(e: any) => updateSession({ testerName: e.target._value })"
         ></v-text-field>
         <v-textarea
+          variant="underlined"
           class="pt-0"
-          :label="store.getters.message('session-info.memo')"
-          :value="memo"
-          @change="(value) => updateSession({ memo: value, testItem: '' })"
+          :label="$t('session-info.memo')"
+          :model-value="memo"
           :readonly="isViewerMode"
+          @change="(e: any) => updateSession({ memo: e.target._value, testItem: '' })"
         ></v-textarea>
       </v-card-text>
     </v-card>
 
-    <v-card class="ma-2" color="blue-grey lighten-4">
-      <v-card-title class="pb-0">{{
-        store.getters.message("session-info.report")
-      }}</v-card-title>
+    <v-card class="ma-2" color="blue-grey-lighten-4">
+      <v-card-title class="pb-0">{{ $t("session-info.report") }}</v-card-title>
 
-      <v-card-text
-        v-show="!reportSectionDisplayed"
-        jastify="center"
-        class="pa-2"
-      >
+      <v-card-text v-show="!reportSectionDisplayed" jastify="center" class="pa-2">
         <v-progress-circular size="50" color="primary" indeterminate />
       </v-card-text>
 
@@ -56,31 +50,22 @@
         <v-row>
           <v-col cols="6">
             <v-card class="ma-2" :disabled="isCapturing || isReplaying">
-              <v-card-title>{{
-                store.getters.message("session-info.model")
-              }}</v-card-title>
+              <v-card-title>{{ $t("session-info.model") }}</v-card-title>
 
-              <v-card-text class="py-0">
-                <ul
-                  v-for="(file, index) in session.testResultFiles"
-                  :key="index"
-                >
+              <v-card-text class="py-0 ml-4">
+                <ul v-for="(file, index) in session.testResultFiles" :key="index">
                   <li>
                     <span class="break-all">{{ file.name }}</span> ({{
                       millisecondsToHHmmss(file.testingTime)
                     }})
 
-                    <test-result-load-trigger :testResultIds="[file.id]">
-                      <template v-slot:activator="{ on }">
+                    <test-result-load-trigger :test-result-ids="[file.id]">
+                      <template #activator="{ on }">
                         <v-btn
-                          text
-                          icon
                           v-if="!isViewerMode"
-                          :title="
-                            store.getters.message(
-                              'session-info.open-test-result'
-                            )
-                          "
+                          variant="text"
+                          icon
+                          :title="$t('session-info.open-test-result')"
                           @click="openCaptureTool(on)"
                           ><v-icon>launch</v-icon></v-btn
                         >
@@ -88,29 +73,21 @@
                     </test-result-load-trigger>
 
                     <v-btn
-                      class="mr-0"
-                      text
-                      icon
                       v-if="!isViewerMode"
-                      :title="
-                        store.getters.message(
-                          'session-info.update-test-results-title'
-                        )
-                      "
+                      class="mr-0"
+                      variant="text"
+                      icon
+                      :title="$t('session-info.update-test-results-title')"
                       @click="reload()"
                       ><v-icon>refresh</v-icon></v-btn
                     >
 
                     <v-btn
-                      text
-                      icon
-                      color="error"
                       v-if="!isViewerMode"
-                      :title="
-                        store.getters.message(
-                          'session-info.remove-test-results-title'
-                        )
-                      "
+                      variant="text"
+                      icon
+                      color="red"
+                      :title="$t('session-info.remove-test-results-title')"
                       @click="openConfirmDialogToDeleteTestResultFile(file.id)"
                       ><v-icon>delete</v-icon></v-btn
                     >
@@ -122,13 +99,12 @@
                 <v-row dense justify="end">
                   <v-col cols="auto">
                     <record-start-trigger v-if="!isViewerMode">
-                      <template v-slot:activator="{ on }">
+                      <template #activator="{ on }">
                         <v-btn
                           id="openCaptureToolButton"
+                          variant="elevated"
                           @click="openCaptureOptionDialog"
-                          >{{
-                            store.getters.message("session-info.start-capture")
-                          }}</v-btn
+                          >{{ $t("session-info.start-capture") }}</v-btn
                         >
 
                         <capture-option-dialog
@@ -143,9 +119,10 @@
                   <v-col cols="auto">
                     <v-btn
                       v-if="!isViewerMode"
-                      @click="openTestResultSelectionDialog"
                       id="resultLogFileInputButton"
-                      >{{ store.getters.message("session-info.import") }}</v-btn
+                      variant="elevated"
+                      @click="openTestResultSelectionDialog"
+                      >{{ $t("session-info.import") }}</v-btn
                     >
                   </v-col>
                 </v-row>
@@ -155,28 +132,24 @@
 
           <v-col cols="6">
             <v-card class="ma-2">
-              <v-card-title>{{
-                store.getters.message("session-info.file")
-              }}</v-card-title>
+              <v-card-title>{{ $t("session-info.file") }}</v-card-title>
 
-              <v-card-text class="py-0">
+              <v-card-text class="py-0 ml-4">
                 <ul v-for="(file, index) in session.attachedFiles" :key="index">
                   <li v-if="isViewerMode">
                     <a :href="file.fileUrl" target="_blank" rel="noopener"
-                      ><span class="break-all">{{ file.name }}</span></a
+                      ><span class="file-link break-all">{{ file.name }}</span></a
                     >
                   </li>
                   <li v-else>
                     <a @click="openAttachedFile(file)"
-                      ><span class="break-all">{{ file.name }}</span></a
+                      ><span class="file-link break-all">{{ file.name }}</span></a
                     >
                     <v-btn
-                      text
+                      variant="text"
                       icon
-                      color="error"
-                      @click="
-                        openConfirmDialogToDeleteAttachedFile(file.fileUrl)
-                      "
+                      color="red"
+                      @click="openConfirmDialogToDeleteAttachedFile(file.fileUrl)"
                       ><v-icon>delete</v-icon></v-btn
                     >
                   </li>
@@ -187,13 +160,14 @@
                 <v-spacer></v-spacer>
                 <v-btn
                   v-if="!isViewerMode"
-                  @click="$refs.attachedFile.click()"
-                  >{{ store.getters.message("session-info.add-file") }}</v-btn
+                  variant="elevated"
+                  @click="($refs.attachedFile as HTMLInputElement).click()"
+                  >{{ $t("session-info.add-file") }}</v-btn
                 >
                 <input
+                  ref="attachedFile"
                   type="file"
                   style="display: none"
-                  ref="attachedFile"
                   @change="addAttachedFile"
                 />
               </v-card-actions>
@@ -204,8 +178,8 @@
         <v-row>
           <v-col cols="12">
             <test-purpose-note-list
-              :testPurposes="session.testPurposes"
-              :testResult="session.testResultFiles"
+              :test-purposes="session.testPurposes"
+              :test-result="session.testResultFiles"
               @reload="reload()"
             />
           </v-col>
@@ -220,24 +194,19 @@
     </v-dialog>
 
     <scrollable-dialog :opened="testResultSelectionDialogOpened">
-      <template v-slot:title>{{
-        store.getters.message("session-info.result-list")
-      }}</template>
+      <template #title>{{ $t("session-info.result-list") }}</template>
 
-      <template v-slot:content>
-        <test-result-list
-          :items="unrelatedTestResults"
-          @click-item="addTestResultToSession"
-        />
+      <template #content>
+        <test-result-list :items="unrelatedTestResults" @click-item="addTestResultToSession" />
       </template>
 
-      <template v-slot:footer>
+      <template #footer>
         <v-spacer></v-spacer>
         <v-btn
           color="primary"
-          text
+          variant="elevated"
           @click="testResultSelectionDialogOpened = false"
-          >{{ store.getters.message("common.close") }}</v-btn
+          >{{ $t("common.close") }}</v-btn
         >
       </template>
     </scrollable-dialog>
@@ -252,41 +221,34 @@
       :opened="confirmDialogOpened"
       :title="confirmDialogTitle"
       :message="confirmDialogMessage"
-      :onAccept="confirmDialogAccept"
+      :on-accept="confirmDialogAccept"
       @close="confirmDialogOpened = false"
     />
   </v-container>
 </template>
 
 <script lang="ts">
-import {
-  Session,
-  AttachedFile,
-  TestResultFile,
-} from "@/lib/testManagement/types";
+import type { Session, AttachedFile, TestResultFile } from "@/lib/testManagement/types";
 import * as SessionInfoService from "@/lib/testManagement/SessionInfo";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ConfirmDialog from "@/components/molecules/ConfirmDialog.vue";
 import { formatTime } from "@/lib/common/Timestamp";
-import { TestResultSummary } from "@/lib/operationHistory/types";
+import { type TestResultSummary } from "@/lib/operationHistory/types";
 import TestPurposeNoteList from "./TestPurposeNoteList.vue";
 import TestResultList from "./TestResultList.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { CaptureControlState } from "@/store/captureControl";
 import CaptureOptionDialog from "../dialog/CaptureOptionDialog.vue";
 import RecordStartTrigger from "@/components/organisms/common/RecordStartTrigger.vue";
-import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
+import { type CaptureOptionParams } from "@/lib/common/captureOptionParams";
 import TestResultLoadTrigger from "@/components/organisms/common/TestResultLoadTrigger.vue";
 import { computed, defineComponent, ref, inject } from "vue";
-import { useStore } from "@/store";
-import { useRouter } from "vue-router/composables";
+import { useRouter } from "vue-router";
+import { useRootStore } from "@/stores/root";
+import { useTestManagementStore } from "@/stores/testManagement";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
-  props: {
-    storyId: { type: String, default: "", required: true },
-    sessionId: { type: String, default: "", required: true },
-  },
   components: {
     "scrollable-dialog": ScrollableDialog,
     "error-message-dialog": ErrorMessageDialog,
@@ -295,10 +257,17 @@ export default defineComponent({
     "test-result-list": TestResultList,
     "record-start-trigger": RecordStartTrigger,
     "capture-option-dialog": CaptureOptionDialog,
-    "test-result-load-trigger": TestResultLoadTrigger,
+    "test-result-load-trigger": TestResultLoadTrigger
+  },
+  props: {
+    storyId: { type: String, default: "", required: true },
+    sessionId: { type: String, default: "", required: true }
   },
   setup(props) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const testManagementStore = useTestManagementStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
     const router = useRouter();
 
     const reportSectionDisplayed = ref(false);
@@ -321,13 +290,10 @@ export default defineComponent({
     const attachedFileOpened = ref(false);
     const attachedImageFileSource = ref("");
 
-    const isViewerMode = inject("isViewerMode") ?? false;
+    const isViewerMode: boolean = inject("isViewerMode") ?? false;
 
     const session = computed((): Session | undefined => {
-      return store.getters["testManagement/findSession"](
-        props.storyId,
-        props.sessionId
-      );
+      return testManagementStore.findSession(props.storyId, props.sessionId);
     });
 
     const unrelatedTestResults = computed((): TestResultSummary[] => {
@@ -343,15 +309,13 @@ export default defineComponent({
     };
 
     const openTestResultSelectionDialog = async () => {
-      store.dispatch("openProgressDialog", {
-        message: store.getters.message("session-info.call-test-results"),
+      rootStore.openProgressDialog({
+        message: rootStore.message("session-info.call-test-results")
       });
       try {
-        testResults.value = await store.dispatch(
-          "testManagement/getTestResults"
-        );
+        testResults.value = await operationHistoryStore.getTestResults();
       } finally {
-        store.dispatch("closeProgressDialog");
+        rootStore.closeProgressDialog();
       }
 
       testResultSelectionDialogOpened.value = true;
@@ -360,16 +324,14 @@ export default defineComponent({
     const openAttachedFile = (file: AttachedFile): boolean => {
       const extension = SessionInfoService.getImageExtensionFrom(file.name);
       if (!file.fileUrl && !file.fileData) {
-        errorMessage.value = store.getters.message(
-          "session-info.file-open-read-error"
-        );
+        errorMessage.value = rootStore.message("session-info.file-open-read-error");
         errorMessageDialogOpened.value = true;
         return false;
       }
 
       if (extension !== "") {
         const source = file.fileUrl
-          ? `${store.state.repositoryService.serviceUrl}/${file.fileUrl}`
+          ? `${rootStore.repositoryService?.serviceUrl}/${file.fileUrl}`
           : `data:image/${extension};base64, ${file.fileData}`;
         if (source === "") {
           return false;
@@ -382,7 +344,7 @@ export default defineComponent({
       // no extention
       const a = document.createElement("a");
       a.href = file.fileUrl
-        ? `${store.state.repositoryService.serviceUrl}/${file.fileUrl}`
+        ? `${rootStore.repositoryService?.serviceUrl}/${file.fileUrl}`
         : (`data:text/plain;base64,${file.fileData}` as string);
       a.target = "_blank";
       a.rel = "noopener noreferrer";
@@ -402,64 +364,53 @@ export default defineComponent({
       reader.onload = () => {
         const result = reader.result ? reader.result.toString() : "";
         const keyword = "base64,";
-        const fileData = result.substring(
-          result.indexOf(keyword) + keyword.length
-        );
+        const fileData = result.substring(result.indexOf(keyword) + keyword.length);
 
         updateSession({
           attachedFiles: [
             ...(session.value?.attachedFiles ?? []),
             {
               name: filename,
-              fileData,
-            },
-          ],
+              fileData
+            }
+          ]
         });
       };
     };
 
     const reload = async () => {
-      await store.dispatch("testManagement/readStory", {
-        storyId: props.storyId,
+      await testManagementStore.readStory({
+        storyId: props.storyId
       });
     };
 
-    const addTestResultToSession = async (
-      testResult: TestResultFile
-    ): Promise<void> => {
+    const addTestResultToSession = async (testResult: TestResultFile): Promise<void> => {
       testResultSelectionDialogOpened.value = false;
-      store.dispatch("openProgressDialog", {
-        message: store.getters.message("session-info.import-test-result"),
+      rootStore.openProgressDialog({
+        message: rootStore.message("session-info.import-test-result")
       });
 
       const testResultFiles = [...(session.value?.testResultFiles ?? [])];
 
       await updateSession({
-        testResultFiles: [...testResultFiles, testResult],
+        testResultFiles: [...testResultFiles, testResult]
       }).finally(() => {
-        store.dispatch("closeProgressDialog");
+        rootStore.closeProgressDialog();
       });
     };
 
-    const openConfirmDialogToDeleteAttachedFile = (
-      attachedFileUrl: string,
-      event?: any
-    ) => {
+    const openConfirmDialogToDeleteAttachedFile = (attachedFileUrl: string, event?: any) => {
       if (event) {
         event.stopPropagation();
       }
 
-      confirmDialogTitle.value = store.getters.message(
-        "session-info.delete-attached-file-confirm"
-      );
-      confirmDialogMessage.value = store.getters.message(
-        "common.delete-warning"
-      );
+      confirmDialogTitle.value = rootStore.message("session-info.delete-attached-file-confirm");
+      confirmDialogMessage.value = rootStore.message("common.delete-warning");
       confirmDialogAccept.value = () => {
         updateSession({
           attachedFiles: session.value?.attachedFiles.filter((attachedFile) => {
             return attachedFile.fileUrl !== attachedFileUrl;
-          }),
+          })
         });
 
         confirmDialogOpened.value = false;
@@ -468,27 +419,20 @@ export default defineComponent({
       confirmDialogOpened.value = true;
     };
 
-    const openConfirmDialogToDeleteTestResultFile = (
-      testResultId: string,
-      event?: any
-    ) => {
+    const openConfirmDialogToDeleteTestResultFile = (testResultId: string, event?: any) => {
       if (event) {
         event.stopPropagation();
       }
 
-      confirmDialogTitle.value = store.getters.message(
-        "session-info.delete-test-result-confirm"
-      );
-      confirmDialogMessage.value = store.getters.message(
+      confirmDialogTitle.value = rootStore.message("session-info.delete-test-result-confirm");
+      confirmDialogMessage.value = rootStore.message(
         "session-info.delete-test-result-confirm-message"
       );
       confirmDialogAccept.value = () => {
         updateSession({
-          testResultFiles: session.value?.testResultFiles?.filter(
-            (testResultFile) => {
-              return testResultFile.id !== testResultId;
-            }
-          ),
+          testResultFiles: session.value?.testResultFiles?.filter((testResultFile) => {
+            return testResultFile.id !== testResultId;
+          })
         });
 
         confirmDialogOpened.value = false;
@@ -509,10 +453,10 @@ export default defineComponent({
       attachedFiles?: AttachedFile[];
       testResultFiles?: TestResultFile[];
     }) => {
-      await store.dispatch("testManagement/updateSession", {
+      await testManagementStore.updateSession({
         storyId: props.storyId,
         sessionId: props.sessionId,
-        params,
+        params
       });
     };
 
@@ -526,56 +470,48 @@ export default defineComponent({
       });
     };
 
-    const startCapture = async (
-      onStart: () => Promise<void>,
-      option: CaptureOptionParams
-    ) => {
-      store.commit("captureControl/setUrl", {
-        url: option.url,
-      });
-      store.commit("captureControl/setTestResultName", {
-        name: option.testResultName,
-      });
-      await store.dispatch("writeDeviceSettings", {
+    const startCapture = async (onStart: () => Promise<void>, option: CaptureOptionParams) => {
+      operationHistoryStore.clearTestResult();
+
+      captureControlStore.url = option.url;
+      captureControlStore.testResultName = option.testResultName;
+
+      await rootStore.writeDeviceSettings({
         config: {
           platformName: option.platform,
           device: option.device,
           browser: option.browser,
-          waitTimeForStartupReload: option.waitTimeForStartupReload,
-        },
+          waitTimeForStartupReload: option.waitTimeForStartupReload
+        }
       });
-      const config = store.state.projectSettings.config;
-      await store.dispatch("writeConfig", {
+      const config = rootStore.projectSettings.config;
+      await rootStore.writeConfig({
         config: {
           ...config,
           captureMediaSetting: {
             ...config.captureMediaSetting,
-            mediaType: option.mediaType,
-          },
-        },
+            mediaType: option.mediaType
+          }
+        }
       });
-      store.commit("captureControl/setTestOption", {
-        testOption: {
-          firstTestPurpose: option.firstTestPurpose,
-          firstTestPurposeDetails: option.firstTestPurposeDetails,
-          shouldRecordTestPurpose: option.shouldRecordTestPurpose,
-        },
-      });
+      captureControlStore.testOption = {
+        firstTestPurpose: option.firstTestPurpose,
+        firstTestPurposeDetails: option.firstTestPurposeDetails,
+        shouldRecordTestPurpose: option.shouldRecordTestPurpose
+      };
 
-      await store.dispatch("operationHistory/createTestResult", {
+      await operationHistoryStore.createTestResult({
         initialUrl: option.url,
-        name: option.testResultName,
+        name: option.testResultName
       });
 
-      const newTestResult = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).testResultInfo;
+      const newTestResult = operationHistoryStore.testResultInfo;
 
       addTestResultToSession({
         id: newTestResult.id,
         name: option.testResultName,
         initialUrl: option.url,
-        testingTime: 0,
+        testingTime: 0
       });
 
       await loadTestResultForCapture(newTestResult.id);
@@ -584,41 +520,34 @@ export default defineComponent({
     };
 
     const loadTestResultForCapture = async (testResultId: string) => {
-      await store.dispatch("operationHistory/loadTestResultSummaries", {
-        testResultIds: [testResultId],
+      await operationHistoryStore.loadTestResultSummaries({
+        testResultIds: [testResultId]
       });
 
-      await store.dispatch("operationHistory/loadTestResult", {
-        testResultId,
+      await operationHistoryStore.loadTestResult({
+        testResultId
       });
 
-      store.commit("operationHistory/setCanUpdateModels", {
-        setCanUpdateModels: false,
-      });
+      operationHistoryStore.canUpdateModels = false;
     };
 
     const memo = computed((): string => {
-      const testItems = session.value?.testItem
-        ? [`Test Item: ${session.value.testItem}`]
-        : [];
+      const testItems = session.value?.testItem ? [`Test Item: ${session.value.testItem}`] : [];
       const memos = session.value?.memo ? [session.value.memo] : [];
       return [...testItems, ...memos].join("\n");
     });
 
     const isCapturing = computed(() => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed(() => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     reportSectionDisplayed.value = true;
 
     return {
-      store,
       reportSectionDisplayed,
       captureOptionDialogOpened,
       testResultSelectionDialogOpened,
@@ -647,9 +576,9 @@ export default defineComponent({
       startCapture,
       memo,
       isCapturing,
-      isReplaying,
+      isReplaying
     };
-  },
+  }
 });
 </script>
 
@@ -658,4 +587,8 @@ export default defineComponent({
   white-space: pre-wrap
 .break-all
   word-break: break-all
+
+.file-link
+  color: #1976d2
+  cursor: pointer
 </style>

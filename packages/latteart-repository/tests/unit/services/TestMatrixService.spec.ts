@@ -1,14 +1,16 @@
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
 import { TestMatricesService } from "@/services/TestMatricesService";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { TransactionRunner } from "@/TransactionRunner";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -18,17 +20,20 @@ afterEach(async () => {
 describe("TestMatrixService", () => {
   describe("#get", () => {
     it("正常系", async () => {
-      const projectRepository = getRepository(ProjectEntity);
+      const projectRepository = TestDataSource.getRepository(ProjectEntity);
       const projectEntity = await projectRepository.save(
         new ProjectEntity("projectName")
       );
 
-      const testMatrixRepository = getRepository(TestMatrixEntity);
+      const testMatrixRepository =
+        TestDataSource.getRepository(TestMatrixEntity);
       const testMatrixEntity = await testMatrixRepository.save(
         new TestMatrixEntity("testMatrixName", 0, projectEntity)
       );
 
-      const result = await new TestMatricesService().get(testMatrixEntity.id);
+      const result = await new TestMatricesService(TestDataSource).get(
+        testMatrixEntity.id
+      );
 
       expect(result).toEqual({
         id: testMatrixEntity.id,
@@ -41,7 +46,7 @@ describe("TestMatrixService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestMatricesService().get(dummyId);
+        await new TestMatricesService(TestDataSource).get(dummyId);
       } catch (e) {
         expect((e as Error).message).toEqual(
           `TestMatrix not found. ${dummyId}`
@@ -52,17 +57,18 @@ describe("TestMatrixService", () => {
 
   describe("#post", () => {
     it("正常系", async () => {
-      const projectRepository = getRepository(ProjectEntity);
+      const projectRepository = TestDataSource.getRepository(ProjectEntity);
       const projectEntity = await projectRepository.save(
         new ProjectEntity("projectName")
       );
 
-      const result = await new TestMatricesService().post({
+      const result = await new TestMatricesService(TestDataSource).post({
         projectId: projectEntity.id,
         name: "testMatrixName",
       });
 
-      const project = await projectRepository.findOne(projectEntity.id, {
+      const project = await projectRepository.findOne({
+        where: { id: projectEntity.id },
         relations: ["testMatrices"],
       });
 
@@ -78,7 +84,7 @@ describe("TestMatrixService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestMatricesService().post({
+        await new TestMatricesService(TestDataSource).post({
           projectId: dummyId,
           name: "testMatrixName",
         });
@@ -90,17 +96,18 @@ describe("TestMatrixService", () => {
 
   describe("#patch", () => {
     it("正常系", async () => {
-      const projectRepository = getRepository(ProjectEntity);
+      const projectRepository = TestDataSource.getRepository(ProjectEntity);
       const projectEntity = await projectRepository.save(
         new ProjectEntity("projectName")
       );
 
-      const testMatrixRepository = getRepository(TestMatrixEntity);
+      const testMatrixRepository =
+        TestDataSource.getRepository(TestMatrixEntity);
       const testMatrixEntity = await testMatrixRepository.save(
         new TestMatrixEntity("testMatrixName", 0, projectEntity)
       );
 
-      const result = await new TestMatricesService().patch(
+      const result = await new TestMatricesService(TestDataSource).patch(
         testMatrixEntity.id,
         { name: "testMatrixName2" }
       );
@@ -117,7 +124,7 @@ describe("TestMatrixService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestMatricesService().patch(dummyId, {
+        await new TestMatricesService(TestDataSource).patch(dummyId, {
           name: "testMatrixName",
         });
       } catch (e) {
@@ -130,12 +137,13 @@ describe("TestMatrixService", () => {
 
   describe("#delete", () => {
     it("正常系", async () => {
-      const projectRepository = getRepository(ProjectEntity);
+      const projectRepository = TestDataSource.getRepository(ProjectEntity);
       const projectEntity = await projectRepository.save(
         new ProjectEntity("projectName")
       );
 
-      const testMatrixRepository = getRepository(TestMatrixEntity);
+      const testMatrixRepository =
+        TestDataSource.getRepository(TestMatrixEntity);
       const testMatrixEntity0 = await testMatrixRepository.save(
         new TestMatrixEntity("testMatrixName0", 0, projectEntity)
       );
@@ -146,12 +154,13 @@ describe("TestMatrixService", () => {
         new TestMatrixEntity("testMatrixName2", 2, projectEntity)
       );
 
-      await new TestMatricesService().delete(
+      await new TestMatricesService(TestDataSource).delete(
         testMatrixEntity1.id,
-        new TransactionRunner()
+        new TransactionRunner(TestDataSource)
       );
 
-      const result = await projectRepository.findOne(projectEntity.id, {
+      const result = await projectRepository.findOne({
+        where: { id: projectEntity.id },
         relations: ["testMatrices"],
       });
 
@@ -175,9 +184,9 @@ describe("TestMatrixService", () => {
     it("異常系", async () => {
       const dummyId = "dummyId";
       try {
-        await new TestMatricesService().delete(
+        await new TestMatricesService(TestDataSource).delete(
           dummyId,
-          new TransactionRunner()
+          new TransactionRunner(TestDataSource)
         );
       } catch (e) {
         expect((e as Error).message).toEqual(

@@ -6,13 +6,15 @@ import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { TestTargetGroupEntity } from "@/entities/TestTargetGroupEntity";
 import { ViewPointEntity } from "@/entities/ViewPointEntity";
 import { TestProgressServiceImpl } from "@/services/TestProgressService";
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -34,9 +36,11 @@ describe.each([
   describe("#registerStoryTestProgresses", () => {
     it("テスト進捗を登録する", async () => {
       const { storyId } = await saveTestStory(progress);
-      const service = new TestProgressServiceImpl();
+      const service = new TestProgressServiceImpl(TestDataSource);
       await service["registerStoryTestProgresses"](storyId);
-      const progressEntities = await getRepository(TestProgressEntity).find({
+      const progressEntities = await TestDataSource.getRepository(
+        TestProgressEntity
+      ).find({
         relations: ["story"],
       });
 
@@ -63,7 +67,7 @@ describe.each([
         testMatrixId,
       } = await saveTestStory(progress);
 
-      const service = new TestProgressServiceImpl();
+      const service = new TestProgressServiceImpl(TestDataSource);
       await service["registerStoryTestProgresses"](storyId);
 
       const result = await service.collectStoryDailyTestProgresses([storyId]);
@@ -100,22 +104,28 @@ async function saveTestStory(progress: {
     testingTime: 0,
   };
 
-  const testMatrixEntity = await getRepository(TestMatrixEntity).save({
+  const testMatrixEntity = await TestDataSource.getRepository(
+    TestMatrixEntity
+  ).save({
     name: "",
     index: 0,
   });
-  const viewPointEntity = await getRepository(ViewPointEntity).save({
+  const viewPointEntity = await TestDataSource.getRepository(
+    ViewPointEntity
+  ).save({
     name: "",
     description: "",
   });
-  const testTargetGroupEntity = await getRepository(TestTargetGroupEntity).save(
-    {
-      name: "",
-      index: 0,
-      testMatrix: testMatrixEntity,
-    }
-  );
-  const testTargetEntity = await getRepository(TestTargetEntity).save({
+  const testTargetGroupEntity = await TestDataSource.getRepository(
+    TestTargetGroupEntity
+  ).save({
+    name: "",
+    index: 0,
+    testMatrix: testMatrixEntity,
+  });
+  const testTargetEntity = await TestDataSource.getRepository(
+    TestTargetEntity
+  ).save({
     name: "",
     index: 0,
     text: JSON.stringify([
@@ -126,7 +136,7 @@ async function saveTestStory(progress: {
     ]),
     testTargetGroup: testTargetGroupEntity,
   });
-  const storyEntity = await getRepository(StoryEntity).save(
+  const storyEntity = await TestDataSource.getRepository(StoryEntity).save(
     (() => {
       const story = new StoryEntity();
       story.index = 0;
@@ -155,7 +165,7 @@ async function saveTestStory(progress: {
     })
     .map((params) => new SessionEntity(params));
 
-  await getRepository(SessionEntity).save([
+  await TestDataSource.getRepository(SessionEntity).save([
     ...completedSessions,
     ...incompletedSessions,
   ]);

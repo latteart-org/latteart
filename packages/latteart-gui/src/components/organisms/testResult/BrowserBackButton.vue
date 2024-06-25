@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,52 +17,53 @@
 <template>
   <div>
     <v-btn
-      fab
-      small
-      @click="browserBack"
+      icon="arrow_back"
+      size="small"
       :disabled="isDisabled"
-      :title="store.getters.message('navigate.back')"
+      :title="$t('navigate.back')"
       class="mx-2"
+      @click="browserBack"
     >
-      <v-icon dark>arrow_back</v-icon>
     </v-btn>
   </div>
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
-import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
+
+    const canDoBrowserBack = ref(false);
 
     const isDisabled = computed((): boolean => {
       return !isCapturing.value || !canDoBrowserBack.value;
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
-    const canDoBrowserBack = computed(() => {
-      return (
-        ((store.state as any).captureControl as CaptureControlState)
-          .captureSession?.canNavigateBack ?? false
-      );
+    const historyLength = computed(() => {
+      return operationHistoryStore.history.length;
     });
 
     const browserBack = (): void => {
-      store.dispatch("captureControl/browserBack");
+      captureControlStore.browserBack();
     };
 
+    watch(historyLength, () => {
+      canDoBrowserBack.value = captureControlStore.captureSession?.canNavigateBack ?? false;
+    });
+
     return {
-      store,
       isDisabled,
-      browserBack,
+      browserBack
     };
-  },
+  }
 });
 </script>

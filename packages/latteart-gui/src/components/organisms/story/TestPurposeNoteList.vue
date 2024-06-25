@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,103 +17,84 @@
 <template>
   <div class="mt-0 pt-0">
     <v-card class="ma-2">
-      <v-card-title>{{
-        store.getters.message("test-purpose-note-list.title")
-      }}</v-card-title>
+      <v-card-title>{{ $t("test-purpose-note-list.title") }}</v-card-title>
       <v-btn
         v-if="displayedItems.length > 0"
         class="ml-10"
-        small
+        size="small"
         @click="openAllTestPurposes()"
         >{{
-          isAllSelect
-            ? store.getters.message("test-purpose-note-list.close")
-            : store.getters.message("test-purpose-note-list.open")
+          isAllSelect ? $t("test-purpose-note-list.close") : $t("test-purpose-note-list.open")
         }}</v-btn
       >
       <v-card-text
-        v-for="(displayedItem, itemIndex) in displayedItems"
-        class="py-0"
+        v-for="displayedItem in displayedItems"
         :key="displayedItem.testResultId"
+        class="py-0"
       >
         <span class="test-purpose-h">
           {{ testResultName(displayedItem.testResultId) }}
         </span>
-        <v-list expand class="pt-0">
+        <v-list v-model:opened="selectedItems" class="pt-0" open-strategy="multiple">
           <v-list-group
-            v-for="(
-              testPurpose, testPurposeIndex
-            ) in displayedItem.testPurposes"
-            v-model="selectedItems[itemIndex][testPurposeIndex]"
-            :key="testPurpose.title"
-            value="true"
-            no-action
-            two-line
-            :id="`testPurposeArea${testPurposeIndex}`"
+            v-for="testPurpose in displayedItem.testPurposes"
+            :key="testPurpose.id"
+            :value="testPurpose.id"
             :prepend-icon="
-              selectedItems[itemIndex][testPurposeIndex]
-                ? 'arrow_drop_up'
-                : 'arrow_drop_down'
+              selectedItems.includes(testPurpose.id) ? 'arrow_drop_up' : 'arrow_drop_down'
             "
-            :append-icon="null"
           >
-            <template v-slot:activator>
-              <v-list-item-content>
+            <template #activator="{ props }">
+              <v-list-item v-bind="props">
                 <v-list-item-title
                   ><span :title="testPurpose.value">{{
                     testPurpose.value
                   }}</span></v-list-item-title
                 >
-                <v-list-item-subtitle>{{
-                  testPurpose.details
-                }}</v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn
-                  @click.stop="
-                    openTestPurposeDetails(
-                      testPurpose.value,
-                      testPurpose.details
-                    )
-                  "
-                  >{{
-                    store.getters.message("test-purpose-note-list.details")
-                  }}</v-btn
-                >
-              </v-list-item-action>
+
+                <v-list-item-subtitle>{{ testPurpose.details }}</v-list-item-subtitle>
+
+                <template #append>
+                  <v-list-item-action>
+                    <v-btn
+                      @click.stop="openTestPurposeDetails(testPurpose.value, testPurpose.details)"
+                      >{{ $t("test-purpose-note-list.details") }}</v-btn
+                    >
+                  </v-list-item-action>
+                </template>
+              </v-list-item>
             </template>
+
             <v-list-item
-              two-line
-              link
               v-for="(note, i) in testPurpose.notes"
               :key="i"
+              class="pr-2"
+              lines="two"
+              link
+              :ripple="false"
+              :active="false"
             >
-              <v-list-item-content>
-                <v-list-item-title
-                  ><span :title="note.value">{{
-                    note.value
-                  }}</span></v-list-item-title
-                ><v-list-item-subtitle>
-                  <note-tag-chip-group :tags="note.tags"></note-tag-chip-group
-                ></v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn
-                  @click="
-                    openNoteDetails(
-                      note.id,
-                      note.value,
-                      note.details,
-                      note.imageFileUrl,
-                      note.videoUrl,
-                      note.tags
-                    )
-                  "
-                  >{{
-                    store.getters.message("test-purpose-note-list.details")
-                  }}</v-btn
-                >
-              </v-list-item-action>
+              <v-list-item-title
+                ><span :title="note.value">{{ note.value }}</span></v-list-item-title
+              >
+              <note-tag-chip-group :tags="note.tags"></note-tag-chip-group>
+              <template #append>
+                <v-list-item-action>
+                  <v-btn
+                    @click.stop="
+                      openNoteDetails(
+                        note.id,
+                        note.value,
+                        note.details,
+                        note.imageFileUrl,
+                        note.videoUrl,
+                        note.tags
+                      )
+                    "
+                    >{{ $t("test-purpose-note-list.details") }}</v-btn
+                  >
+                </v-list-item-action>
+              </template>
             </v-list-item>
           </v-list-group>
         </v-list>
@@ -123,48 +104,38 @@
     </v-card>
     <note-details-dialog
       :opened="opened"
-      :testResultId="testResultId"
-      :noteId="noteId"
+      :test-result-id="testResultId"
+      :note-id="noteId"
       :summary="summary"
       :details="details"
       :tags="tags"
-      :imageFilePath="imagePath"
+      :image-file-path="imagePath"
+      :video-url="videoUrl"
       @execute="reload()"
-      :videoUrl="videoUrl"
       @close="opened = false"
     />
 
     <scrollable-dialog :opened="testPurposeOpened">
-      <template v-slot:title>{{
-        store.getters.message("note-details-dialog.details")
-      }}</template>
+      <template #title>{{ $t("note-details-dialog.details") }}</template>
 
-      <template v-slot:content>
+      <template #content>
         <v-list class="note-details-dialog">
           <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>{{
-                store.getters.message("note-details-dialog.summary")
-              }}</v-list-item-title>
-              <p class="break-all">{{ summary }}</p>
-            </v-list-item-content>
+            <v-list-item-title>{{ $t("note-details-dialog.summary") }}</v-list-item-title>
+            <p class="break-all">{{ summary }}</p>
           </v-list-item>
 
           <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>{{
-                store.getters.message("note-details-dialog.details")
-              }}</v-list-item-title>
-              <p class="break-all pre-wrap">{{ details }}</p>
-            </v-list-item-content>
+            <v-list-item-title>{{ $t("note-details-dialog.details") }}</v-list-item-title>
+            <p class="break-all pre-wrap">{{ details }}</p>
           </v-list-item>
         </v-list>
       </template>
 
-      <template v-slot:footer>
+      <template #footer>
         <v-spacer></v-spacer>
-        <v-btn color="primary" text @click="testPurposeOpened = false">{{
-          store.getters.message("common.close")
+        <v-btn color="primary" variant="elevated" @click="testPurposeOpened = false">{{
+          $t("common.close")
         }}</v-btn>
       </template>
     </scrollable-dialog>
@@ -174,11 +145,10 @@
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import NoteTagChipGroup from "@/components/organisms/common/NoteTagChipGroup.vue";
-import { Session } from "@/lib/testManagement/types";
+import { type Session } from "@/lib/testManagement/types";
 import NoteDetailsDialog from "../dialog/NoteDetailsDialog.vue";
-import { computed, defineComponent, onMounted, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import { computed, defineComponent, onMounted, ref, toRefs, watch, type PropType } from "vue";
+import { useRootStore } from "@/stores/root";
 
 type DisplayedItem = {
   testResultId: string;
@@ -200,23 +170,23 @@ type DisplayedItem = {
 };
 
 export default defineComponent({
-  props: {
-    testPurposes: {
-      type: Array as PropType<Session["testPurposes"]>,
-      default: [],
-    },
-    testResult: {
-      type: Array as PropType<Session["testResultFiles"]>,
-      default: [],
-    },
-  },
   components: {
     "note-details-dialog": NoteDetailsDialog,
     "note-tag-chip-group": NoteTagChipGroup,
-    "scrollable-dialog": ScrollableDialog,
+    "scrollable-dialog": ScrollableDialog
+  },
+  props: {
+    testPurposes: {
+      type: Array as PropType<Session["testPurposes"]>,
+      default: () => []
+    },
+    testResult: {
+      type: Array as PropType<Session["testResultFiles"]>,
+      default: () => []
+    }
   },
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
 
     const opened = ref(false);
     const testPurposeOpened = ref(false);
@@ -228,14 +198,16 @@ export default defineComponent({
     const imagePath = ref("");
     const videoUrl = ref("");
     const tags = ref<string[]>([]);
-    const selectedItems = ref<boolean[][]>([]);
+    const selectedItems = ref<string[]>([]);
     const displayedItems = ref<DisplayedItem[]>([]);
 
     const isAllSelect = computed(() => {
-      console.log(selectedItems.value);
-      return selectedItems.value.every((items) => {
-        return items.every((opened) => opened === true);
+      const testPurposeList = displayedItems.value.flatMap(({ testPurposes }) => {
+        return testPurposes.map((testPurpose) => {
+          return testPurpose.id;
+        });
       });
+      return selectedItems.value.length === testPurposeList.length;
     });
 
     const changeTestPurposes = () => {
@@ -275,22 +247,31 @@ export default defineComponent({
     };
 
     const openAllTestPurposes = () => {
-      selectedItems.value = displayedItems.value.map((item) => {
-        return item.testPurposes.map(() => !isAllSelect.value);
+      const testPurposeList = displayedItems.value.flatMap(({ testPurposes }) => {
+        return testPurposes.map((testPurpose) => {
+          return testPurpose.id;
+        });
       });
+
+      if (selectedItems.value.length === 0) {
+        selectedItems.value = testPurposeList;
+        return;
+      }
+
+      if (testPurposeList.length > selectedItems.value.length) {
+        selectedItems.value = testPurposeList;
+        return;
+      }
+      selectedItems.value = [];
     };
 
-    const createDisplayedTestPurposes = (
-      testPurposes: Session["testPurposes"]
-    ) => {
+    const createDisplayedTestPurposes = (testPurposes: Session["testPurposes"]) => {
       displayedItems.value = testPurposes
         .map((testPurpose) => {
           const value =
             testPurpose.value !== ""
               ? testPurpose.value
-              : (store.getters.message(
-                  "test-purpose-note-list.no-test-purpose"
-                ) as string);
+              : (rootStore.message("test-purpose-note-list.no-test-purpose") as string);
           const notes = testPurpose.notes.map((note) => {
             const { id, type, value, details, tags, imageFileUrl } = note;
 
@@ -301,33 +282,38 @@ export default defineComponent({
               details,
               tags,
               imageFileUrl,
-              videoUrl: note.videoFrame
-                ? `${note.videoFrame.url}#t=${note.videoFrame.time}`
-                : "",
+              videoUrl: note.videoFrame ? `${note.videoFrame.url}#t=${note.videoFrame.time}` : ""
             };
           });
 
           return {
-            testPurpose: { ...testPurpose, value, notes },
+            testPurpose: {
+              ...testPurpose,
+              id: testPurpose.testResultId + "_" + testPurpose.id,
+              value,
+              notes
+            }
           };
         })
         .reduce((acu, cur) => {
           const displayedItem = acu.find(
-            (testPurpose) =>
-              testPurpose.testResultId === cur.testPurpose.testResultId
+            (testPurpose) => testPurpose.testResultId === cur.testPurpose.testResultId
           );
           if (displayedItem) {
             displayedItem.testPurposes.push(cur.testPurpose);
           } else {
             acu.push({
               testResultId: cur.testPurpose.testResultId,
-              testPurposes: [cur.testPurpose],
+              testPurposes: [cur.testPurpose]
             });
           }
           return acu;
         }, [] as DisplayedItem[]);
-      selectedItems.value = displayedItems.value.map((item) => {
-        return item.testPurposes.map(() => true);
+
+      selectedItems.value = displayedItems.value.flatMap(({ testPurposes }) => {
+        return testPurposes.map((testPurpose) => {
+          return testPurpose.id;
+        });
       });
     };
 
@@ -347,7 +333,6 @@ export default defineComponent({
     watch(testPurposes, changeTestPurposes);
 
     return {
-      store,
       opened,
       testPurposeOpened,
       testResultId,
@@ -364,9 +349,9 @@ export default defineComponent({
       openTestPurposeDetails,
       openNoteDetails,
       openAllTestPurposes,
-      reload,
+      reload
     };
-  },
+  }
 });
 </script>
 

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { SettingsForRepository } from "latteart-client";
-import { DeviceSettings } from "./settings/Settings";
+import { type SettingsForRepository } from "latteart-client";
+import { type DeviceSettings } from "./settings/Settings";
 
 export type CaptureOptionParams = {
   url: string;

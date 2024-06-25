@@ -7,8 +7,10 @@ import {
   StaticDirectory,
 } from "@/gateways/fileRepository";
 import { TimestampServiceImpl } from "@/services/TimestampService";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
-import { getRepository } from "typeorm";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import path from "path";
 import fs from "fs-extra";
 import os from "os";
@@ -30,7 +32,7 @@ beforeEach(async () => {
   await fs.mkdir(tempDirPath).catch((e) => {
     console.error(e);
   });
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -63,15 +65,15 @@ describe("ScreenshotsService", () => {
         resourcesDirPath
       ).getRepository("temp");
 
-      const testResultEntity = await getRepository(TestResultEntity).save(
-        new TestResultEntity({ name: "test" })
-      );
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity({ name: "test" }));
 
-      const testStepEntity = await getRepository(TestStepEntity).save(
-        new TestStepEntity({ testResult: testResultEntity })
-      );
+      const testStepEntity = await TestDataSource.getRepository(
+        TestStepEntity
+      ).save(new TestStepEntity({ testResult: testResultEntity }));
 
-      await getRepository(ScreenshotEntity).save(
+      await TestDataSource.getRepository(ScreenshotEntity).save(
         new ScreenshotEntity({
           fileUrl: "/test.png",
           testStep: testStepEntity,
@@ -90,7 +92,7 @@ describe("ScreenshotsService", () => {
         epochMilliseconds: jest.fn(),
       };
 
-      await new ScreenshotsService().getScreenshots(
+      await new ScreenshotsService(TestDataSource).getScreenshots(
         testResultEntity.id,
         tempFileRepository,
         workingFileRepository,

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import {
 } from "tsoa";
 import { transactionRunner } from "..";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("/view-points/")
 @Tags("view-points")
@@ -55,7 +56,7 @@ export class ViewPointsController extends Controller {
     @Path() viewPointId: string
   ): Promise<GetViewPointResponse> {
     try {
-      return await new ViewPointsService().get(viewPointId);
+      return await new ViewPointsService(AppDataSource).get(viewPointId);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Get viewPoint failed.", error);
@@ -89,7 +90,10 @@ export class ViewPointsController extends Controller {
     }
   ): Promise<PostViewPointResponse> {
     try {
-      return await new ViewPointsService().post(body, transactionRunner);
+      return await new ViewPointsService(AppDataSource).post(
+        body,
+        transactionRunner
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Post viewPoint failed.", error);
@@ -120,7 +124,10 @@ export class ViewPointsController extends Controller {
     body: { name?: string; description?: string; index?: number }
   ): Promise<PatchViewPointResponse> {
     try {
-      return await new ViewPointsService().patch(viewPointId, body);
+      return await new ViewPointsService(AppDataSource).patch(
+        viewPointId,
+        body
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Patch viewPoint failed.", error);
@@ -145,7 +152,7 @@ export class ViewPointsController extends Controller {
   @Delete("{viewPointId}")
   public async deleteViewPoint(@Path() viewPointId: string): Promise<void> {
     try {
-      return await new ViewPointsService().delete(viewPointId);
+      return await new ViewPointsService(AppDataSource).delete(viewPointId);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Delete viewPoint failed.", error);

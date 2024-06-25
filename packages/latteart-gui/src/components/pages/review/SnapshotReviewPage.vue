@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,35 +15,29 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-0>
-    <iframe
-      style="width: 100%; height: 100%"
-      :src="historyPageUrl"
-      frameborder="0"
-    ></iframe>
+  <v-container fluid class="fill-height pa-0">
+    <iframe style="width: 100%; height: 100%" :src="historyPageUrl" frameborder="0"></iframe>
   </v-container>
 </template>
 
 <script lang="ts">
-import { TestManagementState } from "@/store/testManagement";
-import { Story } from "@/lib/testManagement/types";
+import { type Story } from "@/lib/testManagement/types";
+import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
+import { useRoute } from "vue-router";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const testManagementStore = useTestManagementStore();
     const route = useRoute();
 
     const querySessionId = computed(() => {
-      const sessionId = route.query.sessionIds[0] as string;
+      const sessionId = route.query.sessionIds?.at(0)?.toString() ?? "";
       return sessionId;
     });
 
     const tempStory = computed(() => {
-      return ((store.state as any).testManagement as TestManagementState)
-        .tempStory as Story;
+      return testManagementStore.tempStory as Story;
     });
 
     const historyPageUrl = computed(() => {
@@ -54,8 +48,8 @@ export default defineComponent({
     });
 
     return {
-      historyPageUrl,
+      historyPageUrl
     };
-  },
+  }
 });
 </script>

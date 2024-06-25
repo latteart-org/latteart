@@ -1,8 +1,0 @@
-[
-  {
-    "name": "default",
-    "type": "sqlite",
-    "database": "latteart.sqlite",
-    "logging": false
-  }
-]

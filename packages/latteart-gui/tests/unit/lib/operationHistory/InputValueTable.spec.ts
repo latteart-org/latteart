@@ -1,6 +1,4 @@
-import InputValueTable, {
-  ScreenTransition,
-} from "@/lib/operationHistory/InputValueTable";
+import InputValueTable, { type ScreenTransition } from "@/lib/operationHistory/InputValueTable";
 
 describe("InputValueTable", () => {
   describe("#rows", () => {
@@ -14,10 +12,10 @@ describe("InputValueTable", () => {
           target: { xpath: "", text: "" },
           input: "",
           pageUrl: "",
-          pageTitle: "",
+          pageTitle: ""
         },
         notes: [],
-        testPurposes: [],
+        testPurposes: []
       };
 
       const inputElementBase = {
@@ -28,7 +26,7 @@ describe("InputValueTable", () => {
         innerHeight: 0,
         innerWidth: 0,
         outerHeight: 0,
-        outerWidth: 0,
+        outerWidth: 0
       };
 
       it("画面遷移していない場合", () => {
@@ -41,7 +39,7 @@ describe("InputValueTable", () => {
                 id: "element1",
                 attributes: { id: "id1", name: "name1", type: "type1" },
                 defaultValue: "defaultValue",
-                inputs: [],
+                inputs: []
               },
               {
                 ...inputElementBase,
@@ -51,12 +49,12 @@ describe("InputValueTable", () => {
                 inputs: [
                   {
                     value: "inputValue",
-                    image: { imageFileUrl: "element2Image" },
-                  },
-                ],
-              },
-            ],
-          },
+                    image: { imageFileUrl: "element2Image" }
+                  }
+                ]
+              }
+            ]
+          }
         ];
 
         const rows = new InputValueTable(screenTransitions).rows;
@@ -66,7 +64,7 @@ describe("InputValueTable", () => {
             elementId: "id1",
             elementName: "name1",
             elementType: "type1",
-            inputs: [{ value: "defaultValue", isDefaultValue: true }],
+            inputs: [{ value: "defaultValue", isDefaultValue: true }]
           },
           {
             elementId: "id2",
@@ -79,11 +77,11 @@ describe("InputValueTable", () => {
                 innerHeight: 0,
                 innerWidth: 0,
                 outerHeight: 0,
-                outerWidth: 0,
-              },
+                outerWidth: 0
+              }
             },
-            inputs: [{ value: "", isDefaultValue: false }],
-          },
+            inputs: [{ value: "inputValue", isDefaultValue: false }]
+          }
         ]);
       });
 
@@ -98,7 +96,7 @@ describe("InputValueTable", () => {
                   id: "element1",
                   attributes: { id: "id1", name: "name1", type: "type1" },
                   defaultValue: "defaultValue",
-                  inputs: [],
+                  inputs: []
                 },
                 {
                   ...inputElementBase,
@@ -108,11 +106,11 @@ describe("InputValueTable", () => {
                   inputs: [
                     {
                       value: "inputValue",
-                      image: { imageFileUrl: "element2Image" },
-                    },
-                  ],
-                },
-              ],
+                      image: { imageFileUrl: "element2Image" }
+                    }
+                  ]
+                }
+              ]
             },
             {
               ...screenTransitionBase,
@@ -122,7 +120,7 @@ describe("InputValueTable", () => {
                   id: "element1",
                   attributes: { id: "id1", name: "name1", type: "type1" },
                   defaultValue: "defaultValue",
-                  inputs: [],
+                  inputs: []
                 },
                 {
                   ...inputElementBase,
@@ -131,12 +129,12 @@ describe("InputValueTable", () => {
                   defaultValue: "",
                   inputs: [
                     {
-                      value: "",
-                      image: { imageFileUrl: "element2Image" },
-                    },
-                  ],
-                },
-              ],
+                      value: "inputValue",
+                      image: { imageFileUrl: "element2Image" }
+                    }
+                  ]
+                }
+              ]
             },
             {
               ...screenTransitionBase,
@@ -146,7 +144,7 @@ describe("InputValueTable", () => {
                   id: "element1",
                   attributes: { id: "id1", name: "name1", type: "type1" },
                   defaultValue: "defaultValue",
-                  inputs: [],
+                  inputs: []
                 },
                 {
                   ...inputElementBase,
@@ -155,13 +153,13 @@ describe("InputValueTable", () => {
                   defaultValue: "",
                   inputs: [
                     {
-                      value: "",
-                      image: { imageFileUrl: "element2Image" },
-                    },
-                  ],
-                },
-              ],
-            },
+                      value: "inputValue",
+                      image: { imageFileUrl: "element2Image" }
+                    }
+                  ]
+                }
+              ]
+            }
           ];
 
           const rows = new InputValueTable(screenTransitions).rows;
@@ -174,8 +172,8 @@ describe("InputValueTable", () => {
               inputs: [
                 { value: "defaultValue", isDefaultValue: true },
                 { value: "defaultValue", isDefaultValue: true },
-                { value: "defaultValue", isDefaultValue: true },
-              ],
+                { value: "defaultValue", isDefaultValue: true }
+              ]
             },
             {
               elementId: "id2",
@@ -188,24 +186,24 @@ describe("InputValueTable", () => {
                   innerHeight: 0,
                   innerWidth: 0,
                   outerHeight: 0,
-                  outerWidth: 0,
-                },
+                  outerWidth: 0
+                }
               },
               inputs: [
                 {
-                  value: "",
-                  isDefaultValue: false,
+                  value: "inputValue",
+                  isDefaultValue: false
                 },
                 {
-                  value: "",
-                  isDefaultValue: false,
+                  value: "inputValue",
+                  isDefaultValue: false
                 },
                 {
-                  value: "",
-                  isDefaultValue: false,
-                },
-              ],
-            },
+                  value: "inputValue",
+                  isDefaultValue: false
+                }
+              ]
+            }
           ]);
         });
 
@@ -213,7 +211,7 @@ describe("InputValueTable", () => {
           const screenTransitions: ScreenTransition[] = [
             {
               ...screenTransitionBase,
-              inputElements: [],
+              inputElements: []
             },
             {
               ...screenTransitionBase,
@@ -223,9 +221,9 @@ describe("InputValueTable", () => {
                   id: "element1",
                   attributes: { id: "id1", name: "name1", type: "type1" },
                   defaultValue: "defaultValue",
-                  inputs: [],
-                },
-              ],
+                  inputs: []
+                }
+              ]
             },
             {
               ...screenTransitionBase,
@@ -238,12 +236,12 @@ describe("InputValueTable", () => {
                   inputs: [
                     {
                       value: "inputValue",
-                      image: { imageFileUrl: "element2Image" },
-                    },
-                  ],
-                },
-              ],
-            },
+                      image: { imageFileUrl: "element2Image" }
+                    }
+                  ]
+                }
+              ]
+            }
           ];
 
           const rows = new InputValueTable(screenTransitions).rows;
@@ -256,8 +254,8 @@ describe("InputValueTable", () => {
               inputs: [
                 { value: "", isDefaultValue: true },
                 { value: "defaultValue", isDefaultValue: true },
-                { value: "", isDefaultValue: true },
-              ],
+                { value: "", isDefaultValue: true }
+              ]
             },
             {
               elementId: "id2",
@@ -270,18 +268,18 @@ describe("InputValueTable", () => {
                   innerHeight: 0,
                   innerWidth: 0,
                   outerHeight: 0,
-                  outerWidth: 0,
-                },
+                  outerWidth: 0
+                }
               },
               inputs: [
                 { value: "", isDefaultValue: true },
                 { value: "", isDefaultValue: true },
                 {
-                  value: "",
-                  isDefaultValue: false,
-                },
-              ],
-            },
+                  value: "inputValue",
+                  isDefaultValue: false
+                }
+              ]
+            }
           ]);
         });
       });

@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,27 +17,27 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('auto-operation-register-dialog.title')"
+    :title="$t('auto-operation-register-dialog.title')"
+    :accept-button-disabled="okButtonIsDisabled"
     @accept="
       ok();
       close();
     "
     @cancel="close()"
-    :acceptButtonDisabled="okButtonIsDisabled"
   >
-    <template>
-      <div class="pre-wrap break-word">
-        {{ store.getters.message("auto-operation-register-dialog.message") }}
-      </div>
-      <v-text-field
-        v-model="settingName"
-        :label="store.getters.message('auto-operation-register-dialog.name')"
-      ></v-text-field>
-      <v-textarea
-        :label="store.getters.message('auto-operation-register-dialog.details')"
-        v-model="settingDetails"
-      ></v-textarea>
-    </template>
+    <div class="pre-wrap break-word">
+      {{ $t("auto-operation-register-dialog.message") }}
+    </div>
+    <v-text-field
+      v-model="settingName"
+      variant="underlined"
+      :label="$t('auto-operation-register-dialog.name')"
+    ></v-text-field>
+    <v-textarea
+      v-model="settingDetails"
+      variant="underlined"
+      :label="$t('auto-operation-register-dialog.details')"
+    ></v-textarea>
   </execute-dialog>
 </template>
 
@@ -45,24 +45,23 @@
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
+  components: {
+    "execute-dialog": ExecuteDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     targetOperations: {
       type: Array as PropType<OperationForGUI[]>,
       default: () => [],
-      required: true,
-    },
+      required: true
+    }
   },
-  components: {
-    "execute-dialog": ExecuteDialog,
-  },
+  emits: ["error", "ok", "close"],
   setup(props, context) {
-    const store = useStore();
-
     const settingName = ref("");
     const settingDetails = ref("");
     const invalidTypes = ref(["switch_window"]);
@@ -90,22 +89,22 @@ export default defineComponent({
         context.emit("error", invalidTypes.value);
         return;
       }
-      const sortedOperations = props.targetOperations
+      const sortedOperations = [...props.targetOperations]
         .sort((a, b) => a.sequence - b.sequence)
         .map((operation) => {
           return {
-            input: operation.input,
+            input: convertInput(operation),
             type: operation.type,
             elementInfo: operation.elementInfo,
             title: operation.title,
             url: operation.url,
-            timestamp: operation.timestamp,
+            timestamp: operation.timestamp
           };
         });
-      store.dispatch("operationHistory/registerAutoOperation", {
+      useOperationHistoryStore().registerAutoOperation({
         settingName: settingName.value,
         settingDetails: settingDetails.value,
-        operations: sortedOperations,
+        operations: sortedOperations
       });
 
       context.emit("ok");
@@ -115,17 +114,33 @@ export default defineComponent({
       context.emit("close");
     };
 
+    const convertInput = (operation: OperationForGUI): string => {
+      if (!operation.elementInfo) {
+        return "";
+      }
+
+      if (
+        operation.elementInfo.tagname.toLowerCase() === "input" &&
+        !!operation.elementInfo.attributes.type &&
+        (operation.elementInfo.attributes.type.toLowerCase() === "checkbox" ||
+          operation.elementInfo.attributes.type.toLowerCase() === "radio")
+      ) {
+        return operation.inputValue;
+      }
+
+      return operation.input;
+    };
+
     const { opened } = toRefs(props);
     watch(opened, initialize);
 
     return {
-      store,
       settingName,
       settingDetails,
       okButtonIsDisabled,
       ok,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

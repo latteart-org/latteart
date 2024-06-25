@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,50 +25,16 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { SettingsUtility } from "./gateways/settings/SettingsUtility";
 import { appRootPath, configFilePath, publicDirPath } from "./common";
-import { ConnectionOptions, createConnection } from "typeorm";
-import { NoteEntity } from "./entities/NoteEntity";
-import { TagEntity } from "./entities/TagEntity";
 import fs from "fs-extra";
 import path from "path";
 import { RegisterRoutes } from "./routes/routes";
-import { TestStepEntity } from "./entities/TestStepEntity";
-import { CoverageSourceEntity } from "./entities/CoverageSourceEntity";
-import { TestPurposeEntity } from "./entities/TestPurposeEntity";
-import { TestResultEntity } from "./entities/TestResultEntity";
-import { ScreenshotEntity } from "./entities/ScreenshotEntity";
-import { AttachedFileEntity } from "./entities/AttachedFilesEntity";
-import { ConfigEntity } from "./entities/ConfigEntity";
-import { ProjectEntity } from "./entities/ProjectEntity";
-import { SessionEntity } from "./entities/SessionEntity";
-import { SnapshotEntity } from "./entities/SnapshotEntity";
-import { StoryEntity } from "./entities/StoryEntity";
-import { TestMatrixEntity } from "./entities/TestMatrixEntity";
-import { TestTargetEntity } from "./entities/TestTargetEntity";
-import { TestTargetGroupEntity } from "./entities/TestTargetGroupEntity";
-import { ViewPointEntity } from "./entities/ViewPointEntity";
-import { ViewPointPresetEntity } from "./entities/ViewPointPresetEntity";
 import { ServerError } from "./ServerError";
 import { TransactionRunner } from "./TransactionRunner";
-import { Init1638930268191 } from "./migrations/1638930268191-Init";
-import { UpdateProjectEntity1641956149882 } from "./migrations/1641956149882-UpdateProjectEntity";
-import { UpdateAttachedFilesEntity1642388104855 } from "./migrations/1642388104855-UpdateAttachedFilesEntity";
-import { UpdateViewPointEntity1654749340817 } from "./migrations/1654749340817-UpdateViewPointEntity";
-import { UpdateViewPointEntity1655772848395 } from "./migrations/1655772848395-UpdateViewPointEntity";
-import { UpdateSessionEntity1656305325919 } from "./migrations/1656305325919-UpdateSessionEntity";
-import { TestProgressEntity } from "./entities/TestProgressEntity";
-import { AddTestProgressEntity1657768635961 } from "./migrations/1657768635961-AddTestProgressEntity";
-import { DeleteDefaultInputElementEntity1661223982605 } from "./migrations/1661223982605-DeleteDefaultInputElementEntity";
-import { UpdateTestStepEntity1666848612089 } from "./migrations/1666848612089-UpdateTestStepEntity";
-import { UpdateTestResultEntity1671087205573 } from "./migrations/1671087205573-UpdateTestResultEntity";
 import { createLogger } from "./logger/logger";
-import { UpdateTestStepEntity1677835465468 } from "./migrations/1677835465468-UpdateTestStepEntity";
-import { UpdateTestResultEntity1680078703857 } from "./migrations/1680078703857-UpdateTestResultEntity";
-import { UpdateTestResultEntity1689841542715 } from "./migrations/1689841542715-UpdateTestResultEntity";
-import { VideoEntity } from "./entities/VideoEntity";
-import { AddVideoEntity1693220246649 } from "./migrations/1693220246649-AddVideoEntity";
-import { LinkMultipleTestResultsToSession1694494561042 } from "./migrations/1694494561042-LinkMultipleTestResultsToSession";
+import { AppDataSource } from "./data-source";
+import { extensions } from "./extensions";
 
-export const transactionRunner = new TransactionRunner();
+export const transactionRunner = new TransactionRunner(AppDataSource);
 
 (async () => {
   SettingsUtility.loadFile(configFilePath);
@@ -86,64 +52,12 @@ export const transactionRunner = new TransactionRunner();
 });
 
 async function initializeOrmConnection() {
-  const baseOptions: ConnectionOptions = {
-    name: "default",
-    type: "sqlite",
-    database: "latteart.sqlite",
-    logging: false,
-  };
-
-  const options = {
-    ...baseOptions,
-    entities: [
-      CoverageSourceEntity,
-      NoteEntity,
-      ScreenshotEntity,
-      TagEntity,
-      TestPurposeEntity,
-      TestResultEntity,
-      TestStepEntity,
-      AttachedFileEntity,
-      ConfigEntity,
-      ProjectEntity,
-      SessionEntity,
-      SnapshotEntity,
-      StoryEntity,
-      TestMatrixEntity,
-      TestTargetEntity,
-      TestTargetGroupEntity,
-      ViewPointEntity,
-      ViewPointPresetEntity,
-      TestProgressEntity,
-      VideoEntity,
-    ],
-    migrations: [
-      Init1638930268191,
-      UpdateProjectEntity1641956149882,
-      UpdateAttachedFilesEntity1642388104855,
-      UpdateViewPointEntity1654749340817,
-      UpdateViewPointEntity1655772848395,
-      UpdateSessionEntity1656305325919,
-      AddTestProgressEntity1657768635961,
-      DeleteDefaultInputElementEntity1661223982605,
-      UpdateTestStepEntity1666848612089,
-      UpdateTestResultEntity1671087205573,
-      UpdateTestStepEntity1677835465468,
-      UpdateTestResultEntity1680078703857,
-      UpdateTestResultEntity1689841542715,
-      AddVideoEntity1693220246649,
-      LinkMultipleTestResultsToSession1694494561042,
-    ],
-  };
-
-  if (baseOptions.type === "sqlite") {
-    const databaseName = path.basename(baseOptions.database);
-    const databasePath = path.join(appRootPath, databaseName);
+  if (AppDataSource.options.type === "sqlite") {
+    const databasePath = AppDataSource.options.database;
+    const databaseName = path.basename(AppDataSource.options.database);
 
     const backupDatabaseName = `${databaseName}.bak`;
     const backupDatabasePath = path.join(appRootPath, backupDatabaseName);
-
-    options.database = databasePath;
 
     if (fs.existsSync(databasePath)) {
       createLogger().info(
@@ -154,16 +68,17 @@ async function initializeOrmConnection() {
     }
   }
 
-  const connection = await createConnection(options);
-  await connection.query("PRAGMA foreign_keys=OFF;");
-  await connection.runMigrations().catch(async (error) => {
+  await AppDataSource.initialize();
+
+  await AppDataSource.query("PRAGMA foreign_keys=OFF;");
+  await AppDataSource.runMigrations().catch(async (error) => {
     createLogger().error(error);
 
-    await connection.close();
+    await AppDataSource.destroy();
 
     throw new Error(`Migration failed.`);
   });
-  await connection.query("PRAGMA foreign_keys=ON;");
+  await AppDataSource.query("PRAGMA foreign_keys=ON;");
 }
 
 function runServer(port: number, timeout?: number) {
@@ -188,9 +103,10 @@ function runServer(port: number, timeout?: number) {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json({ limit: "100mb" }));
 
-  // app.use("/api/v1", BaseRouter);
-
   RegisterRoutes(app);
+  for (const extension of extensions) {
+    extension.registerRoutes(app);
+  }
 
   const logger = createLogger();
 

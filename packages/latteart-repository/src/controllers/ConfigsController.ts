@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import {
 } from "tsoa";
 import { ConfigsService } from "../services/ConfigsService";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("projects/{projectId}/configs")
 @Tags("projects")
@@ -48,7 +49,9 @@ export class ConfigsController {
     @Path() projectId: string
   ): Promise<GetConfigResponse> {
     try {
-      return await new ConfigsService().getProjectConfig(projectId);
+      return await new ConfigsService(AppDataSource).getProjectConfig(
+        projectId
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Get settings failed.", error);
@@ -78,7 +81,10 @@ export class ConfigsController {
     @Body() requestBody: PutConfigDto
   ): Promise<PutConfigResponse> {
     try {
-      return await new ConfigsService().updateConfig(projectId, requestBody);
+      return await new ConfigsService(AppDataSource).updateConfig(
+        projectId,
+        requestBody
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Save settings failed.", error);

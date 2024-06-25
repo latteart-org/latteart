@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
 export class ExportConfigAction {
   constructor(
-    private repositoryService: Pick<
-      RepositoryService,
-      "settingRepository" | "projectRepository"
-    >
+    private repositoryService: Pick<RepositoryService, "settingRepository" | "projectRepository">
   ) {}
 
   public async exportSettings(): Promise<ActionResult<{ url: string }>> {
-    const result =
-      await this.repositoryService.settingRepository.exportSettings();
+    const result = await this.repositoryService.settingRepository.exportSettings();
 
     if (result.isFailure()) {
       return new ActionFailure({ messageKey: "" });

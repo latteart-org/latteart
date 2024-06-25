@@ -8,10 +8,12 @@ import path from "path";
 import os from "os";
 import { ImportFileRepositoryImpl } from "@/gateways/importFileRepository";
 import { TimestampService } from "@/services/TimestampService";
-import { getRepository } from "typeorm";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestStepEntity } from "@/entities/TestStepEntity";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { NoteEntity } from "@/entities/NoteEntity";
 import { TagEntity } from "@/entities/TagEntity";
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
@@ -29,7 +31,7 @@ const packageRootDirPath = path.join(__dirname, "..", "..");
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -73,7 +75,7 @@ describe("TestResultImportService", () => {
 
       const importFileRepository = new ImportFileRepositoryImpl();
 
-      const service = new TestResultImportServiceImpl({
+      const service = new TestResultImportServiceImpl(TestDataSource, {
         screenshotFileRepository,
         videoFileRepository,
         importFileRepository,
@@ -160,7 +162,9 @@ describe("TestResultImportService", () => {
         null
       );
 
-      const testResultEntities = await getRepository(TestResultEntity).find({
+      const testResultEntities = await TestDataSource.getRepository(
+        TestResultEntity
+      ).find({
         relations: [
           "testSteps",
           "testSteps.notes",
@@ -282,14 +286,24 @@ describe("TestResultImportService", () => {
 
       // 各テーブルのレコード数の確認
       expect(testResultEntities.length).toEqual(1);
-      expect((await getRepository(TestStepEntity).find()).length).toEqual(1);
-      expect((await getRepository(NoteEntity).find()).length).toEqual(1);
-      expect((await getRepository(TestPurposeEntity).find()).length).toEqual(1);
-      expect((await getRepository(TagEntity).find()).length).toEqual(1);
-      expect((await getRepository(ScreenshotEntity).find()).length).toEqual(2);
-      expect((await getRepository(CoverageSourceEntity).find()).length).toEqual(
-        1
-      );
+      expect(
+        (await TestDataSource.getRepository(TestStepEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(NoteEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TestPurposeEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TagEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(ScreenshotEntity).find()).length
+      ).toEqual(2);
+      expect(
+        (await TestDataSource.getRepository(CoverageSourceEntity).find()).length
+      ).toEqual(1);
     });
 
     it("バージョン1のインポートデータをDBに保存する", async () => {
@@ -317,7 +331,7 @@ describe("TestResultImportService", () => {
 
       const importFileRepository = new ImportFileRepositoryImpl();
 
-      const service = new TestResultImportServiceImpl({
+      const service = new TestResultImportServiceImpl(TestDataSource, {
         screenshotFileRepository,
         videoFileRepository,
         importFileRepository,
@@ -403,7 +417,9 @@ describe("TestResultImportService", () => {
         null
       );
 
-      const testResultEntities = await getRepository(TestResultEntity).find({
+      const testResultEntities = await TestDataSource.getRepository(
+        TestResultEntity
+      ).find({
         relations: [
           "testSteps",
           "testSteps.notes",
@@ -527,14 +543,24 @@ describe("TestResultImportService", () => {
 
       // 各テーブルのレコード数の確認
       expect(testResultEntities.length).toEqual(1);
-      expect((await getRepository(TestStepEntity).find()).length).toEqual(1);
-      expect((await getRepository(NoteEntity).find()).length).toEqual(1);
-      expect((await getRepository(TestPurposeEntity).find()).length).toEqual(1);
-      expect((await getRepository(TagEntity).find()).length).toEqual(1);
-      expect((await getRepository(ScreenshotEntity).find()).length).toEqual(2);
-      expect((await getRepository(CoverageSourceEntity).find()).length).toEqual(
-        1
-      );
+      expect(
+        (await TestDataSource.getRepository(TestStepEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(NoteEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TestPurposeEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TagEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(ScreenshotEntity).find()).length
+      ).toEqual(2);
+      expect(
+        (await TestDataSource.getRepository(CoverageSourceEntity).find()).length
+      ).toEqual(1);
     });
 
     it("バージョン2のインポートデータをDBに保存する", async () => {
@@ -561,7 +587,7 @@ describe("TestResultImportService", () => {
 
       const importFileRepository = new ImportFileRepositoryImpl();
 
-      const service = new TestResultImportServiceImpl({
+      const service = new TestResultImportServiceImpl(TestDataSource, {
         screenshotFileRepository,
         videoFileRepository,
         importFileRepository,
@@ -650,7 +676,9 @@ describe("TestResultImportService", () => {
         null
       );
 
-      const testResultEntities = await getRepository(TestResultEntity).find({
+      const testResultEntities = await TestDataSource.getRepository(
+        TestResultEntity
+      ).find({
         relations: [
           "testSteps",
           "testSteps.notes",
@@ -782,14 +810,24 @@ describe("TestResultImportService", () => {
 
       // 各テーブルのレコード数の確認
       expect(testResultEntities.length).toEqual(1);
-      expect((await getRepository(TestStepEntity).find()).length).toEqual(1);
-      expect((await getRepository(NoteEntity).find()).length).toEqual(1);
-      expect((await getRepository(TestPurposeEntity).find()).length).toEqual(1);
-      expect((await getRepository(TagEntity).find()).length).toEqual(1);
-      expect((await getRepository(ScreenshotEntity).find()).length).toEqual(2);
-      expect((await getRepository(CoverageSourceEntity).find()).length).toEqual(
-        1
-      );
+      expect(
+        (await TestDataSource.getRepository(TestStepEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(NoteEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TestPurposeEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TagEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(ScreenshotEntity).find()).length
+      ).toEqual(2);
+      expect(
+        (await TestDataSource.getRepository(CoverageSourceEntity).find()).length
+      ).toEqual(1);
     });
 
     it("バージョン3のインポートデータをDBに保存する(mediaTypeがimageの場合)", async () => {
@@ -816,7 +854,7 @@ describe("TestResultImportService", () => {
 
       const importFileRepository = new ImportFileRepositoryImpl();
 
-      const service = new TestResultImportServiceImpl({
+      const service = new TestResultImportServiceImpl(TestDataSource, {
         screenshotFileRepository,
         videoFileRepository,
         importFileRepository,
@@ -906,7 +944,9 @@ describe("TestResultImportService", () => {
         null
       );
 
-      const testResultEntities = await getRepository(TestResultEntity).find({
+      const testResultEntities = await TestDataSource.getRepository(
+        TestResultEntity
+      ).find({
         relations: [
           "testSteps",
           "testSteps.notes",
@@ -1040,14 +1080,24 @@ describe("TestResultImportService", () => {
 
       // 各テーブルのレコード数の確認
       expect(testResultEntities.length).toEqual(1);
-      expect((await getRepository(TestStepEntity).find()).length).toEqual(1);
-      expect((await getRepository(NoteEntity).find()).length).toEqual(1);
-      expect((await getRepository(TestPurposeEntity).find()).length).toEqual(1);
-      expect((await getRepository(TagEntity).find()).length).toEqual(1);
-      expect((await getRepository(ScreenshotEntity).find()).length).toEqual(2);
-      expect((await getRepository(CoverageSourceEntity).find()).length).toEqual(
-        1
-      );
+      expect(
+        (await TestDataSource.getRepository(TestStepEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(NoteEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TestPurposeEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TagEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(ScreenshotEntity).find()).length
+      ).toEqual(2);
+      expect(
+        (await TestDataSource.getRepository(CoverageSourceEntity).find()).length
+      ).toEqual(1);
     });
 
     it("バージョン3のインポートデータをDBに保存する(mediaTypeがvideoの場合)", async () => {
@@ -1074,7 +1124,7 @@ describe("TestResultImportService", () => {
 
       const importFileRepository = new ImportFileRepositoryImpl();
 
-      const service = new TestResultImportServiceImpl({
+      const service = new TestResultImportServiceImpl(TestDataSource, {
         importFileRepository,
         screenshotFileRepository,
         videoFileRepository,
@@ -1175,7 +1225,9 @@ describe("TestResultImportService", () => {
         null
       );
 
-      const testResultEntities = await getRepository(TestResultEntity).find({
+      const testResultEntities = await TestDataSource.getRepository(
+        TestResultEntity
+      ).find({
         relations: [
           "testSteps",
           "testSteps.notes",
@@ -1284,7 +1336,8 @@ describe("TestResultImportService", () => {
       );
 
       // Videosの確認
-      const videoEntities = await getRepository(VideoEntity).find();
+      const videoEntities =
+        await TestDataSource.getRepository(VideoEntity).find();
       const videoEntity = videoEntities[0];
       expect(videoEntity.fileUrl).toEqual(
         videoFileRepository.getFileUrl(`${videoEntity.id}.webm`)
@@ -1320,14 +1373,24 @@ describe("TestResultImportService", () => {
 
       // 各テーブルのレコード数の確認
       expect(testResultEntities.length).toEqual(1);
-      expect((await getRepository(TestStepEntity).find()).length).toEqual(1);
-      expect((await getRepository(NoteEntity).find()).length).toEqual(1);
-      expect((await getRepository(TestPurposeEntity).find()).length).toEqual(1);
-      expect((await getRepository(TagEntity).find()).length).toEqual(1);
-      expect((await getRepository(ScreenshotEntity).find()).length).toEqual(0);
-      expect((await getRepository(CoverageSourceEntity).find()).length).toEqual(
-        1
-      );
+      expect(
+        (await TestDataSource.getRepository(TestStepEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(NoteEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TestPurposeEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(TagEntity).find()).length
+      ).toEqual(1);
+      expect(
+        (await TestDataSource.getRepository(ScreenshotEntity).find()).length
+      ).toEqual(0);
+      expect(
+        (await TestDataSource.getRepository(CoverageSourceEntity).find()).length
+      ).toEqual(1);
       expect(videoEntities.length).toEqual(1);
     });
   });

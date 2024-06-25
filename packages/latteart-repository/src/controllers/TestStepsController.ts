@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import {
 } from "../interfaces/TestSteps";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("test-results/{testResultId}/test-steps")
 @Tags("test-results")
@@ -66,10 +67,10 @@ export class TestStepsController extends Controller {
       fileRepositoryManager.getRepository("screenshot");
 
     try {
-      return await new TestStepServiceImpl({
+      return await new TestStepServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: new TimestampServiceImpl(),
-        config: new ConfigsService(),
+        config: new ConfigsService(AppDataSource),
       }).createTestStep(testResultId, requestBody);
     } catch (error) {
       if (error instanceof Error) {
@@ -104,10 +105,10 @@ export class TestStepsController extends Controller {
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
 
-    const testStepService = new TestStepServiceImpl({
+    const testStepService = new TestStepServiceImpl(AppDataSource, {
       screenshotFileRepository,
       timestamp: new TimestampServiceImpl(),
-      config: new ConfigsService(),
+      config: new ConfigsService(AppDataSource),
     });
 
     try {
@@ -148,10 +149,10 @@ export class TestStepsController extends Controller {
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
 
-    const testStepService = new TestStepServiceImpl({
+    const testStepService = new TestStepServiceImpl(AppDataSource, {
       screenshotFileRepository,
       timestamp: new TimestampServiceImpl(),
-      config: new ConfigsService(),
+      config: new ConfigsService(AppDataSource),
     });
 
     try {

@@ -1,50 +1,66 @@
 import { assertPageStateEqual } from "@/domain/pageTesting";
 
 describe("assertPageStateEqual", () => {
-  describe("指定のアサーションを用いて画面の各項目について一致判定を行う", () => {
-    it("全ての項目が一致する場合は一致した旨を結果として返す", async () => {
-      const ss1 = {
-        read: async () => {
-          return {
-            width: 1,
-            height: 1,
-            data: Buffer.from([0, 0, 0, 255]),
-          };
-        },
-      };
-      const ss2 = {
-        read: async () => {
-          return {
-            width: 1,
-            height: 1,
-            data: Buffer.from([0, 0, 0, 255]),
-          };
-        },
-      };
+  describe("指定の画面状態の各項目について一致判定を行う", () => {
+    describe("全ての項目が一致する場合は一致した旨を結果として返す", () => {
+      it("actual側とexpected側の画面状態が両方指定されている場合", async () => {
+        const ss1 = {
+          read: async () => {
+            return {
+              width: 1,
+              height: 1,
+              data: Buffer.from([0, 0, 0, 255]),
+            };
+          },
+        };
+        const ss2 = {
+          read: async () => {
+            return {
+              width: 1,
+              height: 1,
+              data: Buffer.from([0, 0, 0, 255]),
+            };
+          },
+        };
 
-      const result = await assertPageStateEqual({
-        actual: {
-          title: "title",
-          url: "url",
-          elementTexts: [],
-          screenshot: ss1,
-        },
-        expected: {
-          title: "title",
-          url: "url",
-          elementTexts: [],
-          screenshot: ss2,
-        },
+        const result = await assertPageStateEqual({
+          actual: {
+            title: "title",
+            url: "url",
+            elementTexts: [],
+            screenshot: ss1,
+          },
+          expected: {
+            title: "title",
+            url: "url",
+            elementTexts: [],
+            screenshot: ss2,
+          },
+        });
+
+        expect(result).toEqual({
+          isOk: true,
+          items: {
+            title: { isOk: true, actual: "title", expected: "title" },
+            url: { isOk: true, actual: "url", expected: "url" },
+            elementTexts: { isOk: true, actual: [], expected: [] },
+            screenshot: { isOk: true, actual: ss1, expected: ss2 },
+          },
+        });
       });
 
-      expect(result).toEqual({
-        isOk: true,
-        items: {
-          title: { isOk: true, actual: "title", expected: "title" },
-          url: { isOk: true, actual: "url", expected: "url" },
-          elementTexts: { isOk: true, actual: [], expected: [] },
-          screenshot: { isOk: true, actual: ss1, expected: ss2 },
-        },
+      it("actual側とexpected側の画面状態が両方指定されていない場合", async () => {
+        const result = await assertPageStateEqual({});
+
+        expect(result).toEqual({
+          isOk: true,
+          items: {
+            title: { isOk: true },
+            url: { isOk: true },
+            elementTexts: { isOk: true },
+            screenshot: { isOk: true },
+          },
+        });
       });
     });
 
@@ -200,6 +216,68 @@ describe("assertPageStateEqual", () => {
               },
             },
           });
+        });
+      });
+
+      it("actual側の画面状態が指定されていない場合", async () => {
+        const ss = {
+          read: async () => {
+            return {
+              width: 1,
+              height: 1,
+              data: Buffer.from([0, 0, 0, 255]),
+            };
+          },
+        };
+
+        const result = await assertPageStateEqual({
+          expected: {
+            title: "title",
+            url: "url",
+            elementTexts: [],
+            screenshot: ss,
+          },
+        });
+
+        expect(result).toEqual({
+          isOk: false,
+          items: {
+            title: { isOk: false, expected: "title" },
+            url: { isOk: false, expected: "url" },
+            elementTexts: { isOk: false, expected: [] },
+            screenshot: { isOk: false, expected: ss },
+          },
+        });
+      });
+
+      it("expected側の画面状態が指定されていない場合", async () => {
+        const ss = {
+          read: async () => {
+            return {
+              width: 1,
+              height: 1,
+              data: Buffer.from([0, 0, 0, 255]),
+            };
+          },
+        };
+
+        const result = await assertPageStateEqual({
+          actual: {
+            title: "title",
+            url: "url",
+            elementTexts: [],
+            screenshot: ss,
+          },
+        });
+
+        expect(result).toEqual({
+          isOk: false,
+          items: {
+            title: { isOk: false, actual: "title" },
+            url: { isOk: false, actual: "url" },
+            elementTexts: { isOk: false, actual: [] },
+            screenshot: { isOk: false, actual: ss },
+          },
         });
       });
     });

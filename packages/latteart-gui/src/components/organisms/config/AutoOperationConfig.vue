@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,17 +18,17 @@
   <v-container class="mt-0 pt-0">
     <v-row>
       <v-col cols="12" class="py-0 my-0">
-        <p v-if="conditionGroups < 1">
-          {{ store.getters.message("config-page.no-data") }}
+        <p v-if="conditionGroups.length < 1">
+          {{ $t("config-page.no-data") }}
         </p>
         <auto-operation-container
           v-for="(group, index) in conditionGroups"
           :key="index"
-          :conditionGroup="group"
+          :condition-group="group"
           :index="index"
+          class="mt-4"
           @update-condition-group="updateConditionGroup"
           @delete-condition-group="deleteConditionGroup"
-          class="mt-4"
         ></auto-operation-container>
       </v-col>
     </v-row>
@@ -37,31 +37,28 @@
 
 <script lang="ts">
 import {
-  AutoOperationSetting as AutoOperationSettingConfig,
-  AutoOperationConditionGroup,
+  type AutoOperationSetting as AutoOperationSettingConfig,
+  type AutoOperationConditionGroup
 } from "@/lib/operationHistory/types";
 import AutoOperationContainer from "./AutoOperationContainer.vue";
-import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "auto-operation-container": AutoOperationContainer
+  },
   props: {
     opened: { type: Boolean, required: true },
     autoOperationSetting: {
       type: Object as PropType<AutoOperationSettingConfig>,
       default: null,
-      required: true,
-    },
+      required: true
+    }
   },
-  components: {
-    "auto-operation-container": AutoOperationContainer,
-  },
+  emits: ["save-config"],
   setup(props, context) {
-    const store = useStore();
-
     const tempConfig = ref<AutoOperationSettingConfig>({
-      ...props.autoOperationSetting,
+      ...props.autoOperationSetting
     });
 
     const updateTempConfig = (): void => {
@@ -89,7 +86,7 @@ export default defineComponent({
         if (index === i) {
           return {
             ...group,
-            ...conditionGroup,
+            ...conditionGroup
           };
         }
         return group;
@@ -99,9 +96,7 @@ export default defineComponent({
 
     const deleteConditionGroup = (index: number) => {
       const config = { ...tempConfig.value };
-      config.conditionGroups = config.conditionGroups.filter(
-        (c, i) => index !== i
-      );
+      config.conditionGroups = config.conditionGroups.filter((c, i) => index !== i);
       tempConfig.value = config;
     };
 
@@ -110,11 +105,10 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      store,
       conditionGroups,
       updateConditionGroup,
-      deleteConditionGroup,
+      deleteConditionGroup
     };
-  },
+  }
 });
 </script>

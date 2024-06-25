@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ElementInfo, VideoFrame } from "latteart-client";
+import { type ElementInfo, type VideoFrame } from "latteart-client";
 
 export type InputValueTableHeaderColumn = {
   index: number;
@@ -42,11 +42,7 @@ export type InputValueTableRow = {
     image: { imageFileUrl?: string; videoFrame?: VideoFrame };
     elementInfo: Pick<
       ElementInfo,
-      | "boundingRect"
-      | "innerHeight"
-      | "innerWidth"
-      | "outerHeight"
-      | "outerWidth"
+      "boundingRect" | "innerHeight" | "innerWidth" | "outerHeight" | "outerWidth"
     >;
   };
   inputs: { value: string; isDefaultValue: boolean }[];
@@ -126,7 +122,10 @@ export type ScreenTransition = {
  * Class that handles input value table.
  */
 export default class InputValueTable {
-  constructor(private screenTransitions: ScreenTransition[] = []) {}
+  constructor(
+    private screenTransitions: ScreenTransition[] = [],
+    private radioGroups: { name: string; checkedRadioButtonXPath: string }[] = []
+  ) {}
 
   /**
    * Get column size.
@@ -146,10 +145,10 @@ export default class InputValueTable {
         targetScreenDef: transition.destScreen?.name ?? "",
         trigger: {
           elementText: transition.trigger?.target?.text ?? "",
-          eventType: transition.trigger?.type ?? "",
+          eventType: transition.trigger?.type ?? ""
         },
         notes: transition.notes,
-        testPurposes: transition.testPurposes,
+        testPurposes: transition.testPurposes
       };
     });
   }
@@ -166,24 +165,32 @@ export default class InputValueTable {
 
     return elements.map((element) => {
       const attributes = element.attributes;
+      const isRadioBtn =
+        element.attributes.type && element.attributes.type.toLowerCase() === "radio";
+      const isCheckedRadioBtn = this.getCheckedRadio(element.xpath, element.attributes.name);
 
       const inputs = this.screenTransitions.map((screenTransition) => {
-        const inputElement = screenTransition.inputElements.find(
-          ({ id }) => id === element.id
-        );
+        const inputElement = screenTransition.inputElements.find(({ id }) => id === element.id);
         const input = inputElement?.inputs.at(-1);
+
+        if (isRadioBtn && isCheckedRadioBtn !== undefined && !isCheckedRadioBtn) {
+          return {
+            value: "off",
+            isDefaultValue: input === undefined
+          };
+        }
 
         if (input === undefined) {
           return {
             value: inputElement?.defaultValue ?? "",
-            isDefaultValue: true,
+            isDefaultValue: true
           };
         }
 
         return {
-          value: inputElement?.defaultValue ?? input.value,
+          value: input.value ?? inputElement?.defaultValue,
           image: input.image,
-          isDefaultValue: false,
+          isDefaultValue: false
         };
       });
 
@@ -201,13 +208,13 @@ export default class InputValueTable {
                 innerHeight: element.innerHeight,
                 innerWidth: element.innerWidth,
                 outerHeight: element.outerHeight,
-                outerWidth: element.outerWidth,
-              },
+                outerWidth: element.outerWidth
+              }
             }
           : undefined,
         inputs: inputs.map(({ value, isDefaultValue }) => {
           return { value, isDefaultValue };
-        }),
+        })
       };
     });
   }
@@ -218,5 +225,13 @@ export default class InputValueTable {
    */
   public getScreenTransitions(): ScreenTransition[] {
     return this.screenTransitions;
+  }
+
+  private getCheckedRadio(xpath: string, name: string) {
+    const target = this.radioGroups.find((item) => item.name === name);
+    if (target) {
+      return target.checkedRadioButtonXPath === xpath;
+    }
+    return undefined;
   }
 }

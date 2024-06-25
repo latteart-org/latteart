@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,62 +16,62 @@
 
 <template>
   <scrollable-dialog :opened="opened">
-    <template v-slot:title>
-      <v-icon v-if="!!iconText" class="mr-2" large :color="iconColor">{{
-        iconText
-      }}</v-icon>
+    <template #title>
+      <v-icon v-if="!!iconText" class="mr-2" size="large" :color="iconColor">{{ iconText }}</v-icon>
       <span>{{ title }}</span>
     </template>
-    <template v-slot:content>
+    <template #content>
       <span class="pre-wrap break-word">{{ message }}</span>
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <v-spacer></v-spacer>
-      <v-btn color="blue" dark @click="close()">{{
-        $store.getters.message("common.ok")
-      }}</v-btn>
+      <v-btn variant="elevated" color="blue" @click="close()">{{ $t("common.ok") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
+import { defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
-@Component({
+export default defineComponent({
   components: {
-    "scrollable-dialog": ScrollableDialog,
+    "scrollable-dialog": ScrollableDialog
   },
-})
-export default class AlertDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: String, default: "" }) public readonly title!: string;
-  @Prop({ type: String, default: "" }) public readonly message!: string;
-  @Prop({ type: Object, default: null }) public readonly iconOpts!: {
-    text: string;
-    color?: string;
-  } | null;
-
-  private iconText = "";
-  private iconColor = "";
-
-  @Watch("opened")
-  private initialize() {
-    if (!this.opened) {
-      return;
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    title: { type: String, default: "", required: true },
+    message: { type: String, default: "", required: true },
+    iconOpts: {
+      type: Object as PropType<{ text: string; color?: string } | null>
     }
+  },
+  setup(props, context) {
+    const iconText = ref("");
+    const iconColor = ref("");
 
-    if (this.iconOpts) {
-      this.iconText = this.iconOpts.text;
-      this.iconColor = this.iconOpts.color ?? "";
-    } else {
-      this.iconText = "";
-      this.iconColor = "";
-    }
-  }
+    const initialize = () => {
+      if (!props.opened) {
+        return;
+      }
 
-  private close(): void {
-    this.$emit("close");
+      if (props.iconOpts) {
+        iconText.value = props.iconOpts.text;
+        iconColor.value = props.iconOpts.color ?? "";
+      } else {
+        iconText.value = "";
+        iconColor.value = "";
+      }
+    };
+
+    const close = (): void => {
+      context.emit("close");
+    };
+
+    const { opened } = toRefs(props);
+    watch(opened, initialize);
+
+    return { iconText, iconColor, close };
   }
-}
+});
 </script>

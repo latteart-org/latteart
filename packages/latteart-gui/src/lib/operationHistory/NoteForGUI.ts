@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { VideoFrame } from "latteart-client";
+import { type VideoFrame } from "latteart-client";
 import { TimestampImpl } from "../common/Timestamp";
 
 /**
@@ -52,13 +52,11 @@ export class NoteForGUI {
       sequence: args.overrideParams?.sequence ?? args.other.sequence,
       value: args.overrideParams?.value ?? args.other.value,
       details: args.overrideParams?.details ?? args.other.details,
-      imageFilePath:
-        args.overrideParams?.imageFilePath ?? args.other.imageFilePath,
+      imageFilePath: args.overrideParams?.imageFilePath ?? args.other.imageFilePath,
       compressedImageFilePath:
-        args.overrideParams?.compressedImageFilePath ??
-        args.other.compressedImageFilePath,
+        args.overrideParams?.compressedImageFilePath ?? args.other.compressedImageFilePath,
       tags: args.overrideParams?.tags ?? args.other.tags,
-      videoFrame: args.overrideParams?.videoFrame ?? args.other.videoFrame,
+      videoFrame: args.overrideParams?.videoFrame ?? args.other.videoFrame
     });
   }
 

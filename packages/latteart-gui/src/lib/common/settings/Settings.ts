@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-import {
-  SettingsForRepository,
-  SnapshotConfigForRepository,
-} from "latteart-client";
+import { type SettingsForRepository, type SnapshotConfigForRepository } from "latteart-client";
 
 export type ProjectSettings = SettingsForRepository;
 
-export type ScreenDefinitionSetting =
-  ProjectSettings["config"]["screenDefinition"];
+export type ScreenDefinitionSetting = ProjectSettings["config"]["screenDefinition"];
 
 export type CoverageSetting = ProjectSettings["config"]["coverage"];
 
-export type CaptureMediaSetting =
-  ProjectSettings["config"]["captureMediaSetting"];
+export type CaptureMediaSetting = ProjectSettings["config"]["captureMediaSetting"];
 
 export type DeviceSettings = {
   platformName: "PC" | "Android" | "iOS";
@@ -50,8 +45,6 @@ export type ViewSettings = {
 
 export type SnapshotConfig = SnapshotConfigForRepository;
 
-export type TestResultComparisonSetting =
-  ProjectSettings["config"]["testResultComparison"];
+export type TestResultComparisonSetting = ProjectSettings["config"]["testResultComparison"];
 
-export type ExperimentalFeatureSetting =
-  ProjectSettings["config"]["experimentalFeatureSetting"];
+export type ExperimentalFeatureSetting = ProjectSettings["config"]["experimentalFeatureSetting"];

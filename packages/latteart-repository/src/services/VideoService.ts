@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
-import { getRepository } from "typeorm";
 import path from "path";
 import { VideoEntity } from "@/entities/VideoEntity";
 import { Video } from "@/interfaces/Videos";
 import { FileRepository } from "@/interfaces/fileRepository";
+import { DataSource } from "typeorm";
 
 export class VideoService {
   constructor(
+    private dataSource: DataSource,
     private service: {
       videoFileRepository: FileRepository;
     }
@@ -32,7 +33,7 @@ export class VideoService {
     width: number;
     height: number;
   }): Promise<Video> {
-    const videoRepository = getRepository(VideoEntity);
+    const videoRepository = this.dataSource.getRepository(VideoEntity);
 
     const videoEntity = await videoRepository.save(new VideoEntity());
     videoEntity.fileUrl = this.service.videoFileRepository.getFileUrl(
@@ -54,7 +55,11 @@ export class VideoService {
   public async append(videoId: string, base64: string): Promise<string> {
     const buf = Uint8Array.from(Buffer.from(base64, "base64"));
 
-    const video = await getRepository(VideoEntity).findOneOrFail(videoId);
+    const video = await this.dataSource
+      .getRepository(VideoEntity)
+      .findOneByOrFail({
+        id: videoId,
+      });
     const videoUrl = path.basename(video.fileUrl);
 
     const fileRepositoryManager = await createFileRepositoryManager();

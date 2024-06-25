@@ -1,5 +1,7 @@
-import { getRepository } from "typeorm";
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { SessionEntity } from "@/entities/SessionEntity";
 import { SessionsService } from "@/services/SessionsService";
 import { StoryEntity } from "@/entities/StoryEntity";
@@ -7,11 +9,12 @@ import { TimestampService } from "@/services/TimestampService";
 import { TestTargetEntity } from "@/entities/TestTargetEntity";
 import { ProjectEntity } from "@/entities/ProjectEntity";
 import { FileRepository } from "@/interfaces/fileRepository";
+import { TransactionRunner } from "@/TransactionRunner";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -25,7 +28,7 @@ describe("SessionService", () => {
         const projectId = (await saveTestProject()).projectId;
         const storyId = (await saveTestStory()).storyId;
 
-        const result = await new SessionsService().postSession(
+        const result = await new SessionsService(TestDataSource).postSession(
           projectId,
           storyId
         );
@@ -49,7 +52,10 @@ describe("SessionService", () => {
       it("指定のIDのストーリーが見つからない場合はエラーをスローする", async () => {
         try {
           const projectId = (await saveTestProject()).projectId;
-          await new SessionsService().postSession(projectId, "AAA");
+          await new SessionsService(TestDataSource).postSession(
+            projectId,
+            "AAA"
+          );
         } catch (error) {
           expect((error as Error).message).toEqual(`Story not found. AAA`);
         }
@@ -73,13 +79,12 @@ describe("SessionService", () => {
         async (params) => {
           const projectId = (await saveTestProject()).projectId;
           const storyId = (await saveTestStory()).storyId;
-          const savedSession = await new SessionsService().postSession(
-            projectId,
-            storyId
-          );
+          const savedSession = await new SessionsService(
+            TestDataSource
+          ).postSession(projectId, storyId);
           const sessionId = savedSession.id;
 
-          const result = await new SessionsService().patchSession(
+          const result = await new SessionsService(TestDataSource).patchSession(
             projectId,
             sessionId,
             params,
@@ -106,7 +111,7 @@ describe("SessionService", () => {
           const projectId = (await saveTestProject()).projectId;
           const sessionId = "AAA";
 
-          await new SessionsService().patchSession(
+          await new SessionsService(TestDataSource).patchSession(
             projectId,
             sessionId,
             {},
@@ -125,19 +130,22 @@ describe("SessionService", () => {
         const projectId = (await saveTestProject()).projectId;
         const storyId = (await saveTestStory()).storyId;
 
-        const session1 = await new SessionsService().postSession(
+        const session1 = await new SessionsService(TestDataSource).postSession(
           projectId,
           storyId
         );
 
-        const session2 = await new SessionsService().postSession(
+        const session2 = await new SessionsService(TestDataSource).postSession(
           projectId,
           storyId
         );
 
-        await new SessionsService().deleteSession(projectId, session1.id);
+        await new SessionsService(TestDataSource).deleteSession(
+          projectId,
+          session1.id
+        );
 
-        const result = await getRepository(SessionEntity).find();
+        const result = await TestDataSource.getRepository(SessionEntity).find();
 
         expect((result ?? []).length).toEqual(1);
 
@@ -152,23 +160,24 @@ async function saveTestStory() {
   testTarget.index = 0;
   testTarget.name = "";
   testTarget.text = JSON.stringify([]);
-  const savedTestTarget = await getRepository(TestTargetEntity).save(
-    testTarget
-  );
+  const savedTestTarget =
+    await TestDataSource.getRepository(TestTargetEntity).save(testTarget);
 
   const story = new StoryEntity();
   story.index = 0;
   story.status = "ok";
   story.planedSessionNumber = 0;
   story.testTarget = savedTestTarget;
-  const savedStory = await getRepository(StoryEntity).save(story);
+  const savedStory =
+    await TestDataSource.getRepository(StoryEntity).save(story);
 
   return { storyId: savedStory.id };
 }
 
 async function saveTestProject() {
   const project = new ProjectEntity("1");
-  const savedProject = await getRepository(ProjectEntity).save(project);
+  const savedProject =
+    await TestDataSource.getRepository(ProjectEntity).save(project);
 
   return { projectId: savedProject.id };
 }
@@ -195,5 +204,6 @@ function createServiceMock(params: { doneDate: string }) {
   return {
     timestampService,
     attachedFileRepository,
+    transactionRunner: new TransactionRunner(TestDataSource),
   };
 }

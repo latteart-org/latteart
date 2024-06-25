@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import {
 import { NotesServiceImpl } from "../services/NotesService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("test-results/{testResultId}/notes")
 @Tags("test-results")
@@ -77,12 +78,12 @@ export class NotesController extends Controller {
 
     try {
       if (requestBody.type === "notice") {
-        return new NotesServiceImpl({
+        return new NotesServiceImpl(AppDataSource, {
           screenshotFileRepository,
           timestamp: timestampService,
         }).createNote(testResultId, requestBody);
       } else {
-        return new TestPurposeServiceImpl().createTestPurpose(
+        return new TestPurposeServiceImpl(AppDataSource).createTestPurpose(
           testResultId,
           requestBody
         );
@@ -123,7 +124,7 @@ export class NotesController extends Controller {
     const logger = createLogger();
 
     try {
-      const note = await new NotesServiceImpl({
+      const note = await new NotesServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
       }).getNote(noteId);
@@ -132,9 +133,9 @@ export class NotesController extends Controller {
         return note;
       }
 
-      const testPurpose = await new TestPurposeServiceImpl().getTestPurpose(
-        noteId
-      );
+      const testPurpose = await new TestPurposeServiceImpl(
+        AppDataSource
+      ).getTestPurpose(noteId);
 
       if (testPurpose) {
         return testPurpose;
@@ -183,24 +184,24 @@ export class NotesController extends Controller {
     const logger = createLogger();
 
     try {
-      const note = await new NotesServiceImpl({
+      const note = await new NotesServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
       }).getNote(noteId);
 
       if (note) {
-        return new NotesServiceImpl({
+        return new NotesServiceImpl(AppDataSource, {
           screenshotFileRepository,
           timestamp: timestampService,
         }).updateNote(noteId, requestBody);
       }
 
-      const testPurpose = await new TestPurposeServiceImpl().getTestPurpose(
-        noteId
-      );
+      const testPurpose = await new TestPurposeServiceImpl(
+        AppDataSource
+      ).getTestPurpose(noteId);
 
       if (testPurpose) {
-        return new TestPurposeServiceImpl().updateTestPurpose(
+        return new TestPurposeServiceImpl(AppDataSource).updateTestPurpose(
           noteId,
           requestBody
         );
@@ -246,24 +247,26 @@ export class NotesController extends Controller {
     const logger = createLogger();
 
     try {
-      const note = await new NotesServiceImpl({
+      const note = await new NotesServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
       }).getNote(noteId);
 
       if (note) {
-        return new NotesServiceImpl({
+        return new NotesServiceImpl(AppDataSource, {
           screenshotFileRepository,
           timestamp: timestampService,
         }).deleteNote(noteId);
       }
 
-      const testPurpose = await new TestPurposeServiceImpl().getTestPurpose(
-        noteId
-      );
+      const testPurpose = await new TestPurposeServiceImpl(
+        AppDataSource
+      ).getTestPurpose(noteId);
 
       if (testPurpose) {
-        return new TestPurposeServiceImpl().deleteTestPurpose(noteId);
+        return new TestPurposeServiceImpl(AppDataSource).deleteTestPurpose(
+          noteId
+        );
       }
     } catch (error) {
       if (error instanceof Error) {

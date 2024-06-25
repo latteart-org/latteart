@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,21 @@ import {
   RepositoryAccessResult,
 } from "./result";
 
-export class VideoRepository {
+export type VideoRepository = {
+  createVideo(params: {
+    width: number;
+    height: number;
+  }): Promise<RepositoryAccessResult<Video>>;
+
+  fetchWebm(videoUrl: string): Promise<RepositoryAccessResult<Blob | null>>;
+
+  appendBuffer(
+    videoId: string,
+    buffer: ArrayBuffer
+  ): Promise<RepositoryAccessResult<string>>;
+};
+
+export class VideoRepositoryImpl implements VideoRepository {
   constructor(private restClient: RESTClient) {}
 
   public async createVideo(params: {

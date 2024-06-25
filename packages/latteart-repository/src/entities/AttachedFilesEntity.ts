@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,10 @@ import { SessionEntity } from "./SessionEntity";
 
 @Entity("ATTACHED_FILES")
 export class AttachedFileEntity {
+  @PrimaryColumn({ name: "session_id" })
+  sessionId!: string;
+
   @ManyToOne(() => SessionEntity, (session) => session.attachedFiles, {
-    primary: true,
     orphanedRowAction: "delete",
     onDelete: "CASCADE",
   })

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
-import { RepositoryService } from "latteart-client";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
+import { type RepositoryService } from "latteart-client";
 
-const CHANGE_TEST_RESULT_FAILED_MESSAGE_KEY =
-  "error.operation_history.update_test_result_failed";
+const CHANGE_TEST_RESULT_FAILED_MESSAGE_KEY = "error.operation_history.update_test_result_failed";
 
 export class ChangeTestResultAction {
-  constructor(
-    private repositoryService: Pick<RepositoryService, "testResultRepository">
-  ) {}
+  constructor(private repositoryService: Pick<RepositoryService, "testResultRepository">) {}
 
   public async changeTestResult(
     testResultId: string,
@@ -35,17 +28,16 @@ export class ChangeTestResultAction {
     startTime?: number,
     initialUrl?: string
   ): Promise<ActionResult<string>> {
-    const patchTestResultResult =
-      await this.repositoryService.testResultRepository.patchTestResult(
-        testResultId,
-        name,
-        startTime,
-        initialUrl
-      );
+    const patchTestResultResult = await this.repositoryService.testResultRepository.patchTestResult(
+      testResultId,
+      name,
+      startTime,
+      initialUrl
+    );
 
     if (patchTestResultResult.isFailure()) {
       return new ActionFailure({
-        messageKey: CHANGE_TEST_RESULT_FAILED_MESSAGE_KEY,
+        messageKey: CHANGE_TEST_RESULT_FAILED_MESSAGE_KEY
       });
     }
 

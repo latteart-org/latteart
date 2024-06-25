@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,193 +15,169 @@
 -->
 
 <template>
-  <v-container fluid fill-height pa-8 style="overflow-y: scroll">
-    <v-container class="align-self-start">
-      <v-row justify="start" class="fill-height">
-        <v-col>
-          <v-row>
-            <v-col cols="12">
-              <v-card class="pa-6">
-                <v-card-text>
-                  <v-select
-                    :label="store.getters.message('manage-header.locale')"
-                    :items="locales"
-                    :value="initLocale"
-                    v-on:change="changeLocale"
-                  ></v-select>
+  <v-container fluid class="pa-8">
+    <v-row justify="start" class="fill-height">
+      <v-col>
+        <v-row>
+          <v-col cols="12">
+            <v-card class="pa-6">
+              <v-card-text>
+                <v-select
+                  variant="underlined"
+                  :label="$t('manage-header.locale')"
+                  :items="locales"
+                  :model-value="initLocale"
+                  @update:model-value="changeLocale"
+                ></v-select>
 
-                  <remote-access-field
-                    color="primary"
-                    hide-details
-                  ></remote-access-field>
-                </v-card-text>
-              </v-card>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
-              <v-expansion-panels multiple v-model="panels" class="py-0">
-                <v-expansion-panel>
-                  <v-expansion-panel-header>
-                    {{
-                      store.getters.message(
-                        "config-page.setting-image-compression"
-                      )
-                    }}
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content>
-                    <capture-media-config
-                      :captureMediaSetting="captureMediaSetting"
-                      :opened="captureMediaSettingOpened"
-                      :isCapturing="isCapturing"
-                      @save-config="saveConfig"
-                    >
-                    </capture-media-config>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
+                <remote-access-field color="primary" hide-details></remote-access-field>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12">
+            <v-expansion-panels v-model="panels" multiple class="py-0">
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-image-compression") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <capture-media-config
+                    :capture-media-setting="captureMediaSetting"
+                    :opened="captureMediaSettingOpened"
+                    :is-capturing="isCapturing"
+                    @save-config="saveConfig"
+                  >
+                  </capture-media-config>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
 
-                <v-expansion-panel>
-                  <v-expansion-panel-header>
-                    {{
-                      store.getters.message(
-                        "config-page.setting-inclusion-tags"
-                      )
-                    }}
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content>
-                    <coverage-config
-                      :opened="coverageOpened"
-                      :include-tags="includeTags"
-                      :default-tag-list="defaultTagList"
-                      @save-config="saveConfig"
-                    >
-                    </coverage-config>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-inclusion-tags") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <coverage-config
+                    :opened="coverageOpened"
+                    :include-tags="includeTags"
+                    :default-tag-list="defaultTagList"
+                    @save-config="saveConfig"
+                  >
+                  </coverage-config>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
 
-                <v-expansion-panel>
-                  <v-expansion-panel-header>
-                    {{ store.getters.message("config-page.setting-screen") }}
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content>
-                    <screen-definition-config
-                      :opened="screenDefinitionSettingOpened"
-                      :screenDefinition="screenDefinition"
-                      @save-config="saveConfig"
-                    >
-                    </screen-definition-config>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-screen") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <screen-definition-config
+                    :opened="screenDefinitionSettingOpened"
+                    :screen-definition="screenDefinition"
+                    @save-config="saveConfig"
+                  >
+                  </screen-definition-config>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
 
-                <v-expansion-panel>
-                  <v-expansion-panel-header>
-                    {{ store.getters.message("config-page.setting-autofill") }}
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content>
-                    <autofill-setting
-                      :opened="autofillSettingOpened"
-                      :autofillSetting="autofillSetting"
-                      @save-config="saveConfig"
-                    >
-                    </autofill-setting>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-autofill") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <autofill-setting
+                    :opened="autofillSettingOpened"
+                    :autofill-setting="autofillSetting"
+                    @save-config="saveConfig"
+                  >
+                  </autofill-setting>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
 
-                <v-expansion-panel>
-                  <v-expansion-panel-header>
-                    {{
-                      store.getters.message(
-                        "config-page.setting-auto-operation"
-                      )
-                    }}
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content>
-                    <auto-operation-setting
-                      :opened="autoOperationSettingOpened"
-                      :autoOperationSetting="autoOperationSetting"
-                      @save-config="saveConfig"
-                    >
-                    </auto-operation-setting>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-auto-operation") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <auto-operation-setting
+                    :opened="autoOperationSettingOpened"
+                    :auto-operation-setting="autoOperationSetting"
+                    @save-config="saveConfig"
+                  >
+                  </auto-operation-setting>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
 
-                <v-expansion-panel>
-                  <v-expansion-panel-header>
-                    {{
-                      store.getters.message(
-                        "config-page.setting-test-result-comparison"
-                      )
-                    }}
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content>
-                    <compare-config
-                      :tags="defaultTagList"
-                      :setting="testResultComparisonSetting"
-                      @save-config="saveConfig"
-                    >
-                    </compare-config>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-test-result-comparison") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <compare-config
+                    :tags="defaultTagList"
+                    :setting="testResultComparisonSetting"
+                    @save-config="saveConfig"
+                  >
+                  </compare-config>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
 
-                <v-expansion-panel>
-                  <v-expansion-panel-header>
-                    {{
-                      store.getters.message(
-                        "config-page.setting-experimental-features"
-                      )
-                    }}
-                  </v-expansion-panel-header>
-                  <v-expansion-panel-content>
-                    <experimental-feature-config
-                      :experimentalFeatureSetting="experimentalFeatureSetting"
-                      :opened="experimentalFeatureSettingOpened"
-                      :isCapturing="isCapturing"
-                      :isReplaying="isReplaying"
-                      @save-config="saveConfig"
-                    >
-                    </experimental-feature-config>
-                  </v-expansion-panel-content>
-                </v-expansion-panel>
-              </v-expansion-panels>
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-    </v-container>
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-experimental-features") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <experimental-feature-config
+                    :experimental-feature-setting="experimentalFeatureSetting"
+                    :opened="experimentalFeatureSettingOpened"
+                    :is-capturing="isCapturing"
+                    :is-replaying="isReplaying"
+                    @save-config="saveConfig"
+                  >
+                  </experimental-feature-config>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <extension-configs />
+            </v-expansion-panels>
+          </v-col>
+        </v-row>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script lang="ts">
-import NumberField from "@/components/molecules/NumberField.vue";
 import CoverageConfig from "@/components/organisms/config/CoverageConfig.vue";
 import ScreenDefinitionConfig from "@/components/organisms/config/ScreenDefinitionConfig.vue";
 import CaptureMediaConfig from "@/components/organisms/config/CaptureMediaConfig.vue";
 import {
-  CoverageSetting,
-  ScreenDefinitionSetting,
-  ProjectSettings,
-  ViewSettings,
-  TestResultComparisonSetting,
-  CaptureMediaSetting,
-  ExperimentalFeatureSetting,
+  type CoverageSetting,
+  type ScreenDefinitionSetting,
+  type ProjectSettings,
+  type ViewSettings,
+  type TestResultComparisonSetting,
+  type CaptureMediaSetting,
+  type ExperimentalFeatureSetting
 } from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "@/components/organisms/config/AutofillConfig.vue";
-import {
-  AutofillSetting,
-  AutoOperationSetting,
-} from "@/lib/operationHistory/types";
+import type { AutofillSetting, AutoOperationSetting } from "@/lib/operationHistory/types";
 import { default as AutoOperationSettingComponent } from "@/components/organisms/config/AutoOperationConfig.vue";
 import CompareConfig from "@/components/organisms/config/CompareConfig.vue";
 import ExperimentalFeatureConfig from "@/components/organisms/config/ExperimentalFeatureConfig.vue";
 import RemoteAccessField from "@/components/organisms/config/RemoteAccessField.vue";
 import { computed, defineComponent, ref, watch } from "vue";
-import { useStore } from "@/store";
-import { useRoute } from "vue-router/composables";
-import { CaptureControlState } from "@/store/captureControl";
+
+import { useRoute } from "vue-router";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import ExtensionConfigs from "@/components/organisms/extensions/ExtensionConfigs.vue";
 
 export default defineComponent({
   components: {
-    "number-field": NumberField,
     "coverage-config": CoverageConfig,
     "screen-definition-config": ScreenDefinitionConfig,
     "capture-media-config": CaptureMediaConfig,
@@ -210,9 +186,13 @@ export default defineComponent({
     "auto-operation-setting": AutoOperationSettingComponent,
     "experimental-feature-config": ExperimentalFeatureConfig,
     "remote-access-field": RemoteAccessField,
+    "extension-configs": ExtensionConfigs
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
+
     const route = useRoute();
 
     const panels = ref<number[]>([0, 1, 2, 3, 4, 5, 6, 7, 8]);
@@ -220,40 +200,38 @@ export default defineComponent({
     const locales = ref<string[]>(["ja", "en"]);
 
     const initLocale = computed((): string => {
-      return store.getters.getLocale();
+      return rootStore.getLocale();
     });
 
     const changeLocale = (locale: string): void => {
-      store.dispatch("changeLocale", { locale });
+      rootStore.changeLocale({ locale });
     };
 
     const projectSettings = computed((): ProjectSettings | undefined => {
-      return store.state.projectSettings;
+      return rootStore.projectSettings;
     });
 
     const viewSettings = computed((): ViewSettings | undefined => {
-      return store.state.viewSettings;
+      return rootStore.viewSettings;
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const locale = computed(() => {
-      return store.getters.getLocale();
+      return rootStore.getLocale();
     });
 
     const captureMediaSetting = computed((): CaptureMediaSetting => {
       return (
         config.value?.captureMediaSetting ?? {
           mediaType: "image",
-          imageCompression: { format: "png" },
+          imageCompression: { format: "png" }
         }
       );
     });
@@ -263,14 +241,14 @@ export default defineComponent({
     });
 
     const defaultTagList = computed((): string[] => {
-      return store.state.projectSettings.defaultTagList;
+      return rootStore.projectSettings.defaultTagList;
     });
 
     const screenDefinition = computed((): ScreenDefinitionSetting => {
       return (
         config.value?.screenDefinition ?? {
           screenDefType: "title",
-          conditionGroups: [],
+          conditionGroups: []
         }
       );
     });
@@ -280,13 +258,13 @@ export default defineComponent({
         return {
           autoPopupRegistrationDialog: false,
           autoPopupSelectionDialog: false,
-          conditionGroups: [],
+          conditionGroups: []
         };
       }
 
       return {
         ...config.value.autofillSetting,
-        ...viewSettings.value.autofill,
+        ...viewSettings.value.autofill
       };
     });
 
@@ -294,23 +272,17 @@ export default defineComponent({
       return config.value?.autoOperationSetting ?? { conditionGroups: [] };
     });
 
-    const testResultComparisonSetting = computed(
-      (): TestResultComparisonSetting => {
-        return store.state.projectSettings.config.testResultComparison;
-      }
-    );
+    const testResultComparisonSetting = computed((): TestResultComparisonSetting => {
+      return rootStore.projectSettings.config.testResultComparison;
+    });
 
-    const experimentalFeatureSetting = computed(
-      (): ExperimentalFeatureSetting => {
-        return (
-          config.value?.experimentalFeatureSetting ?? { captureArch: "polling" }
-        );
-      }
-    );
+    const experimentalFeatureSetting = computed((): ExperimentalFeatureSetting => {
+      return config.value?.experimentalFeatureSetting ?? { captureArch: "polling" };
+    });
 
     const updateWindowTitle = () => {
-      store.dispatch("changeWindowTitle", {
-        title: store.getters.message(route.meta?.title ?? ""),
+      rootStore.changeWindowTitle({
+        title: rootStore.message(route.meta?.title ?? "")
       });
     };
 
@@ -355,27 +327,23 @@ export default defineComponent({
         ...config,
         autofillSetting: config.autofillSetting
           ? { conditionGroups: config.autofillSetting.conditionGroups }
-          : undefined,
+          : undefined
       };
-      store.dispatch("writeConfig", { config: projectConfig });
+      rootStore.writeConfig({ config: projectConfig });
 
       if (config.autofillSetting) {
-        store.dispatch("writeViewSettings", {
+        rootStore.writeViewSettings({
           viewSettings: {
             autofill: {
-              autoPopupRegistrationDialog:
-                config.autofillSetting.autoPopupRegistrationDialog,
-              autoPopupSelectionDialog:
-                config.autofillSetting.autoPopupSelectionDialog,
-            },
-          },
+              autoPopupRegistrationDialog: config.autofillSetting.autoPopupRegistrationDialog,
+              autoPopupSelectionDialog: config.autofillSetting.autoPopupSelectionDialog
+            }
+          }
         });
       }
 
       if (config.screenDefinition || config.coverage) {
-        store.commit("operationHistory/setCanUpdateModels", {
-          canUpdateModels: true,
-        });
+        operationHistoryStore.canUpdateModels = true;
       }
     };
 
@@ -384,12 +352,11 @@ export default defineComponent({
     (async () => {
       updateWindowTitle();
 
-      await store.dispatch("readSettings");
-      await store.dispatch("readViewSettings");
+      await rootStore.readSettings();
+      await rootStore.readViewSettings();
     })();
 
     return {
-      store,
       panels,
       locales,
       initLocale,
@@ -410,9 +377,9 @@ export default defineComponent({
       autofillSettingOpened,
       autoOperationSettingOpened,
       experimentalFeatureSettingOpened,
-      saveConfig,
+      saveConfig
     };
-  },
+  }
 });
 </script>
 

@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="store.getters.message('test-option.start-testing')"
+      :title="$t('test-option.start-testing')"
+      :accept-button-disabled="okButtonIsDisabled"
       @accept="
         ok();
         close();
@@ -27,39 +28,38 @@
         cancel();
         close();
       "
-      :acceptButtonDisabled="okButtonIsDisabled"
     >
-      <template>
-        <v-checkbox
-          :label="store.getters.message('test-option.use-test-purpose')"
-          v-model="shouldRecordTestPurpose"
-        ></v-checkbox>
+      <v-checkbox
+        v-model="shouldRecordTestPurpose"
+        :label="$t('test-option.use-test-purpose')"
+      ></v-checkbox>
 
-        <v-card flat>
-          <v-card-text>
-            <h3
-              :class="{
-                title: true,
-                'mb-0': true,
-                'text--disabled': !shouldRecordTestPurpose,
-              }"
-            >
-              {{ store.getters.message("test-option.first-test-purpose") }}
-            </h3>
+      <v-card flat>
+        <v-card-text>
+          <h3
+            :class="{
+              title: true,
+              'mb-0': true,
+              'text--disabled': !shouldRecordTestPurpose
+            }"
+          >
+            {{ $t("test-option.first-test-purpose") }}
+          </h3>
 
-            <v-text-field
-              :disabled="!shouldRecordTestPurpose"
-              :label="store.getters.message('note-edit.summary')"
-              v-model="firstTestPurpose"
-            ></v-text-field>
-            <v-textarea
-              :disabled="!shouldRecordTestPurpose"
-              :label="store.getters.message('note-edit.details')"
-              v-model="firstTestPurposeDetails"
-            ></v-textarea>
-          </v-card-text>
-        </v-card>
-      </template>
+          <v-text-field
+            v-model="firstTestPurpose"
+            variant="underlined"
+            :disabled="!shouldRecordTestPurpose"
+            :label="$t('note-edit.summary')"
+          ></v-text-field>
+          <v-textarea
+            v-model="firstTestPurposeDetails"
+            variant="underlined"
+            :disabled="!shouldRecordTestPurpose"
+            :label="$t('note-edit.details')"
+          ></v-textarea>
+        </v-card-text>
+      </v-card>
     </execute-dialog>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -70,23 +70,21 @@
 </template>
 
 <script lang="ts">
-import NumberField from "@/components/molecules/NumberField.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import { useCaptureControlStore } from "@/stores/captureControl";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true },
-  },
   components: {
-    "number-field": NumberField,
     "execute-dialog": ExecuteDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const store = useStore();
+    const captureControlStore = useCaptureControlStore();
 
     const firstTestPurpose = ref("");
     const firstTestPurposeDetails = ref("");
@@ -111,17 +109,13 @@ export default defineComponent({
 
     const ok = () => {
       try {
-        store.commit("captureControl/setTestOption", {
-          testOption: {
-            firstTestPurpose: shouldRecordTestPurpose.value
-              ? firstTestPurpose.value
-              : "",
-            firstTestPurposeDetails: shouldRecordTestPurpose.value
-              ? firstTestPurposeDetails.value
-              : "",
-            shouldRecordTestPurpose: shouldRecordTestPurpose.value,
-          },
-        });
+        captureControlStore.testOption = {
+          firstTestPurpose: shouldRecordTestPurpose.value ? firstTestPurpose.value : "",
+          firstTestPurposeDetails: shouldRecordTestPurpose.value
+            ? firstTestPurposeDetails.value
+            : "",
+          shouldRecordTestPurpose: shouldRecordTestPurpose.value
+        };
 
         context.emit("ok");
       } catch (error) {
@@ -146,7 +140,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      store,
       firstTestPurpose,
       firstTestPurposeDetails,
       shouldRecordTestPurpose,
@@ -155,8 +148,8 @@ export default defineComponent({
       okButtonIsDisabled,
       ok,
       cancel,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

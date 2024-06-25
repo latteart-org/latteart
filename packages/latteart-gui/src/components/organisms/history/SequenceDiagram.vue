@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,50 +15,45 @@
 -->
 
 <template>
-  <v-container fluid class="ma-0 fill-height align-start">
-    <v-row
-      no-gutters
-      align="center"
-      :style="{ height: '70px', 'max-width': '100%' }"
-    >
+  <v-container fluid class="ma-0 pa-0 align-start" style="height: 100%">
+    <v-row no-gutters align="center" :style="{ height: '70px', 'max-width': '100%' }">
       <v-col v-if="testResults.length > 1" :style="buildStyle">
         <v-select
+          variant="underlined"
           class="mr-3"
           :label="message('test-result-page.test-result-name')"
           :items="testResults"
-          item-text="name"
+          item-title="name"
           item-value="id"
-          :value="currentTestResultId"
-          @change="changeCurrentTestResultId"
+          :model-value="currentTestResultId"
           hide-details
-          dense
+          density="compact"
+          @update:model-value="changeCurrentTestResultId"
       /></v-col>
       <v-col :style="buildStyle">
         <v-select
+          v-model="selectedTestPurposeIndex"
+          variant="underlined"
           class="mr-3"
           :label="message('test-result-page.test-purpose')"
           :items="testPurposes"
-          item-text="text"
+          item-title="text"
           item-value="value"
-          v-model="selectedTestPurposeIndex"
           hide-details
-          dense
+          density="compact"
       /></v-col>
-      <v-col cols="auto" v-if="!isViewerMode">
+      <v-col v-if="!isViewerMode" cols="auto">
         <v-btn class="mr-1" :disabled="!graph" @click="editTestPurpose">{{
           message("test-result-page.edit-test-purpose")
         }}</v-btn></v-col
       >
     </v-row>
     <v-row
-      no-gutters
       id="sequence-diagram-container"
+      no-gutters
       :style="{ 'overflow-y': 'auto', height: 'calc(100% - 70px)' }"
     >
-      <mermaid-graph-renderer
-        v-if="graphElement"
-        :graph="graphElement"
-      ></mermaid-graph-renderer>
+      <mermaid-graph-renderer v-if="graphElement" :graph="graphElement"></mermaid-graph-renderer>
     </v-row>
 
     <error-message-dialog
@@ -70,67 +65,56 @@
 </template>
 
 <script lang="ts">
-/* tslint:disable:max-line-length */
-
-import { MessageProvider } from "@/lib/operationHistory/types";
+import { type MessageProvider } from "@/lib/operationHistory/types";
 import MermaidGraphRenderer from "@/components/molecules/MermaidGraphRenderer.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { computed, defineComponent, onMounted, ref, watch, inject } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
+  components: {
+    "mermaid-graph-renderer": MermaidGraphRenderer,
+    "error-message-dialog": ErrorMessageDialog
+  },
   props: {
     message: {
       type: Function as PropType<MessageProvider>,
-      required: true,
-    },
-  },
-  components: {
-    "mermaid-graph-renderer": MermaidGraphRenderer,
-    "error-message-dialog": ErrorMessageDialog,
+      required: true
+    }
   },
   setup(props) {
-    const store = useStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
-    const selectedTestPurposeIndex = ref(0);
+    const selectedTestPurposeIndex = ref<number | null>(null);
 
     const isViewerMode = computed((): boolean => {
       return inject("isViewerMode") ?? false;
     });
 
-    const operationHistoryState = computed(() => {
-      return (store.state as any).operationHistory as OperationHistoryState;
-    });
-
     const currentTestResultId = computed(() => {
-      return operationHistoryState.value.testResultInfo.id;
+      return operationHistoryStore.testResultInfo.id;
     });
 
     const testResults = computed(() => {
-      return operationHistoryState.value.storingTestResultInfos;
+      return operationHistoryStore.storingTestResultInfos;
     });
 
     const testPurposes = computed(() => {
-      return operationHistoryState.value.sequenceDiagramGraphs.map(
-        ({ testPurpose }, index) => {
-          return {
-            text:
-              testPurpose?.value ??
-              props.message("test-result-page.no-test-purpose"),
-            value: index,
-          };
-        }
-      );
+      return operationHistoryStore.sequenceDiagramGraphs.map(({ testPurpose }, index) => {
+        return {
+          text: testPurpose?.value ?? props.message("test-result-page.no-test-purpose"),
+          value: index
+        };
+      });
     });
 
     const graph = computed(() => {
-      const graphs = operationHistoryState.value.sequenceDiagramGraphs;
+      const graphs = operationHistoryStore.sequenceDiagramGraphs;
 
-      return graphs.at(selectedTestPurposeIndex.value);
+      return graphs.at(selectedTestPurposeIndex.value ?? 0);
     });
 
     const graphElement = computed(() => {
@@ -138,32 +122,27 @@ export default defineComponent({
     });
 
     const resetTestPurposeIndex = () => {
-      selectedTestPurposeIndex.value = 0;
+      const history = operationHistoryStore.history;
+      selectedTestPurposeIndex.value = history.length > 0 ? 0 : null;
     };
 
     const changeCurrentTestResultId = async (testResultId: string) => {
       try {
         if (isViewerMode.value) {
-          await store.dispatch("operationHistory/loadTestResultForSnapshot", {
-            testResultId,
+          await operationHistoryStore.loadTestResultForSnapshot({
+            testResultId
           });
         } else {
-          await store.dispatch("operationHistory/loadTestResult", {
-            testResultId,
+          await operationHistoryStore.loadTestResult({
+            testResultId
           });
 
-          await store.dispatch(
-            "operationHistory/updateModelsFromSequenceView",
-            { testResultId }
-          );
+          await operationHistoryStore.updateModelsFromSequenceView({ testResultId });
         }
 
-        store.commit("operationHistory/setCanUpdateModels", {
-          setCanUpdateModels: false,
-        });
-        store.dispatch("operationHistory/selectOperation", { sequence: 1 });
-
-        selectedTestPurposeIndex.value = 0;
+        operationHistoryStore.canUpdateModels = false;
+        operationHistoryStore.selectOperation({ sequence: 1, doScroll: false });
+        resetTestPurposeIndex();
       } catch (error) {
         if (error instanceof Error) {
           console.error(error);
@@ -180,29 +159,32 @@ export default defineComponent({
         return;
       }
 
-      operationHistoryState.value.openNoteEditDialog(
-        "intention",
-        graph.value.sequence
-      );
+      operationHistoryStore.openNoteEditDialog("intention", graph.value.sequence);
     };
 
     const buildStyle = computed(() => {
       const buttonWidth = isViewerMode.value ? "0px" : "160px";
       const selectBoxNum = testResults.value.length > 1 ? 2 : 1;
       return {
-        "max-width": `calc((100% - ${buttonWidth}) / ${selectBoxNum})`,
+        "max-width": `calc((100% - ${buttonWidth}) / ${selectBoxNum})`
       };
     });
 
+    const changeIndex = () => {
+      if (selectedTestPurposeIndex.value) {
+        return;
+      }
+      resetTestPurposeIndex();
+    };
+
     onMounted(() => {
-      selectedTestPurposeIndex.value = 0;
-      const sequenceDiagram = document.getElementById(
-        "sequence-diagram-container"
-      ) as any;
+      resetTestPurposeIndex();
+      const sequenceDiagram = document.getElementById("sequence-diagram-container") as any;
       sequenceDiagram.oncontextmenu = () => false;
     });
 
     watch(currentTestResultId, resetTestPurposeIndex);
+    watch(graph, changeIndex);
 
     return {
       errorMessageDialogOpened,
@@ -216,9 +198,9 @@ export default defineComponent({
       graphElement,
       changeCurrentTestResultId,
       editTestPurpose,
-      buildStyle,
+      buildStyle
     };
-  },
+  }
 });
 </script>
 

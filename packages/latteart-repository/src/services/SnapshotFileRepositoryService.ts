@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -207,19 +207,16 @@ export class SnapshotFileRepositoryServiceImpl
 
     await Promise.all(
       testResultIds.map(async (testResultId) => {
-        const testResult = await this.service.testResult.getTestResult(
-          testResultId
-        );
+        const testResult =
+          await this.service.testResult.getTestResult(testResultId);
         const testResultName = testResult?.name;
-        const testStepIds = await this.service.testResult.collectAllTestStepIds(
-          testResultId
-        );
+        const testStepIds =
+          await this.service.testResult.collectAllTestStepIds(testResultId);
 
         const testSteps = await Promise.all(
           testStepIds.map(async (testStepId) => {
-            const testStep = await this.service.testStep.getTestStep(
-              testStepId
-            );
+            const testStep =
+              await this.service.testStep.getTestStep(testStepId);
             const notices = (
               await Promise.all(
                 testStep.notices.map(async (noteId) => {
@@ -263,14 +260,14 @@ export class SnapshotFileRepositoryServiceImpl
     );
 
     await this.service.workingFileRepository.outputFile(
-      path.join(destTestResultPath, "log.js"),
-      `const historyLogs = ${JSON.stringify(historyLog)}`,
+      path.join(destTestResultPath, "log.json"),
+      JSON.stringify(historyLog),
       "utf8"
     );
 
     await this.service.workingFileRepository.outputFile(
-      path.join(destTestResultPath, "sequence-view.js"),
-      `const sequenceViews = ${JSON.stringify(sequenceViewData)}`,
+      path.join(destTestResultPath, "sequence-view.json"),
+      JSON.stringify(sequenceViewData),
       "utf8"
     );
 
@@ -280,10 +277,8 @@ export class SnapshotFileRepositoryServiceImpl
       viewOption
     );
     await this.service.workingFileRepository.outputFile(
-      path.join(destTestResultPath, "graph-view.js"),
-      `const graphView = ${JSON.stringify(
-        convertGraphViewForSnapshot(graphViewData)
-      )}`,
+      path.join(destTestResultPath, "graph-view.json"),
+      JSON.stringify(convertGraphViewForSnapshot(graphViewData)),
       "utf8"
     );
 
@@ -438,25 +433,11 @@ export class SnapshotFileRepositoryServiceImpl
   }
 
   private async copyHistoryViewer(outputDirName: string) {
-    // copy css files
+    // copy asset files
     await this.service.viewerTemplate.history.copyFiles(
       this.service.workingFileRepository,
-      "css",
-      path.join(outputDirName, "css")
-    );
-
-    // copy fonts files
-    await this.service.viewerTemplate.history.copyFiles(
-      this.service.workingFileRepository,
-      "fonts",
-      path.join(outputDirName, "fonts")
-    );
-
-    // copy js files
-    await this.service.viewerTemplate.history.copyFiles(
-      this.service.workingFileRepository,
-      "js",
-      path.join(outputDirName, "js")
+      "assets",
+      path.join(outputDirName, "assets")
     );
   }
 
@@ -468,8 +449,8 @@ export class SnapshotFileRepositoryServiceImpl
     };
     const settingsData = JSON.stringify(configWithLocale);
     await this.service.workingFileRepository.outputFile(
-      path.join(outputDirPath, "latteart.config.js"),
-      `const settings = ${settingsData}`,
+      path.join(outputDirPath, "latteart.config.json"),
+      settingsData,
       "utf8"
     );
   }
@@ -495,8 +476,8 @@ export class SnapshotFileRepositoryServiceImpl
     }
   ) {
     await this.service.workingFileRepository.outputFile(
-      path.join(outputDirPath, "project.js"),
-      `const snapshot = ${JSON.stringify(projectData)}`,
+      path.join(outputDirPath, "project.json"),
+      JSON.stringify(projectData),
       "utf8"
     );
   }
@@ -506,8 +487,8 @@ export class SnapshotFileRepositoryServiceImpl
     dailyProgresses: DailyTestProgress[]
   ) {
     await this.service.workingFileRepository.outputFile(
-      path.join(outputDirPath, "progress.js"),
-      `const dailyTestProgresses = ${JSON.stringify(dailyProgresses)}`,
+      path.join(outputDirPath, "progress.json"),
+      JSON.stringify(dailyProgresses),
       "utf8"
     );
   }

@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,38 +16,33 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('start-capture-page.title')"
+    :title="$t('start-capture-page.title')"
+    :accept-button-disabled="isOkButtonDisabled"
     @accept="
       execute();
       close();
     "
     @cancel="close()"
-    :acceptButtonDisabled="isOkButtonDisabled"
   >
-    <template>
-      <capture-option v-if="isOptionDisplayed" @update="updateOption" />
-    </template>
+    <capture-option v-if="isOptionDisplayed" @update="updateOption" />
   </execute-dialog>
 </template>
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { CaptureOptionParams } from "@/lib/common/captureOptionParams";
+import { type CaptureOptionParams } from "@/lib/common/captureOptionParams";
 import CaptureOption from "@/components/organisms/common/CaptureOption.vue";
 import { computed, defineComponent, ref, toRefs, watch, nextTick } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false },
-  },
   components: {
     "execute-dialog": ExecuteDialog,
-    "capture-option": CaptureOption,
+    "capture-option": CaptureOption
+  },
+  props: {
+    opened: { type: Boolean, default: false }
   },
   setup(props, context) {
-    const store = useStore();
-
     const isOptionDisplayed = ref<boolean>(false);
     const captureOption = ref<CaptureOptionParams>({
       url: "",
@@ -59,7 +54,7 @@ export default defineComponent({
       mediaType: "image",
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
-      firstTestPurposeDetails: "",
+      firstTestPurposeDetails: ""
     });
 
     const updateOption = (option: CaptureOptionParams) => {
@@ -100,13 +95,12 @@ export default defineComponent({
     watch(opened, rerenderOption);
 
     return {
-      store,
       isOptionDisplayed,
       updateOption,
       isOkButtonDisabled,
       execute,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ export type NoteTagItem = { text: string; color: string };
 export const noteTagPreset: NoteTagPreset = {
   items: [
     { text: "bug", color: "#FF8A80" },
-    { text: "reported", color: "#E0E0E0" },
-  ],
+    { text: "reported", color: "#E0E0E0" }
+  ]
 };
+
+export const defaultNoteTagColor = "#E0E0E0";

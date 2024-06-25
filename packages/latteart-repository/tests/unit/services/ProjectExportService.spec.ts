@@ -1,5 +1,7 @@
-import { SqliteTestConnectionHelper } from "../../helper/TestConnectionHelper";
-import { getRepository } from "typeorm";
+import {
+  SqliteTestConnectionHelper,
+  TestDataSource,
+} from "../../helper/TestConnectionHelper";
 import { ProjectExportService } from "@/services/ProjectExportService";
 import { ProjectsService } from "@/services/ProjectsService";
 import { TestResultService } from "@/services/TestResultService";
@@ -11,7 +13,7 @@ import { ConfigsService } from "@/services/ConfigsService";
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
 beforeEach(async () => {
-  await testConnectionHelper.createTestConnection({ logging: false });
+  await testConnectionHelper.createTestConnection();
 });
 
 afterEach(async () => {
@@ -125,17 +127,19 @@ describe("ProjectExportService", () => {
       collectProjectDailyTestProgresses: jest.fn(),
     };
 
-    const configService = new ConfigsService();
+    const configService = new ConfigsService(TestDataSource);
 
     it("includeProject: true, includeTestResults: true, includeConfig: trueの場合、Project・TestResult・Configのexport処理が実行される", async () => {
-      const service = new ProjectExportService();
+      const service = new ProjectExportService(TestDataSource);
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
       testResultService.collectAllScreenshots = jest
         .fn()
         .mockResolvedValue([{ id: "id", fileUrl: "fileUrl" }]);
       configService.getProjectConfig = jest.fn().mockResolvedValue(settings);
 
-      await getRepository(TestResultEntity).save(new TestResultEntity());
+      await TestDataSource.getRepository(TestResultEntity).save(
+        new TestResultEntity()
+      );
 
       const result = await service.export("1", true, true, true, {
         projectService,
@@ -156,15 +160,23 @@ describe("ProjectExportService", () => {
       testResultService.collectAllScreenshots = jest.fn();
       configService.getProjectConfig = jest.fn();
 
-      await getRepository(TestResultEntity).save(new TestResultEntity());
+      await TestDataSource.getRepository(TestResultEntity).save(
+        new TestResultEntity()
+      );
 
-      await new ProjectExportService().export("1", false, false, false, {
-        projectService,
-        testResultService,
-        configService,
-        exportFileRepositoryService,
-        testProgressService,
-      });
+      await new ProjectExportService(TestDataSource).export(
+        "1",
+        false,
+        false,
+        false,
+        {
+          projectService,
+          testResultService,
+          configService,
+          exportFileRepositoryService,
+          testProgressService,
+        }
+      );
 
       expect(projectService.getProject).toBeCalledTimes(0);
       expect(testResultService.collectAllScreenshots).toBeCalledTimes(0);
@@ -172,7 +184,7 @@ describe("ProjectExportService", () => {
     });
 
     it("extractProjectExportDataで、ProjectのexportDataを返す", async () => {
-      const service = new ProjectExportService();
+      const service = new ProjectExportService(TestDataSource);
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
       testProgressService.collectStoryDailyTestProgresses = jest
         .fn()
@@ -215,7 +227,7 @@ describe("ProjectExportService", () => {
     });
 
     it("extractTestResultsExportDataで、TestResultのexportDataを返す", async () => {
-      const service = new ProjectExportService();
+      const service = new ProjectExportService(TestDataSource);
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
       testResultService.collectAllScreenshots = jest
         .fn()
@@ -224,7 +236,9 @@ describe("ProjectExportService", () => {
         .fn()
         .mockResolvedValue([{ id: "id2", fileUrl: "fileUrl2" }]);
 
-      await getRepository(TestResultEntity).save(new TestResultEntity());
+      await TestDataSource.getRepository(TestResultEntity).save(
+        new TestResultEntity()
+      );
 
       const testResult = await service["extractTestResultsExportData"]({
         testResultService,
@@ -258,7 +272,7 @@ describe("ProjectExportService", () => {
     });
 
     it("extractConfigExportDataで、ConfigのexportDataを返す", async () => {
-      const service = new ProjectExportService();
+      const service = new ProjectExportService(TestDataSource);
       configService.getProjectConfig = jest.fn().mockResolvedValue(settings);
 
       const config = await service["extractConfigExportData"](projectData.id, {

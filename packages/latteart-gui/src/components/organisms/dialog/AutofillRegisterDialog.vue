@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,38 +17,38 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('autofill-register-dialog.title')"
+    :title="$t('autofill-register-dialog.title')"
     @accept="
       accept();
       close();
     "
     @cancel="close()"
   >
-    <template>
-      <div class="pre-wrap break-word">
-        {{ message }}
-      </div>
-      <v-text-field
-        v-model="settingName"
-        :label="store.getters.message('autofill-register-dialog.form-label')"
-      ></v-text-field>
-    </template>
+    <div class="pre-wrap break-word">
+      {{ message }}
+    </div>
+    <v-text-field
+      v-model="settingName"
+      variant="underlined"
+      :label="$t('autofill-register-dialog.form-label')"
+    ></v-text-field>
   </execute-dialog>
 </template>
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { AutofillConditionGroup } from "@/lib/operationHistory/types";
-import { CaptureControlState } from "@/store/captureControl";
-import { computed, defineComponent, ref, nextTick } from "vue";
-import { useStore } from "@/store";
+import { type AutofillConditionGroup } from "@/lib/operationHistory/types";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { computed, defineComponent, ref, nextTick, watch } from "vue";
 
 export default defineComponent({
   components: {
-    "execute-dialog": ExecuteDialog,
+    "execute-dialog": ExecuteDialog
   },
   setup() {
-    const store = useStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const settingName = ref("");
     const opened = ref(false);
@@ -66,16 +66,7 @@ export default defineComponent({
         }[];
         callback: () => void;
       } | null => {
-        settingName.value =
-          ((store.state as any).captureControl as CaptureControlState)
-            ?.autofillRegisterDialogData?.title ?? "";
-        opened.value = !!(
-          (store.state as any).captureControl as CaptureControlState
-        )?.autofillRegisterDialogData;
-        return (
-          ((store.state as any).captureControl as CaptureControlState)
-            ?.autofillRegisterDialogData ?? null
-        );
+        return captureControlStore.autofillRegisterDialogData ?? null;
       }
     );
 
@@ -84,14 +75,14 @@ export default defineComponent({
     });
 
     const accept = async (): Promise<void> => {
+      const { url, title } = autofillRegisterDialogData.value ?? { url: "", title: "" };
+
       const autofillConditionGroup: AutofillConditionGroup = {
         isEnabled: true,
         settingName: settingName.value,
-        url: autofillRegisterDialogData.value?.url ?? "",
-        title: autofillRegisterDialogData.value?.title ?? "",
-        inputValueConditions: (
-          autofillRegisterDialogData.value?.inputElements ?? []
-        )
+        url,
+        title,
+        inputValueConditions: (autofillRegisterDialogData.value?.inputElements ?? [])
           .filter((element) => {
             return element.attributes.type !== "hidden";
           })
@@ -102,13 +93,13 @@ export default defineComponent({
               locatorType: element.attributes.id ? "id" : "xpath",
               locatorMatchType: "equals",
               inputValue: element.inputValue,
-              iframeIndex: element.iframeIndex,
+              iframeIndex: element.iframeIndex
             };
-          }),
+          })
       };
-      store.dispatch("operationHistory/updateAutofillConditionGroup", {
+      operationHistoryStore.updateAutofillConditionGroup({
         conditionGroup: autofillConditionGroup,
-        index: -1,
+        index: -1
       });
       await close();
     };
@@ -117,7 +108,9 @@ export default defineComponent({
       opened.value = false;
       await new Promise((s) => setTimeout(s, 300));
       const callback = autofillRegisterDialogData.value?.callback;
-      store.commit("captureControl/setAutofillRegisterDialog", null);
+
+      captureControlStore.autofillRegisterDialogData = null;
+
       if (callback) {
         nextTick(() => {
           callback();
@@ -125,14 +118,23 @@ export default defineComponent({
       }
     };
 
+    watch(autofillRegisterDialogData, (newData) => {
+      opened.value = !!newData;
+    });
+
+    watch(opened, (newData) => {
+      if (newData) {
+        settingName.value = captureControlStore.autofillRegisterDialogData?.title ?? "";
+      }
+    });
+
     return {
-      store,
       settingName,
       opened,
       message,
       accept,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@ import {
   GetProjectResponse,
 } from "../interfaces/Projects";
 import { ProjectEntity } from "../entities/ProjectEntity";
-import { getManager } from "typeorm";
 import { ViewPointPresetEntity } from "../entities/ViewPointPresetEntity";
-import { getRepository } from "typeorm";
 import { TestMatrixEntity } from "../entities/TestMatrixEntity";
 import { TestTargetGroupEntity } from "../entities/TestTargetGroupEntity";
 import { ViewPointEntity } from "../entities/ViewPointEntity";
 import { projectEntityToResponse } from "@/services/helper/entityToResponse";
+import { DataSource } from "typeorm";
 
 export interface ProjectsService {
   getProjectIdentifiers(): Promise<ProjectListResponse[]>;
@@ -34,8 +33,10 @@ export interface ProjectsService {
 }
 
 export class ProjectsServiceImpl implements ProjectsService {
+  constructor(private dataSource: DataSource) {}
+
   public async getProjectIdentifiers(): Promise<ProjectListResponse[]> {
-    const projectRepository = getRepository(ProjectEntity);
+    const projectRepository = this.dataSource.getRepository(ProjectEntity);
     const projects = await projectRepository.find();
     console.log(projects);
     return projects
@@ -53,7 +54,7 @@ export class ProjectsServiceImpl implements ProjectsService {
 
   public async createProject(): Promise<{ id: string; name: string }> {
     let savedProject: ProjectEntity | null = null;
-    await getManager().transaction(async (transactionEntityManager) => {
+    await this.dataSource.transaction(async (transactionEntityManager) => {
       savedProject = await transactionEntityManager.save(
         new ProjectEntity("1")
       );
@@ -81,11 +82,15 @@ export class ProjectsServiceImpl implements ProjectsService {
   }
 
   private async getReturnProject(projectId: string): Promise<ProjectEntity> {
-    const projectRepository = getRepository(ProjectEntity);
-    const testMatrixRepository = getRepository(TestMatrixEntity);
-    const testTargetGroupRepository = getRepository(TestTargetGroupEntity);
+    const projectRepository = this.dataSource.getRepository(ProjectEntity);
+    const testMatrixRepository =
+      this.dataSource.getRepository(TestMatrixEntity);
+    const testTargetGroupRepository = this.dataSource.getRepository(
+      TestTargetGroupEntity
+    );
 
-    const updatedProject = await projectRepository.findOne(projectId, {
+    const updatedProject = await projectRepository.findOne({
+      where: { id: projectId },
       relations: ["testMatrices"],
     });
     if (!updatedProject) {
@@ -93,39 +98,38 @@ export class ProjectsServiceImpl implements ProjectsService {
     }
     updatedProject.testMatrices = await Promise.all(
       updatedProject?.testMatrices.map(async (testMatrix) => {
-        const testMatrixWithStory = await testMatrixRepository.findOne(
-          testMatrix.id,
-          {
-            relations: [
-              "project",
-              "stories",
-              "stories.sessions",
-              "stories.sessions.attachedFiles",
-              "stories.sessions.testResults",
-              "stories.sessions.testResults.testPurposes",
-              "stories.sessions.testResults.testPurposes.testSteps",
-              "stories.sessions.testResults.notes",
-              "stories.sessions.testResults.notes.testSteps",
-              "stories.sessions.testResults.notes.testSteps.screenshot",
-              "stories.sessions.testResults.notes.testSteps.video",
-              "stories.sessions.testResults.notes.tags",
-              "stories.sessions.testResults.notes.screenshot",
-              "stories.sessions.testResults.notes.video",
-              "stories.viewPoint",
-              "stories.testTarget",
-            ],
-          }
-        );
+        const testMatrixWithStory = await testMatrixRepository.findOne({
+          where: { id: testMatrix.id },
+          relations: [
+            "project",
+            "stories",
+            "stories.sessions",
+            "stories.sessions.attachedFiles",
+            "stories.sessions.testResults",
+            "stories.sessions.testResults.testPurposes",
+            "stories.sessions.testResults.testPurposes.testSteps",
+            "stories.sessions.testResults.notes",
+            "stories.sessions.testResults.notes.testSteps",
+            "stories.sessions.testResults.notes.testSteps.screenshot",
+            "stories.sessions.testResults.notes.testSteps.video",
+            "stories.sessions.testResults.notes.tags",
+            "stories.sessions.testResults.notes.screenshot",
+            "stories.sessions.testResults.notes.video",
+            "stories.viewPoint",
+            "stories.testTarget",
+          ],
+        });
         if (!testMatrixWithStory) {
           throw new Error();
         }
         testMatrixWithStory.testTargetGroups =
           await testTargetGroupRepository.find({
-            where: { testMatrix: testMatrix.id },
+            where: { testMatrix: { id: testMatrix.id } },
             relations: ["testTargets"],
           });
         testMatrixWithStory.viewPoints = (
-          await testMatrixRepository.findOne(testMatrix.id, {
+          await testMatrixRepository.findOne({
+            where: { id: testMatrix.id },
             relations: ["viewPoints"],
           })
         )?.viewPoints as ViewPointEntity[];

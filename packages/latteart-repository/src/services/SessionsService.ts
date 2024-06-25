@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,24 +27,28 @@ import {
 } from "@/interfaces/Sessions";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { sessionEntityToResponse } from "@/services/helper/entityToResponse";
-import { In, getRepository } from "typeorm";
+import { DataSource, EntityManager, In } from "typeorm";
 import { TestProgressServiceImpl } from "./TestProgressService";
 import { TimestampService } from "./TimestampService";
+import { TransactionRunner } from "@/TransactionRunner";
 
 export class SessionsService {
+  constructor(private dataSource: DataSource) {}
+
   public async postSession(
     projectId: string,
     storyId: string
   ): Promise<PostSessionResponse> {
-    const storyRepository = getRepository(StoryEntity);
-    const story = await storyRepository.findOne(storyId, {
+    const storyRepository = this.dataSource.getRepository(StoryEntity);
+    const story = await storyRepository.findOne({
+      where: { id: storyId },
       relations: ["sessions"],
     });
     if (!story) {
       throw new Error(`Story not found. ${storyId}`);
     }
 
-    const session = await getRepository(SessionEntity).save(
+    const session = await this.dataSource.getRepository(SessionEntity).save(
       new SessionEntity({
         name: "",
         memo: "",
@@ -57,7 +61,7 @@ export class SessionsService {
       })
     );
 
-    await new TestProgressServiceImpl().saveTodayTestProgresses(
+    await new TestProgressServiceImpl(this.dataSource).saveTodayTestProgresses(
       projectId,
       storyId
     );
@@ -72,22 +76,16 @@ export class SessionsService {
     service: {
       timestampService: TimestampService;
       attachedFileRepository: FileRepository;
+      transactionRunner: TransactionRunner;
     }
   ): Promise<PatchSessionResponse> {
-    const sessionRepository = getRepository(SessionEntity);
-    const updateTargetSession = await sessionRepository.findOne(sessionId, {
+    const sessionRepository = this.dataSource.getRepository(SessionEntity);
+    const updateTargetSession = await sessionRepository.findOne({
+      where: { id: sessionId },
       relations: ["testResults", "story", "attachedFiles"],
     });
     if (!updateTargetSession) {
       throw new Error(`Session not found: ${sessionId}`);
-    }
-
-    if (requestBody.attachedFiles !== undefined) {
-      updateTargetSession.attachedFiles = await this.updateAttachedFiles(
-        updateTargetSession,
-        requestBody.attachedFiles,
-        service
-      );
     }
 
     if (requestBody.isDone !== undefined) {
@@ -107,15 +105,17 @@ export class SessionsService {
 
     if (requestBody.testResultFiles) {
       if (requestBody.testResultFiles.length > 0) {
-        const testResults = await getRepository(TestResultEntity).find({
-          where: {
-            id: In(
-              requestBody.testResultFiles.map(
-                (testResultFile) => testResultFile.id
-              )
-            ),
-          },
-        });
+        const testResults = await this.dataSource
+          .getRepository(TestResultEntity)
+          .find({
+            where: {
+              id: In(
+                requestBody.testResultFiles.map(
+                  (testResultFile) => testResultFile.id
+                )
+              ),
+            },
+          });
         if (testResults.length !== requestBody.testResultFiles.length) {
           throw new Error(
             `test result not found. request(${requestBody.testResultFiles.map(
@@ -128,27 +128,45 @@ export class SessionsService {
         updateTargetSession.testResults = [];
       }
     }
-    const result = await sessionRepository.save(updateTargetSession);
+    let savedSessionId = "";
+    await service.transactionRunner.waitAndRun(
+      async (transactionalEntityManager) => {
+        const result =
+          await transactionalEntityManager.save(updateTargetSession);
+        savedSessionId = result.id;
 
-    await new TestProgressServiceImpl().saveTodayTestProgresses(
-      projectId,
-      result.story.id
+        await new TestProgressServiceImpl(
+          this.dataSource
+        ).saveTodayTestProgresses(projectId, result.story.id);
+
+        if (requestBody.attachedFiles !== undefined) {
+          await this.updateAttachedFiles(
+            result,
+            requestBody.attachedFiles,
+            transactionalEntityManager,
+            service
+          );
+        }
+      }
     );
 
-    return await this.entityToResponse(result.id);
+    return await this.entityToResponse(savedSessionId);
   }
 
   public async deleteSession(
     projectId: string,
     sessionId: string
   ): Promise<void> {
-    const sessionRepository = getRepository(SessionEntity);
+    const sessionRepository = this.dataSource.getRepository(SessionEntity);
     const storyId = (
-      await sessionRepository.findOneOrFail(sessionId, { relations: ["story"] })
+      await sessionRepository.findOneOrFail({
+        where: { id: sessionId },
+        relations: ["story"],
+      })
     ).story.id;
     await sessionRepository.delete(sessionId);
 
-    await new TestProgressServiceImpl().saveTodayTestProgresses(
+    await new TestProgressServiceImpl(this.dataSource).saveTodayTestProgresses(
       projectId,
       storyId
     );
@@ -159,64 +177,78 @@ export class SessionsService {
   public async getSessionIdentifiers(
     testResultId: string
   ): Promise<ListSessionResponse> {
-    const testResultEntity = await getRepository(
-      TestResultEntity
-    ).findOneOrFail(testResultId, { relations: ["sessions"] });
+    const testResultEntity = await this.dataSource
+      .getRepository(TestResultEntity)
+      .findOneOrFail({ where: { id: testResultId }, relations: ["sessions"] });
 
     return testResultEntity.sessions?.map(({ id }) => id) ?? [];
   }
 
   private async updateAttachedFiles(
-    existsSession: SessionEntity,
+    session: SessionEntity,
     requestAttachedFiles: PatchSessionDto["attachedFiles"],
+    entityManager: EntityManager,
     service: {
       timestampService: TimestampService;
       attachedFileRepository: FileRepository;
     }
-  ): Promise<AttachedFileEntity[]> {
-    if (!requestAttachedFiles) {
-      return [];
-    }
+  ): Promise<void> {
+    const existsAttachedFile = await entityManager.find(AttachedFileEntity, {
+      where: { sessionId: session.id },
+    });
 
-    const existsAttachedFiles = existsSession.attachedFiles ?? [];
-    const result = [];
-
-    for (const attachedFile of requestAttachedFiles) {
-      if (attachedFile.fileUrl) {
-        const existsAttachedFile = existsAttachedFiles.find(
-          (existsAttachedFile) =>
-            existsAttachedFile.fileUrl === attachedFile.fileUrl
-        );
-        if (!existsAttachedFile) {
-          throw new Error(`AttachedFile not found: ${attachedFile.fileUrl}`);
-        }
-        result.push(existsAttachedFile);
-      } else if (attachedFile.fileData) {
+    const addFile = requestAttachedFiles?.filter((newFile) => newFile.fileData);
+    await Promise.all(
+      (addFile ?? []).map(async (file) => {
         const fileName = `${service.timestampService.unix().toString()}_${
-          attachedFile.name
+          file.name
         }`;
-        await service.attachedFileRepository.outputFile(
-          fileName,
-          attachedFile.fileData,
-          "base64"
-        );
         const attachedFileImageUrl =
           service.attachedFileRepository.getFileUrl(fileName);
-
-        result.push(
+        await service.attachedFileRepository.outputFile(
+          fileName,
+          file.fileData as string,
+          "base64"
+        );
+        await entityManager.save(
           new AttachedFileEntity({
-            session: existsSession,
-            name: attachedFile.name,
+            sessionId: session.id,
+            session,
+            name: fileName,
             fileUrl: attachedFileImageUrl,
           })
         );
-      }
+      })
+    );
+
+    let deleteFile: AttachedFileEntity[] = [];
+    if (
+      requestAttachedFiles === undefined ||
+      requestAttachedFiles.length === 0
+    ) {
+      deleteFile = existsAttachedFile;
+    } else {
+      deleteFile = existsAttachedFile.filter(
+        (existsFile) =>
+          !requestAttachedFiles.find(
+            (newFile) => existsFile.name === newFile.name
+          )
+      );
     }
-    return result;
+    await Promise.all(
+      deleteFile.map(async (file) => {
+        await entityManager.delete(AttachedFileEntity, {
+          sessionId: file.sessionId,
+          fileUrl: file.fileUrl,
+          name: file.name,
+        });
+      })
+    );
   }
 
   private async entityToResponse(sessionId: string): Promise<Session> {
-    const session = await getRepository(SessionEntity).findOne(sessionId, {
+    const session = await this.dataSource.getRepository(SessionEntity).findOne({
+      where: { id: sessionId },
       relations: [
         "attachedFiles",
         "testResults",

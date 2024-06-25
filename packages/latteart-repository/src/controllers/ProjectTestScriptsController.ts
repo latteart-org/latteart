@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import { CreateTestScriptDto } from "../interfaces/TestScripts";
 import { TestScriptsService } from "../services/TestScriptsService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("projects/{projectId}/test-scripts")
 @Tags("projects")
@@ -64,12 +65,12 @@ export class ProjectTestScriptsController extends Controller {
     const workingFileRepository = fileRepositoryManager.getRepository("work");
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
-    const testResultService = new TestResultServiceImpl({
+    const testResultService = new TestResultServiceImpl(AppDataSource, {
       timestamp: timestampService,
-      testStep: new TestStepServiceImpl({
+      testStep: new TestStepServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
-        config: new ConfigsService(),
+        config: new ConfigsService(AppDataSource),
       }),
       screenshotFileRepository,
       workingFileRepository,
@@ -86,7 +87,7 @@ export class ProjectTestScriptsController extends Controller {
       });
 
     try {
-      return await new TestScriptsService({
+      return await new TestScriptsService(AppDataSource, {
         testResult: testResultService,
         testScriptFileRepository: testScriptFileRepositoryService,
       }).createTestScriptByProject(projectId, requestBody);

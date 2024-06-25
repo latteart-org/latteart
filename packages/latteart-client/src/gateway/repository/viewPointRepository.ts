@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,31 @@ import {
 } from "./result";
 import { ViewPointForRepository } from "./types";
 
-export class ViewPointRepository {
+export type ViewPointRepository = {
+  getViewPoint(
+    id: string
+  ): Promise<RepositoryAccessResult<ViewPointForRepository>>;
+
+  postViewPoint(body: {
+    testMatrixId: string;
+    name: string;
+    index: number;
+    description: string;
+  }): Promise<RepositoryAccessResult<ViewPointForRepository>>;
+
+  patchViewPoint(
+    id: string,
+    body: {
+      name?: string;
+      description?: string;
+      index?: number;
+    }
+  ): Promise<RepositoryAccessResult<ViewPointForRepository>>;
+
+  deleteViewPoint(id: string): Promise<RepositoryAccessResult<void>>;
+};
+
+export class ViewPointRepositoryImpl implements ViewPointRepository {
   constructor(private restClient: RESTClient) {}
 
   public async getViewPoint(

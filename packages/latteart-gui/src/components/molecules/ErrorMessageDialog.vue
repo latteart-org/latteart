@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,28 +17,31 @@
 <template>
   <alert-dialog
     :opened="opened"
-    :title="$store.getters.message('common.error-dialog-title')"
+    :title="$t('common.error-dialog-title')"
     :message="message"
-    :iconOpts="{ text: 'cancel', color: 'red' }"
+    :icon-opts="{ text: 'cancel', color: 'red' }"
     @close="close()"
   />
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
 import AlertDialog from "@/components/molecules/AlertDialog.vue";
+import { defineComponent } from "vue";
 
-@Component({
+export default defineComponent({
   components: {
-    "alert-dialog": AlertDialog,
+    "alert-dialog": AlertDialog
   },
-})
-export default class ErrorMessageDialog extends Vue {
-  @Prop({ type: Boolean, default: false }) public readonly opened!: boolean;
-  @Prop({ type: String, default: "" }) public readonly message!: string;
+  props: {
+    opened: { type: Boolean, default: false, required: true },
+    message: { type: String, default: "", required: true }
+  },
+  setup(_, context) {
+    const close = (): void => {
+      context.emit("close");
+    };
 
-  private close(): void {
-    this.$emit("close");
+    return { close };
   }
-}
+});
 </script>

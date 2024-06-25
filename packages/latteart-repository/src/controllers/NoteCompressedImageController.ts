@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import { CreateResponseDto } from "../interfaces/NoteCompressedImage";
 import { CompressedImageService } from "../services/CompressedImageService";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("test-results/{testResultId}/notes/{noteId}/compressed-image")
 @Tags("test-results")
@@ -60,19 +61,19 @@ export class NoteCompressedImageController extends Controller {
     const screenshotFileRepository =
       fileRepositoryManager.getRepository("screenshot");
 
-    const testStepService = new TestStepServiceImpl({
+    const testStepService = new TestStepServiceImpl(AppDataSource, {
       screenshotFileRepository,
       timestamp: timestampService,
-      config: new ConfigsService(),
+      config: new ConfigsService(AppDataSource),
     });
-    const noteService = new NotesServiceImpl({
+    const noteService = new NotesServiceImpl(AppDataSource, {
       screenshotFileRepository,
       timestamp: timestampService,
     });
     const logger = createLogger();
 
     try {
-      return new CompressedImageService({
+      return new CompressedImageService(AppDataSource, {
         screenshotFileRepository,
         testStep: testStepService,
         note: noteService,

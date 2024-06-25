@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,27 @@
  */
 
 import { TestResultEntity } from "@/entities/TestResultEntity";
-import { getRepository } from "typeorm";
 import { TimestampService } from "./TimestampService";
 import path from "path";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { convertToDownloadUrl } from "./helper/entityToResponse";
+import { DataSource } from "typeorm";
 
 export class ScreenshotsService {
+  constructor(private dataSource: DataSource) {}
+
   public async getScreenshots(
     testResultId: string,
     fileRepository: FileRepository,
     workingFileRepository: FileRepository,
     timestampService: TimestampService
   ): Promise<string> {
-    const testResult = await getRepository(TestResultEntity).findOne(
-      testResultId,
-      { relations: ["testSteps", "testSteps.screenshot"] }
-    );
+    const testResult = await this.dataSource
+      .getRepository(TestResultEntity)
+      .findOne({
+        where: { id: testResultId },
+        relations: ["testSteps", "testSteps.screenshot"],
+      });
 
     if (!testResult) {
       throw new Error(`TestResult not found.${testResultId}`);

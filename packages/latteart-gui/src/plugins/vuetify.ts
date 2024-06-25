@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import Vue from "vue";
-import Vuetify from "vuetify/lib";
+import "material-design-icons-iconfont/dist/material-design-icons.css";
+import "vuetify/styles";
 
-Vue.use(Vuetify);
+import { createVuetify } from "vuetify";
+import { aliases, md } from "vuetify/iconsets/md";
+import * as components from "vuetify/components";
+import * as directives from "vuetify/directives";
 
-const opts = {
+const vuetify = createVuetify({
+  components,
+  directives,
   icons: {
-    iconfont: "md",
-  },
-  theme: {
-    themes: {
-      light: {
-        "latteart-main": "#424242",
-      },
-    },
-  },
-} as const;
+    defaultSet: "md",
+    aliases,
+    sets: { md }
+  }
+});
 
-export default new Vuetify(opts);
+export default vuetify;

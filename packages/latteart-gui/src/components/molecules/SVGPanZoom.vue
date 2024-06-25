@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
 -->
 
 <template>
-  <div class="svgPanZoom" ref="panZoom">
+  <div ref="panZoomRef" class="svgPanZoom">
     <button
       title="Zoom in"
-      v-bind:class="{ scaleButtonDisabled: scaleUpDisabled }"
+      :class="{ scaleButtonDisabled: scaleUpDisabled }"
       :disabled="scaleUpDisabled"
       class="scaleButton scaleUpButton"
       @click="clickChangeSacleButton('up')"
@@ -27,7 +27,7 @@
     </button>
     <button
       title="Zoom out"
-      v-bind:class="{ scaleButtonDisabled: scaleDownDisabled }"
+      :class="{ scaleButtonDisabled: scaleDownDisabled }"
       :disabled="scaleDownDisabled"
       class="scaleButton scaleDownButton"
       @click="clickChangeSacleButton('down')"
@@ -38,26 +38,30 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { defineComponent, onMounted, ref } from "vue";
 
-@Component
-export default class SVGPanZoom extends Vue {
-  @Prop({ type: Boolean, default: false })
-  public readonly scaleUpDisabled!: boolean;
-  @Prop({ type: Boolean, default: false })
-  public readonly scaleDownDisabled!: boolean;
+export default defineComponent({
+  props: {
+    scaleUpDisabled: { type: Boolean, default: false },
+    scaleDownDisabled: { type: Boolean, default: false }
+  },
+  setup(_, context) {
+    const panZoomRef = ref<any>();
 
-  private mounted() {
-    const panZoom = this.$refs.panZoom as any;
-    const top = panZoom.getBoundingClientRect().y;
-    panZoom.style.position = "fixed";
-    panZoom.style.top = top;
+    onMounted(() => {
+      const panZoom = panZoomRef.value;
+      const top = panZoom.getBoundingClientRect().y;
+      panZoom.style.position = "fixed";
+      panZoom.style.top = top;
+    });
+
+    const clickChangeSacleButton = (scaleMode: string) => {
+      context.emit("changeSvgScale", scaleMode);
+    };
+
+    return { panZoomRef, clickChangeSacleButton };
   }
-
-  private clickChangeSacleButton(scaleMode: string) {
-    this.$emit("changeSvgScale", scaleMode);
-  }
-}
+});
 </script>
 
 <style lang="sass" scoped>

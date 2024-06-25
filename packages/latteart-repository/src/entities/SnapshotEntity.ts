@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { ProjectEntity } from "./ProjectEntity";
 
 @Entity("SNAPSHOTS")
 export class SnapshotEntity {
-  @ManyToOne(() => ProjectEntity, (project) => project.snapshots, {
-    primary: true,
-  })
+  @PrimaryColumn({ name: "project_id" })
+  projectId!: string;
+
+  @ManyToOne(() => ProjectEntity, (project) => project.snapshots)
   @JoinColumn({ name: "project_id" })
   project!: ProjectEntity;
 

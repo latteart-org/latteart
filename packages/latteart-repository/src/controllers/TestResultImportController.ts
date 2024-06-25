@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import { ImportFileRepositoryImpl } from "@/gateways/importFileRepository";
 import { TestResultImportServiceImpl } from "@/services/TestResultImportService";
 import { CreateTestResultImportDto } from "../interfaces/importFileRepository";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("imports/test-results")
 @Tags("imports")
@@ -56,7 +57,7 @@ export class TestResultImportController extends Controller {
     const importFileRepository = new ImportFileRepositoryImpl();
 
     try {
-      const result = await new TestResultImportServiceImpl({
+      const result = await new TestResultImportServiceImpl(AppDataSource, {
         importFileRepository,
         screenshotFileRepository,
         videoFileRepository,

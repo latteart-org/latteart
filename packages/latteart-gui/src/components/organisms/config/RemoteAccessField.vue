@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,24 +18,25 @@
   <v-row>
     <v-col>
       <v-combobox
-        :hide-details="hideDetails"
-        v-model="targetUrl"
-        :items="urls"
-        :label="store.getters.message('remote-access.remote-connection-url')"
         id="connectUrlTextField"
         ref="urlField"
+        v-model="targetUrl"
+        variant="underlined"
+        :hide-details="hideDetails"
+        :items="urls"
+        :label="$t('remote-access.remote-connection-url')"
         :disabled="isCapturing || isReplaying"
         :style="{ 'padding-top': '10px' }"
       ></v-combobox>
     </v-col>
     <v-col cols="auto">
       <v-btn
-        :color="color"
         id="connecttButton"
-        @click="connect()"
+        :color="color"
         :disabled="isCapturing || isReplaying || targetUrl === url"
         class="ma-2"
-        >{{ store.getters.message("remote-access.connect") }}</v-btn
+        @click="connect()"
+        >{{ $t("remote-access.connect") }}</v-btn
       >
     </v-col>
     <information-message-dialog
@@ -57,20 +58,26 @@
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
 import { computed, defineComponent, ref, nextTick, watch } from "vue";
-import { useStore } from "@/store";
-import { CaptureControlState } from "@/store/captureControl";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useTestManagementStore } from "@/stores/testManagement";
 
 export default defineComponent({
-  props: {
-    color: { type: String, default: "", required: true },
-    hideDetails: { type: Boolean, default: false, required: true },
-  },
   components: {
     "error-message-dialog": ErrorMessageDialog,
-    "information-message-dialog": InformationMessageDialog,
+    "information-message-dialog": InformationMessageDialog
+  },
+  props: {
+    color: { type: String, default: "", required: true },
+    hideDetails: { type: Boolean, default: false, required: true }
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
+    const testManagementStore = useTestManagementStore();
+
     const urlField = ref(null);
 
     const informationMessageDialogOpened = ref(false);
@@ -81,25 +88,23 @@ export default defineComponent({
     const remoteUrl = ref("");
 
     const urls = computed((): string[] => {
-      const localUrl = store.state.repositoryService.serviceUrl;
-      const remoteUrls = store.state.repositoryUrls;
+      const localUrl = rootStore.repositoryService?.serviceUrl as string;
+      const remoteUrls = rootStore.repositoryUrls;
       return [localUrl, ...remoteUrls];
     });
 
     const url = computed((): string => {
-      return store.state.repositoryService.serviceUrl;
+      return rootStore.repositoryService?.serviceUrl as string;
     });
 
     const targetUrl = ref(url.value);
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const updateUrl = () => {
@@ -118,37 +123,37 @@ export default defineComponent({
     };
 
     const initialize = async (): Promise<void> => {
-      await store.dispatch("loadLocaleFromSettings");
-      await store.dispatch("readSettings");
-      await store.dispatch("readViewSettings");
-      await store.dispatch("operationHistory/clearTestResult");
-      store.commit("operationHistory/clearStoringTestResultInfos");
-      store.commit("operationHistory/clearScreenTransitionDiagramGraph");
-      store.commit("operationHistory/clearElementCoverages");
-      store.commit("operationHistory/clearInputValueTable");
-      await store.dispatch("captureControl/resetTimer");
-      await store.dispatch("testManagement/readProject");
+      await rootStore.loadLocaleFromSettings();
+      await rootStore.readSettings();
+      await rootStore.readViewSettings();
+      operationHistoryStore.clearTestResult();
+      operationHistoryStore.storingTestResultInfos = [];
+      operationHistoryStore.clearScreenTransitionDiagramGraph();
+      operationHistoryStore.clearElementCoverages();
+      operationHistoryStore.clearInputValueTable();
+      captureControlStore.resetTimer();
+      await testManagementStore.readProject();
     };
 
     const startRemoteConnection = (targetUrl: string) => {
       (async () => {
-        store.dispatch("openProgressDialog", {
-          message: store.getters.message("remote-access.connecting-remote-url"),
+        rootStore.openProgressDialog({
+          message: rootStore.message("remote-access.connecting-remote-url")
         });
 
         try {
-          const url = await store.dispatch("connectRepository", {
-            targetUrl,
+          const url = await rootStore.connectRepository({
+            targetUrl
           });
 
           await initialize();
 
           informationMessageDialogOpened.value = true;
-          informationTitle.value = store.getters.message("common.confirm");
-          informationMessage.value = store.getters.message(
+          informationTitle.value = rootStore.message("common.confirm");
+          informationMessage.value = rootStore.message(
             "remote-access.connect-remote-url-succeeded",
             {
-              url,
+              url
             }
           );
           remoteUrl.value = url;
@@ -160,7 +165,7 @@ export default defineComponent({
             throw error;
           }
         } finally {
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
         }
       })();
     };
@@ -168,7 +173,6 @@ export default defineComponent({
     watch(url, updateUrl);
 
     return {
-      store,
       urlField,
       informationMessageDialogOpened,
       informationTitle,
@@ -180,8 +184,8 @@ export default defineComponent({
       targetUrl,
       isCapturing,
       isReplaying,
-      connect,
+      connect
     };
-  },
+  }
 });
 </script>

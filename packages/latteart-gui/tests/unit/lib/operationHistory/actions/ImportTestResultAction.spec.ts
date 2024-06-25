@@ -1,91 +1,84 @@
-import { ImportTestResultAction } from "@/lib/operationHistory/actions/testResult/ImportTestResultAction";
-import { RESTClientResponse, RESTClient } from "latteart-client";
-import { ImportTestResultRepository } from "latteart-client";
+import { ImportTestResultAction } from '@/lib/operationHistory/actions/testResult/ImportTestResultAction'
+import {
+  type RESTClientResponse,
+  type RESTClient,
+  ImportTestResultRepositoryImpl
+} from 'latteart-client'
 
 const baseRestClient: RESTClient = {
-  serverUrl: "",
-  httpGet: jest.fn(),
-  httpPost: jest.fn(),
-  httpPut: jest.fn(),
-  httpPatch: jest.fn(),
-  httpDelete: jest.fn(),
-  httpGetFile: jest.fn(),
-};
+  serverUrl: '',
+  httpGet: vi.fn(),
+  httpPost: vi.fn(),
+  httpPut: vi.fn(),
+  httpPatch: vi.fn(),
+  httpDelete: vi.fn(),
+  httpGetFile: vi.fn()
+}
 
-describe("ImportTestResultAction", () => {
-  describe("#import", () => {
-    describe("指定のテスト結果ファイルをリポジトリにインポートする", () => {
-      const expectedData = { testResultId: "testResultId" };
+describe('ImportTestResultAction', () => {
+  describe('#import', () => {
+    describe('指定のテスト結果ファイルをリポジトリにインポートする', () => {
+      const expectedData = { testResultId: 'testResultId' }
       const resSuccess: RESTClientResponse = {
         status: 200,
-        data: expectedData,
-      };
+        data: expectedData
+      }
 
       const resFailure: RESTClientResponse = {
         status: 500,
-        data: { code: "errorcode", message: "errormessage" },
-      };
+        data: { code: 'errorcode', message: 'errormessage' }
+      }
 
-      const source = { testResultFile: { data: "data", name: "name" } };
-      const dest = { testResultId: "testResultId" };
+      const source = { testResultFile: { data: 'data', name: 'name' } }
+      const dest = { testResultId: 'testResultId' }
 
-      it("インポートに成功した場合は、インポートされたテスト結果の識別情報を返す", async () => {
+      it('インポートに成功した場合は、インポートされたテスト結果の識別情報を返す', async () => {
         const restClient = {
           ...baseRestClient,
-          httpPost: jest.fn().mockResolvedValue(resSuccess),
-        };
+          httpPost: vi.fn().mockResolvedValue(resSuccess)
+        }
         const action = new ImportTestResultAction({
-          importTestResultRepository: new ImportTestResultRepository(
-            restClient
-          ),
-        });
+          importTestResultRepository: new ImportTestResultRepositoryImpl(restClient)
+        })
 
-        const result = await action.import(source, dest);
+        const result = await action.import(source, dest)
 
-        expect(restClient.httpPost).toBeCalledWith(
-          `api/v1/imports/test-results`,
-          {
-            source,
-            dest,
-          }
-        );
+        expect(restClient.httpPost).toBeCalledWith(`api/v1/imports/test-results`, {
+          source,
+          dest
+        })
         if (result.isSuccess()) {
           expect(result.data).toEqual({
-            testResultId: expectedData.testResultId,
-          });
+            testResultId: expectedData.testResultId
+          })
         } else {
-          throw new Error("failed");
+          throw new Error('failed')
         }
-      });
+      })
 
-      it("インポートに失敗した場合は、エラー情報を返す", async () => {
+      it('インポートに失敗した場合は、エラー情報を返す', async () => {
         const restClient = {
           ...baseRestClient,
-          httpPost: jest.fn().mockResolvedValue(resFailure),
-        };
+          httpPost: vi.fn().mockResolvedValue(resFailure)
+        }
         const action = new ImportTestResultAction({
-          importTestResultRepository: new ImportTestResultRepository(
-            restClient
-          ),
-        });
+          importTestResultRepository: new ImportTestResultRepositoryImpl(restClient)
+        })
 
-        const result = await action.import(source, dest);
+        const result = await action.import(source, dest)
 
-        expect(restClient.httpPost).toBeCalledWith(
-          `api/v1/imports/test-results`,
-          {
-            source,
-            dest,
-          }
-        );
+        expect(restClient.httpPost).toBeCalledWith(`api/v1/imports/test-results`, {
+          source,
+          dest
+        })
         if (result.isSuccess()) {
-          throw new Error("failed");
+          throw new Error('failed')
         } else {
           expect(result.error).toEqual({
-            messageKey: "error.operation_history.import_test_result_failed",
-          });
+            messageKey: 'error.operation_history.import_test_result_failed'
+          })
         }
-      });
-    });
-  });
-});
+      })
+    })
+  })
+})

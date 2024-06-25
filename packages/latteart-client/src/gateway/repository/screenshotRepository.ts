@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,19 @@ import {
   createConnectionRefusedFailure,
 } from "./result";
 
-export class ScreenshotRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type ScreenshotRepository = {
   /**
    * Get screenshots of the specified test result.
    * @param testResultId  Test Result ID.
    * @returns URL of the screenshots archive.
    */
+  getScreenshots(
+    testResultId: string
+  ): Promise<RepositoryAccessResult<{ url: string }>>;
+};
+
+export class ScreenshotRepositoryImpl implements ScreenshotRepository {
+  constructor(private restClient: RESTClient) {}
 
   public async getScreenshots(
     testResultId: string

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@ export type GraphViewForRepository = {
       timestamp: number;
       videoFrame?: VideoFrame;
     }[];
+    radioGroups: { name: string; checkedRadioButtonXPath: string }[];
   };
 };
 
@@ -96,7 +97,7 @@ export type GraphViewNodeForRepository = {
     videoFrame?: VideoFrame;
     testResultId: string;
   }[];
-  defaultValues: { elementId: string; value?: string }[];
+  defaultValues: { elementId: string; value: string }[];
 };
 
 export type NoteForRepository = {

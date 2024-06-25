@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,33 @@
  * limitations under the License.
  */
 
-import { createConnection, getConnection } from "typeorm";
 import path from "path";
+import { DataSource } from "typeorm";
 
 export interface TestConnectionHelper {
-  createTestConnection(option: { logging: boolean }): Promise<void>;
+  createTestConnection(): Promise<void>;
 
   closeTestConnection(): Promise<void>;
 }
 
 const packageRootDirPath = path.join(__dirname, "..", "..");
 
-export class SqliteTestConnectionHelper implements TestConnectionHelper {
-  constructor(private databaseName: string = "test.sqlite") {}
+export const TestDataSource = new DataSource({
+  type: "sqlite",
+  database: path.join(packageRootDirPath, "test.sqlite"),
+  logging: false,
+  entities: [path.join(packageRootDirPath, "src/entities/**/*.ts")],
+  migrations: [path.join(packageRootDirPath, "src/migrations/**/*.ts")],
+  synchronize: true,
+  dropSchema: true,
+});
 
-  public async createTestConnection(option: {
-    logging: boolean;
-  }): Promise<void> {
-    await createConnection({
-      type: "sqlite",
-      database: path.join(packageRootDirPath, this.databaseName),
-      logging: option.logging,
-      entities: [path.join(packageRootDirPath, "src/entities/**/*.ts")],
-      migrations: [path.join(packageRootDirPath, "src/migrations/**/*.ts")],
-      synchronize: true,
-      dropSchema: true,
-    });
+export class SqliteTestConnectionHelper implements TestConnectionHelper {
+  public async createTestConnection(): Promise<void> {
+    await TestDataSource.initialize();
   }
 
   public async closeTestConnection(): Promise<void> {
-    await getConnection().close();
+    await TestDataSource.destroy();
   }
 }

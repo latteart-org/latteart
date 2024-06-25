@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import {
   Get,
 } from "tsoa";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("stories")
 @Tags("stories")
@@ -51,7 +52,10 @@ export class StoriesController extends Controller {
     @Body() requestBody: PatchStoryDto
   ): Promise<PatchStoryResponse> {
     try {
-      return await new StoriesService().patchStory(storyId, requestBody);
+      return await new StoriesService(AppDataSource).patchStory(
+        storyId,
+        requestBody
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Patch story failed.", error);
@@ -74,7 +78,7 @@ export class StoriesController extends Controller {
   @Get("{storyId}")
   public async getStory(@Path() storyId: string): Promise<GetStoryResponse> {
     try {
-      return await new StoriesService().getStory(storyId);
+      return await new StoriesService(AppDataSource).getStory(storyId);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Get story failed.", error);

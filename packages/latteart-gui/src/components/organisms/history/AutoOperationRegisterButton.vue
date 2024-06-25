@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,11 +19,10 @@
     <v-btn
       :disabled="isDisabled"
       color="blue"
-      :dark="!isDisabled"
-      @click="registerDialogOpened = true"
-      small
+      size="small"
       class="mx-2"
-      >{{ store.getters.message("app.register-operation") }}
+      @click="registerDialogOpened = true"
+      >{{ $t("app.register-operation") }}
     </v-btn>
 
     <auto-operation-register-dialog
@@ -46,34 +45,33 @@
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import AutoOperationRegisterDialog from "@/components/organisms/dialog/AutoOperationRegisterDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { CaptureControlState } from "@/store/captureControl";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
   components: {
     "auto-operation-register-dialog": AutoOperationRegisterDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const operationHistoryStore = useOperationHistoryStore();
+    const captureControlStore = useCaptureControlStore();
 
     const registerDialogOpened = ref(false);
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
 
     const targetOperations = computed((): OperationForGUI[] => {
-      return (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).checkedOperations.map((item) => {
+      return operationHistoryStore.checkedOperations.map((item) => {
         return item.operation;
       });
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isDisabled = computed((): boolean => {
@@ -81,13 +79,13 @@ export default defineComponent({
     });
 
     const clearCheckedOperations = () => {
-      store.commit("operationHistory/clearCheckedOperations");
+      operationHistoryStore.checkedOperations = [];
       registerDialogOpened.value = false;
     };
 
     const openInvalidTypeErrorDialog = (invalidTypes: string[]): void => {
       registerDialogOpened.value = false;
-      errorMessage.value = store.getters.message(
+      errorMessage.value = rootStore.message(
         "error.operation_history.register_failed_with_invalid_type",
         { value: invalidTypes.join(",") }
       );
@@ -95,15 +93,14 @@ export default defineComponent({
     };
 
     return {
-      store,
       registerDialogOpened,
       errorMessageDialogOpened,
       errorMessage,
       targetOperations,
       isDisabled,
       clearCheckedOperations,
-      openInvalidTypeErrorDialog,
+      openInvalidTypeErrorDialog
     };
-  },
+  }
 });
 </script>

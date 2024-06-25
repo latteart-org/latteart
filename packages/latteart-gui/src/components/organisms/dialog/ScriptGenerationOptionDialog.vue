@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,19 +16,14 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="store.getters.message('test-result-page.generate-testscript-title')"
+    :title="$t('test-result-page.generate-testscript-title')"
     @accept="
       execute();
       close();
     "
     @cancel="close()"
   >
-    <template>
-      <script-generation-option
-        v-if="isOptionDisplayed"
-        @update="updateOption"
-      />
-    </template>
+    <script-generation-option v-if="isOptionDisplayed" @update="updateOption" />
   </execute-dialog>
 </template>
 
@@ -36,19 +31,16 @@
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import ScriptGenerationOption from "../common/ScriptGenerationOption.vue";
 import { defineComponent, ref, toRefs, watch, nextTick } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false },
-  },
   components: {
     "execute-dialog": ExecuteDialog,
-    "script-generation-option": ScriptGenerationOption,
+    "script-generation-option": ScriptGenerationOption
+  },
+  props: {
+    opened: { type: Boolean, default: false }
   },
   setup(props, context) {
-    const store = useStore();
-
     const isOptionDisplayed = ref<boolean>(false);
 
     const option = ref<{
@@ -61,7 +53,7 @@ export default defineComponent({
     }>({
       testScript: { isSimple: false, useMultiLocator: false },
       testData: { useDataDriven: false, maxGeneration: 0 },
-      buttonDefinitions: [],
+      buttonDefinitions: []
     });
 
     const updateOption = (updateOption: {
@@ -96,12 +88,11 @@ export default defineComponent({
     watch(opened, rerenderOption);
 
     return {
-      store,
       isOptionDisplayed,
       updateOption,
       execute,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

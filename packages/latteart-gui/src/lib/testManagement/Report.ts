@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ export default class Report {
     intentionValue: "Intention",
     intentionDetails: "IntentionDetails",
     bugValue: "Bug",
-    bugDetails: "BugDetails",
+    bugDetails: "BugDetails"
   };
   private _rows: ReportRow[] = [];
 

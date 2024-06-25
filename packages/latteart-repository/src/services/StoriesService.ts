@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,17 @@ import {
   PatchStoryResponse,
 } from "../interfaces/Stories";
 import { storyEntityToResponse } from "./helper/entityToResponse";
-import { getRepository } from "typeorm";
+import { DataSource } from "typeorm";
 
 export class StoriesService {
+  constructor(private dataSource: DataSource) {}
+
   public async patchStory(
     storyId: string,
     requestBody: PatchStoryDto
   ): Promise<PatchStoryResponse> {
-    const storyRepository = getRepository(StoryEntity);
-    const story = await storyRepository.findOne(storyId);
+    const storyRepository = this.dataSource.getRepository(StoryEntity);
+    const story = await storyRepository.findOneBy({ id: storyId });
     if (!story) {
       throw new Error(`Story not found. :${storyId}`);
     }
@@ -42,7 +44,8 @@ export class StoriesService {
   }
 
   public async getStory(id: string): Promise<GetStoryResponse> {
-    const story = await getRepository(StoryEntity).findOne(id, {
+    const story = await this.dataSource.getRepository(StoryEntity).findOne({
+      where: { id },
       relations: [
         "sessions",
         "sessions.attachedFiles",

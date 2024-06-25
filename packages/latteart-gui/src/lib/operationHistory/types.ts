@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 import { OperationForGUI } from "./OperationForGUI";
 import { NoteForGUI } from "./NoteForGUI";
 import {
-  Operation,
-  ElementInfo,
-  TestResultForRepository,
-  TestResultComparisonResultForRepository,
-  Note,
+  type Operation,
+  type ElementInfo,
+  type TestResultForRepository,
+  type TestResultComparisonResultForRepository,
+  type Note
 } from "latteart-client";
 
 /**
@@ -144,10 +144,7 @@ export interface ScreenDefinitionConditionGroup {
   }>;
 }
 
-export type TestResult = Omit<
-  TestResultForRepository,
-  "testSteps" | "coverageSources"
-> & {
+export type TestResult = Omit<TestResultForRepository, "testSteps" | "coverageSources"> & {
   testSteps: {
     id: string;
     operation: Operation;
@@ -189,8 +186,7 @@ export interface NoteDialogInfo {
   videoFilePath: string;
 }
 
-export type TestResultComparisonResult =
-  TestResultComparisonResultForRepository;
+export type TestResultComparisonResult = TestResultComparisonResultForRepository;
 
 export type ScreenImage = {
   background: { image: { url: string }; video?: { url: string; time: number } };

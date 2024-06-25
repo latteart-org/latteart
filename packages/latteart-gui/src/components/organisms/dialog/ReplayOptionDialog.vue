@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,65 +17,64 @@
 <template>
   <div>
     <scrollable-dialog :opened="opened">
-      <template v-slot:title>{{
-        store.getters.message("replay-option.start-replay")
-      }}</template>
-      <template v-slot:content>
+      <template #title>{{ $t("replay-option.start-replay") }}</template>
+      <template #content>
         <v-checkbox
-          :label="store.getters.message('replay-option.replay-capture')"
           v-model="isResultSavingEnabled"
+          density="comfortable"
           hide-details
+          :label="$t('replay-option.replay-capture')"
         ></v-checkbox>
 
         <v-card flat>
           <v-card-text>
             <v-text-field
-              :disabled="!isResultSavingEnabled"
-              :label="store.getters.message('replay-option.test-result-name')"
               v-model="testResultName"
+              variant="underlined"
+              :disabled="!isResultSavingEnabled"
+              :label="$t('replay-option.test-result-name')"
               hide-details
             ></v-text-field>
           </v-card-text>
         </v-card>
 
-        <p
-          v-if="savingReplayResultsWarningMessage !== ''"
-          class="alert-message"
-        >
+        <p v-if="savingReplayResultsWarningMessage !== ''" class="alert-message">
           {{ savingReplayResultsWarningMessage }}
         </p>
 
         <v-checkbox
+          v-model="isComparisonEnabled"
+          density="comfortable"
           :disabled="!isResultSavingEnabled"
           :label="
-            store.getters.message('replay-option.replay-compare', {
-              sourceTestResultName,
+            $t('replay-option.replay-compare', {
+              sourceTestResultName
             })
           "
-          v-model="isComparisonEnabled"
         ></v-checkbox>
 
         <p class="alert-message">{{ alertMessage }}</p>
       </template>
-      <template v-slot:footer>
+      <template #footer>
         <v-spacer></v-spacer>
         <v-btn
           :disabled="okButtonIsDisabled"
-          :dark="!okButtonIsDisabled"
+          variant="elevated"
           color="blue"
           @click="
             ok();
             close();
           "
         >
-          {{ store.getters.message("common.ok") }}
+          {{ $t("common.ok") }}
         </v-btn>
         <v-btn
+          variant="elevated"
           @click="
             cancel();
             close();
           "
-          >{{ store.getters.message("common.cancel") }}</v-btn
+          >{{ $t("common.cancel") }}</v-btn
         >
       </template>
     </scrollable-dialog>
@@ -91,20 +90,24 @@
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import { OperationHistoryState } from "@/store/operationHistory";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
+import { useRootStore } from "@/stores/root";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true },
-  },
   components: {
     "scrollable-dialog": ScrollableDialog,
-    "error-message-dialog": ErrorMessageDialog,
+    "error-message-dialog": ErrorMessageDialog
   },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
+  },
+  emits: ["ok", "cancel", "close"],
   setup(props, context) {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const testResultName = ref("");
     const isResultSavingEnabled = ref(false);
@@ -121,17 +124,13 @@ export default defineComponent({
     });
 
     const savingReplayResultsWarningMessage = computed((): string => {
-      return store.state.projectSettings.config.captureMediaSetting
-        .mediaType === "video"
-        ? store.getters.message(
-            "replay-option.saving-replay-results-warning-message"
-          )
+      return rootStore.projectSettings.config.captureMediaSetting.mediaType === "video"
+        ? rootStore.message("replay-option.saving-replay-results-warning-message")
         : "";
     });
 
     const hasIgnoredOperations = computed((): boolean => {
-      const operations: OperationForGUI[] =
-        store.getters["operationHistory/getOperations"]();
+      const operations: OperationForGUI[] = operationHistoryStore.getOperations();
 
       return operations.some(({ type }, index) => {
         if (index > 0 && type === "start_capturing") {
@@ -147,8 +146,7 @@ export default defineComponent({
     });
 
     const sourceTestResultName = computed(() => {
-      return ((store.state as any).operationHistory as OperationHistoryState)
-        .testResultInfo.name;
+      return operationHistoryStore.testResultInfo.name;
     });
 
     const initialize = () => {
@@ -160,23 +158,17 @@ export default defineComponent({
       isResultSavingEnabled.value = false;
       isComparisonEnabled.value = false;
       alertMessage.value = hasIgnoredOperations.value
-        ? store.getters.message("replay-option.ignored-operations-alert")
+        ? rootStore.message("replay-option.ignored-operations-alert")
         : "";
     };
 
     const ok = () => {
       try {
-        store.commit("captureControl/setReplayOption", {
-          replayOption: {
-            testResultName: isResultSavingEnabled.value
-              ? testResultName.value
-              : "",
-            resultSavingEnabled: isResultSavingEnabled.value,
-            comparisonEnabled: isResultSavingEnabled.value
-              ? isComparisonEnabled.value
-              : false,
-          },
-        });
+        captureControlStore.replayOption = {
+          testResultName: isResultSavingEnabled.value ? testResultName.value : "",
+          resultSavingEnabled: isResultSavingEnabled.value,
+          comparisonEnabled: isResultSavingEnabled.value ? isComparisonEnabled.value : false
+        };
 
         context.emit("ok");
       } catch (error) {
@@ -201,7 +193,6 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      store,
       testResultName,
       isResultSavingEnabled,
       isComparisonEnabled,
@@ -213,9 +204,9 @@ export default defineComponent({
       sourceTestResultName,
       ok,
       cancel,
-      close,
+      close
     };
-  },
+  }
 });
 </script>
 

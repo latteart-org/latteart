@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,30 @@ import {
 } from "./result";
 import { SettingsForRepository } from "./types";
 
-export class ImportProjectRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type ImportProjectRepository = {
   /**
    * Import project or testresult or all.
    * @param importFileName  Import file name.
    * @param selectOption  Select options.
    */
+  postProjects(
+    source: { projectFile: { data: string; name: string } },
+    selectOption: {
+      includeProject: boolean;
+      includeTestResults: boolean;
+      includeConfig: boolean;
+    }
+  ): Promise<
+    RepositoryAccessResult<{
+      projectId: string;
+      config?: SettingsForRepository;
+    }>
+  >;
+};
+
+export class ImportProjectRepositoryImpl implements ImportProjectRepository {
+  constructor(private restClient: RESTClient) {}
+
   public async postProjects(
     source: { projectFile: { data: string; name: string } },
     selectOption: {

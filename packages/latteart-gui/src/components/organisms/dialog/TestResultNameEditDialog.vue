@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="store.getters.message('test-result-list.edit')"
+      :title="$t('test-result-list.edit')"
+      :accept-button-disabled="okButtonIsDisabled"
       @accept="
         execute();
         close();
@@ -27,33 +28,25 @@
         cancel();
         close();
       "
-      :acceptButtonDisabled="okButtonIsDisabled"
     >
-      <template>
-        <v-text-field v-model="testResultName"></v-text-field>
-      </template>
+      <v-text-field v-model="testResultName" variant="underlined"></v-text-field>
     </execute-dialog>
   </div>
 </template>
 
 <script lang="ts">
-import NumberField from "@/components/molecules/NumberField.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
+  components: {
+    "execute-dialog": ExecuteDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
-    oldTestResultName: { type: String, default: "", required: true },
-  },
-  components: {
-    "number-field": NumberField,
-    "execute-dialog": ExecuteDialog,
+    oldTestResultName: { type: String, default: "", required: true }
   },
   setup(props, context) {
-    const store = useStore();
-
     const testResultName = ref("");
 
     const okButtonIsDisabled = computed(() => {
@@ -84,13 +77,12 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      store,
       testResultName,
       okButtonIsDisabled,
       execute,
       cancel,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

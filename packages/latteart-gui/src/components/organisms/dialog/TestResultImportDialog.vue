@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,43 +16,31 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="
-      store.getters.message('import-export-dialog.test-result-import-title')
-    "
+    :title="$t('import-export-dialog.test-result-import-title')"
+    :accept-button-disabled="okButtonIsDisabled"
     @accept="
       execute();
       close();
     "
     @cancel="close()"
-    :acceptButtonDisabled="okButtonIsDisabled"
   >
-    <template>
-      <v-container id="import-option-dialog">
-        <v-row>
-          <v-col cols="12">
-            {{
-              store.getters.message(
-                "import-export-dialog.select-test-result-file-label"
-              )
-            }}
-          </v-col>
+    <v-container id="import-option-dialog">
+      <v-row>
+        <v-col cols="12">
+          {{ $t("import-export-dialog.select-test-result-file-label") }}
+        </v-col>
 
-          <v-col cols="12" class="pl-2 pr-2 pt-2">
-            <select-file-button
-              accept=".zip"
-              :details-message="targetFile ? targetFile.name : ''"
-              @select="selectImportFile"
-            >
-              {{
-                store.getters.message(
-                  "import-export-dialog.select-test-result-file-button"
-                )
-              }}
-            </select-file-button>
-          </v-col>
-        </v-row>
-      </v-container>
-    </template>
+        <v-col cols="12" class="pl-2 pr-2 pt-2">
+          <select-file-button
+            accept=".zip"
+            :details-message="targetFile ? targetFile.name : ''"
+            @select="selectImportFile"
+          >
+            {{ $t("import-export-dialog.select-test-result-file-button") }}
+          </select-file-button>
+        </v-col>
+      </v-row>
+    </v-container>
   </execute-dialog>
 </template>
 
@@ -61,19 +49,16 @@ import { loadFileAsBase64 } from "@/lib/common/util";
 import SelectFileButton from "@/components/molecules/SelectFileButton.vue";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
-  props: {
-    opened: { type: Boolean, default: false, required: true },
-  },
   components: {
     "execute-dialog": ExecuteDialog,
-    "select-file-button": SelectFileButton,
+    "select-file-button": SelectFileButton
+  },
+  props: {
+    opened: { type: Boolean, default: false, required: true }
   },
   setup(props, context) {
-    const store = useStore();
-
     const targetFile = ref<File | null>(null);
 
     const okButtonIsDisabled = computed(() => {
@@ -112,14 +97,13 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      store,
       targetFile,
       okButtonIsDisabled,
       selectImportFile,
       execute,
-      close,
+      close
     };
-  },
+  }
 });
 </script>
 

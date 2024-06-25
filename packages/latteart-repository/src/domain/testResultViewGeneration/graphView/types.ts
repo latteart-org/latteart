@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ export type GraphView = {
     }[];
     testPurposes: { id: string }[];
     notes: { id: string }[];
+    radioGroups: { name: string; checkedRadioButtonXPath: string }[];
   };
 };
 
@@ -77,7 +78,7 @@ export type GraphViewNode = {
     pageUrl: string;
     pageTitle: string;
   }[];
-  defaultValues: { elementId: string; value?: string }[];
+  defaultValues: { elementId: string; value: string }[];
 };
 
 export type TestStepForGraphView = Pick<TestStep, "id"> & {
@@ -88,7 +89,7 @@ export type TestStepForGraphView = Pick<TestStep, "id"> & {
   > & {
     elementInfo: Pick<
       ElementInfo,
-      "xpath" | "tagname" | "text" | "attributes" | "iframe"
+      "xpath" | "tagname" | "text" | "attributes" | "iframe" | "checked"
     > | null;
     inputElements: Pick<
       ElementInfo,

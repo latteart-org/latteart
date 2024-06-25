@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,18 @@ import {
 } from "./result";
 import { SessionForRepository, StoryForRepository } from "./types";
 
-export class StoryRepository {
+export type StoryRepository = {
+  patchStory(
+    id: string,
+    body: {
+      status?: string;
+    }
+  ): Promise<RepositoryAccessResult<StoryForRepository>>;
+
+  getStory(id: string): Promise<RepositoryAccessResult<StoryForRepository>>;
+};
+
+export class StoryRepositoryImpl implements StoryRepository {
   constructor(private restClient: RESTClient) {}
 
   public async patchStory(

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { AppDataSource } from "@/data-source";
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import {
   CompareTestResultsDto,
@@ -52,12 +53,12 @@ export class TestResultComparisonController extends Controller {
     const compareReportRepository = fileRepositoryManager.getRepository("temp");
 
     try {
-      const result = await new TestResultServiceImpl({
+      const result = await new TestResultServiceImpl(AppDataSource, {
         timestamp: timestampService,
-        testStep: new TestStepServiceImpl({
+        testStep: new TestStepServiceImpl(AppDataSource, {
           screenshotFileRepository,
           timestamp: timestampService,
-          config: new ConfigsService(),
+          config: new ConfigsService(AppDataSource),
         }),
         screenshotFileRepository,
         workingFileRepository,

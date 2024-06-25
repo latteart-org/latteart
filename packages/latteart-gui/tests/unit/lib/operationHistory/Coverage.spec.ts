@@ -1,4 +1,4 @@
-import { GraphView } from "latteart-client";
+import { type GraphView } from "latteart-client";
 import { getCoverages } from "@/lib/operationHistory/Coverage";
 
 describe("getCoverages", () => {
@@ -17,7 +17,7 @@ describe("getCoverages", () => {
               pageUrl: "",
               pageTitle: "",
               imageFileUrl: "e1.png",
-              testResultId: "",
+              testResultId: ""
             },
             {
               id: "",
@@ -26,11 +26,11 @@ describe("getCoverages", () => {
               pageUrl: "",
               pageTitle: "",
               imageFileUrl: "",
-              testResultId: "",
-            },
+              testResultId: ""
+            }
           ],
-          defaultValues: [],
-        },
+          defaultValues: []
+        }
       ],
       store: {
         windows: [],
@@ -43,7 +43,7 @@ describe("getCoverages", () => {
             xpath: "xpath1",
             tagname: "tagname1",
             text: "text1",
-            attributes: {},
+            attributes: {}
           },
           {
             id: "e2",
@@ -52,12 +52,13 @@ describe("getCoverages", () => {
             xpath: "xpath2",
             tagname: "tagname2",
             text: "text2",
-            attributes: {},
-          },
+            attributes: {}
+          }
         ],
         testPurposes: [],
         notes: [],
-      },
+        radioGroups: []
+      }
     };
     const inclusionTags: string[] = ["tagname1", "tagname2"];
 
@@ -75,7 +76,7 @@ describe("getCoverages", () => {
             id: "",
             imageFileUrl: "",
             name: "",
-            operated: true,
+            operated: true
           },
           {
             tagname: "tagname2",
@@ -84,10 +85,10 @@ describe("getCoverages", () => {
             id: "",
             imageFileUrl: "",
             name: "",
-            operated: false,
-          },
-        ],
-      },
+            operated: false
+          }
+        ]
+      }
     ]);
   });
 });

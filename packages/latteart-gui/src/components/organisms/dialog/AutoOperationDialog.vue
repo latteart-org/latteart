@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,17 +15,11 @@
 -->
 
 <template>
-  <scrollable-dialog :opened="opened" :maxWidth="2000">
-    <template v-slot:title>{{
-      store.getters.message("config-page.autoOperation.title")
-    }}</template>
-    <template v-slot:content>
-      <v-data-table
-        :headers="headers"
-        :items="viewOperations"
-        :options.sync="options"
-      >
-        <template v-slot:items="props">
+  <scrollable-dialog :opened="opened" :max-width="2000">
+    <template #title>{{ $t("config-page.autoOperation.title") }}</template>
+    <template #content>
+      <v-data-table v-model:options="options" :headers="headers" :items="viewOperations">
+        <template #item="props">
           <tr>
             <td>{{ props.item.sequence }}</td>
             <td>{{ props.item.title }}</td>
@@ -39,39 +33,37 @@
         </template>
       </v-data-table>
     </template>
-    <template v-slot:footer>
+    <template #footer>
       <v-spacer></v-spacer>
-      <v-btn color="white" @click="close()">{{
-        store.getters.message("common.close")
-      }}</v-btn>
+      <v-btn variant="elevated" color="white" @click="close()">{{ $t("common.close") }}</v-btn>
     </template>
   </scrollable-dialog>
 </template>
 
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import { convertInputValue } from "@/lib/common/util";
-import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
+import type { AutoOperation } from "@/lib/operationHistory/types";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
+  components: {
+    "scrollable-dialog": ScrollableDialog
+  },
   props: {
     opened: { type: Boolean, default: false, required: true },
     autoOperations: {
-      type: Array as PropType<OperationForGUI[]>,
-      default: [],
-      required: true,
+      type: Array as PropType<AutoOperation[]>,
+      default: () => [],
+      required: true
     },
     page: { type: Number, default: 1 },
-    itemsPerPage: { type: Number, default: -1 },
+    itemsPerPage: { type: Number, default: -1 }
   },
-  components: {
-    "scrollable-dialog": ScrollableDialog,
-  },
+  emits: ["close"],
   setup(props, context) {
-    const store = useStore();
+    const t = useRootStore().message;
 
     const initialize = () => {
       if (!props.opened) {
@@ -81,51 +73,51 @@ export default defineComponent({
 
     const options = ref<{ page: number; itemsPerPage: number }>({
       page: props.page,
-      itemsPerPage: props.itemsPerPage,
+      itemsPerPage: props.itemsPerPage
     });
 
     const headers = computed(() => {
       return [
         {
-          text: store.getters.message(`operation.sequence`),
+          title: t(`operation.sequence`),
           sortable: false,
-          value: "sequence",
+          value: "sequence"
         },
         {
-          text: store.getters.message(`operation.title`),
+          title: t(`operation.title`),
           sortable: false,
-          value: "title",
+          value: "title"
         },
         {
-          text: store.getters.message(`operation.url`),
+          title: t(`operation.url`),
           sortable: false,
-          value: "url",
+          value: "url"
         },
         {
-          text: store.getters.message(`operation.tagname`),
+          title: t(`operation.tagname`),
           sortable: false,
-          value: "tag",
+          value: "tag"
         },
         {
-          text: store.getters.message(`operation.name`),
+          title: t(`operation.name`),
           sortable: false,
-          value: "tagname",
+          value: "tagname"
         },
         {
-          text: store.getters.message(`operation.text`),
+          title: t(`operation.text`),
           sortable: false,
-          value: "text",
+          value: "text"
         },
         {
-          text: store.getters.message(`operation.type`),
+          title: t(`operation.type`),
           sortable: false,
-          value: "type",
+          value: "type"
         },
         {
-          text: store.getters.message(`operation.input`),
+          title: t(`operation.input`),
           sortable: false,
-          value: "input",
-        },
+          value: "input"
+        }
       ];
     });
 
@@ -137,15 +129,10 @@ export default defineComponent({
           url: operation.url,
           tag: operation.elementInfo?.tagname ?? "",
           tagname: operation.elementInfo?.attributes.name ?? "",
-          text: operation.elementInfo?.text
-            ? operation.elementInfo.text.substring(0, 60)
-            : "",
+          text: operation.elementInfo?.text ? operation.elementInfo.text.substring(0, 60) : "",
           type: operation.type,
-          input: convertInputValue(
-            operation.elementInfo,
-            operation.input
-          ).substring(0, 60),
-          iframeIndex: operation.elementInfo?.iframe?.index,
+          input: operation.input.substring(0, 60),
+          iframeIndex: operation.elementInfo?.iframe?.index
         };
       });
     });
@@ -158,12 +145,11 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
-      store,
       options,
       headers,
       viewOperations,
-      close,
+      close
     };
-  },
+  }
 });
 </script>

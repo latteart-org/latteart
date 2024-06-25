@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -188,9 +188,8 @@ export class ProjectImportService {
             viewPointEntity.index = index;
             viewPointEntity.testMatrices = [newTestMatrixEntity];
             console.log(viewPointEntity);
-            const newViewPointEntity = await transactionalEntityManager.save(
-              viewPointEntity
-            );
+            const newViewPointEntity =
+              await transactionalEntityManager.save(viewPointEntity);
             viewPointMap.set(viewPointBeforeSaving.id, newViewPointEntity);
           }
 
@@ -222,9 +221,8 @@ export class ProjectImportService {
               testTargetEntity.text = JSON.stringify(plans);
               testTargetEntity.index = testTargetIndex;
               testTargetEntity.testTargetGroup = groupEntity;
-              const newTestTargetEntity = await transactionalEntityManager.save(
-                testTargetEntity
-              );
+              const newTestTargetEntity =
+                await transactionalEntityManager.save(testTargetEntity);
               testTargetRelationMap.set(
                 testTargetBeforeSaving.id,
                 newTestTargetEntity.id
@@ -264,9 +262,8 @@ export class ProjectImportService {
                 storyEntity.testMatrix = newTestMatrixEntity;
                 storyEntity.viewPoint = newViewPointEntity;
                 storyEntity.testTarget = newTestTargetEntity;
-                const newStoryEntity = await transactionalEntityManager.save(
-                  storyEntity
-                );
+                const newStoryEntity =
+                  await transactionalEntityManager.save(storyEntity);
 
                 const storyData = projectData.stories.find(
                   (s) => s.storyId === storyBeforeSaving.id
@@ -331,6 +328,7 @@ export class ProjectImportService {
                       service.attachedFileRepository.getFileUrl(fileName);
                     attachedFileEntities.push(
                       new AttachedFileEntity({
+                        sessionId: newSessionEntity.id,
                         session: newSessionEntity,
                         name: attachedFileBeforeSaving.name,
                         fileUrl: attachedFileImageUrl,

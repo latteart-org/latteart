@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,40 +19,24 @@
     <v-row>
       <v-col cols="12" class="py-0 my-0">
         <h4>
-          {{
-            store.getters.message(
-              "config-page.screen-def.default-screen-definition"
-            )
-          }}
+          {{ $t("config-page.screen-def.default-screen-definition") }}
         </h4>
         <v-radio-group
-          :value="tempConfig.screenDefType"
+          :model-value="tempConfig.screenDefType"
           class="py-0 my-0"
-          row
-          @change="changeScreenDefType"
+          inline
+          @update:model-value="changeScreenDefType"
         >
-          <v-radio
-            :label="
-              store.getters.message('config-page.screen-def.judgement-title')
-            "
-            value="title"
-          ></v-radio>
-          <v-radio
-            :label="
-              store.getters.message('config-page.screen-def.judgement-url')
-            "
-            value="url"
-          ></v-radio>
+          <v-radio :label="$t('config-page.screen-def.judgement-title')" value="title"></v-radio>
+          <v-radio :label="$t('config-page.screen-def.judgement-url')" value="url"></v-radio>
         </v-radio-group>
       </v-col>
       <v-col cols="12">
         <h4>
-          {{
-            store.getters.message("config-page.screen-def.priority-condition")
-          }}
+          {{ $t("config-page.screen-def.priority-condition") }}
         </h4>
         <screen-def-unit-container
-          :screenDefinition="tempConfig"
+          :screen-definition="tempConfig"
           @update-condition-groups="updateConditionGroups"
         ></screen-def-unit-container>
       </v-col>
@@ -61,30 +45,28 @@
 </template>
 
 <script lang="ts">
-import { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
-import { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
+import type { ScreenDefinitionSetting } from "@/lib/common/settings/Settings";
+import type { ScreenDefinitionConditionGroup } from "@/lib/operationHistory/types";
 import ScreenDefUnitContainer from "./ScreenDefUnitContainer.vue";
 import { defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
 import type { PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "screen-def-unit-container": ScreenDefUnitContainer
+  },
   props: {
     opened: { type: Boolean, required: true },
     screenDefinition: {
       type: Object as PropType<ScreenDefinitionSetting>,
       default: null,
-      required: true,
-    },
+      required: true
+    }
   },
-  components: {
-    "screen-def-unit-container": ScreenDefUnitContainer,
-  },
+  emits: ["save-config"],
   setup(props, context) {
-    const store = useStore();
-
     const tempConfig = ref<ScreenDefinitionSetting>({
-      ...props.screenDefinition,
+      ...props.screenDefinition
     });
 
     const updateTempConfig = () => {
@@ -99,13 +81,14 @@ export default defineComponent({
       }
     };
 
-    const updateConditionGroups = (
-      conditionGroups: ScreenDefinitionConditionGroup[]
-    ) => {
+    const updateConditionGroups = (conditionGroups: ScreenDefinitionConditionGroup[]) => {
       tempConfig.value = { ...tempConfig.value, conditionGroups };
     };
 
-    const changeScreenDefType = (screenDefType: "title" | "url"): void => {
+    const changeScreenDefType = (screenDefType: "title" | "url" | null): void => {
+      if (screenDefType === null) {
+        return;
+      }
       tempConfig.value = { ...tempConfig.value, screenDefType };
     };
 
@@ -114,11 +97,10 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      store,
       tempConfig,
       updateConditionGroups,
-      changeScreenDefType,
+      changeScreenDefType
     };
-  },
+  }
 });
 </script>

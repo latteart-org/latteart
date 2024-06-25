@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,18 +15,24 @@
 -->
 <template>
   <v-card flat class="pa-0">
-    <v-container class="px-0" fluid id="export-option">
+    <v-container id="export-option" class="px-0" fluid>
       <v-checkbox
-        :label="store.getters.message('import-export-dialog.project-data')"
         v-model="option.selectedOptionProject"
+        density="comfortable"
+        hide-details
+        :label="$t('import-export-dialog.project-data')"
       />
       <v-checkbox
-        :label="store.getters.message('import-export-dialog.testresult-data')"
         v-model="option.selectedOptionTestresult"
+        density="comfortable"
+        hide-details
+        :label="$t('import-export-dialog.testresult-data')"
       />
       <v-checkbox
-        :label="store.getters.message('import-export-dialog.config-data')"
         v-model="option.selectedOptionConfig"
+        density="comfortable"
+        hide-details
+        :label="$t('import-export-dialog.config-data')"
       />
     </v-container>
   </v-card>
@@ -34,16 +40,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
+  emits: ["update"],
   setup(_, context) {
-    const store = useStore();
-
     const option = ref({
       selectedOptionProject: true,
       selectedOptionTestresult: true,
-      selectedOptionConfig: true,
+      selectedOptionConfig: true
     });
 
     const update = (): void => {
@@ -53,10 +57,9 @@ export default defineComponent({
     watch(option, update, { deep: true });
 
     return {
-      store,
-      option,
+      option
     };
-  },
+  }
 });
 </script>
 

@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,110 +14,57 @@
  limitations under the License.
 -->
 <template>
-  <v-data-table
-    :headers-length="headersLength"
-    :items="items"
-    :headers="addedPaddingCellheaders"
-    :header-props="{
-      'sort-icon': sortIcon,
-    }"
-    :hide-default-header="hideDefaultHeader"
-    :hide-default-footer="hideActions"
-    :options.sync="optionsSync"
-  >
-    <template v-for="(slot, name) of $scopedSlots" #[name]="props">
+  <v-data-table :items="items" :headers="addedPaddingCellheaders" :items-per-page="itemPerPage">
+    <template v-for="(name, index) of Object.keys($slots) as {}" #[name]="props" :key="index">
       <slot :name="name" v-bind="props"></slot>
     </template>
+    <template v-if="hideActions" #bottom />
   </v-data-table>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { computed, defineComponent, type PropType } from "vue";
 
-@Component
-export default class FixedDataTable extends Vue {
-  @Prop({ type: Number, default: undefined })
-  public readonly headersLength!: number;
+export default defineComponent({
+  props: {
+    items: { type: Array, default: () => [] },
+    headers: {
+      type: Array as PropType<
+        {
+          value?: string;
+          align?: "start" | "end" | "center" | undefined;
+          sortable?: boolean;
+          headerProps?: { [x: string]: string };
+          title?: string;
+          width?: string;
+        }[]
+      >,
+      default: () => []
+    },
+    hideActions: { type: Boolean, default: false },
+    itemPerPage: { type: Number, default: -1 },
+    gridColumnNumber: { type: Number, default: 7 }
+  },
+  setup(props) {
+    const addedPaddingCellheaders = computed(
+      (): {
+        value?: string;
+        align?: "start" | "end" | "center" | undefined;
+        sortable?: boolean;
+        headerProps?: { [x: string]: string };
+        title?: string;
+        width?: string;
+      }[] => {
+        const result = props.headers.map((header) => header);
+        if (result.length < props.gridColumnNumber) {
+          result.push({ sortable: false });
+        }
 
-  @Prop({ type: Array, default: [] })
-  public readonly items!: [];
+        return result;
+      }
+    );
 
-  @Prop({ type: Array, default: [] })
-  public readonly headers!: {
-    value?: string;
-    align?: string;
-    sortable?: boolean;
-    class?: string[];
-    text?: string;
-    width?: string;
-  }[];
-
-  @Prop({ type: String, default: undefined })
-  public readonly sortIcon!: undefined;
-
-  @Prop({ type: Boolean, default: false })
-  public readonly hideActions!: boolean;
-
-  @Prop({ type: Object, default: undefined })
-  public readonly options!: {
-    page: number;
-    itemsPerPage: number;
-    sortBy: string[];
-    sortDesc: boolean[];
-    groupBy: string[];
-    groupDesc: boolean[];
-    multiSort: boolean;
-    mustSort: boolean;
-  };
-
-  @Prop({ type: Number, default: 7 })
-  public readonly gridColumnNumber!: number;
-
-  @Prop({ type: Boolean, default: false })
-  public readonly hideDefaultHeader!: boolean;
-
-  get optionsSync(): {
-    page: number;
-    itemsPerPage: number;
-    sortBy: string[];
-    sortDesc: boolean[];
-    groupBy: string[];
-    groupDesc: boolean[];
-    multiSort: boolean;
-    mustSort: boolean;
-  } {
-    return this.options;
+    return { addedPaddingCellheaders };
   }
-
-  set optionsSync(value: {
-    page: number;
-    itemsPerPage: number;
-    sortBy: string[];
-    sortDesc: boolean[];
-    groupBy: string[];
-    groupDesc: boolean[];
-    multiSort: boolean;
-    mustSort: boolean;
-  }) {
-    this.$emit("update:options", value);
-  }
-
-  get addedPaddingCellheaders(): {
-    value?: string;
-    align?: string;
-    sortable?: boolean;
-    class?: string[];
-    text?: string;
-    width?: string;
-  }[] {
-    const result = this.headers.map((header) => header);
-    if (result.length < this.gridColumnNumber) {
-      result.push({
-        sortable: false,
-      });
-    }
-
-    return result;
-  }
-}
+});
 </script>

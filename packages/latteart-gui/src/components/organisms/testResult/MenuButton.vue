@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,15 +16,15 @@
 
 <template>
   <div>
-    <v-menu offset-y>
-      <template v-slot:activator="{ on }">
+    <v-menu :close-on-content-click="false">
+      <template #activator="{ props }">
         <v-btn
           v-if="!isViewerMode"
           id="optionMenuButton"
-          text
-          v-on="on"
+          variant="text"
+          v-bind="props"
           icon
-          large
+          size="large"
           class="mx-2"
           >...</v-btn
         >
@@ -33,14 +33,9 @@
         <test-tesult-export-button />
         <generate-test-script-button />
         <replay-button />
-        <screenshots-download-button v-slot:default="slotProps">
-          <v-list-item
-            @click="slotProps.obj.execute"
-            :disabled="slotProps.obj.isDisabled"
-          >
-            <v-list-item-title>{{
-              store.getters.message("test-result-page.export-screenshots")
-            }}</v-list-item-title>
+        <screenshots-download-button v-slot="slotProps">
+          <v-list-item :disabled="slotProps.obj.isDisabled" @click="slotProps.obj.execute">
+            <v-list-item-title>{{ $t("test-result-page.export-screenshots") }}</v-list-item-title>
           </v-list-item>
         </screenshots-download-button>
         <compare-history-button />
@@ -58,7 +53,6 @@ import ScreenshotsDownloadButton from "@/components/organisms/common/Screenshots
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
 import CompareHistoryButton from "./CompareHistoryButton.vue";
 import { computed, defineComponent, inject } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
@@ -67,19 +61,16 @@ export default defineComponent({
     "generate-test-script-button": GenerateTestScriptButton,
     "screenshots-download-button": ScreenshotsDownloadButton,
     "delete-test-result-button": DeleteTestResultButton,
-    "compare-history-button": CompareHistoryButton,
+    "compare-history-button": CompareHistoryButton
   },
   setup() {
-    const store = useStore();
-
     const isViewerMode = computed((): boolean => {
       return inject("isViewerMode") ?? false;
     });
 
     return {
-      store,
-      isViewerMode,
+      isViewerMode
     };
-  },
+  }
 });
 </script>

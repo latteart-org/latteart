@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-import {
-  ActionResult,
-  ActionFailure,
-  ActionSuccess,
-} from "@/lib/common/ActionResult";
+import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
-import { DeviceSettings } from "@/lib/common/settings/Settings";
+import { type DeviceSettings } from "@/lib/common/settings/Settings";
 
-const READ_DEVICE_SETTING_FAILED_MESSAGE_KEY =
-  "error.capture_control.get_device_settings_failed";
+const READ_DEVICE_SETTING_FAILED_MESSAGE_KEY = "error.capture_control.get_device_settings_failed";
 
 export class ReadDeviceSettingAction {
-  public async readDeviceSettings(): Promise<
-    ActionResult<{ config: DeviceSettings }>
-  > {
-    const getDeviceSettingsResult =
-      await new LocalStorageSettingRepository().getDeviceSettings();
+  public async readDeviceSettings(): Promise<ActionResult<{ config: DeviceSettings }>> {
+    const getDeviceSettingsResult = await new LocalStorageSettingRepository().getDeviceSettings();
 
     if (getDeviceSettingsResult.isFailure()) {
       return new ActionFailure({
-        messageKey: READ_DEVICE_SETTING_FAILED_MESSAGE_KEY,
+        messageKey: READ_DEVICE_SETTING_FAILED_MESSAGE_KEY
       });
     }
 

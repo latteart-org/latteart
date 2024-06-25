@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,21 @@ import {
 } from "./result";
 import { SnapshotConfigForRepository } from "./types";
 
-export class SnapshotRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type SnapshotRepository = {
   /**
    * Create a snapshot of the specified project ID.
    * @param projectId  Project ID.
    * @returns URL of the snapshot.
    */
+  postSnapshots(
+    projectId: string,
+    snapshotConfig: SnapshotConfigForRepository
+  ): Promise<RepositoryAccessResult<{ url: string }>>;
+};
+
+export class SnapshotRepositoryImpl implements SnapshotRepository {
+  constructor(private restClient: RESTClient) {}
+
   public async postSnapshots(
     projectId: string,
     snapshotConfig: SnapshotConfigForRepository

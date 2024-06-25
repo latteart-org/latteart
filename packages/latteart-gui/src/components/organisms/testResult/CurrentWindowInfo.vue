@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -21,25 +21,26 @@
 </template>
 
 <script lang="ts">
-import { CaptureControlState } from "@/store/captureControl";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { computed, defineComponent } from "vue";
-import { useStore } from "@/store";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   setup() {
-    const store = useStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
+
+    const currentWindowHandle = ref("");
+
+    const historyLength = computed(() => {
+      return operationHistoryStore.history.length;
+    });
 
     const currentWindowName = computed((): string => {
-      const captureControlState = (store.state as any)
-        .captureControl as CaptureControlState;
-      const operationHistoryState = (store.state as any)
-        .operationHistory as OperationHistoryState;
+      const session = captureControlStore.captureSession;
 
-      const session = captureControlState.captureSession;
-
-      const currentWindow = operationHistoryState?.windows.find((window) => {
-        return session && window.value === session.currentWindowHandle;
+      const currentWindow = operationHistoryStore.windows.find((window) => {
+        return session && window.value === currentWindowHandle.value;
       });
 
       if (currentWindow === undefined) {
@@ -49,9 +50,13 @@ export default defineComponent({
       return currentWindow.text;
     });
 
+    watch(historyLength, () => {
+      currentWindowHandle.value = captureControlStore.captureSession?.currentWindowHandle ?? "";
+    });
+
     return {
-      currentWindowName,
+      currentWindowName
     };
-  },
+  }
 });
 </script>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,9 @@
  * @param filePath  Target file path.
  * @returns jpg / png / gif / webp or empty string.
  */
-export function getImageExtensionFrom(
-  filePath: string
-): "jpg" | "png" | "gif" | "webp" | "" {
+export function getImageExtensionFrom(filePath: string): "jpg" | "png" | "gif" | "webp" | "" {
   const filePathLowerCase = filePath.toLowerCase();
-  if (
-    filePathLowerCase.endsWith(".jpg") ||
-    filePathLowerCase.endsWith(".jpeg")
-  ) {
+  if (filePathLowerCase.endsWith(".jpg") || filePathLowerCase.endsWith(".jpeg")) {
     return "jpg";
   } else if (filePathLowerCase.endsWith(".png")) {
     return "png";

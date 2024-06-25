@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import { TestScript } from "@/domain/testScriptGeneration";
 import { TestScriptGenerator } from "@/domain/testScriptGeneration";
 import { TestScriptOption } from "@/domain/types";
 import { ServerError } from "@/ServerError";
-import { getRepository } from "typeorm";
 import { TestResultService } from "./TestResultService";
 import { TestScriptFileRepositoryService } from "./TestScriptFileRepositoryService";
 import {
@@ -29,9 +28,11 @@ import {
 } from "./helper/testScriptGenerationHelper";
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import ScreenDefFactory from "@/domain/ScreenDefFactory";
+import { DataSource } from "typeorm";
 
 export class TestScriptsService {
   constructor(
+    private dataSource: DataSource,
     private service: {
       testResult: TestResultService;
       testScriptFileRepository: TestScriptFileRepositoryService;
@@ -43,7 +44,8 @@ export class TestScriptsService {
     option: TestScriptOption
   ): Promise<{ url: string; invalidOperationTypeExists: boolean }> {
     const testResultIds = (
-      await getRepository(ProjectEntity).findOneOrFail(projectId, {
+      await this.dataSource.getRepository(ProjectEntity).findOneOrFail({
+        where: { id: projectId },
         relations: [
           "testMatrices",
           "testMatrices.stories",
@@ -128,16 +130,17 @@ export class TestScriptsService {
     const testResultEntities = (
       await Promise.all(
         params.testResultIds.map(async (testResultId) => {
-          const testResultEntity = await getRepository(
-            TestResultEntity
-          ).findOne(testResultId, {
-            relations: [
-              "testSteps",
-              "testSteps.screenshot",
-              "testSteps.video",
-              "coverageSources",
-            ],
-          });
+          const testResultEntity = await this.dataSource
+            .getRepository(TestResultEntity)
+            .findOne({
+              where: { id: testResultId },
+              relations: [
+                "testSteps",
+                "testSteps.screenshot",
+                "testSteps.video",
+                "coverageSources",
+              ],
+            });
 
           return testResultEntity ? [testResultEntity] : [];
         })

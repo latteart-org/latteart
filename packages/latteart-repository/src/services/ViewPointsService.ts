@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,17 @@ import { TestMatrixEntity } from "@/entities/TestMatrixEntity";
 import { ViewPointEntity } from "@/entities/ViewPointEntity";
 import { ViewPoint } from "@/interfaces/ViewPoints";
 import { TransactionRunner } from "@/TransactionRunner";
-import { getRepository } from "typeorm";
+import { DataSource } from "typeorm";
 
 export class ViewPointsService {
+  constructor(private dataSource: DataSource) {}
+
   public async get(viewPointId: string): Promise<ViewPoint> {
-    const viewPoint = await getRepository(ViewPointEntity).findOne(viewPointId);
+    const viewPoint = await this.dataSource
+      .getRepository(ViewPointEntity)
+      .findOneBy({
+        id: viewPointId,
+      });
 
     if (!viewPoint) {
       throw new Error(`ViewPoint not found. ${viewPointId}`);
@@ -41,16 +47,18 @@ export class ViewPointsService {
     },
     transactionRunner: TransactionRunner
   ): Promise<ViewPoint> {
-    const testMatrix = await getRepository(TestMatrixEntity).findOne(
-      body.testMatrixId,
-      {
+    const testMatrix = await this.dataSource
+      .getRepository(TestMatrixEntity)
+      .findOne({
+        where: {
+          id: body.testMatrixId,
+        },
         relations: [
           "testTargetGroups",
           "testTargetGroups.testTargets",
           "viewPoints",
         ],
-      }
-    );
+      });
     if (!testMatrix) {
       throw new Error(`TestMatrix not found. ${body.testMatrixId}`);
     }
@@ -94,8 +102,8 @@ export class ViewPointsService {
     viewPointId: string,
     body: { name?: string; description?: string; index?: number }
   ): Promise<ViewPoint> {
-    const viewPointRepository = getRepository(ViewPointEntity);
-    const viewPoint = await viewPointRepository.findOne(viewPointId);
+    const viewPointRepository = this.dataSource.getRepository(ViewPointEntity);
+    const viewPoint = await viewPointRepository.findOneBy({ id: viewPointId });
     if (!viewPoint) {
       throw new Error(`ViewPoint found. ${viewPointId}`);
     }
@@ -118,7 +126,7 @@ export class ViewPointsService {
   }
 
   public async delete(viewPointId: string): Promise<void> {
-    await getRepository(ViewPointEntity).delete(viewPointId);
+    await this.dataSource.getRepository(ViewPointEntity).delete(viewPointId);
     return;
   }
 

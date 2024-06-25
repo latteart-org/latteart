@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
 -->
 
 <template>
-  <v-list-item @click="exportData" :disabled="isDisabled">
-    <v-list-item-title>{{
-      store.getters.message("import-export-dialog.test-result-export-title")
-    }}</v-list-item-title>
+  <v-list-item :disabled="isDisabled" @click="exportData">
+    <v-list-item-title>{{ $t("import-export-dialog.test-result-export-title") }}</v-list-item-title>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -29,9 +27,9 @@
       :opened="downloadLinkDialogOpened"
       :title="downloadLinkDialogTitle"
       :message="downloadLinkDialogMessage"
-      :alertMessage="downloadLinkDialogAlertMessage"
-      :linkUrl="downloadLinkDialogLinkUrl"
-      :downloadMessage="store.getters.message('common.download-link')"
+      :alert-message="downloadLinkDialogAlertMessage"
+      :link-url="downloadLinkDialogLinkUrl"
+      :download-message="$t('common.download-link')"
       @close="downloadLinkDialogOpened = false"
     />
   </v-list-item>
@@ -40,18 +38,20 @@
 <script lang="ts">
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
     "error-message-dialog": ErrorMessageDialog,
-    "download-link-dialog": DownloadLinkDialog,
+    "download-link-dialog": DownloadLinkDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
@@ -75,24 +75,19 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
+      return captureControlStore.isResuming;
     });
 
     const sequence = computed(() => {
-      const history = (
-        (store.state as any).operationHistory as OperationHistoryState
-      ).history;
+      const history = operationHistoryStore.history;
 
       return history.at(-1)?.operation.sequence ?? 0;
     });
@@ -100,32 +95,27 @@ export default defineComponent({
     const exportData = () => {
       (async () => {
         isExportingData.value = true;
-        const testResultId = (
-          (store.state as any).operationHistory as OperationHistoryState
-        ).testResultInfo.id;
+        const testResultId = operationHistoryStore.testResultInfo.id;
 
         try {
-          store.dispatch("openProgressDialog", {
-            message: store.getters.message(
-              "import-export-dialog.creating-export-data"
-            ),
+          rootStore.openProgressDialog({
+            message: rootStore.message("import-export-dialog.creating-export-data")
           });
-          const exportDataPath = await store
-            .dispatch("operationHistory/exportData", { testResultId })
+          const exportDataPath = await operationHistoryStore
+            .exportData({ testResultId })
             .catch((error) => {
               console.error(error);
             });
-          store.dispatch("closeProgressDialog");
-          downloadLinkDialogTitle.value =
-            store.getters.message("common.confirm");
-          downloadLinkDialogMessage.value = store.getters.message(
+          rootStore.closeProgressDialog();
+          downloadLinkDialogTitle.value = rootStore.message("common.confirm");
+          downloadLinkDialogMessage.value = rootStore.message(
             "import-export-dialog.create-export-data-succeeded"
           );
           downloadLinkDialogAlertMessage.value = "";
           downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${exportDataPath}`;
           downloadLinkDialogOpened.value = true;
         } catch (error) {
-          store.dispatch("closeProgressDialog");
+          rootStore.closeProgressDialog();
           if (error instanceof Error) {
             errorMessage.value = error.message;
             errorMessageDialogOpened.value = true;
@@ -139,11 +129,10 @@ export default defineComponent({
     };
 
     const currentRepositoryUrl = computed((): string => {
-      return store.state.repositoryService.serviceUrl;
+      return rootStore.repositoryService?.serviceUrl ?? "";
     });
 
     return {
-      store,
       errorMessageDialogOpened,
       errorMessage,
       downloadLinkDialogOpened,
@@ -152,8 +141,8 @@ export default defineComponent({
       downloadLinkDialogAlertMessage,
       downloadLinkDialogLinkUrl,
       isDisabled,
-      exportData,
+      exportData
     };
-  },
+  }
 });
 </script>

@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,28 +15,32 @@
 -->
 
 <template>
-  <v-row justify="start" align="center" class="pl-2 pr-2">
-    <browser-back-button />
-    <browser-forward-button />
+  <v-container fluid class="fill-height py-0">
+    <v-row justify="start" align="center" class="pl-2 pr-2">
+      <browser-back-button />
+      <browser-forward-button />
 
-    <v-divider vertical class="mx-3" />
+      <v-divider vertical class="mx-3" />
 
-    <current-window-info />
-    <v-spacer />
-    <select-window-button />
+      <current-window-info />
+      <v-spacer />
+      <select-window-button />
 
-    <v-divider vertical class="mx-3" />
+      <v-divider vertical class="mx-3" />
 
-    <run-auto-operation-button />
+      <run-auto-operation-button />
 
-    <autofill-button />
+      <autofill-button />
 
-    <note-register-button />
+      <note-register-button />
 
-    <v-divider vertical class="mx-3" />
+      <extension-contents />
 
-    <span class="px-1"><recording-time /></span>
-  </v-row>
+      <v-divider vertical class="mx-3" />
+
+      <span class="px-1"><recording-time /></span>
+    </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -49,6 +53,7 @@ import SelectWindowButton from "./SelectWindowButton.vue";
 import AutofillButton from "./AutofillButton.vue";
 import RunAutoOperationButton from "./RunAutoOperationButton.vue";
 import { defineComponent } from "vue";
+import ExtensionContents from "../extensions/ExtensionContents.vue";
 
 export default defineComponent({
   components: {
@@ -60,6 +65,7 @@ export default defineComponent({
     "recording-time": RecordingTime,
     "autofill-button": AutofillButton,
     "run-auto-operation-button": RunAutoOperationButton,
-  },
+    "extension-contents": ExtensionContents
+  }
 });
 </script>

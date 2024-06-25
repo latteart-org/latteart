@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import {
 } from "tsoa";
 import { transactionRunner } from "..";
 import { createLogger } from "@/logger/logger";
+import { AppDataSource } from "@/data-source";
 
 @Route("/test-target-groups/")
 @Tags("test-target-groups")
@@ -55,7 +56,9 @@ export class TestTargetGroupsController extends Controller {
     @Path() testTargetGroupId: string
   ): Promise<GetTestTargetGroupResponse> {
     try {
-      return await new TestTargetGroupsService().get(testTargetGroupId);
+      return await new TestTargetGroupsService(AppDataSource).get(
+        testTargetGroupId
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Get testTargetGroup failed.", error);
@@ -83,7 +86,7 @@ export class TestTargetGroupsController extends Controller {
     @Body() body: { testMatrixId: string; name: string }
   ): Promise<PostTestTargetGroupResponse> {
     try {
-      return await new TestTargetGroupsService().post(body);
+      return await new TestTargetGroupsService(AppDataSource).post(body);
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Post testTargetGroup failed.", error);
@@ -113,7 +116,10 @@ export class TestTargetGroupsController extends Controller {
     @Body() body: { name: string }
   ): Promise<PatchTestTargetGroupResponse> {
     try {
-      return await new TestTargetGroupsService().patch(testTargetGroupId, body);
+      return await new TestTargetGroupsService(AppDataSource).patch(
+        testTargetGroupId,
+        body
+      );
     } catch (error) {
       if (error instanceof Error) {
         createLogger().error("Patch targetGroup failed.", error);
@@ -140,7 +146,7 @@ export class TestTargetGroupsController extends Controller {
     @Path() testTargetGroupId: string
   ): Promise<void> {
     try {
-      return await new TestTargetGroupsService().delete(
+      return await new TestTargetGroupsService(AppDataSource).delete(
         testTargetGroupId,
         transactionRunner
       );

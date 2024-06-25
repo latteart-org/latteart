@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 <template>
   <div>
-    <slot v-bind:obj="obj"> </slot>
+    <slot :obj="obj"> </slot>
 
     <download-link-dialog
       :opened="dialogOpened"
-      :title="store.getters.message('common.confirm')"
-      :message="store.getters.message('test-result-page.generate-screenshots')"
-      :linkUrl="linkUrl"
+      :title="$t('common.confirm')"
+      :message="$t('test-result-page.generate-screenshots')"
+      :link-url="linkUrl"
       @close="dialogOpened = false"
     />
   </div>
@@ -30,17 +30,19 @@
 
 <script lang="ts">
 import DownloadLinkDialog from "@/components/molecules/DownloadLinkDialog.vue";
-import { OperationHistoryState } from "@/store/operationHistory";
-import { CaptureControlState } from "@/store/captureControl";
+import { useCaptureControlStore } from "@/stores/captureControl";
+import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
-import { useStore } from "@/store";
 
 export default defineComponent({
   components: {
-    "download-link-dialog": DownloadLinkDialog,
+    "download-link-dialog": DownloadLinkDialog
   },
   setup() {
-    const store = useStore();
+    const rootStore = useRootStore();
+    const captureControlStore = useCaptureControlStore();
+    const operationHistoryStore = useOperationHistoryStore();
 
     const dialogOpened = ref(false);
     const processing = ref(false);
@@ -50,7 +52,7 @@ export default defineComponent({
       return {
         isDisabled: isDisabled.value,
         processing: processing.value,
-        execute: execute,
+        execute: execute
       };
     });
 
@@ -65,30 +67,23 @@ export default defineComponent({
     });
 
     const isCapturing = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isCapturing;
+      return captureControlStore.isCapturing;
     });
 
     const isReplaying = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isReplaying;
+      return captureControlStore.isReplaying;
     });
 
     const isResuming = computed((): boolean => {
-      return ((store.state as any).captureControl as CaptureControlState)
-        .isResuming;
-    });
-
-    const operationHistoryState = computed(() => {
-      return (store.state as any).operationHistory as OperationHistoryState;
+      return captureControlStore.isResuming;
     });
 
     const testResultId = computed((): string => {
-      return operationHistoryState.value.testResultInfo.id;
+      return operationHistoryStore.testResultInfo.id;
     });
 
     const hasImageUrl = computed((): boolean => {
-      const operation = operationHistoryState.value.history.find(
+      const operation = operationHistoryStore.history.find(
         (item) => item.operation.imageFilePath !== ""
       );
       return operation ? true : false;
@@ -97,17 +92,19 @@ export default defineComponent({
     const execute = async () => {
       processing.value = true;
       try {
-        store.dispatch("openProgressDialog", {
-          message: store.getters.message("test-result-page.export-screenshots"),
+        rootStore.openProgressDialog({
+          message: rootStore.message("test-result-page.export-screenshots")
         });
-        const url = await store.dispatch("operationHistory/getScreenshots", {
-          testResultId: testResultId.value,
+        const url = await operationHistoryStore.getScreenshots({
+          testResultId: testResultId.value
         });
-        store.dispatch("closeProgressDialog");
-        linkUrl.value = `${store.state.repositoryService.serviceUrl}/${url}`;
+        rootStore.closeProgressDialog();
+        linkUrl.value = rootStore.repositoryService
+          ? `${rootStore.repositoryService.serviceUrl}/${url}`
+          : "";
         dialogOpened.value = true;
       } catch (e) {
-        store.dispatch("closeProgressDialog");
+        rootStore.closeProgressDialog();
         console.error(e);
       } finally {
         processing.value = false;
@@ -115,11 +112,10 @@ export default defineComponent({
     };
 
     return {
-      store,
       dialogOpened,
       linkUrl,
-      obj,
+      obj
     };
-  },
+  }
 });
 </script>

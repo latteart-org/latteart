@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,11 @@ export class TimestampImpl implements Timestamp {
   private time: dayjs.Dayjs;
   private static dateFormat = "YYYY-MM-DD";
 
-  constructor(value?: string | number) {
+  constructor(value?: string | number | Date) {
     if (value) {
-      if (this.isDateFormat(String(value))) {
+      if (typeof value !== "string" && typeof value !== "number") {
+        this.time = dayjs(value);
+      } else if (this.isDateFormat(String(value))) {
         this.time = dayjs(value, TimestampImpl.dateFormat);
       } else {
         const stringTimestamp = this.timestampToString(value);
@@ -90,26 +92,15 @@ export class TimestampImpl implements Timestamp {
   }
 
   public isSameOrBefore(other: Timestamp): boolean {
-    return this.time.isSameOrBefore(
-      other.format(TimestampImpl.dateFormat),
-      "day"
-    );
+    return this.time.isSameOrBefore(other.format(TimestampImpl.dateFormat), "day");
   }
 
   public isSameOrAfter(other: Timestamp): boolean {
-    return this.time.isSameOrAfter(
-      other.format(TimestampImpl.dateFormat),
-      "day"
-    );
+    return this.time.isSameOrAfter(other.format(TimestampImpl.dateFormat), "day");
   }
 
   public isSameDayAs(other: number): boolean {
-    return (
-      dayjs
-        .unix(other)
-        .startOf("day")
-        .diff(this.time.startOf("day"), "days") === 0
-    );
+    return dayjs.unix(other).startOf("day").diff(this.time.startOf("day"), "days") === 0;
   }
 
   public offset(epochMilliseconds: number): Timestamp {
@@ -117,8 +108,7 @@ export class TimestampImpl implements Timestamp {
   }
 
   private timestampToString(timestamp: string | number): string {
-    const stringTimestamp =
-      typeof timestamp === "number" ? String(timestamp) : timestamp;
+    const stringTimestamp = typeof timestamp === "number" ? String(timestamp) : timestamp;
 
     return this.suppressZero(stringTimestamp);
   }
@@ -136,11 +126,7 @@ export class TimestampImpl implements Timestamp {
       const m = Number(stringDate[2]) - 1;
       const d = Number(stringDate[3]);
       const dateInfo = new Date(y, m, d);
-      return (
-        y == dateInfo.getFullYear() &&
-        m == dateInfo.getMonth() &&
-        d == dateInfo.getDate()
-      );
+      return y == dateInfo.getFullYear() && m == dateInfo.getMonth() && d == dateInfo.getDate();
     }
     return false;
   }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,7 @@ import {
 } from "./result";
 import { TestResultComparisonResultForRepository } from "./types";
 
-export class TestResultComparisonRepository {
-  constructor(private restClient: RESTClient) {}
-
+export type TestResultComparisonRepository = {
   /**
    * Compare test results.
    * @param actualTestResultId  Actual test result id.
@@ -33,6 +31,21 @@ export class TestResultComparisonRepository {
    * @param option  Option.
    * @returns  Test result comparison result.
    */
+  compareTestResults(
+    actualTestResultId: string,
+    expectedTestResultId: string,
+    option?: {
+      excludeItems?: ("title" | "url" | "elementTexts" | "screenshot")[];
+      excludeElements?: { tagname: string }[];
+    }
+  ): Promise<RepositoryAccessResult<TestResultComparisonResultForRepository>>;
+};
+
+export class TestResultComparisonRepositoryImpl
+  implements TestResultComparisonRepository
+{
+  constructor(private restClient: RESTClient) {}
+
   public async compareTestResults(
     actualTestResultId: string,
     expectedTestResultId: string,

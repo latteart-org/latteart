@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -20,40 +20,34 @@
       <v-col cols="12" class="py-0 my-0">
         <v-checkbox
           v-model="autoPopupRegistrationDialog"
-          :label="
-            store.getters.message(
-              'config-page.autofill.auto-popup-registration'
-            )
-          "
+          hide-details
+          :label="$t('config-page.autofill.auto-popup-registration')"
         >
         </v-checkbox>
       </v-col>
       <v-col cols="12" class="py-0 my-0">
         <v-checkbox
           v-model="autoPopupSelectionDialog"
-          :label="
-            store.getters.message('config-page.autofill.auto-popup-selection')
-          "
+          hide-details
+          :label="$t('config-page.autofill.auto-popup-selection')"
         >
         </v-checkbox>
       </v-col>
       <v-col cols="12" class="py-0 my-0">
-        <v-btn @click="addConditionGroup">{{
-          store.getters.message("config-page.autofill.add-setting")
-        }}</v-btn>
+        <v-btn @click="addConditionGroup">{{ $t("config-page.autofill.add-setting") }}</v-btn>
       </v-col>
       <v-col cols="12" class="py-0 mt-6">
         <autofill-input-value-container
           v-for="(group, index) in conditionGroups"
           :key="index"
-          :conditionGroup="group"
+          :condition-group="group"
           :index="index"
+          class="mt-4"
           @add-condition="addCondition"
           @update-condition-group="updateConditionGroup"
           @update-condition="updateCondition"
           @delete-condition-group="deleteConditionGroup"
           @delete-condition="deleteCondition"
-          class="mt-4"
         ></autofill-input-value-container>
       </v-col>
     </v-row>
@@ -61,31 +55,28 @@
 </template>
 
 <script lang="ts">
-import {
+import type {
   AutofillSetting as AutofillSettingConfig,
   AutofillCondition,
-  AutofillConditionGroup,
+  AutofillConditionGroup
 } from "@/lib/operationHistory/types";
 import AutofillInputValueContainer from "./AutofillInputValueContainer.vue";
-import { computed, defineComponent, ref, toRefs, watch } from "vue";
-import { useStore } from "@/store";
-import type { PropType } from "vue";
+import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
 export default defineComponent({
+  components: {
+    "autofill-input-value-container": AutofillInputValueContainer
+  },
   props: {
     opened: { type: Boolean, required: true },
     autofillSetting: {
       type: Object as PropType<AutofillSettingConfig>,
       default: null,
-      required: true,
-    },
+      required: true
+    }
   },
-  components: {
-    "autofill-input-value-container": AutofillInputValueContainer,
-  },
+  emits: ["save-config"],
   setup(props, context) {
-    const store = useStore();
-
     const tempConfig = ref<AutofillSettingConfig>({ ...props.autofillSetting });
 
     const updateTempConfig = (): void => {
@@ -108,14 +99,14 @@ export default defineComponent({
       get: (): boolean => tempConfig.value.autoPopupRegistrationDialog,
       set: (autoPopupRegistrationDialog: boolean) => {
         tempConfig.value = { ...tempConfig.value, autoPopupRegistrationDialog };
-      },
+      }
     });
 
     const autoPopupSelectionDialog = computed({
       get: (): boolean => tempConfig.value.autoPopupSelectionDialog,
       set: (autoPopupSelectionDialog: boolean) => {
         tempConfig.value = { ...tempConfig.value, autoPopupSelectionDialog };
-      },
+      }
     });
 
     const addConditionGroup = () => {
@@ -125,7 +116,7 @@ export default defineComponent({
         settingName: "",
         url: "",
         title: "",
-        inputValueConditions: [],
+        inputValueConditions: []
       });
       tempConfig.value = config;
     };
@@ -153,7 +144,7 @@ export default defineComponent({
             locatorType: "id",
             locator: "",
             locatorMatchType: "equals",
-            inputValue: "",
+            inputValue: ""
           });
         }
         return g;
@@ -180,22 +171,15 @@ export default defineComponent({
 
     const deleteConditionGroup = (index: number) => {
       const config = { ...tempConfig.value };
-      config.conditionGroups = config.conditionGroups.filter(
-        (c, i) => index !== i
-      );
+      config.conditionGroups = config.conditionGroups.filter((c, i) => index !== i);
       tempConfig.value = config;
     };
 
-    const deleteCondition = (
-      conditionIndex: number,
-      conditionGroupIndex: number
-    ) => {
+    const deleteCondition = (conditionIndex: number, conditionGroupIndex: number) => {
       const config = { ...tempConfig.value };
       config.conditionGroups = config.conditionGroups.map((g, i) => {
         if (conditionGroupIndex === i) {
-          g.inputValueConditions = g.inputValueConditions.filter(
-            (c, j) => conditionIndex !== j
-          );
+          g.inputValueConditions = g.inputValueConditions.filter((c, j) => conditionIndex !== j);
         }
         return g;
       });
@@ -207,7 +191,6 @@ export default defineComponent({
     watch(tempConfig, saveConfig);
 
     return {
-      store,
       conditionGroups,
       autoPopupRegistrationDialog,
       autoPopupSelectionDialog,
@@ -216,8 +199,8 @@ export default defineComponent({
       addCondition,
       updateCondition,
       deleteConditionGroup,
-      deleteCondition,
+      deleteCondition
     };
-  },
+  }
 });
 </script>

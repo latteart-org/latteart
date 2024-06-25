@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,42 +15,34 @@
 -->
 
 <template>
-  <div>
+  <div class="pb-1">
     <v-chip
       v-for="(tag, index) in tags"
       :key="index"
+      variant="elevated"
       :color="getTagsColor(tag)"
-      small
+      size="small"
       >{{ tag }}</v-chip
     >
   </div>
 </template>
 
 <script lang="ts">
-import { noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
-import { defineComponent, ref } from "vue";
+import { defaultNoteTagColor, noteTagPreset } from "@/lib/operationHistory/NoteTagPreset";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   props: {
-    tags: { type: Array, default: [], required: true },
+    tags: { type: Array as PropType<string[]>, default: () => [], required: true }
   },
   setup() {
-    const bugColor = ref("");
-    const tagsColor = ref(
-      noteTagPreset.items.map((item) => {
-        if (item.text === "bug") {
-          bugColor.value = item.color;
-        }
-      })
-    );
-
     const getTagsColor = (tag: string) => {
-      return tag === "bug" ? bugColor.value : "";
+      return noteTagPreset.items.find((item) => item.text === tag)?.color ?? defaultNoteTagColor;
     };
 
     return {
-      getTagsColor,
+      getTagsColor
     };
-  },
+  }
 });
 </script>

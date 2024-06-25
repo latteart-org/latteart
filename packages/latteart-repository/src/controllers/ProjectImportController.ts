@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import { TestResultImportServiceImpl } from "@/services/TestResultImportService"
 import { ImportFileRepositoryImpl } from "@/gateways/importFileRepository";
 import { CreateProjectImportDto } from "@/interfaces/importFileRepository";
 import { PutConfigResponse } from "@/interfaces/Configs";
+import { AppDataSource } from "@/data-source";
 
 @Route("imports/projects")
 @Tags("imports")
@@ -80,35 +81,38 @@ export class ProjectImportController extends Controller {
         fileRepositoryManager.getRepository("temp");
       const videoFileRepository = fileRepositoryManager.getRepository("video");
 
-      const configService = new ConfigsService();
-      const testStepService = new TestStepServiceImpl({
+      const configService = new ConfigsService(AppDataSource);
+      const testStepService = new TestStepServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
         config: configService,
       });
 
-      const testResultService = new TestResultServiceImpl({
+      const testResultService = new TestResultServiceImpl(AppDataSource, {
         timestamp: timestampService,
         testStep: testStepService,
         screenshotFileRepository,
         workingFileRepository,
         compareReportRepository,
       });
-      const notesService = new NotesServiceImpl({
+      const notesService = new NotesServiceImpl(AppDataSource, {
         screenshotFileRepository,
         timestamp: timestampService,
       });
 
-      const testPurposeService = new TestPurposeServiceImpl();
+      const testPurposeService = new TestPurposeServiceImpl(AppDataSource);
 
       const importFileRepository = new ImportFileRepositoryImpl();
 
-      const testResultImportService = new TestResultImportServiceImpl({
-        importFileRepository,
-        screenshotFileRepository,
-        videoFileRepository,
-        timestamp: timestampService,
-      });
+      const testResultImportService = new TestResultImportServiceImpl(
+        AppDataSource,
+        {
+          importFileRepository,
+          screenshotFileRepository,
+          videoFileRepository,
+          timestamp: timestampService,
+        }
+      );
 
       const response = await new ProjectImportService().import(
         requestBody.source.projectFile,

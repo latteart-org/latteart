@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { SessionForRepository } from "latteart-client";
-import { Session } from "./types";
+import { type SessionForRepository } from "latteart-client";
+import { type Session } from "./types";
 
 export default class SessionDataConverter {
   public convertToSession(target: Partial<SessionForRepository>): Session {
@@ -31,7 +31,7 @@ export default class SessionDataConverter {
       attachedFiles: target.attachedFiles ?? [],
       testResultFiles: target.testResultFiles ?? [],
       testPurposes: target.testPurposes ?? [],
-      notes: target.notes ?? [],
+      notes: target.notes ?? []
     };
   }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,17 @@
 
 import { ScreenshotEntity } from "@/entities/ScreenshotEntity";
 import { CreateCompressedImageResponse } from "@/interfaces/CompressedImage";
-import { getRepository } from "typeorm";
 import path from "path";
 import { TestStepService } from "./TestStepService";
 import { NotesServiceImpl } from "./NotesService";
 import { FileRepository } from "@/interfaces/fileRepository";
 import { CommandExecutor } from "@/interfaces/commandExecutor";
 import { Logger } from "@/interfaces/logger";
+import { DataSource } from "typeorm";
 
 export class CompressedImageService {
   constructor(
+    private dataSource: DataSource,
     private service: {
       screenshotFileRepository: FileRepository;
       testStep: TestStepService;
@@ -60,9 +61,8 @@ export class CompressedImageService {
   ): Promise<CreateCompressedImageResponse> {
     console.log(noteId);
 
-    const originalScreenshot = await this.service.note.getNoteScreenshot(
-      noteId
-    );
+    const originalScreenshot =
+      await this.service.note.getNoteScreenshot(noteId);
 
     return this.compressAndSaveImage(
       originalScreenshot,
@@ -126,17 +126,17 @@ export class CompressedImageService {
     screenshotId: string,
     newScreenshotUrl: string
   ) {
-    const screenshotRepository = getRepository(ScreenshotEntity);
+    const screenshotRepository =
+      this.dataSource.getRepository(ScreenshotEntity);
 
-    const screenshotEntity = await screenshotRepository.findOneOrFail(
-      screenshotId
-    );
+    const screenshotEntity = await screenshotRepository.findOneByOrFail({
+      id: screenshotId,
+    });
 
     screenshotEntity.fileUrl = newScreenshotUrl;
 
-    const updatedScreenshotEntity = await screenshotRepository.save(
-      screenshotEntity
-    );
+    const updatedScreenshotEntity =
+      await screenshotRepository.save(screenshotEntity);
 
     return updatedScreenshotEntity.fileUrl;
   }

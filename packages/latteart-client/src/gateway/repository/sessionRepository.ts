@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,27 @@ import {
 } from "./result";
 import { PatchSessionDto, SessionForRepository } from "./types";
 
-export class SessionRepository {
+export type SessionRepository = {
+  postSession(
+    projectId: string,
+    body: {
+      storyId: string;
+    }
+  ): Promise<RepositoryAccessResult<SessionForRepository>>;
+
+  patchSession(
+    projectId: string,
+    sessionId: string,
+    body: Partial<PatchSessionDto>
+  ): Promise<RepositoryAccessResult<SessionForRepository>>;
+
+  deleteSession(
+    projectId: string,
+    sessionId: string
+  ): Promise<RepositoryAccessResult<void>>;
+};
+
+export class SessionRepositoryImpl implements SessionRepository {
   constructor(private restClient: RESTClient) {}
 
   public async postSession(
