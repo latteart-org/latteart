@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -42,8 +42,6 @@
 
 <script lang="ts">
 import ScrollableDialog from "@/components/molecules/ScrollableDialog.vue";
-import { convertInputValue } from "@/lib/common/util";
-
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
 import type { AutoOperation } from "@/lib/operationHistory/types";
@@ -133,7 +131,7 @@ export default defineComponent({
           tagname: operation.elementInfo?.attributes.name ?? "",
           text: operation.elementInfo?.text ? operation.elementInfo.text.substring(0, 60) : "",
           type: operation.type,
-          input: convertInputValue(operation.elementInfo, operation.input).substring(0, 60),
+          input: operation.input.substring(0, 60),
           iframeIndex: operation.elementInfo?.iframe?.index
         };
       });

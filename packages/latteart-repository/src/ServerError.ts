@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,6 @@ export type ServerErrorCode =
   | "generate_sequence_view_failed"
   | "generate_graph_view_failed"
   | "compare_test_results_failed"
-  | "comparison_targets_not_same_procedures"
   | "save_video_failed"
   | "create_video_failed";
 
@@ -86,7 +85,10 @@ export type ServerErrorData<T extends ServerErrorCode> = {
 };
 
 export class ServerError<T extends ServerErrorCode> extends Error {
-  constructor(public statusCode: number, public data?: ServerErrorData<T>) {
+  constructor(
+    public statusCode: number,
+    public data?: ServerErrorData<T>
+  ) {
     super(data?.message ?? "");
   }
 }

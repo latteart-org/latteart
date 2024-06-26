@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
     <v-img :src="imageFileUrl" style="cursor: pointer" @click="openImageFile" />
     <v-dialog v-model="imageFileOpened">
       <v-card>
-        <v-img :src="imageFileUrl" />
+        <v-img :src="imageFileUrl" @click="closeImageFile" />
       </v-card>
     </v-dialog>
   </div>
@@ -41,12 +41,16 @@ export default defineComponent({
       imageFileOpened.value = true;
     };
 
+    const closeImageFile = () => {
+      imageFileOpened.value = false;
+    };
+
     const style = {
       width: props.width,
       height: props.height
     };
 
-    return { imageFileOpened, openImageFile, style };
+    return { imageFileOpened, openImageFile, closeImageFile, style };
   }
 });
 </script>

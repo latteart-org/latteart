@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,18 +23,24 @@
 <script lang="ts">
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   setup() {
     const captureControlStore = useCaptureControlStore();
     const operationHistoryStore = useOperationHistoryStore();
 
+    const currentWindowHandle = ref("");
+
+    const historyLength = computed(() => {
+      return operationHistoryStore.history.length;
+    });
+
     const currentWindowName = computed((): string => {
       const session = captureControlStore.captureSession;
 
       const currentWindow = operationHistoryStore.windows.find((window) => {
-        return session && window.value === session.currentWindowHandle;
+        return session && window.value === currentWindowHandle.value;
       });
 
       if (currentWindow === undefined) {
@@ -42,6 +48,10 @@ export default defineComponent({
       }
 
       return currentWindow.text;
+    });
+
+    watch(historyLength, () => {
+      currentWindowHandle.value = captureControlStore.captureSession?.currentWindowHandle ?? "";
     });
 
     return {

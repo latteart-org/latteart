@@ -1,5 +1,5 @@
 <!--
- Copyright 2023 NTT Corporation.
+ Copyright 2024 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ export default defineComponent({
         .sort((a, b) => a.sequence - b.sequence)
         .map((operation) => {
           return {
-            input: operation.input,
+            input: convertInput(operation),
             type: operation.type,
             elementInfo: operation.elementInfo,
             title: operation.title,
@@ -112,6 +112,23 @@ export default defineComponent({
 
     const close = (): void => {
       context.emit("close");
+    };
+
+    const convertInput = (operation: OperationForGUI): string => {
+      if (!operation.elementInfo) {
+        return "";
+      }
+
+      if (
+        operation.elementInfo.tagname.toLowerCase() === "input" &&
+        !!operation.elementInfo.attributes.type &&
+        (operation.elementInfo.attributes.type.toLowerCase() === "checkbox" ||
+          operation.elementInfo.attributes.type.toLowerCase() === "radio")
+      ) {
+        return operation.inputValue;
+      }
+
+      return operation.input;
     };
 
     const { opened } = toRefs(props);

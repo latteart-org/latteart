@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -227,7 +227,6 @@ type RepositoryServerErrorCode =
   | "compare_test_result_failed"
   | "get_test_progress_failed"
   | "patch_story_failed"
-  | "compare_test_results_failed"
-  | "comparison_targets_not_same_procedures";
+  | "compare_test_results_failed";
 
 type RepositoryConnectionErrorCode = "connection_refused";

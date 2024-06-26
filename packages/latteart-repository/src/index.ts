@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import { ServerError } from "./ServerError";
 import { TransactionRunner } from "./TransactionRunner";
 import { createLogger } from "./logger/logger";
 import { AppDataSource } from "./data-source";
+import { extensions } from "./extensions";
 
 export const transactionRunner = new TransactionRunner(AppDataSource);
 
@@ -103,6 +104,9 @@ function runServer(port: number, timeout?: number) {
   app.use(bodyParser.json({ limit: "100mb" }));
 
   RegisterRoutes(app);
+  for (const extension of extensions) {
+    extension.registerRoutes(app);
+  }
 
   const logger = createLogger();
 

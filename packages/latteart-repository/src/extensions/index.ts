@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 NTT Corporation.
+ * Copyright 2024 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { Router } from "express";
 /* ADD IMPORTS FOR EXTENSIONS */
 
 /**
@@ -24,6 +25,7 @@ export type RepositoryExtension = {
   entities: Function[];
   // eslint-disable-next-line @typescript-eslint/ban-types
   migrations: Function[];
+  registerRoutes: (app: Router) => void;
 };
 
 export const extensions: RepositoryExtension[] = [
