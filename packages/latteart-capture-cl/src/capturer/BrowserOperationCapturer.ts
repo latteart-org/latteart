@@ -23,7 +23,7 @@ import ScreenTransition from "../ScreenTransition";
 import { SpecialOperationType } from "../SpecialOperationType";
 import Autofill from "../webdriver/autofill";
 import { TimestampImpl } from "../Timestamp";
-import { CapturedItem } from "./captureScripts";
+import { CapturedItem, ScreenMutation } from "./captureScripts";
 
 /**
  * The class for monitoring and getting browser operations.
@@ -40,6 +40,7 @@ export default class BrowserOperationCapturer {
 
   private onGetOperation: (operation: Operation) => void;
   private onGetScreenTransition: (operation: ScreenTransition) => void;
+  private onGetMutation: (screenMutation: ScreenMutation[]) => void;
   private onBrowserClosed: () => void;
   private onBrowserHistoryChanged: (browserStatus: {
     canGoBack: boolean;
@@ -58,6 +59,7 @@ export default class BrowserOperationCapturer {
    * @param client The WebDriver client to access a browser.
    * @param config Capture config.
    * @param callbacks.onGetOperation The callback when an operation is captured.
+   * @param callbacks.onGetmution The callback when an mutation is captured.
    * @param callbacks.onGetScreenTransition The callback when a screen transition is captured.
    * @param callbacks.onBrowserClosed The callback when browser is closed.
    * @param callbacks.onBrowserHistoryChanged The callback when browser history changes.
@@ -70,6 +72,7 @@ export default class BrowserOperationCapturer {
     callbacks: {
       onGetOperation: (operation: Operation) => void;
       onGetScreenTransition: (screenTransition: ScreenTransition) => void;
+      onGetMutation: (screenMutation: ScreenMutation[]) => void;
       onBrowserClosed: () => void;
       onBrowserHistoryChanged: (browserStatus: {
         canGoBack: boolean;
@@ -88,6 +91,7 @@ export default class BrowserOperationCapturer {
     this.config = config;
     this.onGetOperation = callbacks.onGetOperation;
     this.onGetScreenTransition = callbacks.onGetScreenTransition;
+    this.onGetMutation = callbacks.onGetMutation;
     this.onBrowserClosed = callbacks.onBrowserClosed;
     this.onBrowserHistoryChanged = callbacks.onBrowserHistoryChanged;
     this.onBrowserWindowsChanged = callbacks.onBrowserWindowsChanged;
@@ -102,6 +106,7 @@ export default class BrowserOperationCapturer {
   public async start(url: string, onStart: () => void): Promise<void> {
     const browser = new WebBrowser(this.client, this.config, {
       onGetOperation: this.onGetOperation,
+      onGetMutation: this.onGetMutation,
       onGetScreenTransition: this.onGetScreenTransition,
       onHistoryChanged: this.onBrowserHistoryChanged,
       onWindowsChanged: this.onBrowserWindowsChanged,

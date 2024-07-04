@@ -21,7 +21,7 @@ import WebDriverClient from "@/webdriver/WebDriverClient";
 import WindowContainer from "./WindowContainer";
 import ScreenTransition from "../../ScreenTransition";
 import { SpecialOperationType } from "../../SpecialOperationType";
-import { captureScripts } from "../captureScripts";
+import { ScreenMutation, captureScripts } from "../captureScripts";
 
 /**
  * Class for operating browser.
@@ -36,6 +36,7 @@ export default class WebBrowser {
   private windowContainer: WindowContainer;
   private option: {
     onGetOperation: (operation: Operation) => void;
+    onGetMutation: (screenMutations: ScreenMutation[]) => void;
     onGetScreenTransition: (screenTransition: ScreenTransition) => void;
     onHistoryChanged: (browserStatus: {
       canGoBack: boolean;
@@ -54,6 +55,7 @@ export default class WebBrowser {
    * @param client The WebDriver client to access a browser.
    * @param config Capture config.
    * @param option.onGetOperation The callback when an operation is captured.
+   * @param option.onGetMutation The callback when an mutation is captured.
    * @param option.onGetScreenTransition The callback when a screen transition is captured.
    * @param option.onHistoryChanged The callback when browser history changes.
    * @param option.onWindowsChanged The callback when opened windows are changed.
@@ -63,6 +65,7 @@ export default class WebBrowser {
     config: CaptureConfig,
     option?: {
       onGetOperation?: (operation: Operation) => void;
+      onGetMutation?: (screenMutations: ScreenMutation[]) => void;
       onGetScreenTransition?: (screenTransition: ScreenTransition) => void;
       onHistoryChanged?: (browserStatus: {
         canGoBack: boolean;
@@ -83,6 +86,11 @@ export default class WebBrowser {
         option?.onGetOperation ??
         (() => {
           /* Do nothing. */
+        }),
+      onGetMutation:
+        option?.onGetMutation ??
+        (() => {
+          /* Do noting. */
         }),
       onGetScreenTransition:
         option?.onGetScreenTransition ??

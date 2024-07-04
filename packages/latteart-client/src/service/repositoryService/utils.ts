@@ -36,6 +36,7 @@ import {
   TestResultComparisonRepositoryImpl,
   VideoRepositoryImpl,
   TestResultRepositoryImpl,
+  MutationRepositoryImpl,
 } from "../../gateway/repository";
 import {
   ServiceResult,
@@ -77,6 +78,7 @@ export function createRepositoryService(
       restClient
     ),
     videoRepository: new VideoRepositoryImpl(restClient),
+    mutationRepository: new MutationRepositoryImpl(restClient),
   };
 
   return {

@@ -39,6 +39,8 @@ import { AddVideoEntity1693220246649 } from "./migrations/1693220246649-AddVideo
 import { LinkMultipleTestResultsToSession1694494561042 } from "./migrations/1694494561042-LinkMultipleTestResultsToSession";
 import { appRootPath } from "./common";
 import { extensions } from "./extensions";
+import { MutationEntity } from "./entities/MutationEntity";
+import { AddMutationEntity1719910195235 } from "./migrations/1719910195235-AddMutationEntity";
 
 const extensionEntities = extensions.flatMap(({ entities }) => entities);
 const extensionMigrations = extensions.flatMap(({ migrations }) => migrations);
@@ -68,6 +70,7 @@ export const AppDataSource = new DataSource({
     ViewPointPresetEntity,
     TestProgressEntity,
     VideoEntity,
+    MutationEntity,
     ...extensionEntities,
   ],
   migrations: [
@@ -86,6 +89,7 @@ export const AppDataSource = new DataSource({
     UpdateTestResultEntity1689841542715,
     AddVideoEntity1693220246649,
     LinkMultipleTestResultsToSession1694494561042,
+    AddMutationEntity1719910195235,
     ...extensionMigrations,
   ],
 });

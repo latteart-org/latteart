@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { NoteEntity } from "./NoteEntity";
 import { TestStepEntity } from "./TestStepEntity";
+import { MutationEntity } from "./MutationEntity";
 
 @Entity("SCREENSHOTS")
 export class ScreenshotEntity {
@@ -32,6 +39,11 @@ export class ScreenshotEntity {
 
   @OneToOne(() => NoteEntity, (note) => note.screenshot)
   note?: NoteEntity;
+
+  @OneToMany(() => MutationEntity, (mutation) => mutation.screenshot, {
+    cascade: true,
+  })
+  mutations?: MutationEntity[];
 
   constructor(props: Partial<Omit<ScreenshotEntity, "id">> = {}) {
     Object.assign(this, props);
