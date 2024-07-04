@@ -86,6 +86,7 @@ enum ClientToServerSocketIOEvent {
 enum ServerToClientSocketIOEvent {
   CAPTURE_STARTED = "capture_started",
   OPERATION_CAPTURED = "operation_captured",
+  MUTATION_CAPTURED = "mutation_captured",
   SCREEN_TRANSITION_CAPTURED = "screen_transition_captured",
   SCREENSHOT_TAKEN = "screenshot_taken",
   BROWSER_HISTORY_CHANGED = "browser_history_changed",
@@ -175,9 +176,8 @@ io.on("connection", (socket) => {
 
       const captureConfig = new CaptureConfig(JSON.parse(config));
 
-      const { server, error: setupError } = await setupWebDriverServer(
-        captureConfig
-      );
+      const { server, error: setupError } =
+        await setupWebDriverServer(captureConfig);
 
       if (setupError) {
         socket.emit(
@@ -213,6 +213,12 @@ io.on("connection", (socket) => {
             );
             socket.emit(
               ServerToClientSocketIOEvent.RUN_OPERATION_AND_SCREEN_TRANSITION_COMPLETED
+            );
+          },
+          onGetMutation: (mutations) => {
+            socket.emit(
+              ServerToClientSocketIOEvent.MUTATION_CAPTURED,
+              JSON.stringify(mutations)
             );
           },
           onBrowserClosed: () => {

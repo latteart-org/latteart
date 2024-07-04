@@ -28,6 +28,7 @@ import { TestStepEntity } from "./TestStepEntity";
 import { TestPurposeEntity } from "./TestPurposeEntity";
 import { NoteEntity } from "./NoteEntity";
 import { SessionEntity } from "./SessionEntity";
+import { MutationEntity } from "./MutationEntity";
 
 @Entity("TEST_RESULTS")
 export class TestResultEntity {
@@ -100,6 +101,11 @@ export class TestResultEntity {
 
   @RelationId((testResult: TestResultEntity) => testResult.notes)
   noteIds?: string[];
+
+  @OneToMany(() => MutationEntity, (mutation) => mutation.testResult, {
+    cascade: true,
+  })
+  mutations?: MutationEntity[];
 
   constructor(
     props: Partial<

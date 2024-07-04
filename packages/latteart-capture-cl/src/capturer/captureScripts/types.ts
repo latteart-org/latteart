@@ -180,6 +180,11 @@ export type CaptureScripts = {
   }) => {
     capturedItems: SuspendedCapturedItem[];
     screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
+    mutatedItems: {
+      timestamp: number;
+      elementMutations: ElementMutation[];
+      scrollPosition: { x: number; y: number };
+    }[];
   };
 };
 
@@ -198,8 +203,101 @@ export type CapturedElementInfo = {
   textWithoutChildren?: string;
 };
 
+type ElementInfo = {
+  tagname: string;
+  text?: string;
+  value?: string;
+  xpath: string;
+  checked?: boolean;
+  attributes: { [key: string]: string };
+  outerHTML: string;
+};
+
+type ElementLocator = {
+  xpath: string;
+  iframe?: number;
+};
+
+export type ScreenMutation = {
+  elementMutations: ElementMutation[];
+  title: string;
+  url: string;
+  timestamp: number;
+  imageData: string;
+  windowHandle: string;
+  scrollPosition: { x: number; y: number };
+  clientSize: { width: number; height: number };
+};
+
+export type ElementMutation =
+  | ChildElementAddition
+  | TextContentAddition
+  | AttributeAddition
+  | ChildElementRemoval
+  | TextContentRemoval
+  | AttributeRemoval
+  | TextContentChange
+  | AttributeChange;
+
+export type ChildElementAddition = {
+  type: "childElementAddition";
+  targetElement: ElementLocator;
+  addedChildElement: ElementInfo;
+};
+
+export type TextContentAddition = {
+  type: "textContentAddition";
+  targetElement: ElementLocator;
+  addedTextContent: string;
+};
+
+export type ChildElementRemoval = {
+  type: "childElementRemoval";
+  targetElement: ElementLocator;
+  removedChildElement: ElementLocator;
+};
+
+export type TextContentRemoval = {
+  type: "textContentRemoval";
+  targetElement: ElementLocator;
+  removedTextContent: string;
+};
+
+export type TextContentChange = {
+  type: "textContentChange";
+  targetElement: ElementLocator;
+  oldValue: string;
+};
+
+export type AttributeAddition = {
+  type: "attributeAddition";
+  targetElement: ElementLocator;
+  attributeName: string;
+  newValue: string;
+};
+
+export type AttributeRemoval = {
+  type: "attributeRemoval";
+  targetElement: ElementLocator;
+  attributeName: string;
+  oldValue: string;
+};
+
+export type AttributeChange = {
+  type: "attributeChange";
+  targetElement: ElementLocator;
+  attributeName: string;
+  newValue: string;
+  oldValue: string;
+};
+
 export type ExtendedDocument = Document & {
   __sendDatas?: SuspendedCapturedItem[];
+  __sendMutatedDatas?: {
+    timestamp: number;
+    elementMutations: ElementMutation[];
+    scrollPosition: { x: number; y: number };
+  }[];
   __latteartEventIdToEvent?: Map<string, Event>;
   __capturingIsPaused?: boolean;
   __protected?: boolean;

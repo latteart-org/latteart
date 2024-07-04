@@ -28,6 +28,7 @@ import {
   Note,
   TestResultViewOption,
   Video,
+  ScreenMutation,
 } from "../types";
 import {
   TestResultRepository,
@@ -51,6 +52,7 @@ import {
   VideoRepository,
 } from "../../gateway/repository";
 import { TestResultAccessor, SequenceView } from "./types";
+import { MutationRepository } from "@/gateway/repository/mutationRepository";
 
 export type RepositoryContainer = {
   readonly testStepRepository: TestStepRepository;
@@ -72,6 +74,7 @@ export type RepositoryContainer = {
   readonly storyRepository: StoryRepository;
   readonly testResultComparisonRepository: TestResultComparisonRepository;
   readonly videoRepository: VideoRepository;
+  readonly mutationRepository: MutationRepository;
 };
 
 export class TestResultAccessorImpl implements TestResultAccessor {
@@ -127,6 +130,24 @@ export class TestResultAccessorImpl implements TestResultAccessor {
     }
 
     return new ServiceSuccess(result.data);
+  }
+  async addMutation(
+    screenMutations: ScreenMutation[]
+  ): Promise<ServiceResult<void>> {
+    const result = await this.repositories.mutationRepository.postMutation(
+      this.testResultId,
+      screenMutations
+    );
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "add_mutation_failed",
+        message: "Add Mutation failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data as void);
   }
 
   async addOperation(

@@ -63,6 +63,8 @@ import { TestResultComparisonController } from "./../controllers/TestResultCompa
 import { Videos } from "./../controllers/VideosController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ProjectImportController } from "./../controllers/ProjectImportController";
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { MutationsController } from "./../controllers/MutationsController";
 import type { RequestHandler, Router } from "express";
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -3507,6 +3509,283 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ElementLocator: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        iframe: { dataType: "double" },
+        xpath: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  MutatedElementInfo: {
+    dataType: "refAlias",
+    type: {
+      dataType: "intersection",
+      subSchemas: [
+        { ref: "ElementInfo" },
+        {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            outerHTML: { dataType: "string", required: true },
+          },
+        },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ChildElementAddition: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        addedChildElement: { ref: "MutatedElementInfo", required: true },
+        targetElement: { ref: "ElementLocator", required: true },
+        type: {
+          dataType: "enum",
+          enums: ["childElementAddition"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TextContentAddition: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        addedTextContent: { dataType: "string", required: true },
+        targetElement: { ref: "ElementLocator", required: true },
+        type: {
+          dataType: "enum",
+          enums: ["textContentAddition"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  AttributeAddition: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        newValue: { dataType: "string", required: true },
+        attributeName: { dataType: "string", required: true },
+        targetElement: { ref: "ElementLocator", required: true },
+        type: {
+          dataType: "enum",
+          enums: ["attributeAddition"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ChildElementRemoval: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        removedChildElement: { ref: "ElementLocator", required: true },
+        targetElement: { ref: "ElementLocator", required: true },
+        type: {
+          dataType: "enum",
+          enums: ["childElementRemoval"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TextContentRemoval: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        removedTextContent: { dataType: "string", required: true },
+        targetElement: { ref: "ElementLocator", required: true },
+        type: {
+          dataType: "enum",
+          enums: ["textContentRemoval"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  AttributeRemoval: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        oldValue: { dataType: "string", required: true },
+        attributeName: { dataType: "string", required: true },
+        targetElement: { ref: "ElementLocator", required: true },
+        type: { dataType: "enum", enums: ["attributeRemoval"], required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TextContentChange: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        oldValue: { dataType: "string", required: true },
+        targetElement: { ref: "ElementLocator", required: true },
+        type: {
+          dataType: "enum",
+          enums: ["textContentChange"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  AttributeChange: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        oldValue: { dataType: "string", required: true },
+        newValue: { dataType: "string", required: true },
+        attributeName: { dataType: "string", required: true },
+        targetElement: { ref: "ElementLocator", required: true },
+        type: { dataType: "enum", enums: ["attributeChange"], required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ElementMutation: {
+    dataType: "refAlias",
+    type: {
+      dataType: "union",
+      subSchemas: [
+        { ref: "ChildElementAddition" },
+        { ref: "TextContentAddition" },
+        { ref: "AttributeAddition" },
+        { ref: "ChildElementRemoval" },
+        { ref: "TextContentRemoval" },
+        { ref: "AttributeRemoval" },
+        { ref: "TextContentChange" },
+        { ref: "AttributeChange" },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CreateMutationResponse: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        clientSize: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            height: { dataType: "double", required: true },
+            width: { dataType: "double", required: true },
+          },
+          required: true,
+        },
+        scrollPosition: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            y: { dataType: "double", required: true },
+            x: { dataType: "double", required: true },
+          },
+          required: true,
+        },
+        windowHandle: { dataType: "string", required: true },
+        fileUrl: { dataType: "string", required: true },
+        timestamp: { dataType: "double", required: true },
+        elementMutations: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "ElementMutation" },
+          required: true,
+        },
+        id: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_add_mutation_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["add_mutation_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CreateMutationDto: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        clientSize: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            height: { dataType: "double", required: true },
+            width: { dataType: "double", required: true },
+          },
+          required: true,
+        },
+        scrollPosition: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            y: { dataType: "double", required: true },
+            x: { dataType: "double", required: true },
+          },
+          required: true,
+        },
+        windowHandle: { dataType: "string", required: true },
+        imageData: { dataType: "string", required: true },
+        timestamp: { dataType: "double", required: true },
+        title: { dataType: "string", required: true },
+        url: { dataType: "string", required: true },
+        elementMutations: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "ElementMutation" },
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -5967,6 +6246,53 @@ export function RegisterRoutes(app: Router) {
         const controller = new ProjectImportController();
 
         const promise = controller.importProject.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.post(
+    "/api/v1/test-results/:testResultId/mutations",
+    ...fetchMiddlewares<RequestHandler>(MutationsController),
+    ...fetchMiddlewares<RequestHandler>(
+      MutationsController.prototype.addMutation,
+    ),
+
+    function MutationsController_addMutation(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        testResultId: {
+          in: "path",
+          name: "testResultId",
+          required: true,
+          dataType: "string",
+        },
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "CreateMutationDto" },
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new MutationsController();
+
+        const promise = controller.addMutation.apply(
           controller,
           validatedArgs as any,
         );

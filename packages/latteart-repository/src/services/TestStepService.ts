@@ -38,6 +38,7 @@ import {
 import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
 import { VideoEntity } from "@/entities/VideoEntity";
 import { DataSource } from "typeorm";
+import { mergeCoverage } from "./helper/coverageHelper";
 
 export interface TestStepService {
   getTestStep(testStepId: string): Promise<GetTestStepResponse>;
@@ -111,40 +112,12 @@ export class TestStepServiceImpl implements TestStepService {
 
     const inputElements = this.createInputElements(screenElements);
 
-    const targetCoverageSource = testResultEntity.coverageSources?.find(
-      (coverageSource) => {
-        return (
-          coverageSource.title === requestBody.title &&
-          coverageSource.url === requestBody.url
-        );
-      }
+    mergeCoverage(
+      testResultEntity,
+      screenElements,
+      requestBody.url,
+      requestBody.title
     );
-    if (targetCoverageSource) {
-      const newElements: ElementInfo[] = [
-        ...JSON.parse(targetCoverageSource.screenElements),
-        ...(await this.removeIgnoreTagsFrom(screenElements)),
-      ];
-      targetCoverageSource.screenElements = JSON.stringify(
-        newElements.filter((newElement, index) => {
-          return (
-            newElements.findIndex(
-              (elem) =>
-                elem.xpath + elem.iframe?.index ===
-                newElement.xpath + newElement.iframe?.index
-            ) === index
-          );
-        })
-      );
-    } else {
-      testResultEntity.coverageSources?.push(
-        new CoverageSourceEntity({
-          title: requestBody.title,
-          url: requestBody.url,
-          screenElements: JSON.stringify(screenElements),
-          testResult: testResultEntity,
-        })
-      );
-    }
 
     // update testingTime and lastUpdateTimestamp
     const savedTestResultEntity = await this.updateTestResultTimeStamp(
@@ -311,19 +284,6 @@ export class TestStepServiceImpl implements TestStepService {
     return this.dataSource.getRepository(TestStepEntity).findOneOrFail({
       where: { id: testStepId },
       relations: ["notes", "testPurpose", "screenshot", "video"],
-    });
-  }
-
-  private async removeIgnoreTagsFrom(screenElements: ElementInfo[]) {
-    const ignoreTags = SettingsUtility.getSetting(
-      "captureSettings.ignoreTags"
-    ) as string[];
-
-    return screenElements.filter((elmInfo) => {
-      return !(
-        ignoreTags.includes(elmInfo.tagname.toUpperCase()) ||
-        ignoreTags.includes(elmInfo.tagname.toLowerCase())
-      );
     });
   }
 
