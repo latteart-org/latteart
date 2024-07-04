@@ -25,6 +25,7 @@
       :title="$t('test-result-page.compare-test-result-title')"
       :message="$t('test-result-page.compare-test-result-message')"
       :on-accept="compareHistory"
+      :strong="false"
       @close="confirmDialogOpened = false"
     />
 
