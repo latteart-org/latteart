@@ -574,6 +574,7 @@
       "web_driver_not_ready": "WebDriverの起動に失敗しました。WebDriverへのパスが正しく設定されているかご確認ください。",
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",
+      "detect_devices_failed": "デバイスの検出に失敗しました。",
       "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。",
       "connection_refused": "テスト対象ページへの接続に失敗しました。",
       "add_test_step_failed": "操作の登録に失敗しました。",

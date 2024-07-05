@@ -38,7 +38,7 @@
 
       <v-card v-show="isMobileSelected" class="pa-2 mb-4" variant="outlined">
         <v-card-text>
-          <v-btn @click="updateDevices">{{ $t("config-page.update-device") }}</v-btn>
+          <v-btn class="mb-3" @click="updateDevices">{{ $t("config-page.update-device") }}</v-btn>
           <v-select
             v-model="captureOption.device"
             variant="underlined"
