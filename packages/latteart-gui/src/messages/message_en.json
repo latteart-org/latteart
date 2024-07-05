@@ -574,6 +574,7 @@
       "web_driver_not_ready": "Failed to start WebDriver. Please check if a correct path to WebDriver is set.",
       "appium_not_started": "Appium is not started.",
       "device_not_connected": "Device is not connected.",
+      "detect_devices_failed": "Failed to detect device.",
       "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
       "connection_refused": "Failed to connect to test target page.",
       "add_test_step_failed": "Failed to register operation.",
