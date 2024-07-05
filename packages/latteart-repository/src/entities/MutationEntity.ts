@@ -64,4 +64,12 @@ export class MutationEntity {
   // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "client_size_height" })
   clientSizeHeight: number = 0;
+
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "url" })
+  url: string = "";
+
+  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+  @Column({ name: "title" })
+  title: string = "";
 }

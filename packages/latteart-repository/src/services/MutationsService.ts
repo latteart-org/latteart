@@ -97,6 +97,8 @@ export class MutationService {
           mutationEntity.scrollPositionY = mutation.scrollPosition.y;
           mutationEntity.clientSizeHeight = mutation.clientSize.height;
           mutationEntity.clientSizeWidth = mutation.clientSize.width;
+          mutationEntity.url = mutation.url;
+          mutationEntity.title = mutation.title;
 
           results.push(await entityManager.save(mutationEntity));
         }
@@ -109,6 +111,8 @@ export class MutationService {
             timestamp: result.timestamp,
             fileUrl: screenshotEntity.fileUrl,
             windowHandle: result.windowHandle,
+            url: result.url,
+            title: result.title,
             scrollPosition: {
               x: result.scrollPositionX,
               y: result.scrollPositionY,
