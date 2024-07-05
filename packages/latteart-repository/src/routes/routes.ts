@@ -12,8 +12,6 @@ import {
   fetchMiddlewares,
 } from "@tsoa/runtime";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { CompressedImageController } from "./../controllers/CompressedImageController";
-// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ConfigExportController } from "./../controllers/ConfigExportController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ConfigsController } from "./../controllers/ConfigsController";
@@ -65,46 +63,13 @@ import { Videos } from "./../controllers/VideosController";
 import { ProjectImportController } from "./../controllers/ProjectImportController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { MutationsController } from "./../controllers/MutationsController";
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { CompressedImageController } from "./../controllers/CompressedImageController";
 import type { RequestHandler, Router } from "express";
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
-  CreateCompressedImageResponse: {
-    dataType: "refObject",
-    properties: {
-      imageFileUrl: { dataType: "string", required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ServerErrorData_compress_test_step_image_failed_: {
-    dataType: "refAlias",
-    type: {
-      dataType: "nestedObjectLiteral",
-      nestedProperties: {
-        details: {
-          dataType: "array",
-          array: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              target: { dataType: "string", required: true },
-              message: { dataType: "string", required: true },
-              code: { dataType: "string", required: true },
-            },
-          },
-        },
-        message: { dataType: "string" },
-        code: {
-          dataType: "enum",
-          enums: ["compress_test_step_image_failed"],
-          required: true,
-        },
-      },
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ServerErrorData_export_config_failed_: {
     dataType: "refAlias",
     type: {
@@ -3712,6 +3677,8 @@ const models: TsoaRoute.Models = {
         windowHandle: { dataType: "string", required: true },
         fileUrl: { dataType: "string", required: true },
         timestamp: { dataType: "double", required: true },
+        title: { dataType: "string", required: true },
+        url: { dataType: "string", required: true },
         elementMutations: {
           dataType: "array",
           array: { dataType: "refAlias", ref: "ElementMutation" },
@@ -3786,6 +3753,41 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CreateCompressedImageResponse: {
+    dataType: "refObject",
+    properties: {
+      imageFileUrl: { dataType: "string", required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_compress_test_step_image_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["compress_test_step_image_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -3796,52 +3798,6 @@ export function RegisterRoutes(app: Router) {
   //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
   //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
   // ###########################################################################################################
-  app.post(
-    "/api/v1/test-results/:testResultId/test-steps/:testStepId/compressed-image",
-    ...fetchMiddlewares<RequestHandler>(CompressedImageController),
-    ...fetchMiddlewares<RequestHandler>(
-      CompressedImageController.prototype.compressTestStepScreenshot,
-    ),
-
-    function CompressedImageController_compressTestStepScreenshot(
-      request: any,
-      response: any,
-      next: any,
-    ) {
-      const args = {
-        testResultId: {
-          in: "path",
-          name: "testResultId",
-          required: true,
-          dataType: "string",
-        },
-        testStepId: {
-          in: "path",
-          name: "testStepId",
-          required: true,
-          dataType: "string",
-        },
-      };
-
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = getValidatedArgs(args, request, response);
-
-        const controller = new CompressedImageController();
-
-        const promise = controller.compressTestStepScreenshot.apply(
-          controller,
-          validatedArgs as any,
-        );
-        promiseHandler(controller, promise, response, 200, next);
-      } catch (err) {
-        return next(err);
-      }
-    },
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/projects/:projectId/configs/export",
     ...fetchMiddlewares<RequestHandler>(ConfigExportController),
@@ -6293,6 +6249,52 @@ export function RegisterRoutes(app: Router) {
         const controller = new MutationsController();
 
         const promise = controller.addMutation.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.post(
+    "/api/v1/test-results/:testResultId/test-steps/:testStepId/compressed-image",
+    ...fetchMiddlewares<RequestHandler>(CompressedImageController),
+    ...fetchMiddlewares<RequestHandler>(
+      CompressedImageController.prototype.compressTestStepScreenshot,
+    ),
+
+    function CompressedImageController_compressTestStepScreenshot(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        testResultId: {
+          in: "path",
+          name: "testResultId",
+          required: true,
+          dataType: "string",
+        },
+        testStepId: {
+          in: "path",
+          name: "testStepId",
+          required: true,
+          dataType: "string",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new CompressedImageController();
+
+        const promise = controller.compressTestStepScreenshot.apply(
           controller,
           validatedArgs as any,
         );

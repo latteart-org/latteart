@@ -30,6 +30,8 @@ export type CreateMutationDto = {
 export type CreateMutationResponse = {
   id: string;
   elementMutations: ElementMutation[];
+  url: string;
+  title: string;
   timestamp: number;
   fileUrl: string;
   windowHandle: string;
