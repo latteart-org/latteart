@@ -201,9 +201,10 @@ export type CapturedElementInfo = {
   innerHeight: number;
   innerWidth: number;
   textWithoutChildren?: string;
+  outerHTML?: string;
 };
 
-type ElementInfo = {
+type ChildElement = {
   tagname: string;
   text?: string;
   value?: string;
@@ -242,7 +243,7 @@ export type ElementMutation =
 export type ChildElementAddition = {
   type: "childElementAddition";
   targetElement: ElementLocator;
-  addedChildElement: ElementInfo;
+  addedChildElement: ChildElement;
 };
 
 export type TextContentAddition = {

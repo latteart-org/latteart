@@ -1792,6 +1792,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
+        outerHTML: { dataType: "string" },
         iframe: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {

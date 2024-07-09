@@ -647,6 +647,7 @@ export default class WebBrowserWindow {
       innerWidth: capturedItem.operation.elementInfo.innerWidth,
       outerHeight: capturedItem.operation.elementInfo.outerHeight,
       outerWidth: capturedItem.operation.elementInfo.outerWidth,
+      outerHTML: capturedItem.operation.elementInfo.outerHTML,
     };
     if (capturedItem.operation.elementInfo.checked !== undefined) {
       elementInfo.checked = capturedItem.operation.elementInfo.checked;

@@ -86,7 +86,7 @@ function captureData({
     return true;
   };
 
-  const setFunctionToCollectMutations = (iframe: number) => {
+  const setFunctionToCollectMutations = (iframe?: number) => {
     const extendedDocument: ExtendedDocument = document;
     extendedDocument.__sendMutatedDatas = [];
 
@@ -123,7 +123,7 @@ function captureData({
         path.push(currentElement.tagName + (index > 1 ? `[${index}]` : ""));
         currentElement = parentElement as HTMLElement;
       } while (currentElement);
-      return path.reverse().join("/");
+      return `/${path.reverse().join("/")}`;
     };
     const getAttributes = (element: HTMLElement): { [key: string]: string } => {
       const attributes: { [key: string]: string } = {};
@@ -139,10 +139,8 @@ function captureData({
       record: MutationRecord
     ): ElementMutation[] => {
       const target = record.target as HTMLElement;
-      const targetElement = {
-        iframe,
-        xpath: getXPath(target),
-      };
+      const xpath = getXPath(target);
+      const targetElement = iframe ? { iframe, xpath } : { xpath };
 
       const result: ElementMutation[] = [];
       if (record.type === "childList") {
@@ -415,6 +413,7 @@ function captureData({
           innerHeight: window.innerHeight,
           innerWidth: window.innerWidth,
           textWithoutChildren,
+          outerHTML: element.outerHTML,
         };
         if (element.value != null) {
           newElement.value = `${element.value}`;
@@ -525,6 +524,7 @@ function captureData({
         innerHeight: window.innerHeight,
         innerWidth: window.innerWidth,
         textWithoutChildren,
+        outerHTML: element.outerHTML,
       };
       if (element.value != null) {
         elementInfo.value = `${element.value}`;
@@ -757,7 +757,7 @@ function captureData({
   if (!isReady) {
     if (captureArch === "polling") {
       setFunctionToEnqueueEventForReFire();
-      setFunctionToCollectMutations(iframe?.index ?? 0);
+      setFunctionToCollectMutations(iframe?.index);
     }
 
     setFunctionToGetAttributesFromElement() &&
