@@ -44,7 +44,7 @@
             :headers="headers"
             :items="displayedHistoryItems"
             :search="search"
-            :footer-props="{ 'items-per-page-options': itemsPerPageOptions }"
+            :items-per-page-options="itemsPerPageOptions"
             @click:row="(_: any, obj: any) => onSelectOperations(obj.item.index)"
             @contextmenu:row="
               (event: MouseEvent, item: any) => contextmenu(item.item.operation.sequence, event)
@@ -271,10 +271,16 @@ export default defineComponent({
     const search = ref("");
     const page = ref<number>(1);
     const itemsPerPage = ref<number>(100);
-    const itemsPerPageOptions = ref<number[]>([100, 200, 500, 1000]);
     const sortBy = ref<{ key: string; order: "asc" | "desc" }[]>([
       { key: "operation.sequence", order: "asc" }
     ]);
+
+    const itemsPerPageOptions = [
+      { value: 100, title: "100" },
+      { value: 200, title: "200" },
+      { value: 500, title: "500" },
+      { value: 1000, title: "1000" }
+    ];
 
     const numberOfDisplayedItems = computed(() => {
       return itemsPerPage.value === -1 ? displayedHistoryItems.value.length : itemsPerPage.value;
