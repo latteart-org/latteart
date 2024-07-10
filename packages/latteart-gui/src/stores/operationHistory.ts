@@ -355,7 +355,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       page: 1,
       itemsPerPage: 10,
       sortBy: "creationTimestamp",
-      sortDesc: false
+      sortDesc: true
     },
     openNoteEditDialog: () => {
       /* Do nothing. */
