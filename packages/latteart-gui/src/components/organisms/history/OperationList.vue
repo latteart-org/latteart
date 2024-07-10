@@ -867,4 +867,7 @@ export default defineComponent({
 
 .v-data-table__td .v-data-table-column--align-start
   padding: 0
+
+.v-data-table-footer__items-per-page .v-select__selection-text
+  font-size: small
 </style>
