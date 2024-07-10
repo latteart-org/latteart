@@ -1792,7 +1792,6 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
-        outerHTML: { dataType: "string" },
         iframe: {
           dataType: "nestedObjectLiteral",
           nestedProperties: {
@@ -3487,29 +3486,12 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  MutatedElementInfo: {
-    dataType: "refAlias",
-    type: {
-      dataType: "intersection",
-      subSchemas: [
-        { ref: "ElementInfo" },
-        {
-          dataType: "nestedObjectLiteral",
-          nestedProperties: {
-            outerHTML: { dataType: "string", required: true },
-          },
-        },
-      ],
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ChildElementAddition: {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
-        addedChildElement: { ref: "MutatedElementInfo", required: true },
+        addedChildElement: { ref: "ElementInfo", required: true },
         targetElement: { ref: "ElementLocator", required: true },
         type: {
           dataType: "enum",

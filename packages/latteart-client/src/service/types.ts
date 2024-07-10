@@ -50,9 +50,6 @@ type ElementLocator = {
   iframe?: number;
 };
 
-type MutatedElementInfo = ElementInfo & {
-  outerHTML: string;
-};
 type ElementMutation =
   | ChildElementAddition
   | TextContentAddition
@@ -66,7 +63,7 @@ type ElementMutation =
 type ChildElementAddition = {
   type: "childElementAddition";
   targetElement: ElementLocator;
-  addedChildElement: MutatedElementInfo;
+  addedChildElement: ElementInfo;
 };
 
 type TextContentAddition = {
