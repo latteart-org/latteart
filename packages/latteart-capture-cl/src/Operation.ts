@@ -106,8 +106,6 @@ export interface ElementInfo {
     outerHeight: number;
     outerWidth: number;
   };
-
-  outerHTML?: string;
 }
 
 /**

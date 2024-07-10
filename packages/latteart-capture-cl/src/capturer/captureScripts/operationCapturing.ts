@@ -166,7 +166,6 @@ function captureData({
                   xpath: getXPath(node),
                   checked: Boolean(node.getAttribute("checked")) ?? undefined,
                   attributes,
-                  outerHTML: node.outerHTML,
                 },
               });
             } else if (node instanceof Text) {
@@ -413,7 +412,6 @@ function captureData({
           innerHeight: window.innerHeight,
           innerWidth: window.innerWidth,
           textWithoutChildren,
-          outerHTML: element.outerHTML,
         };
         if (element.value != null) {
           newElement.value = `${element.value}`;
@@ -524,7 +522,6 @@ function captureData({
         innerHeight: window.innerHeight,
         innerWidth: window.innerWidth,
         textWithoutChildren,
-        outerHTML: element.outerHTML,
       };
       if (element.value != null) {
         elementInfo.value = `${element.value}`;

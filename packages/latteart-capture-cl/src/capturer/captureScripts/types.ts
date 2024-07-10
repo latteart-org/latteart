@@ -201,7 +201,6 @@ export type CapturedElementInfo = {
   innerHeight: number;
   innerWidth: number;
   textWithoutChildren?: string;
-  outerHTML?: string;
 };
 
 type ChildElement = {
@@ -211,7 +210,6 @@ type ChildElement = {
   xpath: string;
   checked?: boolean;
   attributes: { [key: string]: string };
-  outerHTML: string;
 };
 
 type ElementLocator = {

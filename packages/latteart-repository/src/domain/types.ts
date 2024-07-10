@@ -117,7 +117,6 @@ export type ElementInfo = {
     outerHeight?: number;
     outerWidth?: number;
   };
-  outerHTML?: string;
 };
 
 /**
