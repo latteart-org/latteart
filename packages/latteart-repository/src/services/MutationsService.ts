@@ -69,7 +69,7 @@ export class MutationService {
         }
         const newTestResult = await entityManager.save(testResultEntity);
 
-        const fileName = `mutation_${screenMutation}.png`;
+        const fileName = `mutation_${testResultId}_${screenMutation.timestamp}.png`;
         await screenshotFileRepository.outputFile(
           fileName,
           screenMutation.imageData,
