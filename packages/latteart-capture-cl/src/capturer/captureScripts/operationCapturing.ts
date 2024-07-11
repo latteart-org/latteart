@@ -216,10 +216,11 @@ function captureData({
           const oldValue = record.oldValue !== null ? record.oldValue : "";
 
           if (
-            [oldValue, newValue].includes(
-              "__LATTEART_OPERATION_TARGET_ELEMENT__"
+            [oldValue, newValue].some(
+              (value) =>
+                value.includes("__LATTEART_OPERATION_TARGET_ELEMENT__") ||
+                value.includes("__LATTEART_MARKED_RECT__")
             ) ||
-            [oldValue, newValue].includes("__LATTEART_MARKED_RECT__") ||
             (!oldValue && !newValue)
           ) {
             return [];
