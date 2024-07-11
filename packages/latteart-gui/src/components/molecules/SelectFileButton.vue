@@ -14,8 +14,8 @@
  limitations under the License.
 -->
 <template>
-  <div>
-    <v-btn @click="($refs.fileInput as HTMLInputElement).click()">
+  <div class="d-flex align-center">
+    <v-btn class="mr-2" @click="($refs.fileInput as HTMLInputElement).click()">
       <slot />
     </v-btn>
     <input
@@ -25,7 +25,8 @@
       :accept="accept"
       @change="selectFile"
     />
-    {{ detailsMessage }}
+
+    <div :style="{ 'overflow-wrap': 'anywhere' }">{{ detailsMessage }}</div>
   </div>
 </template>
 
@@ -37,6 +38,7 @@ export default defineComponent({
     accept: { type: String },
     detailsMessage: { type: String, default: "" }
   },
+  emits: ["select"],
   setup(_, context) {
     const selectFile = (event: Event): void => {
       if (!event.target) {
