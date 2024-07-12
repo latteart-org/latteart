@@ -21,7 +21,8 @@ import WebDriverClient from "@/webdriver/WebDriverClient";
 import WindowContainer from "./WindowContainer";
 import ScreenTransition from "../../ScreenTransition";
 import { SpecialOperationType } from "../../SpecialOperationType";
-import { ScreenMutation, captureScripts } from "../captureScripts";
+import { captureScripts } from "../captureScripts";
+import { ScreenMutation } from "@/ScreenMutation";
 
 /**
  * Class for operating browser.

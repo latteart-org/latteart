@@ -180,11 +180,7 @@ export type CaptureScripts = {
   }) => {
     capturedItems: SuspendedCapturedItem[];
     screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
-    mutatedItems: {
-      timestamp: number;
-      elementMutations: ElementMutation[];
-      scrollPosition: { x: number; y: number };
-    }[];
+    mutatedItems: ScreenMutationForScript[];
   };
 };
 
@@ -203,88 +199,80 @@ export type CapturedElementInfo = {
   textWithoutChildren?: string;
 };
 
-type ChildElement = {
+export type MutatedElementInfo = {
   tagname: string;
   text?: string;
   value?: string;
   xpath: string;
   checked?: boolean;
   attributes: { [key: string]: string };
+  iframe?: Iframe;
 };
 
-type ElementLocator = {
-  xpath: string;
-  iframe?: number;
-};
-
-export type ScreenMutation = {
-  elementMutations: ElementMutation[];
-  title: string;
-  url: string;
+export type ScreenMutationForScript = {
   timestamp: number;
-  imageData: string;
-  windowHandle: string;
+  elementMutations: ElementMutationForScript[];
   scrollPosition: { x: number; y: number };
-  clientSize: { width: number; height: number };
+  iframe?: Iframe;
 };
 
-export type ElementMutation =
-  | ChildElementAddition
-  | TextContentAddition
-  | AttributeAddition
-  | ChildElementRemoval
-  | TextContentRemoval
-  | AttributeRemoval
-  | TextContentChange
-  | AttributeChange;
+export type ElementMutationForScript =
+  | ChildElementAdditionForScript
+  | TextContentAdditionForScript
+  | AttributeAdditionForScript
+  | ChildElementRemovalForScript
+  | TextContentRemovalForScript
+  | AttributeRemovalForScript
+  | TextContentChangeForScript
+  | AttributeChangeForScript;
 
-export type ChildElementAddition = {
+export type ChildElementAdditionForScript = {
   type: "childElementAddition";
-  targetElement: ElementLocator;
-  addedChildElement: ChildElement;
+  targetElement: MutatedElementInfo;
+  addedChildElement: MutatedElementInfo;
 };
 
-export type TextContentAddition = {
+export type TextContentAdditionForScript = {
   type: "textContentAddition";
-  targetElement: ElementLocator;
+  targetElement: MutatedElementInfo;
   addedTextContent: string;
 };
 
-export type ChildElementRemoval = {
+export type ChildElementRemovalForScript = {
   type: "childElementRemoval";
-  targetElement: ElementLocator;
-  removedChildElement: ElementLocator;
+  targetElement: MutatedElementInfo;
+  removedChildElement: MutatedElementInfo;
 };
 
-export type TextContentRemoval = {
+export type TextContentRemovalForScript = {
   type: "textContentRemoval";
-  targetElement: ElementLocator;
+  targetElement: MutatedElementInfo;
   removedTextContent: string;
 };
 
-export type TextContentChange = {
+export type TextContentChangeForScript = {
   type: "textContentChange";
-  targetElement: ElementLocator;
+  targetElement: MutatedElementInfo;
   oldValue: string;
 };
 
-export type AttributeAddition = {
+export type AttributeAdditionForScript = {
   type: "attributeAddition";
-  targetElement: ElementLocator;
+  targetElement: MutatedElementInfo;
   attributeName: string;
   newValue: string;
 };
 
-export type AttributeRemoval = {
+export type AttributeRemovalForScript = {
   type: "attributeRemoval";
-  targetElement: ElementLocator;
+  targetElement: MutatedElementInfo;
   attributeName: string;
   oldValue: string;
 };
 
-export type AttributeChange = {
+export type AttributeChangeForScript = {
   type: "attributeChange";
-  targetElement: ElementLocator;
+  targetElement: MutatedElementInfo;
   attributeName: string;
   newValue: string;
   oldValue: string;
@@ -292,11 +280,7 @@ export type AttributeChange = {
 
 export type ExtendedDocument = Document & {
   __sendDatas?: SuspendedCapturedItem[];
-  __sendMutatedDatas?: {
-    timestamp: number;
-    elementMutations: ElementMutation[];
-    scrollPosition: { x: number; y: number };
-  }[];
+  __sendMutatedDatas?: ScreenMutationForScript[];
   __latteartEventIdToEvent?: Map<string, Event>;
   __capturingIsPaused?: boolean;
   __protected?: boolean;

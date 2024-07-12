@@ -1,6 +1,5 @@
 import { Browser, PlatformName } from "@/CaptureConfig";
 import BrowserOperationCapturer from "@/capturer/BrowserOperationCapturer";
-import { ScreenMutation } from "@/capturer/captureScripts";
 import { Operation } from "@/Operation";
 import ScreenTransition from "@/ScreenTransition";
 import { SeleniumWebDriverClient } from "@/webdriver/SeleniumWebDriverClient";

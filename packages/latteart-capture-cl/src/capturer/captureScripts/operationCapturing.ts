@@ -18,10 +18,11 @@ import {
   BoundingRect,
   CapturedElementInfo,
   CapturedItem,
-  ElementMutation,
+  ElementMutationForScript,
   EventInfo,
   ExtendedDocument,
   Iframe,
+  ScreenMutationForScript,
   SuspendedCapturedItem,
 } from "./types";
 
@@ -51,11 +52,7 @@ function captureData({
 }): {
   capturedItems: SuspendedCapturedItem[];
   screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
-  mutatedItems: {
-    timestamp: number;
-    elementMutations: ElementMutation[];
-    scrollPosition: { x: number; y: number };
-  }[];
+  mutatedItems: ScreenMutationForScript[];
 } {
   const getUrlAndTitle = () => {
     const extendedDocument: ExtendedDocument = document;
@@ -86,7 +83,7 @@ function captureData({
     return true;
   };
 
-  const setFunctionToCollectMutations = (iframe?: number) => {
+  const setFunctionToCollectMutations = (iframe?: Iframe) => {
     const extendedDocument: ExtendedDocument = document;
     extendedDocument.__sendMutatedDatas = [];
 
@@ -137,12 +134,19 @@ function captureData({
     };
     const mutationRecordToElementMutation = (
       record: MutationRecord
-    ): ElementMutation[] => {
+    ): ElementMutationForScript[] => {
       const target = record.target as HTMLElement;
-      const xpath = getXPath(target);
-      const targetElement = iframe ? { iframe, xpath } : { xpath };
+      const targetValue = target.getAttribute("value");
+      const targetElement = {
+        tagname: target.tagName,
+        text: target.textContent ?? undefined,
+        value: targetValue === null ? "" : targetValue,
+        xpath: getXPath(target),
+        checked: Boolean(target.getAttribute("checked")) ?? undefined,
+        attributes: getAttributes(target),
+      };
 
-      const result: ElementMutation[] = [];
+      const result: ElementMutationForScript[] = [];
       if (record.type === "childList") {
         if (record.addedNodes.length > 0) {
           record.addedNodes.forEach((node) => {
@@ -179,6 +183,7 @@ function captureData({
         } else if (record.removedNodes.length > 0) {
           record.removedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
+              const attributes = getAttributes(node);
               if (
                 (getAttributes(node)["id"] ?? "").startsWith(
                   "__LATTEART_MARKED_RECT__"
@@ -186,10 +191,18 @@ function captureData({
               ) {
                 return;
               }
+              const value = node.getAttribute("value");
               result.push({
                 type: "childElementRemoval",
                 targetElement,
-                removedChildElement: { xpath: getXPath(node) },
+                removedChildElement: {
+                  tagname: node.tagName,
+                  text: node.textContent ?? undefined,
+                  value: value === null ? "" : value,
+                  xpath: getXPath(node),
+                  checked: Boolean(node.getAttribute("checked")) ?? undefined,
+                  attributes,
+                },
               });
             } else if (node instanceof Text) {
               result.push({
@@ -253,7 +266,7 @@ function captureData({
       return result;
     };
     const observer = new MutationObserver((mutationList: MutationRecord[]) => {
-      const elementMutations: ElementMutation[] = [];
+      const elementMutations: ElementMutationForScript[] = [];
       mutationList.forEach((mutationRecord) => {
         const result = mutationRecordToElementMutation(mutationRecord);
         if (result.length > 0) {
@@ -261,14 +274,18 @@ function captureData({
         }
       });
       if (elementMutations.length > 0) {
-        extendedDocument.__sendMutatedDatas?.push({
+        const mutatedData: ScreenMutationForScript = {
           elementMutations,
           timestamp: new Date().getTime(),
           scrollPosition: {
             x: window.scrollX,
             y: window.scrollY,
           },
-        });
+        };
+        if (iframe) {
+          mutatedData.iframe = iframe;
+        }
+        extendedDocument.__sendMutatedDatas?.push(mutatedData);
       }
     });
     observer.observe(body, config);
@@ -711,11 +728,7 @@ function captureData({
       return [];
     }
     const queueLength = extendedDocument.__sendMutatedDatas.length;
-    const result: {
-      timestamp: number;
-      elementMutations: ElementMutation[];
-      scrollPosition: { x: number; y: number };
-    }[] = [];
+    const result: ScreenMutationForScript[] = [];
     for (let i = 0; i < queueLength; i++) {
       const item = extendedDocument.__sendMutatedDatas.shift();
       if (item) {
@@ -755,7 +768,7 @@ function captureData({
   if (!isReady) {
     if (captureArch === "polling") {
       setFunctionToEnqueueEventForReFire();
-      setFunctionToCollectMutations(iframe?.index);
+      setFunctionToCollectMutations(iframe);
     }
 
     setFunctionToGetAttributesFromElement() &&

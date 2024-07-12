@@ -52,8 +52,20 @@ export class MutationService {
         const elements: ElementInfo[] = [];
         requestBody.forEach((screenMutation) => {
           screenMutation.elementMutations.forEach((mutation) => {
-            if (mutation.type === "childElementAddition") {
-              elements.push(mutation.addedChildElement);
+            switch (mutation.type) {
+              case "childElementAddition":
+                elements.push(mutation.addedChildElement);
+                break;
+              case "attributeAddition":
+              case "attributeRemoval":
+              case "attributeChange":
+              case "textContentAddition":
+              case "textContentRemoval":
+              case "textContentChange":
+                elements.push(mutation.targetElement);
+                break;
+              default:
+                break;
             }
           });
         });

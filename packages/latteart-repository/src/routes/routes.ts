@@ -3509,7 +3509,7 @@ const models: TsoaRoute.Models = {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         addedTextContent: { dataType: "string", required: true },
-        targetElement: { ref: "ElementLocator", required: true },
+        targetElement: { ref: "ElementInfo", required: true },
         type: {
           dataType: "enum",
           enums: ["textContentAddition"],
@@ -3527,7 +3527,7 @@ const models: TsoaRoute.Models = {
       nestedProperties: {
         newValue: { dataType: "string", required: true },
         attributeName: { dataType: "string", required: true },
-        targetElement: { ref: "ElementLocator", required: true },
+        targetElement: { ref: "ElementInfo", required: true },
         type: {
           dataType: "enum",
           enums: ["attributeAddition"],
@@ -3561,7 +3561,7 @@ const models: TsoaRoute.Models = {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         removedTextContent: { dataType: "string", required: true },
-        targetElement: { ref: "ElementLocator", required: true },
+        targetElement: { ref: "ElementInfo", required: true },
         type: {
           dataType: "enum",
           enums: ["textContentRemoval"],
@@ -3579,7 +3579,7 @@ const models: TsoaRoute.Models = {
       nestedProperties: {
         oldValue: { dataType: "string", required: true },
         attributeName: { dataType: "string", required: true },
-        targetElement: { ref: "ElementLocator", required: true },
+        targetElement: { ref: "ElementInfo", required: true },
         type: { dataType: "enum", enums: ["attributeRemoval"], required: true },
       },
       validators: {},
@@ -3592,7 +3592,7 @@ const models: TsoaRoute.Models = {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         oldValue: { dataType: "string", required: true },
-        targetElement: { ref: "ElementLocator", required: true },
+        targetElement: { ref: "ElementInfo", required: true },
         type: {
           dataType: "enum",
           enums: ["textContentChange"],
@@ -3611,7 +3611,7 @@ const models: TsoaRoute.Models = {
         oldValue: { dataType: "string", required: true },
         newValue: { dataType: "string", required: true },
         attributeName: { dataType: "string", required: true },
-        targetElement: { ref: "ElementLocator", required: true },
+        targetElement: { ref: "ElementInfo", required: true },
         type: { dataType: "enum", enums: ["attributeChange"], required: true },
       },
       validators: {},
