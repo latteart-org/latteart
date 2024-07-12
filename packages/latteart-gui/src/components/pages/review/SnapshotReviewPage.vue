@@ -25,11 +25,13 @@ import { type Story } from "@/lib/testManagement/types";
 import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent } from "vue";
 import { useRoute } from "vue-router";
+import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
   setup() {
     const testManagementStore = useTestManagementStore();
     const route = useRoute();
+    const rootStore = useRootStore();
 
     const querySessionId = computed(() => {
       const sessionId = route.query.sessionIds?.at(0)?.toString() ?? "";
@@ -45,6 +47,10 @@ export default defineComponent({
       const sessionId = querySessionId.value;
 
       return `data/${storyId}/${sessionId}/index.html`;
+    });
+
+    rootStore.changeWindowTitle({
+      title: rootStore.message(route.meta?.title ?? "")
     });
 
     return {
