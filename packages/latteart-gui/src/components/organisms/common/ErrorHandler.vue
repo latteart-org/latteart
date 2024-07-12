@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <div>
+  <div class="error-handler">
     <slot></slot>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
@@ -96,4 +96,8 @@ export default defineComponent({
 <style lang="sass">
 html
   overflow-y: auto !important
+
+.error-handler
+  width: 100%
+  height: 100%
 </style>
