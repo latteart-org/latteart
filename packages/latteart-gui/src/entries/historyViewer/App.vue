@@ -16,11 +16,16 @@
 
 <template>
   <v-app>
-    <error-handler>
-      <div style="height: 100vh">
-        <history-display :raw-history="history" :message="messageProvider"></history-display>
-      </div>
-    </error-handler>
+    <v-container fluid class="fill-height pa-0">
+      <v-app-bar color="#424242" absolute flat>
+        <v-toolbar-title>{{ $t("manager-history-view.review") }}</v-toolbar-title>
+      </v-app-bar>
+      <error-handler>
+        <v-container fluid class="pa-0" style="height: calc(100vh); padding-top: 64px !important">
+          <history-display :raw-history="history" :message="messageProvider"></history-display>
+        </v-container>
+      </error-handler>
+    </v-container>
   </v-app>
 </template>
 
