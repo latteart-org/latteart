@@ -23,7 +23,8 @@ import ScreenTransition from "../ScreenTransition";
 import { SpecialOperationType } from "../SpecialOperationType";
 import Autofill from "../webdriver/autofill";
 import { TimestampImpl } from "../Timestamp";
-import { CapturedItem, ScreenMutation } from "./captureScripts";
+import { CapturedItem } from "./captureScripts";
+import { ScreenMutation } from "@/ScreenMutation";
 
 /**
  * The class for monitoring and getting browser operations.

@@ -30,19 +30,16 @@ import {
   captureScripts,
   Iframe,
   SuspendedCapturedItem,
-  ElementMutation,
-  ScreenMutation,
+  ScreenMutationForScript,
+  MutatedElementInfo,
 } from "@/capturer/captureScripts";
 import { CapturedOperation, isIgnoreOperation } from "./webBrowserWindowHelper";
+import { ElementMutation, ScreenMutation } from "@/ScreenMutation";
 
 type CapturingAction = (iframe?: Iframe) => Promise<{
   capturedItems: SuspendedCapturedItem[];
   screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
-  mutatedItems: {
-    timestamp: number;
-    elementMutations: ElementMutation[];
-    scrollPosition: { x: number; y: number };
-  }[];
+  mutatedItems: ScreenMutationForScript[];
 } | null>;
 
 /**
@@ -394,11 +391,7 @@ export default class WebBrowserWindow {
       {
         capturedItems: Array<SuspendedCapturedItem>(),
         screenElements: Array<ScreenElements>(),
-        mutatedItems: Array<{
-          timestamp: number;
-          elementMutations: ElementMutation[];
-          scrollPosition: { x: number; y: number };
-        }>(),
+        mutatedItems: Array<ScreenMutationForScript>(),
       }
     );
 
@@ -430,11 +423,7 @@ export default class WebBrowserWindow {
   }
 
   public async registerMutatedItem(
-    mutatedItems: {
-      timestamp: number;
-      elementMutations: ElementMutation[];
-      scrollPosition: { x: number; y: number };
-    }[],
+    screenMutationForScripts: ScreenMutationForScript[],
     data: {
       imageData?: string;
       clientSize?: {
@@ -449,17 +438,67 @@ export default class WebBrowserWindow {
     const clientSize = data.clientSize
       ? data.clientSize
       : await this.client.getClientSize();
-    const screenMutation = mutatedItems.map((mutation, index) => {
+
+    const convertMutatedElementInfoToElementInfo = (
+      mutatedElementInfo: MutatedElementInfo,
+      iframe?: Iframe
+    ) => {
       return {
-        ...mutation,
-        url: this.currentUrl,
-        title: this.currentTitle,
-        imageData: index === 0 ? imageData : "",
-        clientSize,
-        windowHandle: this.windowHandle,
+        tagname: mutatedElementInfo.tagname,
+        text: mutatedElementInfo.text,
+        value: mutatedElementInfo.value,
+        xpath: mutatedElementInfo.xpath,
+        attributes: mutatedElementInfo.attributes,
+        boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+        iframe: iframe,
+        innerHeight: 0,
+        innerWidth: 0,
+        outerHeight: 0,
+        outerWidth: 0,
       };
-    });
-    this.onGetMutation(screenMutation);
+    };
+
+    const screenMutations: ScreenMutation[] = screenMutationForScripts.map(
+      (screenMutation, index) => {
+        const elementMutations: ElementMutation[] =
+          screenMutation.elementMutations.map((mutation) => {
+            switch (mutation.type) {
+              case "childElementAddition":
+                return {
+                  ...mutation,
+                  addedChildElement: convertMutatedElementInfoToElementInfo(
+                    mutation.addedChildElement,
+                    screenMutation.iframe
+                  ),
+                };
+              case "childElementRemoval":
+                return {
+                  ...mutation,
+                };
+              default:
+                return {
+                  ...mutation,
+                  targetElement: convertMutatedElementInfoToElementInfo(
+                    mutation.targetElement,
+                    screenMutation.iframe
+                  ),
+                };
+            }
+          });
+
+        return {
+          elementMutations,
+          title: this.currentTitle,
+          url: this.currentUrl,
+          timestamp: screenMutation.timestamp,
+          imageData: index === 0 ? imageData : "",
+          windowHandle: this.windowHandle,
+          scrollPosition: screenMutation.scrollPosition,
+          clientSize,
+        };
+      }
+    );
+    this.onGetMutation(screenMutations);
   }
 
   public async collectAllFrameScreenElements(): Promise<

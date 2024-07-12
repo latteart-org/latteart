@@ -68,7 +68,7 @@ type ChildElementAddition = {
 
 type TextContentAddition = {
   type: "textContentAddition";
-  targetElement: ElementLocator;
+  targetElement: ElementInfo;
   addedTextContent: string;
 };
 
@@ -80,33 +80,33 @@ type ChildElementRemoval = {
 
 type TextContentRemoval = {
   type: "textContentRemoval";
-  targetElement: ElementLocator;
+  targetElement: ElementInfo;
   removedTextContent: string;
 };
 
 type TextContentChange = {
   type: "textContentChange";
-  targetElement: ElementLocator;
+  targetElement: ElementInfo;
   oldValue: string;
 };
 
 type AttributeAddition = {
   type: "attributeAddition";
-  targetElement: ElementLocator;
+  targetElement: ElementInfo;
   attributeName: string;
   newValue: string;
 };
 
 type AttributeRemoval = {
   type: "attributeRemoval";
-  targetElement: ElementLocator;
+  targetElement: ElementInfo;
   attributeName: string;
   oldValue: string;
 };
 
 type AttributeChange = {
   type: "attributeChange";
-  targetElement: ElementLocator;
+  targetElement: ElementInfo;
   attributeName: string;
   newValue: string;
   oldValue: string;

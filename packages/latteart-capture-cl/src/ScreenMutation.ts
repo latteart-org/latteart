@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-import { ElementInfo } from "@/domain/types";
+import { ElementInfo } from "./Operation";
 
-export type CreateMutationDto = {
+type ElementLocator = Pick<ElementInfo, "xpath" | "iframe">;
+
+export type ScreenMutation = {
   elementMutations: ElementMutation[];
-  url: string;
   title: string;
+  url: string;
   timestamp: number;
   imageData: string;
   windowHandle: string;
@@ -27,24 +29,7 @@ export type CreateMutationDto = {
   clientSize: { width: number; height: number };
 };
 
-export type CreateMutationResponse = {
-  id: string;
-  elementMutations: ElementMutation[];
-  url: string;
-  title: string;
-  timestamp: number;
-  fileUrl: string;
-  windowHandle: string;
-  scrollPosition: { x: number; y: number };
-  clientSize: { width: number; height: number };
-};
-
-type ElementLocator = {
-  xpath: string;
-  iframe?: number;
-};
-
-type ElementMutation =
+export type ElementMutation =
   | ChildElementAddition
   | TextContentAddition
   | AttributeAddition
@@ -54,51 +39,51 @@ type ElementMutation =
   | TextContentChange
   | AttributeChange;
 
-type ChildElementAddition = {
+export type ChildElementAddition = {
   type: "childElementAddition";
   targetElement: ElementLocator;
   addedChildElement: ElementInfo;
 };
 
-type TextContentAddition = {
+export type TextContentAddition = {
   type: "textContentAddition";
   targetElement: ElementInfo;
   addedTextContent: string;
 };
 
-type ChildElementRemoval = {
+export type ChildElementRemoval = {
   type: "childElementRemoval";
   targetElement: ElementLocator;
   removedChildElement: ElementLocator;
 };
 
-type TextContentRemoval = {
+export type TextContentRemoval = {
   type: "textContentRemoval";
   targetElement: ElementInfo;
   removedTextContent: string;
 };
 
-type TextContentChange = {
+export type TextContentChange = {
   type: "textContentChange";
   targetElement: ElementInfo;
   oldValue: string;
 };
 
-type AttributeAddition = {
+export type AttributeAddition = {
   type: "attributeAddition";
   targetElement: ElementInfo;
   attributeName: string;
   newValue: string;
 };
 
-type AttributeRemoval = {
+export type AttributeRemoval = {
   type: "attributeRemoval";
   targetElement: ElementInfo;
   attributeName: string;
   oldValue: string;
 };
 
-type AttributeChange = {
+export type AttributeChange = {
   type: "attributeChange";
   targetElement: ElementInfo;
   attributeName: string;
