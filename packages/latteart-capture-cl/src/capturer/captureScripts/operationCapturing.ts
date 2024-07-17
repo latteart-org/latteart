@@ -152,11 +152,7 @@ function captureData({
           record.addedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
               const attributes = getAttributes(node);
-              const attributesId = getAttributes(node)["id"] ?? "";
-              if (
-                attributesId.startsWith("__LATTEART_MARKED_RECT__") ||
-                attributesId.includes("__LATTEART_USER_OPERATION_SHIELD__")
-              ) {
+              if (hasExcludeMutations(getAttributes(node)["id"] ?? "")) {
                 return;
               }
               const value = node.getAttribute("value");
@@ -184,11 +180,7 @@ function captureData({
           record.removedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
               const attributes = getAttributes(node);
-              const attributesId = getAttributes(node)["id"] ?? "";
-              if (
-                attributesId.startsWith("__LATTEART_MARKED_RECT__") ||
-                attributesId.includes("__LATTEART_USER_OPERATION_SHIELD__")
-              ) {
+              if (hasExcludeMutations(getAttributes(node)["id"] ?? "")) {
                 return;
               }
               const value = node.getAttribute("value");
@@ -234,8 +226,9 @@ function captureData({
             [oldValue, newValue].some(
               (value) =>
                 value.includes("__LATTEART_OPERATION_TARGET_ELEMENT__") ||
-                value.includes("__LATTEART_MARKED_RECT__") ||
-                value.includes("__LATTEART_USER_OPERATION_SHIELD__")
+                value.startsWith("__LATTEART_MARKED_RECT__") ||
+                value.includes("__LATTEART_USER_OPERATION_SHIELD__") ||
+                value.includes("__latteart_init_guard__")
             ) ||
             (!oldValue && !newValue) ||
             oldValue === newValue
@@ -997,4 +990,12 @@ function putNumberToRect({ index, prefix }: { index: number; prefix: string }) {
   p.innerText = String.fromCharCode(9312 + index);
 
   div.insertAdjacentElement("beforeend", p);
+}
+
+function hasExcludeMutations(attributesId: string) {
+  return (
+    attributesId.startsWith("__LATTEART_MARKED_RECT__") ||
+    attributesId.includes("__LATTEART_USER_OPERATION_SHIELD__") ||
+    attributesId.includes("__latteart_init_guard__")
+  );
 }
