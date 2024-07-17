@@ -45,11 +45,6 @@ export type CapturedOperation = CapturedOperationForCaptureCl & {
   videoTime?: number;
 };
 
-type ElementLocator = {
-  xpath: string;
-  iframe?: number;
-};
-
 type ElementMutation =
   | ChildElementAddition
   | TextContentAddition
@@ -62,7 +57,7 @@ type ElementMutation =
 
 type ChildElementAddition = {
   type: "childElementAddition";
-  targetElement: ElementLocator;
+  targetElement: ElementInfo;
   addedChildElement: ElementInfo;
 };
 
@@ -74,8 +69,8 @@ type TextContentAddition = {
 
 type ChildElementRemoval = {
   type: "childElementRemoval";
-  targetElement: ElementLocator;
-  removedChildElement: ElementLocator;
+  targetElement: ElementInfo;
+  removedChildElement: ElementInfo;
 };
 
 type TextContentRemoval = {

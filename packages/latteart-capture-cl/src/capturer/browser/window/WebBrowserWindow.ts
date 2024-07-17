@@ -462,10 +462,16 @@ export default class WebBrowserWindow {
       (screenMutation, index) => {
         const elementMutations: ElementMutation[] =
           screenMutation.elementMutations.map((mutation) => {
+            const targetElement = convertMutatedElementInfoToElementInfo(
+              mutation.targetElement,
+              screenMutation.iframe
+            );
+
             switch (mutation.type) {
               case "childElementAddition":
                 return {
                   ...mutation,
+                  targetElement,
                   addedChildElement: convertMutatedElementInfoToElementInfo(
                     mutation.addedChildElement,
                     screenMutation.iframe
@@ -474,15 +480,14 @@ export default class WebBrowserWindow {
               case "childElementRemoval":
                 return {
                   ...mutation,
-                };
-              default:
-                return {
-                  ...mutation,
-                  targetElement: convertMutatedElementInfoToElementInfo(
-                    mutation.targetElement,
+                  targetElement,
+                  removedChildElement: convertMutatedElementInfoToElementInfo(
+                    mutation.removedChildElement,
                     screenMutation.iframe
                   ),
                 };
+              default:
+                return { ...mutation, targetElement };
             }
           });
 

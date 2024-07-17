@@ -16,8 +16,6 @@
 
 import { ElementInfo } from "./Operation";
 
-type ElementLocator = Pick<ElementInfo, "xpath" | "iframe">;
-
 export type ScreenMutation = {
   elementMutations: ElementMutation[];
   title: string;
@@ -41,7 +39,7 @@ export type ElementMutation =
 
 export type ChildElementAddition = {
   type: "childElementAddition";
-  targetElement: ElementLocator;
+  targetElement: ElementInfo;
   addedChildElement: ElementInfo;
 };
 
@@ -53,8 +51,8 @@ export type TextContentAddition = {
 
 export type ChildElementRemoval = {
   type: "childElementRemoval";
-  targetElement: ElementLocator;
-  removedChildElement: ElementLocator;
+  targetElement: ElementInfo;
+  removedChildElement: ElementInfo;
 };
 
 export type TextContentRemoval = {
