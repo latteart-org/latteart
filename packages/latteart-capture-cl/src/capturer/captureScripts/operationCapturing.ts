@@ -229,6 +229,8 @@ function captureData({
           const oldValue = record.oldValue !== null ? record.oldValue : "";
 
           if (
+            (targetElement.tagname === "IFRAME" &&
+              attributeName === "cd_frame_id_") ||
             [oldValue, newValue].some(
               (value) =>
                 value.includes("__LATTEART_OPERATION_TARGET_ELEMENT__") ||
