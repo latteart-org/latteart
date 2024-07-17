@@ -152,10 +152,10 @@ function captureData({
           record.addedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
               const attributes = getAttributes(node);
+              const attributesId = getAttributes(node)["id"] ?? "";
               if (
-                (getAttributes(node)["id"] ?? "").startsWith(
-                  "__LATTEART_MARKED_RECT__"
-                )
+                attributesId.startsWith("__LATTEART_MARKED_RECT__") ||
+                attributesId.includes("__LATTEART_USER_OPERATION_SHIELD__")
               ) {
                 return;
               }
@@ -184,10 +184,10 @@ function captureData({
           record.removedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
               const attributes = getAttributes(node);
+              const attributesId = getAttributes(node)["id"] ?? "";
               if (
-                (getAttributes(node)["id"] ?? "").startsWith(
-                  "__LATTEART_MARKED_RECT__"
-                )
+                attributesId.startsWith("__LATTEART_MARKED_RECT__") ||
+                attributesId.includes("__LATTEART_USER_OPERATION_SHIELD__")
               ) {
                 return;
               }
@@ -234,9 +234,11 @@ function captureData({
             [oldValue, newValue].some(
               (value) =>
                 value.includes("__LATTEART_OPERATION_TARGET_ELEMENT__") ||
-                value.includes("__LATTEART_MARKED_RECT__")
+                value.includes("__LATTEART_MARKED_RECT__") ||
+                value.includes("__LATTEART_USER_OPERATION_SHIELD__")
             ) ||
-            (!oldValue && !newValue)
+            (!oldValue && !newValue) ||
+            oldValue === newValue
           ) {
             return [];
           }
