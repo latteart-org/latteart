@@ -146,19 +146,27 @@ function captureData({
         attributes: getAttributes(target),
       };
 
+      const isIgnoreElement = (attribute: { id?: string; class?: string }) => {
+        return (
+          (attribute.id?.startsWith("__LATTEART_MARKED_RECT__") ?? false) ||
+          attribute.id === "__LATTEART_USER_OPERATION_SHIELD__" ||
+          attribute.id === "__latteart_init_guard__" ||
+          (attribute.class?.includes("__LATTEART_OPERATION_TARGET_ELEMENT__") ??
+            false)
+        );
+      };
+
       const result: ElementMutationForScript[] = [];
       if (record.type === "childList") {
         if (record.addedNodes.length > 0) {
           record.addedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
               const attributes = getAttributes(node);
-              const attributesId = getAttributes(node)["id"] ?? "";
-              if (
-                attributesId.startsWith("__LATTEART_MARKED_RECT__") ||
-                attributesId.includes("__LATTEART_USER_OPERATION_SHIELD__")
-              ) {
+
+              if (isIgnoreElement(attributes)) {
                 return;
               }
+
               const value = node.getAttribute("value");
               result.push({
                 type: "childElementAddition",
@@ -184,13 +192,11 @@ function captureData({
           record.removedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
               const attributes = getAttributes(node);
-              const attributesId = getAttributes(node)["id"] ?? "";
-              if (
-                attributesId.startsWith("__LATTEART_MARKED_RECT__") ||
-                attributesId.includes("__LATTEART_USER_OPERATION_SHIELD__")
-              ) {
+
+              if (isIgnoreElement(attributes)) {
                 return;
               }
+
               const value = node.getAttribute("value");
               result.push({
                 type: "childElementRemoval",
@@ -229,14 +235,17 @@ function captureData({
           const oldValue = record.oldValue !== null ? record.oldValue : "";
 
           if (
+            [
+              Object.fromEntries([[attributeName, oldValue]]),
+              Object.fromEntries([[attributeName, newValue]]),
+            ].some((attributes) => isIgnoreElement(attributes))
+          ) {
+            return [];
+          }
+
+          if (
             (targetElement.tagname === "IFRAME" &&
               attributeName === "cd_frame_id_") ||
-            [oldValue, newValue].some(
-              (value) =>
-                value.includes("__LATTEART_OPERATION_TARGET_ELEMENT__") ||
-                value.includes("__LATTEART_MARKED_RECT__") ||
-                value.includes("__LATTEART_USER_OPERATION_SHIELD__")
-            ) ||
             (!oldValue && !newValue) ||
             oldValue === newValue
           ) {
