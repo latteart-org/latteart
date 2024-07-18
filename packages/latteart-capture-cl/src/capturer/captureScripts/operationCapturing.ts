@@ -146,15 +146,27 @@ function captureData({
         attributes: getAttributes(target),
       };
 
+      const isIgnoreElement = (attribute: { id?: string; class?: string }) => {
+        return (
+          (attribute.id?.startsWith("__LATTEART_MARKED_RECT__") ?? false) ||
+          attribute.id === "__LATTEART_USER_OPERATION_SHIELD__" ||
+          attribute.id === "__latteart_init_guard__" ||
+          (attribute.class?.includes("__LATTEART_OPERATION_TARGET_ELEMENT__") ??
+            false)
+        );
+      };
+
       const result: ElementMutationForScript[] = [];
       if (record.type === "childList") {
         if (record.addedNodes.length > 0) {
           record.addedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
               const attributes = getAttributes(node);
-              if (hasExcludeMutations(getAttributes(node)["id"] ?? "")) {
+
+              if (isIgnoreElement(attributes)) {
                 return;
               }
+
               const value = node.getAttribute("value");
               result.push({
                 type: "childElementAddition",
@@ -180,9 +192,11 @@ function captureData({
           record.removedNodes.forEach((node) => {
             if (node instanceof HTMLElement) {
               const attributes = getAttributes(node);
-              if (hasExcludeMutations(getAttributes(node)["id"] ?? "")) {
+
+              if (isIgnoreElement(attributes)) {
                 return;
               }
+
               const value = node.getAttribute("value");
               result.push({
                 type: "childElementRemoval",
@@ -221,15 +235,17 @@ function captureData({
           const oldValue = record.oldValue !== null ? record.oldValue : "";
 
           if (
+            [
+              Object.fromEntries([[attributeName, oldValue]]),
+              Object.fromEntries([[attributeName, newValue]]),
+            ].some((attributes) => isIgnoreElement(attributes))
+          ) {
+            return [];
+          }
+
+          if (
             (targetElement.tagname === "IFRAME" &&
               attributeName === "cd_frame_id_") ||
-            [oldValue, newValue].some(
-              (value) =>
-                value.includes("__LATTEART_OPERATION_TARGET_ELEMENT__") ||
-                value.startsWith("__LATTEART_MARKED_RECT__") ||
-                value.includes("__LATTEART_USER_OPERATION_SHIELD__") ||
-                value.includes("__latteart_init_guard__")
-            ) ||
             (!oldValue && !newValue) ||
             oldValue === newValue
           ) {
@@ -990,12 +1006,4 @@ function putNumberToRect({ index, prefix }: { index: number; prefix: string }) {
   p.innerText = String.fromCharCode(9312 + index);
 
   div.insertAdjacentElement("beforeend", p);
-}
-
-function hasExcludeMutations(attributesId: string) {
-  return (
-    attributesId.startsWith("__LATTEART_MARKED_RECT__") ||
-    attributesId.includes("__LATTEART_USER_OPERATION_SHIELD__") ||
-    attributesId.includes("__latteart_init_guard__")
-  );
 }
