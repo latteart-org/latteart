@@ -29,6 +29,7 @@ import { TestPurposeEntity } from "./TestPurposeEntity";
 import { NoteEntity } from "./NoteEntity";
 import { SessionEntity } from "./SessionEntity";
 import { MutationEntity } from "./MutationEntity";
+import { CommentEntity } from "./CommentEntity";
 
 @Entity("TEST_RESULTS")
 export class TestResultEntity {
@@ -106,6 +107,11 @@ export class TestResultEntity {
     cascade: true,
   })
   mutations?: MutationEntity[];
+
+  @OneToMany(() => CommentEntity, (comment) => comment.testResult, {
+    cascade: true,
+  })
+  comments?: CommentEntity[];
 
   constructor(
     props: Partial<

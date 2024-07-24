@@ -36,6 +36,7 @@ export default class Settings {
     viewPoints: Array<{ name: string }>;
   }>;
   public defaultTagList: string[];
+  public defaultTestHintProps: TestHintPropSetting[];
   public config: {
     autofillSetting: AutofillSetting;
     autoOperationSetting: AutoOperationSetting;
@@ -65,6 +66,7 @@ export default class Settings {
     };
     this.viewPointsPreset = [];
     this.defaultTagList = [];
+    this.defaultTestHintProps = [];
     this.config = {
       autofillSetting: {
         conditionGroups: [],
@@ -190,4 +192,15 @@ export interface ScreenDefinitionConditionGroup {
  */
 export interface ExperimentalFeatureSetting {
   captureArch: "polling" | "push";
+}
+
+/**
+ * TestHintProp initial value type
+ */
+export interface TestHintPropSetting {
+  title: string;
+  id: string;
+  type: string;
+  index: number;
+  listItems?: { key: string; value: string }[];
 }

@@ -171,6 +171,10 @@ export class SettingsProvider {
       target.defaultTagList = source.defaultTagList;
     }
 
+    if (source.defaultTestHintProps) {
+      target.defaultTestHintProps = source.defaultTestHintProps;
+    }
+
     if (source.config && source.config.autofillSetting) {
       const sourceAutofillSetting = source.config.autofillSetting;
 

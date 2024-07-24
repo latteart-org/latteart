@@ -37,6 +37,9 @@ import {
 } from "@/interfaces/Notes";
 import { CoverageSourceEntity } from "@/entities/CoverageSourceEntity";
 import { ElementInfo } from "@/domain/types";
+import { TestHintEntity } from "@/entities/TestHintEntity";
+import { Custom, TestHint, TestHintProp } from "@/interfaces/TestHints";
+import { TestHintPropEntity } from "@/entities/TestHintPropEntity";
 
 export const storyEntityToResponse = (story: StoryEntity): Story => {
   return {
@@ -486,4 +489,43 @@ export const convertToDownloadUrl = (text: string): string => {
     .replace(/\?/g, "")
     .replace(/\\/g, "")
     .replace(/\//g, "");
+};
+
+export const testHintEntityToResponse = (
+  testHintEntity: TestHintEntity
+): TestHint => {
+  const customs = JSON.parse(testHintEntity.customs) as Custom[];
+  const commentWords = JSON.parse(testHintEntity.commentWords) as string[];
+  const operationElements =
+    testHintEntity.operationElements === ""
+      ? []
+      : JSON.parse(testHintEntity.operationElements);
+  return {
+    id: testHintEntity.id,
+    value: testHintEntity.value,
+    testMatrixName: testHintEntity.testMatrixName,
+    groupName: testHintEntity.groupName,
+    testTargetName: testHintEntity.testTargetName,
+    viewPointName: testHintEntity.viewPointName,
+    customs,
+    commentWords,
+    operationElements,
+    createdAt: testHintEntity.createdAt.getTime(),
+  };
+};
+
+export const testHintPropEntityToResponse = (
+  testHintHeaderEntity: TestHintPropEntity
+): TestHintProp => {
+  let list = undefined;
+  if (testHintHeaderEntity.listItems) {
+    list = JSON.parse(testHintHeaderEntity.listItems);
+  }
+
+  return {
+    title: testHintHeaderEntity.title,
+    id: testHintHeaderEntity.id,
+    type: testHintHeaderEntity.type,
+    listItems: list,
+  };
 };

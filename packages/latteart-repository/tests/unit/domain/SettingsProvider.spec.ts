@@ -28,6 +28,7 @@ describe("SettingsProvider", () => {
         configureCaptureSettings: true,
       },
       defaultTagList: [],
+      defaultTestHintProps: [],
       viewPointsPreset: [],
       config: {
         autofillSetting: {
@@ -169,6 +170,7 @@ describe("SettingsProvider", () => {
           "RP",
           "BODY",
         ],
+        defaultTestHintProps: [],
         viewPointsPreset: [
           {
             name: "default",
@@ -268,6 +270,7 @@ describe("SettingsProvider", () => {
           configureCaptureSettings: true,
         },
         defaultTagList: [],
+        defaultTestHintProps: [],
         viewPointsPreset: [],
         config: {
           autofillSetting: {
