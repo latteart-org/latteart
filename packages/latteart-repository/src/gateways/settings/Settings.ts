@@ -202,5 +202,5 @@ export interface TestHintPropSetting {
   id: string;
   type: string;
   index: number;
-  list?: { key: string; value: string }[];
+  listItems?: { key: string; value: string }[];
 }

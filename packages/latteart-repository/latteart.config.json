@@ -144,7 +144,7 @@
       "id": "001",
       "type": "list",
       "index": 0,
-      "list": [
+      "listItems": [
         { "key": "001-1", "value": "1" },
         { "key": "001-2", "value": "2" },
         { "key": "001-3", "value": "3" },
@@ -157,7 +157,7 @@
       "id": "002",
       "type": "list",
       "index": 1,
-      "list": [
+      "listItems": [
         { "key": "002-1", "value": "1" },
         { "key": "002-2", "value": "2" },
         { "key": "002-3", "value": "3" },
@@ -170,7 +170,7 @@
       "id": "003",
       "type": "list",
       "index": 2,
-      "list": [
+      "listItems": [
         { "key": "003-1", "value": "1" },
         { "key": "003-2", "value": "2" },
         { "key": "003-3", "value": "3" },
@@ -183,7 +183,7 @@
       "id": "004",
       "type": "list",
       "index": 3,
-      "list": [
+      "listItems": [
         { "key": "004-1", "value": "1" },
         { "key": "004-2", "value": "2" },
         { "key": "004-3", "value": "3" },

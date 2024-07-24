@@ -514,18 +514,18 @@ export const testHintEntityToResponse = (
   };
 };
 
-export const testHintParamEntityToResponse = (
+export const testHintPropEntityToResponse = (
   testHintHeaderEntity: TestHintPropEntity
 ): TestHintProp => {
   let list = undefined;
-  if (testHintHeaderEntity.list) {
-    list = JSON.parse(testHintHeaderEntity.list);
+  if (testHintHeaderEntity.listItems) {
+    list = JSON.parse(testHintHeaderEntity.listItems);
   }
 
   return {
     title: testHintHeaderEntity.title,
     id: testHintHeaderEntity.id,
     type: testHintHeaderEntity.type,
-    list,
+    listItems: list,
   };
 };

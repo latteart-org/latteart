@@ -22,7 +22,7 @@ import {
 } from "typeorm";
 import { TestResultEntity } from "./TestResultEntity";
 
-@Entity("COMMENT")
+@Entity("COMMENTS")
 export class CommentEntity {
   @PrimaryGeneratedColumn("uuid", { name: "id" })
   id!: string;

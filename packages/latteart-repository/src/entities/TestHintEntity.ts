@@ -20,7 +20,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 
-@Entity("TEST_HINT")
+@Entity("TEST_HINTS")
 export class TestHintEntity {
   @PrimaryGeneratedColumn("uuid", { name: "id" })
   id!: string;

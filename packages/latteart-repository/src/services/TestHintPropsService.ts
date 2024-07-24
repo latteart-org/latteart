@@ -22,7 +22,7 @@ import {
 } from "@/interfaces/TestHints";
 import { TransactionRunner } from "@/TransactionRunner";
 import { DataSource } from "typeorm";
-import { testHintParamEntityToResponse } from "./helper/entityToResponse";
+import { testHintPropEntityToResponse } from "./helper/entityToResponse";
 
 export class TestHintPropsService {
   constructor(private dataSource: DataSource) {}
@@ -67,14 +67,14 @@ export class TestHintPropsService {
               ...targetParam,
               title: param.title,
               type: param.type,
-              list: param.list ? JSON.stringify(param.list) : "",
+              list: param.listItems ? JSON.stringify(param.listItems) : "",
               index,
             });
           } else {
             await entityManager.save(TestHintPropEntity, {
               title: param.title,
               type: param.type,
-              list: param.list ? JSON.stringify(param.list) : "",
+              list: param.listItems ? JSON.stringify(param.listItems) : "",
               index,
             });
           }
@@ -86,6 +86,6 @@ export class TestHintPropsService {
       .find();
     return results
       .sort((a, b) => a.index - b.index)
-      .map((r) => testHintParamEntityToResponse(r));
+      .map((r) => testHintPropEntityToResponse(r));
   }
 }

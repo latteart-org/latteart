@@ -28,7 +28,7 @@ import { TransactionRunner } from "@/TransactionRunner";
 import { DataSource } from "typeorm";
 import {
   testHintEntityToResponse,
-  testHintParamEntityToResponse,
+  testHintPropEntityToResponse,
 } from "./helper/entityToResponse";
 import { SettingsUtility } from "@/gateways/settings/SettingsUtility";
 import { TestHintPropSetting } from "@/gateways/settings/Settings";
@@ -52,7 +52,7 @@ export class TestHintsService {
     return {
       props: props
         .sort((a, b) => a.index - b.index)
-        .map(testHintParamEntityToResponse),
+        .map(testHintPropEntityToResponse),
       data: testHints
         .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
         .map(testHintEntityToResponse),
@@ -70,17 +70,17 @@ export class TestHintsService {
 
       const oldNewIdMap = new Map<string, string>();
       await Promise.all(
-        testHints.props.map(async (param, index) => {
+        testHints.props.map(async (prop, index) => {
           const p = new TestHintPropEntity();
           p.index = index;
-          p.list =
-            param.list !== undefined && param.list.length !== 0
-              ? JSON.stringify(param.list)
+          p.listItems =
+            prop.listItems !== undefined && prop.listItems.length !== 0
+              ? JSON.stringify(prop.listItems)
               : "";
-          p.title = param.title;
-          p.type = param.type;
+          p.title = prop.title;
+          p.type = prop.type;
           const result = await transactionalEntityManager.save(p);
-          oldNewIdMap.set(param.id, result.id);
+          oldNewIdMap.set(prop.id, result.id);
         })
       );
 
@@ -88,7 +88,7 @@ export class TestHintsService {
         testHints.data.map(async (hint) => {
           const customs = hint.customs.map((custom) => {
             const newId = oldNewIdMap.get(custom.propId);
-            return { ...custom, paramId: newId };
+            return { ...custom, propId: newId };
           });
           const h = new TestHintEntity();
           h.value = hint.value;
@@ -159,10 +159,6 @@ export class TestHintsService {
   }
 
   private async initProps(): Promise<void> {
-    console.log(
-      "initProps",
-      SettingsUtility.getSetting("defaultTestHintProps")
-    );
     const props = (
       SettingsUtility.getSetting(
         "defaultTestHintProps"
@@ -170,7 +166,7 @@ export class TestHintsService {
     ).map((prop) => {
       return new TestHintPropEntity({
         ...prop,
-        list: JSON.stringify(prop.list),
+        listItems: JSON.stringify(prop.listItems),
       });
     });
     await this.dataSource.getRepository(TestHintPropEntity).save(props);

@@ -57,7 +57,7 @@ export interface PutTestHintPropDto {
   title: string;
   id?: string;
   type: string;
-  list?: { key: string; value: string }[];
+  listItems?: { key: string; value: string }[];
 }
 
 export type PutTestHintPropResponse = TestHintProp[];
@@ -66,5 +66,5 @@ export type TestHintProp = {
   title: string;
   id: string;
   type: string;
-  list?: { key: string; value: string }[];
+  listItems?: { key: string; value: string }[];
 };

@@ -15,7 +15,7 @@
  */
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("TEST_HINT_PROP")
+@Entity("TEST_HINT_PROPS")
 export class TestHintPropEntity {
   @PrimaryGeneratedColumn("uuid", { name: "id" })
   id!: string;
@@ -26,8 +26,8 @@ export class TestHintPropEntity {
   @Column({ name: "type" })
   type!: string;
 
-  @Column({ name: "list" })
-  list!: string;
+  @Column({ name: "list_items" })
+  listItems!: string;
 
   @Column({ name: "index" })
   index!: number;
@@ -36,7 +36,7 @@ export class TestHintPropEntity {
     id?: string;
     title: string;
     type: string;
-    list: string;
+    listItems: string;
     index: number;
   }) {
     if (param) {
