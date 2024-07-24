@@ -21,7 +21,9 @@ import {
   type ElementInfo,
   type TestResultForRepository,
   type TestResultComparisonResultForRepository,
-  type Note
+  type Note,
+  type TestHintForRepository,
+  type TestHintPropForRepository
 } from "latteart-client";
 
 /**
@@ -196,4 +198,10 @@ export type ScreenImage = {
     offset?: { x?: number; y?: number };
     markerRect?: { top: number; left: number; width: number; height: number };
   };
+};
+
+export type TestHintType = TestHintForRepository;
+
+export type TestHintPropForUpdate = Omit<TestHintPropForRepository, "id"> & {
+  id?: string;
 };

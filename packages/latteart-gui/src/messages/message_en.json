@@ -343,6 +343,14 @@
     "execute-button": "Start",
     "starting-capture": "Starting capture."
   },
+  "test-hint": {
+    "edit-props-dialog": {
+      "title": "Edit Custom Field",
+      "add": "Add Column",
+      "name": "Column Name",
+      "add-option": "Add Option"
+    }
+  },
   "optional-features": {
     "title": "Optional Features",
     "snapshot-output": {
