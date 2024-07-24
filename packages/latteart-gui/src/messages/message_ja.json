@@ -343,6 +343,14 @@
     "execute-button": "記録を開始する",
     "starting-capture": "記録開始中"
   },
+  "test-hint": {
+    "edit-props-dialog": {
+      "title": "カスタムフィールド編集",
+      "add": "カラム追加",
+      "name": "カラム名",
+      "add-option": "項目追加"
+    }
+  },
   "optional-features": {
     "title": "オプション機能",
     "snapshot-output": {
