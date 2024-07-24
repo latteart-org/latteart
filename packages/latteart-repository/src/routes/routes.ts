@@ -12,6 +12,10 @@ import {
   fetchMiddlewares,
 } from "@tsoa/runtime";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { CommentsController } from "./../controllers/CommentsController";
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { CompressedImageController } from "./../controllers/CompressedImageController";
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ConfigExportController } from "./../controllers/ConfigExportController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ConfigsController } from "./../controllers/ConfigsController";
@@ -62,14 +66,125 @@ import { Videos } from "./../controllers/VideosController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ProjectImportController } from "./../controllers/ProjectImportController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { MutationsController } from "./../controllers/MutationsController";
+import { TestHintPropsController } from "./../controllers/TestHintPropsController";
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { CompressedImageController } from "./../controllers/CompressedImageController";
+import { TesthintsController } from "./../controllers/TestHintsController";
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { MutationsController } from "./../controllers/MutationsController";
 import type { RequestHandler, Router } from "express";
 
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+  CreateCommentResponse: {
+    dataType: "refObject",
+    properties: {
+      id: { dataType: "string", required: true },
+      testResultId: { dataType: "string", required: true },
+      value: { dataType: "string", required: true },
+      timestamp: { dataType: "double", required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_get_comment_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["get_comment_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_post_comment_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["post_comment_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CreateCommentDto: {
+    dataType: "refObject",
+    properties: {
+      value: { dataType: "string", required: true },
+      timestamp: { dataType: "double", required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  CreateCompressedImageResponse: {
+    dataType: "refObject",
+    properties: {
+      imageFileUrl: { dataType: "string", required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_compress_test_step_image_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["compress_test_step_image_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ServerErrorData_export_config_failed_: {
     dataType: "refAlias",
     type: {
@@ -3474,6 +3589,335 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TestHintProp: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        list: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              value: { dataType: "string", required: true },
+              key: { dataType: "string", required: true },
+            },
+          },
+        },
+        type: { dataType: "string", required: true },
+        id: { dataType: "string", required: true },
+        title: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  PutTestHintPropResponse: {
+    dataType: "refAlias",
+    type: {
+      dataType: "array",
+      array: { dataType: "refAlias", ref: "TestHintProp" },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_put_test_hint_props_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["put_test_hint_props_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  PutTestHintPropDto: {
+    dataType: "refObject",
+    properties: {
+      title: { dataType: "string", required: true },
+      id: { dataType: "string" },
+      type: { dataType: "string", required: true },
+      list: {
+        dataType: "array",
+        array: {
+          dataType: "nestedObjectLiteral",
+          nestedProperties: {
+            value: { dataType: "string", required: true },
+            key: { dataType: "string", required: true },
+          },
+        },
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  Custom: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        value: {
+          dataType: "union",
+          subSchemas: [
+            { dataType: "string" },
+            { dataType: "array", array: { dataType: "string" } },
+          ],
+          required: true,
+        },
+        propId: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  OperationElement: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        text: { dataType: "string", required: true },
+        type: { dataType: "string", required: true },
+        tag: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TestHint: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        operationElements: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "OperationElement" },
+          required: true,
+        },
+        createdAt: { dataType: "double", required: true },
+        commentWords: {
+          dataType: "array",
+          array: { dataType: "string" },
+          required: true,
+        },
+        customs: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "Custom" },
+          required: true,
+        },
+        viewPointName: { dataType: "string", required: true },
+        testTargetName: { dataType: "string", required: true },
+        groupName: { dataType: "string", required: true },
+        testMatrixName: { dataType: "string", required: true },
+        value: { dataType: "string", required: true },
+        id: { dataType: "string", required: true },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  GetTestHintResponse: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        data: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "TestHint" },
+          required: true,
+        },
+        props: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "TestHintProp" },
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_get_all_test_hints_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["get_all_test_hints_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  PostTestHintResponse: {
+    dataType: "refAlias",
+    type: { ref: "TestHint", validators: {} },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_post_test_hint_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["post_test_hint_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  "Pick_TestHint.Exclude_keyofTestHint.id-or-createdAt__": {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        value: { dataType: "string", required: true },
+        testMatrixName: { dataType: "string", required: true },
+        groupName: { dataType: "string", required: true },
+        testTargetName: { dataType: "string", required: true },
+        viewPointName: { dataType: "string", required: true },
+        customs: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "Custom" },
+          required: true,
+        },
+        commentWords: {
+          dataType: "array",
+          array: { dataType: "string" },
+          required: true,
+        },
+        operationElements: {
+          dataType: "array",
+          array: { dataType: "refAlias", ref: "OperationElement" },
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  "Omit_TestHint.id-or-createdAt_": {
+    dataType: "refAlias",
+    type: {
+      ref: "Pick_TestHint.Exclude_keyofTestHint.id-or-createdAt__",
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  PostTestHintDto: {
+    dataType: "refAlias",
+    type: { ref: "Omit_TestHint.id-or-createdAt_", validators: {} },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  PutTestHintResponse: {
+    dataType: "refAlias",
+    type: { ref: "TestHint", validators: {} },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_put_test_hint_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["put_test_hint_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  PutTestHintDto: {
+    dataType: "refAlias",
+    type: { ref: "Omit_TestHint.id-or-createdAt_", validators: {} },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_delete_test_hint_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["delete_test_hint_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ChildElementAddition: {
     dataType: "refAlias",
     type: {
@@ -3724,41 +4168,6 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CreateCompressedImageResponse: {
-    dataType: "refObject",
-    properties: {
-      imageFileUrl: { dataType: "string", required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ServerErrorData_compress_test_step_image_failed_: {
-    dataType: "refAlias",
-    type: {
-      dataType: "nestedObjectLiteral",
-      nestedProperties: {
-        details: {
-          dataType: "array",
-          array: {
-            dataType: "nestedObjectLiteral",
-            nestedProperties: {
-              target: { dataType: "string", required: true },
-              message: { dataType: "string", required: true },
-              code: { dataType: "string", required: true },
-            },
-          },
-        },
-        message: { dataType: "string" },
-        code: {
-          dataType: "enum",
-          enums: ["compress_test_step_image_failed"],
-          required: true,
-        },
-      },
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const validationService = new ValidationService(models);
 
@@ -3769,6 +4178,140 @@ export function RegisterRoutes(app: Router) {
   //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
   //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
   // ###########################################################################################################
+  app.get(
+    "/api/v1/test-results/:testResultId/comments",
+    ...fetchMiddlewares<RequestHandler>(CommentsController),
+    ...fetchMiddlewares<RequestHandler>(
+      CommentsController.prototype.getComments,
+    ),
+
+    function CommentsController_getComments(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        testResultId: {
+          in: "path",
+          name: "testResultId",
+          required: true,
+          dataType: "string",
+        },
+        since: { in: "query", name: "since", dataType: "double" },
+        until: { in: "query", name: "until", dataType: "double" },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new CommentsController();
+
+        const promise = controller.getComments.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.post(
+    "/api/v1/test-results/:testResultId/comments",
+    ...fetchMiddlewares<RequestHandler>(CommentsController),
+    ...fetchMiddlewares<RequestHandler>(
+      CommentsController.prototype.postComment,
+    ),
+
+    function CommentsController_postComment(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        testResultId: {
+          in: "path",
+          name: "testResultId",
+          required: true,
+          dataType: "string",
+        },
+        body: {
+          in: "body",
+          name: "body",
+          required: true,
+          ref: "CreateCommentDto",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new CommentsController();
+
+        const promise = controller.postComment.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.post(
+    "/api/v1/test-results/:testResultId/test-steps/:testStepId/compressed-image",
+    ...fetchMiddlewares<RequestHandler>(CompressedImageController),
+    ...fetchMiddlewares<RequestHandler>(
+      CompressedImageController.prototype.compressTestStepScreenshot,
+    ),
+
+    function CompressedImageController_compressTestStepScreenshot(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        testResultId: {
+          in: "path",
+          name: "testResultId",
+          required: true,
+          dataType: "string",
+        },
+        testStepId: {
+          in: "path",
+          name: "testStepId",
+          required: true,
+          dataType: "string",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new CompressedImageController();
+
+        const promise = controller.compressTestStepScreenshot.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/projects/:projectId/configs/export",
     ...fetchMiddlewares<RequestHandler>(ConfigExportController),
@@ -6183,6 +6726,206 @@ export function RegisterRoutes(app: Router) {
     },
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.put(
+    "/api/v1/test-hint-props",
+    ...fetchMiddlewares<RequestHandler>(TestHintPropsController),
+    ...fetchMiddlewares<RequestHandler>(
+      TestHintPropsController.prototype.putTestHintPops,
+    ),
+
+    function TestHintPropsController_putTestHintPops(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          dataType: "array",
+          array: { dataType: "refObject", ref: "PutTestHintPropDto" },
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new TestHintPropsController();
+
+        const promise = controller.putTestHintPops.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.get(
+    "/api/v1/test-hints",
+    ...fetchMiddlewares<RequestHandler>(TesthintsController),
+    ...fetchMiddlewares<RequestHandler>(
+      TesthintsController.prototype.getAllTestHints,
+    ),
+
+    function TesthintsController_getAllTestHints(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {};
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new TesthintsController();
+
+        const promise = controller.getAllTestHints.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.post(
+    "/api/v1/test-hints",
+    ...fetchMiddlewares<RequestHandler>(TesthintsController),
+    ...fetchMiddlewares<RequestHandler>(
+      TesthintsController.prototype.postTestHint,
+    ),
+
+    function TesthintsController_postTestHint(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          ref: "PostTestHintDto",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new TesthintsController();
+
+        const promise = controller.postTestHint.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.put(
+    "/api/v1/test-hints/:testHintId",
+    ...fetchMiddlewares<RequestHandler>(TesthintsController),
+    ...fetchMiddlewares<RequestHandler>(
+      TesthintsController.prototype.putTestHint,
+    ),
+
+    function TesthintsController_putTestHint(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        testHintId: {
+          in: "path",
+          name: "testHintId",
+          required: true,
+          dataType: "string",
+        },
+        requestBody: {
+          in: "body",
+          name: "requestBody",
+          required: true,
+          ref: "PutTestHintDto",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new TesthintsController();
+
+        const promise = controller.putTestHint.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.delete(
+    "/api/v1/test-hints/:testHintId",
+    ...fetchMiddlewares<RequestHandler>(TesthintsController),
+    ...fetchMiddlewares<RequestHandler>(
+      TesthintsController.prototype.deleteTestHint,
+    ),
+
+    function TesthintsController_deleteTestHint(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        testHintId: {
+          in: "path",
+          name: "testHintId",
+          required: true,
+          dataType: "string",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new TesthintsController();
+
+        const promise = controller.deleteTestHint.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 204, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   app.post(
     "/api/v1/test-results/:testResultId/mutations",
     ...fetchMiddlewares<RequestHandler>(MutationsController),
@@ -6220,52 +6963,6 @@ export function RegisterRoutes(app: Router) {
         const controller = new MutationsController();
 
         const promise = controller.addMutation.apply(
-          controller,
-          validatedArgs as any,
-        );
-        promiseHandler(controller, promise, response, 200, next);
-      } catch (err) {
-        return next(err);
-      }
-    },
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  app.post(
-    "/api/v1/test-results/:testResultId/test-steps/:testStepId/compressed-image",
-    ...fetchMiddlewares<RequestHandler>(CompressedImageController),
-    ...fetchMiddlewares<RequestHandler>(
-      CompressedImageController.prototype.compressTestStepScreenshot,
-    ),
-
-    function CompressedImageController_compressTestStepScreenshot(
-      request: any,
-      response: any,
-      next: any,
-    ) {
-      const args = {
-        testResultId: {
-          in: "path",
-          name: "testResultId",
-          required: true,
-          dataType: "string",
-        },
-        testStepId: {
-          in: "path",
-          name: "testStepId",
-          required: true,
-          dataType: "string",
-        },
-      };
-
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = getValidatedArgs(args, request, response);
-
-        const controller = new CompressedImageController();
-
-        const promise = controller.compressTestStepScreenshot.apply(
           controller,
           validatedArgs as any,
         );

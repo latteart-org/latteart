@@ -138,6 +138,60 @@
     "RP",
     "BODY"
   ],
+  "defaultTestHintProps": [
+    {
+      "title": "ドメイン特化度",
+      "id": "001",
+      "type": "list",
+      "index": 0,
+      "list": [
+        { "key": "001-1", "value": "1" },
+        { "key": "001-2", "value": "2" },
+        { "key": "001-3", "value": "3" },
+        { "key": "001-4", "value": "4" },
+        { "key": "001-5", "value": "5" }
+      ]
+    },
+    {
+      "title": "バグ潜在時の重大度",
+      "id": "002",
+      "type": "list",
+      "index": 1,
+      "list": [
+        { "key": "002-1", "value": "1" },
+        { "key": "002-2", "value": "2" },
+        { "key": "002-3", "value": "3" },
+        { "key": "002-4", "value": "4" },
+        { "key": "002-5", "value": "5" }
+      ]
+    },
+    {
+      "title": "バグ潜在の頻度",
+      "id": "003",
+      "type": "list",
+      "index": 2,
+      "list": [
+        { "key": "003-1", "value": "1" },
+        { "key": "003-2", "value": "2" },
+        { "key": "003-3", "value": "3" },
+        { "key": "003-4", "value": "4" },
+        { "key": "003-5", "value": "5" }
+      ]
+    },
+    {
+      "title": "テストケースカテゴリ",
+      "id": "004",
+      "type": "list",
+      "index": 3,
+      "list": [
+        { "key": "004-1", "value": "1" },
+        { "key": "004-2", "value": "2" },
+        { "key": "004-3", "value": "3" },
+        { "key": "004-4", "value": "4" },
+        { "key": "004-5", "value": "5" }
+      ]
+    }
+  ],
   "config": {
     "autofillSetting": {
       "conditionGroups": []

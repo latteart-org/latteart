@@ -70,7 +70,14 @@ export type ServerErrorCode =
   | "compare_test_results_failed"
   | "save_video_failed"
   | "create_video_failed"
-  | "add_mutation_failed";
+  | "add_mutation_failed"
+  | "put_test_hint_props_failed"
+  | "get_all_test_hints_failed"
+  | "post_test_hint_failed"
+  | "put_test_hint_failed"
+  | "delete_test_hint_failed"
+  | "get_comment_failed"
+  | "post_comment_failed";
 
 /**
  * Server error data.
