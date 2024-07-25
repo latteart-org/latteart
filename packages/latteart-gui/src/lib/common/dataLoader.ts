@@ -15,6 +15,7 @@
  */
 
 import type {
+  Comment,
   DailyTestProgressForRepository,
   GraphView,
   RepositoryService,
@@ -33,6 +34,7 @@ import type { OperationHistoryItem } from "../captureControl/OperationHistoryIte
 import type { ProjectSettings } from "./settings/Settings";
 import { ReadSettingAction } from "./settings/ReadSettingAction";
 import { GetTestResultListAction } from "../operationHistory/actions/testResult/GetTestResultListAction";
+import type { TestHint, TestHintProp } from "../operationHistory/types";
 
 export type DataLoader = {
   loadProjectSettings(): Promise<
@@ -59,6 +61,7 @@ export type DataLoader = {
         historyItems: OperationHistoryItem[];
         url?: string;
         testingTime?: number;
+        comments?: Comment[];
       }
     | undefined
   >;
@@ -70,6 +73,7 @@ export type DataLoader = {
     testResultIds: string[],
     option?: TestResultViewOption
   ): Promise<GraphView | undefined>;
+  loadTestHints(): Promise<{ props: TestHintProp[]; data: TestHint[] }>;
 };
 
 export class SnapshotDataLoader implements DataLoader {
@@ -89,17 +93,13 @@ export class SnapshotDataLoader implements DataLoader {
     }
   ) {}
 
-  async loadProjectSettings(): Promise<
-    (Omit<ProjectSettings, "config"> & { config: Partial<ProjectSettings["config"]> }) | undefined
-  > {
+  async loadProjectSettings() {
     return this.source.settings as Omit<ProjectSettings, "config"> & {
       config: Partial<ProjectSettings["config"]>;
     };
   }
 
-  async loadProject(): Promise<
-    { projectId: string; stories: Story[]; testMatrices: TestMatrixForRepository[] } | undefined
-  > {
+  async loadProject() {
     if (!this.source.project) {
       return { projectId: "", stories: [], testMatrices: [] };
     }
@@ -114,7 +114,7 @@ export class SnapshotDataLoader implements DataLoader {
   async loadProgressDatas(
     projectId: string,
     filter?: { period?: { since: Timestamp; until: Timestamp } }
-  ): Promise<DailyTestProgressForRepository[]> {
+  ) {
     if (!this.source.project) {
       return [];
     }
@@ -137,22 +137,7 @@ export class SnapshotDataLoader implements DataLoader {
     return result.data;
   }
 
-  async loadTestResult(testResultId: string): Promise<
-    | {
-        windows?: { windowHandle: string; title: string }[];
-        testResultInfo?: {
-          repositoryUrl: string;
-          id: string;
-          name: string;
-          parentTestResultId: string;
-        };
-        testStepIds?: string[];
-        historyItems: OperationHistoryItem[];
-        url?: string;
-        testingTime?: number;
-      }
-    | undefined
-  > {
+  async loadTestResult(testResultId: string) {
     if (!this.source.testResult) {
       return;
     }
@@ -170,7 +155,7 @@ export class SnapshotDataLoader implements DataLoader {
     return { historyItems };
   }
 
-  async loadTestResultSummaries(): Promise<{ id: string; name: string }[]> {
+  async loadTestResultSummaries() {
     if (!this.source.testResult) {
       return [];
     }
@@ -183,10 +168,7 @@ export class SnapshotDataLoader implements DataLoader {
     });
   }
 
-  async loadSequenceView(
-    testResultId: string,
-    option?: TestResultViewOption
-  ): Promise<SequenceView | undefined> {
+  async loadSequenceView(testResultId: string, option?: TestResultViewOption) {
     if (!this.source.testResult) {
       return;
     }
@@ -196,24 +178,23 @@ export class SnapshotDataLoader implements DataLoader {
     );
   }
 
-  async loadGraphView(
-    testResultIds: string[],
-    option?: TestResultViewOption
-  ): Promise<GraphView | undefined> {
+  async loadGraphView(testResultIds: string[], option?: TestResultViewOption) {
     if (!this.source.testResult) {
       return;
     }
 
     return this.source.testResult.graphView as GraphView;
   }
+
+  async loadTestHints() {
+    return { props: [], data: [] };
+  }
 }
 
 export class RepositoryDataLoader implements DataLoader {
   constructor(private repositoryService: RepositoryService) {}
 
-  async loadProjectSettings(): Promise<
-    (Omit<ProjectSettings, "config"> & { config: Partial<ProjectSettings["config"]> }) | undefined
-  > {
+  async loadProjectSettings() {
     const result = await new ReadSettingAction().readProjectSettings(this.repositoryService);
 
     if (result.isFailure()) {
@@ -223,9 +204,7 @@ export class RepositoryDataLoader implements DataLoader {
     return result.data;
   }
 
-  async loadProject(): Promise<
-    { projectId: string; stories: Story[]; testMatrices: TestMatrixForRepository[] } | undefined
-  > {
+  async loadProject() {
     const result = await new ReadProjectAction(this.repositoryService).read();
 
     if (result.isFailure()) {
@@ -242,7 +221,7 @@ export class RepositoryDataLoader implements DataLoader {
   async loadProgressDatas(
     projectId: string,
     filter?: { period?: { since: Timestamp; until: Timestamp } }
-  ): Promise<DailyTestProgressForRepository[]> {
+  ) {
     const result = await new CollectProgressDatasAction(this.repositoryService).collect(
       projectId,
       filter
@@ -255,7 +234,7 @@ export class RepositoryDataLoader implements DataLoader {
     return result.data;
   }
 
-  async loadTestResultSummaries(): Promise<{ id: string; name: string }[]> {
+  async loadTestResultSummaries() {
     const result = await new GetTestResultListAction(this.repositoryService).getTestResults();
 
     if (result.isFailure()) {
@@ -265,22 +244,7 @@ export class RepositoryDataLoader implements DataLoader {
     return result.data;
   }
 
-  async loadTestResult(testResultId: string): Promise<
-    | {
-        windows?: { windowHandle: string; title: string }[];
-        testResultInfo?: {
-          repositoryUrl: string;
-          id: string;
-          name: string;
-          parentTestResultId: string;
-        };
-        testStepIds?: string[];
-        historyItems: OperationHistoryItem[];
-        url?: string;
-        testingTime?: number;
-      }
-    | undefined
-  > {
+  async loadTestResult(testResultId: string) {
     const result = await new LoadHistoryAction(this.repositoryService).loadHistory(testResultId);
 
     if (result.isFailure()) {
@@ -310,14 +274,12 @@ export class RepositoryDataLoader implements DataLoader {
     const historyItems = result.data.historyItems;
     const url = result.data.url;
     const testingTime = result.data.testingTime;
+    const comments = result.data.comments;
 
-    return { windows, testResultInfo, testStepIds, historyItems, url, testingTime };
+    return { windows, testResultInfo, testStepIds, historyItems, url, testingTime, comments };
   }
 
-  async loadSequenceView(
-    testResultId: string,
-    option?: TestResultViewOption
-  ): Promise<SequenceView | undefined> {
+  async loadSequenceView(testResultId: string, option?: TestResultViewOption) {
     const testResult = this.repositoryService.createTestResultAccessor(testResultId);
 
     const generateSequenceViewResult = await testResult.generateSequenceView(option);
@@ -329,10 +291,7 @@ export class RepositoryDataLoader implements DataLoader {
     return generateSequenceViewResult.data;
   }
 
-  async loadGraphView(
-    testResultIds: string[],
-    option?: TestResultViewOption
-  ): Promise<GraphView | undefined> {
+  async loadGraphView(testResultIds: string[], option?: TestResultViewOption) {
     const generateGraphViewResult =
       await this.repositoryService.testResultRepository.generateGraphView(testResultIds, option);
 
@@ -407,5 +366,17 @@ export class RepositoryDataLoader implements DataLoader {
     };
 
     return { nodes, store };
+  }
+
+  async loadTestHints() {
+    const getTestHintsResult = await this.repositoryService.testHintRepository.getTestHints();
+
+    if (getTestHintsResult.isFailure()) {
+      return { props: [], data: [] };
+    }
+
+    const { props, data } = getTestHintsResult.data;
+
+    return { props, data };
   }
 }

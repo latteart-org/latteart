@@ -22,7 +22,11 @@
       </v-app-bar>
       <error-handler>
         <v-container fluid class="pa-0" style="height: calc(100vh); padding-top: 64px !important">
-          <history-display :raw-history="history" :message="messageProvider"></history-display>
+          <history-display
+            :raw-history="history"
+            :raw-comments="comments"
+            :message="messageProvider"
+          ></history-display>
         </v-container>
       </error-handler>
     </v-container>
@@ -51,6 +55,10 @@ export default defineComponent({
       return operationHistoryStore.history;
     });
 
+    const comments = computed(() => {
+      return operationHistoryStore.comments;
+    });
+
     const messageProvider = computed((): MessageProvider => {
       return (message: string, args?: any) => {
         return rootStore.message(message, args).toString();
@@ -62,14 +70,14 @@ export default defineComponent({
       const firstTestResultId = testResultInfos.at(0)?.id ?? "";
       const firstTestResultName = testResultInfos.at(0)?.name ?? "";
 
-      const history = await rootStore.dataLoader?.loadTestResult(firstTestResultId);
+      const testResult = await rootStore.dataLoader?.loadTestResult(firstTestResultId);
 
-      if (!history) {
+      if (!testResult) {
         return;
       }
 
       operationHistoryStore.resetHistory({
-        historyItems: parseHistoryLog(history.historyItems)
+        historyItems: parseHistoryLog(testResult.historyItems)
       });
 
       operationHistoryStore.storingTestResultInfos = testResultInfos;
@@ -92,6 +100,7 @@ export default defineComponent({
 
     return {
       history,
+      comments,
       messageProvider
     };
   }

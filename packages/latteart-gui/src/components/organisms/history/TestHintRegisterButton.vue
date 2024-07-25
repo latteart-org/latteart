@@ -22,60 +22,49 @@
       size="small"
       class="mx-1"
       @click="registerDialogOpened = true"
-      >{{ $t("app.register-operation") }}
+      >{{ $t("app.register-test-hint") }}
     </v-btn>
 
-    <auto-operation-register-dialog
+    <test-hint-register-dialog
       :opened="registerDialogOpened"
-      :target-operations="targetOperations"
+      :target-test-steps="targetTestSteps"
       @ok="clearCheckedOperations"
       @close="registerDialogOpened = false"
-      @error="openInvalidTypeErrorDialog"
-    />
-
-    <error-message-dialog
-      :opened="errorMessageDialogOpened"
-      :message="errorMessage"
-      @close="errorMessageDialogOpened = false"
     />
   </div>
 </template>
 
 <script lang="ts">
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
-import AutoOperationRegisterDialog from "@/components/organisms/dialog/AutoOperationRegisterDialog.vue";
-import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { computed, defineComponent, ref } from "vue";
-import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useCaptureControlStore } from "@/stores/captureControl";
+import TestHintRegisterDialog from "../dialog/TestHintRegisterDialog.vue";
 
 export default defineComponent({
   components: {
-    "auto-operation-register-dialog": AutoOperationRegisterDialog,
-    "error-message-dialog": ErrorMessageDialog
+    "test-hint-register-dialog": TestHintRegisterDialog
   },
   setup() {
-    const rootStore = useRootStore();
     const operationHistoryStore = useOperationHistoryStore();
     const captureControlStore = useCaptureControlStore();
 
     const registerDialogOpened = ref(false);
-    const errorMessageDialogOpened = ref(false);
-    const errorMessage = ref("");
 
-    const targetOperations = computed((): OperationForGUI[] => {
-      return operationHistoryStore.checkedTestSteps.map((item) => {
-        return item.operation;
-      });
-    });
+    const targetTestSteps = computed(
+      (): { operation: OperationForGUI; comments: { value: string; timestamp: string }[] }[] => {
+        return operationHistoryStore.checkedTestSteps.map((item) => {
+          return { operation: item.operation, comments: item.comments };
+        });
+      }
+    );
 
     const isReplaying = computed((): boolean => {
       return captureControlStore.isReplaying;
     });
 
     const isDisabled = computed((): boolean => {
-      return targetOperations.value.length < 1 || isReplaying.value;
+      return targetTestSteps.value.length < 1 || isReplaying.value;
     });
 
     const clearCheckedOperations = () => {
@@ -83,23 +72,11 @@ export default defineComponent({
       registerDialogOpened.value = false;
     };
 
-    const openInvalidTypeErrorDialog = (invalidTypes: string[]): void => {
-      registerDialogOpened.value = false;
-      errorMessage.value = rootStore.message(
-        "error.operation_history.register_failed_with_invalid_type",
-        { value: invalidTypes.join(",") }
-      );
-      errorMessageDialogOpened.value = true;
-    };
-
     return {
       registerDialogOpened,
-      errorMessageDialogOpened,
-      errorMessage,
-      targetOperations,
+      targetTestSteps,
       isDisabled,
-      clearCheckedOperations,
-      openInvalidTypeErrorDialog
+      clearCheckedOperations
     };
   }
 });

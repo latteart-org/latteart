@@ -37,6 +37,8 @@ import {
   VideoRepositoryImpl,
   TestResultRepositoryImpl,
   MutationRepositoryImpl,
+  CommentRepositoryImpl,
+  TestHintRepositoryImpl,
 } from "../../gateway/repository";
 import {
   ServiceResult,
@@ -79,6 +81,8 @@ export function createRepositoryService(
     ),
     videoRepository: new VideoRepositoryImpl(restClient),
     mutationRepository: new MutationRepositoryImpl(restClient),
+    commentRepository: new CommentRepositoryImpl(restClient),
+    testHintRepository: new TestHintRepositoryImpl(restClient),
   };
 
   return {

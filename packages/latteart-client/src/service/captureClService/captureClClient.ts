@@ -302,7 +302,7 @@ class CaptureSessionImpl implements CaptureSession {
           if (!this.option.testResult) {
             return;
           }
-          await this.option.testResult.addMutation(screenMutations);
+          await this.option.testResult.addMutations(screenMutations);
         },
         onGetScreenTransition: async (
           capturedScreenTransition: CapturedScreenTransition

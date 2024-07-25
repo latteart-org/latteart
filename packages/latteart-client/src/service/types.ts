@@ -173,6 +173,12 @@ export type TestStepNote = {
   testStep: TestStep;
 };
 
+export type Comment = {
+  id: string;
+  value: string;
+  timestamp: number;
+};
+
 export type CoverageSource = {
   title: string;
   url: string;

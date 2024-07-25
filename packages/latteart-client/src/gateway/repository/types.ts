@@ -121,6 +121,31 @@ type TestPurposeForRepository = {
   testResultId: string;
 };
 
+export type CommentForRepository = {
+  id: string;
+  value: string;
+  timestamp: number;
+};
+
+export type TestHintPropForRepository = {
+  id: string;
+  name: string;
+  type: "string" | "list" | "commentWord" | "element";
+  listItems?: { key: string; value: string }[];
+};
+
+export type TestHintForRepository = {
+  id: string;
+  value: string;
+  testMatrixName: string;
+  groupName: string;
+  testTargetName: string;
+  viewPointName: string;
+  customs: { propId: string; value: string | string[] }[];
+  commentWords: string[];
+  operationElements: { tagname: string; type: string; text: string }[];
+};
+
 export type CapturedOperationForRepository = {
   input: string;
   type: string;
@@ -412,28 +437,3 @@ export type ProjectForRepository = {
 };
 
 export type SnapshotConfigForRepository = { locale: string };
-
-export type TestHintForRepository = {
-  props: TestHintPropForRepository[];
-  data: TestHintDataForRepository[];
-};
-
-export type TestHintPropForRepository = {
-  id: string;
-  name: string;
-  type: "string" | "list" | "tag" | "element";
-  listItems?: { key: string; value: string }[];
-};
-
-export type TestHintDataForRepository = {
-  id: string;
-  value: string;
-  testMatrixName: string;
-  groupName: string;
-  testTargetName: string;
-  viewPointName: string;
-  commentWords: string[];
-  operationElements: { tag: string; type: string; text: string }[];
-  customs: { propId: string; value: string | string[] }[];
-  createdAt: string;
-};

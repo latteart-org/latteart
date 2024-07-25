@@ -45,6 +45,7 @@
       <history-display
         :change-window-title="changeWindowTitle"
         :raw-history="testResult.history"
+        :raw-comments="testResult.comments"
         :message="messageProvider"
         :script-generation-enabled="!isViewerMode"
         :test-result-id="testResultId"
@@ -186,8 +187,9 @@ export default defineComponent({
 
     const testResult = computed(() => {
       const history = operationHistoryStore.history;
+      const comments = operationHistoryStore.comments;
 
-      return { history };
+      return { history, comments };
     });
 
     const messageProvider = computed((): MessageProvider => {

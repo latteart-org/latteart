@@ -27,7 +27,6 @@ import {
   createRepositoryAccessFailure,
   createConnectionRefusedFailure,
 } from "./result";
-import { ScreenMutation } from "@/service";
 
 export interface TestStepRepository {
   getTestSteps(

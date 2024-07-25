@@ -27,8 +27,6 @@ import type {
 } from "@/lib/testManagement/types";
 import { defineStore } from "pinia";
 import { useRootStore } from "./root";
-import type { TestResultSummary } from "@/lib/operationHistory/types";
-import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
 import { AddNewTestMatrixAction } from "@/lib/testManagement/actions/AddNewTestMatrixAction";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
 import { DeleteTestMatrixAction } from "@/lib/testManagement/actions/DeleteTestMatrixAction";

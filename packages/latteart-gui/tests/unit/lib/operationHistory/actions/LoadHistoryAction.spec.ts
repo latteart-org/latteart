@@ -1,91 +1,147 @@
-import { LoadHistoryAction } from '@/lib/operationHistory/actions/LoadHistoryAction'
-import { TestResultRepositoryImpl } from 'latteart-client'
-import { type RESTClient, type RESTClientResponse } from 'latteart-client'
-import { type TestResult } from '@/lib/operationHistory/types'
+import { LoadHistoryAction } from "@/lib/operationHistory/actions/LoadHistoryAction";
+import { CommentRepositoryImpl, TestResultRepositoryImpl, type Comment } from "latteart-client";
+import { type RESTClient, type RESTClientResponse } from "latteart-client";
+import { type TestResult } from "@/lib/operationHistory/types";
 
 const baseRestClient: RESTClient = {
-  serverUrl: '',
+  serverUrl: "",
   httpGet: vi.fn(),
   httpPost: vi.fn(),
   httpPut: vi.fn(),
   httpPatch: vi.fn(),
   httpDelete: vi.fn(),
   httpGetFile: vi.fn()
-}
+};
 
-describe('LoadHistoryAction', () => {
-  describe('#loadHistory', () => {
-    describe('指定のテスト結果をリポジトリから読み込む', () => {
+describe("LoadHistoryAction", () => {
+  describe("#loadHistory", () => {
+    describe("指定のテスト結果をリポジトリから読み込む", () => {
       const testResult: TestResult = {
-        id: 'id',
-        name: 'name',
+        id: "id",
+        name: "name",
         startTimeStamp: 0,
         lastUpdateTimeStamp: 0,
-        initialUrl: 'url',
+        initialUrl: "url",
         testingTime: 0,
         testSteps: []
-      }
+      };
+      const comments: Comment[] = [{ id: "commentId", value: "commentValue", timestamp: 0 }];
       const expectedTestResult = {
         historyItems: [],
-        url: 'url',
-        testResultInfo: { id: 'id', name: 'name' },
+        url: "url",
+        testResultInfo: { id: "id", name: "name" },
         testStepIds: [],
-        testingTime: 0
-      }
-      const resSuccess: RESTClientResponse = {
+        testingTime: 0,
+        comments: [{ id: "commentId", value: "commentValue", timestamp: 0 }]
+      };
+      const getTestResultSuccess: RESTClientResponse = {
         status: 200,
         data: testResult
-      }
+      };
+      const getCommentsSuccess: RESTClientResponse = {
+        status: 200,
+        data: comments
+      };
 
       const resFailure: RESTClientResponse = {
         status: 500,
-        data: { code: 'errorcode', message: 'errormessage' }
-      }
-      it('リポジトリからの読み込みに成功した場合、読み込んだテスト結果を返す', async () => {
-        const restClient = {
+        data: { code: "errorcode", message: "errormessage" }
+      };
+      it("リポジトリからの読み込みに成功した場合、読み込んだテスト結果を返す", async () => {
+        const restClientForTestResult = {
           ...baseRestClient,
-          httpGet: vi.fn().mockResolvedValue(resSuccess)
-        }
+          httpGet: vi.fn().mockResolvedValue(getTestResultSuccess)
+        };
+        const restClientForComment = {
+          ...baseRestClient,
+          httpGet: vi.fn().mockResolvedValue(getCommentsSuccess)
+        };
+
         const action = new LoadHistoryAction({
-          testResultRepository: new TestResultRepositoryImpl(restClient),
-          serviceUrl: 'serviceUrl'
-        })
+          testResultRepository: new TestResultRepositoryImpl(restClientForTestResult),
+          commentRepository: new CommentRepositoryImpl(restClientForComment),
+          serviceUrl: "serviceUrl"
+        });
 
-        const testResultId = 'testResultId'
-        const result = await action.loadHistory(testResultId)
+        const testResultId = "testResultId";
+        const result = await action.loadHistory(testResultId);
 
-        expect(restClient.httpGet).toBeCalledWith(`api/v1/test-results/${testResultId}`)
+        expect(restClientForTestResult.httpGet).toBeCalledWith(
+          `api/v1/test-results/${testResultId}`
+        );
 
         if (result.isSuccess()) {
-          expect(result.data).toEqual(expectedTestResult)
+          expect(result.data).toEqual(expectedTestResult);
         } else {
-          throw new Error('failed')
+          throw new Error("failed");
         }
-      })
+      });
 
-      it('リポジトリからの読み込みに失敗した場合、エラー情報を返す', async () => {
-        const restClient = {
-          ...baseRestClient,
-          httpGet: vi.fn().mockResolvedValue(resFailure)
-        }
-        const action = new LoadHistoryAction({
-          testResultRepository: new TestResultRepositoryImpl(restClient),
-          serviceUrl: 'serviceUrl'
-        })
+      describe("リポジトリからの読み込みに失敗した場合、エラー情報を返す", () => {
+        it("TestResultの読み込みに失敗した場合", async () => {
+          const restClientForTestResult = {
+            ...baseRestClient,
+            httpGet: vi.fn().mockResolvedValue(resFailure)
+          };
+          const restClientForComment = {
+            ...baseRestClient,
+            httpGet: vi.fn().mockResolvedValue(getCommentsSuccess)
+          };
 
-        const testResultId = 'testResultId'
-        const result = await action.loadHistory(testResultId)
+          const action = new LoadHistoryAction({
+            testResultRepository: new TestResultRepositoryImpl(restClientForTestResult),
+            commentRepository: new CommentRepositoryImpl(restClientForComment),
+            serviceUrl: "serviceUrl"
+          });
 
-        expect(restClient.httpGet).toBeCalledWith(`api/v1/test-results/${testResultId}`)
+          const testResultId = "testResultId";
+          const result = await action.loadHistory(testResultId);
 
-        if (result.isSuccess()) {
-          throw new Error('failed')
-        } else {
-          expect(result.error).toEqual({
-            messageKey: 'error.operation_history.load_history_failed'
-          })
-        }
-      })
-    })
-  })
-})
+          expect(restClientForTestResult.httpGet).toBeCalledWith(
+            `api/v1/test-results/${testResultId}`
+          );
+
+          if (result.isSuccess()) {
+            throw new Error("failed");
+          } else {
+            expect(result.error).toEqual({
+              messageKey: "error.operation_history.load_history_failed"
+            });
+          }
+        });
+
+        it("Commentsの読み込みに失敗した場合", async () => {
+          const restClientForTestResult = {
+            ...baseRestClient,
+            httpGet: vi.fn().mockResolvedValue(getTestResultSuccess)
+          };
+          const restClientForComment = {
+            ...baseRestClient,
+            httpGet: vi.fn().mockResolvedValue(resFailure)
+          };
+
+          const action = new LoadHistoryAction({
+            testResultRepository: new TestResultRepositoryImpl(restClientForTestResult),
+            commentRepository: new CommentRepositoryImpl(restClientForComment),
+            serviceUrl: "serviceUrl"
+          });
+
+          const testResultId = "testResultId";
+          const result = await action.loadHistory(testResultId);
+
+          expect(restClientForTestResult.httpGet).toBeCalledWith(
+            `api/v1/test-results/${testResultId}`
+          );
+
+          if (result.isSuccess()) {
+            throw new Error("failed");
+          } else {
+            expect(result.error).toEqual({
+              messageKey: "error.operation_history.load_history_failed"
+            });
+          }
+        });
+      });
+    });
+  });
+});
