@@ -77,7 +77,7 @@ export class TestHintsService {
             prop.listItems !== undefined && prop.listItems.length !== 0
               ? JSON.stringify(prop.listItems)
               : "";
-          p.title = prop.title;
+          p.name = prop.name;
           p.type = prop.type;
           const result = await transactionalEntityManager.save(p);
           oldNewIdMap.set(prop.id, result.id);

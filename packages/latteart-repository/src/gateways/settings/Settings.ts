@@ -198,7 +198,7 @@ export interface ExperimentalFeatureSetting {
  * TestHintProp initial value type
  */
 export interface TestHintPropSetting {
-  title: string;
+  name: string;
   id: string;
   type: string;
   index: number;

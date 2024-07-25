@@ -17,6 +17,7 @@
 import { TestHintEntity } from "@/entities/TestHintEntity";
 import { TestHintPropEntity } from "@/entities/TestHintPropEntity";
 import {
+  Custom,
   PutTestHintPropDto,
   PutTestHintPropResponse,
 } from "@/interfaces/TestHints";
@@ -43,15 +44,14 @@ export class TestHintPropsService {
 
       if (deleteIdList.length > 0) {
         const testHintEntities = await entityManager.find(TestHintEntity);
-        testHintEntities.forEach((testHintEntity) => {
-          const customs = JSON.parse(testHintEntity.customs) as {
-            paramId: string;
-            value: string;
-          }[];
-          testHintEntity.customs = JSON.stringify(
-            customs.filter((custom) => !deleteIdList.includes(custom.paramId))
-          );
-        });
+        await Promise.all(
+          testHintEntities.map(async (testHintEntity) => {
+            const customs = JSON.parse(testHintEntity.customs) as Custom[];
+            testHintEntity.customs = JSON.stringify(
+              customs.filter((custom) => !deleteIdList.includes(custom.propId))
+            );
+          })
+        );
 
         await entityManager.save(testHintEntities);
         await entityManager.delete(TestHintPropEntity, deleteIdList);
@@ -65,16 +65,16 @@ export class TestHintPropsService {
           if (targetParam) {
             await entityManager.save(TestHintPropEntity, {
               ...targetParam,
-              title: param.title,
+              name: param.name,
               type: param.type,
-              list: param.listItems ? JSON.stringify(param.listItems) : "",
+              listItems: param.listItems ? JSON.stringify(param.listItems) : "",
               index,
             });
           } else {
             await entityManager.save(TestHintPropEntity, {
-              title: param.title,
+              name: param.name,
               type: param.type,
-              list: param.listItems ? JSON.stringify(param.listItems) : "",
+              listItems: param.listItems ? JSON.stringify(param.listItems) : "",
               index,
             });
           }

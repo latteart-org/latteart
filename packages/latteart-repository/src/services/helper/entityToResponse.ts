@@ -517,15 +517,15 @@ export const testHintEntityToResponse = (
 export const testHintPropEntityToResponse = (
   testHintHeaderEntity: TestHintPropEntity
 ): TestHintProp => {
-  let list = undefined;
+  let listItems = undefined;
   if (testHintHeaderEntity.listItems) {
-    list = JSON.parse(testHintHeaderEntity.listItems);
+    listItems = JSON.parse(testHintHeaderEntity.listItems);
   }
 
   return {
-    title: testHintHeaderEntity.title,
+    name: testHintHeaderEntity.name,
     id: testHintHeaderEntity.id,
     type: testHintHeaderEntity.type,
-    listItems: list,
+    listItems,
   };
 };
