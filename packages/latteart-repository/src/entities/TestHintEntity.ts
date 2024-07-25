@@ -43,7 +43,7 @@ export class TestHintEntity {
   @Column({ name: "customs" })
   customs!: string;
 
-  @Column({ name: "tags" })
+  @Column({ name: "comment_words" })
   commentWords!: string;
 
   @Column({ name: "operation_elements", default: "" })

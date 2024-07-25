@@ -20,8 +20,8 @@ export class TestHintPropEntity {
   @PrimaryGeneratedColumn("uuid", { name: "id" })
   id!: string;
 
-  @Column({ name: "title" })
-  title!: string;
+  @Column({ name: "name" })
+  name!: string;
 
   @Column({ name: "type" })
   type!: string;
@@ -34,7 +34,7 @@ export class TestHintPropEntity {
 
   constructor(param?: {
     id?: string;
-    title: string;
+    name: string;
     type: string;
     listItems: string;
     index: number;

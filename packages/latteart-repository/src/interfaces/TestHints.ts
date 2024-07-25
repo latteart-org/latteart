@@ -15,7 +15,7 @@
  */
 
 type OperationElement = {
-  tag: string;
+  tagname: string;
   type: string;
   text: string;
 };
@@ -54,7 +54,7 @@ export type TestHint = {
 };
 
 export interface PutTestHintPropDto {
-  title: string;
+  name: string;
   id?: string;
   type: string;
   listItems?: { key: string; value: string }[];
@@ -63,7 +63,7 @@ export interface PutTestHintPropDto {
 export type PutTestHintPropResponse = TestHintProp[];
 
 export type TestHintProp = {
-  title: string;
+  name: string;
   id: string;
   type: string;
   listItems?: { key: string; value: string }[];
