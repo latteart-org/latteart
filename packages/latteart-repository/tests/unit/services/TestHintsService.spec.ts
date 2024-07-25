@@ -45,7 +45,7 @@ const preparation = async () => {
         value: "propValue",
       },
     ]),
-    commentWords: '["comentWords"]',
+    commentWords: '["commentWords"]',
     operationElement: "",
   });
 
@@ -54,111 +54,113 @@ const preparation = async () => {
 
 describe("TestHintsService", () => {
   describe("getAllTestHints", () => {
-    it("初回実行時", async () => {
-      const filePath = path.join(
-        __dirname,
-        "..",
-        "..",
-        "resources",
-        "latteart.config.json"
-      );
-      SettingsUtility.loadFile(filePath);
+    describe("TestHintを全て取得", () => {
+      it("propが登録されていない場合", async () => {
+        const filePath = path.join(
+          __dirname,
+          "..",
+          "..",
+          "resources",
+          "latteart.config.json"
+        );
+        SettingsUtility.loadFile(filePath);
 
-      const result = await new TestHintsService(
-        TestDataSource
-      ).getAllTestHints();
-      expect(result).toEqual({
-        props: [
-          {
-            name: "ドメイン特化度",
-            id: "001",
-            type: "list",
-            listItems: [
-              { key: "001-1", value: "1" },
-              { key: "001-2", value: "2" },
-              { key: "001-3", value: "3" },
-              { key: "001-4", value: "4" },
-              { key: "001-5", value: "5" },
-            ],
-          },
-          {
-            name: "バグ潜在時の重大度",
-            id: "002",
-            type: "list",
-            listItems: [
-              { key: "002-1", value: "1" },
-              { key: "002-2", value: "2" },
-              { key: "002-3", value: "3" },
-              { key: "002-4", value: "4" },
-              { key: "002-5", value: "5" },
-            ],
-          },
-          {
-            name: "バグ潜在の頻度",
-            id: "003",
-            type: "list",
-            listItems: [
-              { key: "003-1", value: "1" },
-              { key: "003-2", value: "2" },
-              { key: "003-3", value: "3" },
-              { key: "003-4", value: "4" },
-              { key: "003-5", value: "5" },
-            ],
-          },
-          {
-            name: "テストケースカテゴリ",
-            id: "004",
-            type: "list",
-            listItems: [
-              { key: "004-1", value: "1" },
-              { key: "004-2", value: "2" },
-              { key: "004-3", value: "3" },
-              { key: "004-4", value: "4" },
-              { key: "004-5", value: "5" },
-            ],
-          },
-        ],
-        data: [],
+        const result = await new TestHintsService(
+          TestDataSource
+        ).getAllTestHints();
+        expect(result).toEqual({
+          props: [
+            {
+              name: "ドメイン特化度",
+              id: "001",
+              type: "list",
+              listItems: [
+                { key: "001-1", value: "1" },
+                { key: "001-2", value: "2" },
+                { key: "001-3", value: "3" },
+                { key: "001-4", value: "4" },
+                { key: "001-5", value: "5" },
+              ],
+            },
+            {
+              name: "バグ潜在時の重大度",
+              id: "002",
+              type: "list",
+              listItems: [
+                { key: "002-1", value: "1" },
+                { key: "002-2", value: "2" },
+                { key: "002-3", value: "3" },
+                { key: "002-4", value: "4" },
+                { key: "002-5", value: "5" },
+              ],
+            },
+            {
+              name: "バグ潜在の頻度",
+              id: "003",
+              type: "list",
+              listItems: [
+                { key: "003-1", value: "1" },
+                { key: "003-2", value: "2" },
+                { key: "003-3", value: "3" },
+                { key: "003-4", value: "4" },
+                { key: "003-5", value: "5" },
+              ],
+            },
+            {
+              name: "テストケースカテゴリ",
+              id: "004",
+              type: "list",
+              listItems: [
+                { key: "004-1", value: "1" },
+                { key: "004-2", value: "2" },
+                { key: "004-3", value: "3" },
+                { key: "004-4", value: "4" },
+                { key: "004-5", value: "5" },
+              ],
+            },
+          ],
+          data: [],
+        });
       });
-    });
-    it("通常時", async () => {
-      const { testHintEntity, testHintPropEntity } = await preparation();
+      it("propが既に登録されている場合", async () => {
+        const { testHintEntity, testHintPropEntity } = await preparation();
 
-      const result = await new TestHintsService(
-        TestDataSource
-      ).getAllTestHints();
-      expect(result).toEqual({
-        props: [
-          {
-            id: testHintPropEntity.id,
-            name: "propname",
-            type: "string",
-          },
-        ],
-        data: [
-          {
-            id: testHintEntity.id,
-            value: "hintValue",
-            testMatrixName: "tm1",
-            groupName: "g1",
-            testTargetName: "tt1",
-            viewPointName: "v1",
-            customs: [
-              {
-                propId: testHintPropEntity.id,
-                value: "propValue",
-              },
-            ],
-            commentWords: ["comentWords"],
-            operationElements: [],
-            createdAt: expect.any(Number),
-          },
-        ],
+        const result = await new TestHintsService(
+          TestDataSource
+        ).getAllTestHints();
+        expect(result).toEqual({
+          props: [
+            {
+              id: testHintPropEntity.id,
+              name: "propname",
+              type: "string",
+            },
+          ],
+          data: [
+            {
+              id: testHintEntity.id,
+              value: "hintValue",
+              testMatrixName: "tm1",
+              groupName: "g1",
+              testTargetName: "tt1",
+              viewPointName: "v1",
+              customs: [
+                {
+                  propId: testHintPropEntity.id,
+                  value: "propValue",
+                },
+              ],
+              commentWords: ["commentWords"],
+              operationElements: [],
+              createdAt: expect.any(Number),
+            },
+          ],
+        });
       });
     });
   });
   describe("importAllTestHints", () => {
-    it("import ", async () => {
+    it("testHintのimport", async () => {
       const importTesthints: ImportTestHints = {
         props: [{ id: "propId", name: "propName", type: "string" }],
         data: [
@@ -175,7 +177,7 @@ describe("TestHintsService", () => {
                 value: "propValue",
               },
             ],
-            commentWords: ["comentWords"],
+            commentWords: ["commentWords"],
             operationElements: [],
             createdAt: 100,
           },
@@ -212,7 +214,7 @@ describe("TestHintsService", () => {
                 value: "propValue",
               },
             ],
-            commentWords: ["comentWords"],
+            commentWords: ["commentWords"],
             operationElements: [],
 
             createdAt: expect.any(Number),
@@ -246,7 +248,7 @@ describe("TestHintsService", () => {
             value: "propValue",
           },
         ],
-        commentWords: ["comentWords"],
+        commentWords: ["commentWords"],
         operationElements: [],
       });
 
@@ -263,7 +265,7 @@ describe("TestHintsService", () => {
             value: "propValue",
           },
         ],
-        commentWords: ["comentWords"],
+        commentWords: ["commentWords"],
         operationElements: [],
         createdAt: expect.any(Number),
       });

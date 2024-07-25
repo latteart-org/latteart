@@ -53,7 +53,7 @@ const preparation = async () => {
         value: "propValue2",
       },
     ]),
-    commentWords: '["comentWords"]',
+    commentWords: '["commentWords"]',
     operationElement: "",
   });
 
@@ -180,7 +180,7 @@ describe("TestHintPropsService", () => {
             value: "propValue1",
           },
         ],
-        commentWords: ["comentWords"],
+        commentWords: ["commentWords"],
         operationElements: [],
         createdAt: expect.any(Number),
       });
