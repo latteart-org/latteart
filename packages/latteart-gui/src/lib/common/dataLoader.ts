@@ -32,7 +32,7 @@ import { LoadHistoryAction } from "../operationHistory/actions/LoadHistoryAction
 import { parseHistoryLog } from "./util";
 import type { OperationHistoryItem } from "../captureControl/OperationHistoryItem";
 import type { ProjectSettings } from "./settings/Settings";
-import { ReadSettingAction } from "./settings/ReadSettingAction";
+import { ReadSettingAction } from "./settings/ProjectSettingsAction";
 import { GetTestResultListAction } from "../operationHistory/actions/testResult/GetTestResultListAction";
 import type { TestHint, TestHintProp } from "../operationHistory/types";
 

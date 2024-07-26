@@ -16,12 +16,15 @@
 
 import type { DataLoader } from "@/lib/common/dataLoader";
 import type { I18nProvider } from "@/lib/common/internationalization";
-import { ReadDeviceSettingAction } from "@/lib/common/settings/ReadDeviceSettingAction";
-import { ReadLocaleAction } from "@/lib/common/settings/ReadLocaleAction";
-import { ReadSettingAction } from "@/lib/common/settings/ReadSettingAction";
-import { SaveDeviceSettingAction } from "@/lib/common/settings/SaveDeviceSettingAction";
-import { SaveLocaleAction } from "@/lib/common/settings/SaveLocaleAction";
-import { SaveSettingAction } from "@/lib/common/settings/SaveSettingAction";
+import {
+  ReadLocaleAction,
+  SaveLocaleAction,
+  ReadDeviceSettingAction,
+  SaveDeviceSettingAction,
+  ReadUserSettingAction
+} from "@/lib/common/settings/UserSettingsAction";
+import { SaveSettingAction } from "@/lib/common/settings/ProjectSettingsAction";
+import { SaveUserSettingAction } from "@/lib/common/settings/UserSettingsAction";
 import type { DeviceSettings, ProjectSettings, ViewSettings } from "@/lib/common/settings/Settings";
 import { ExportConfigAction } from "@/lib/operationHistory/actions/ExportConfigAction";
 import {
@@ -392,7 +395,7 @@ export const useRootStore = defineStore("root", {
     },
 
     async readViewSettings() {
-      const result = await new ReadSettingAction().readViewSettings();
+      const result = await new ReadUserSettingAction().readViewSettings();
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -407,7 +410,7 @@ export const useRootStore = defineStore("root", {
         testHint: payload.viewSettings.testHint ?? this.viewSettings.testHint
       };
 
-      const result = await new SaveSettingAction().saveViewSettings(settings);
+      const result = await new SaveUserSettingAction().saveViewSettings(settings);
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -417,7 +420,7 @@ export const useRootStore = defineStore("root", {
     },
 
     async readTestScriptOption() {
-      const result = await new ReadSettingAction().readTestScriptOption();
+      const result = await new ReadUserSettingAction().readTestScriptOption();
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -427,7 +430,7 @@ export const useRootStore = defineStore("root", {
     },
 
     async writeTestScriptOption(payload: { option: Pick<TestScriptOption, "buttonDefinitions"> }) {
-      const result = await new SaveSettingAction().saveTestScriptOption(payload.option);
+      const result = await new SaveUserSettingAction().saveTestScriptOption(payload.option);
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { type ProjectSettings, type ViewSettings } from "@/lib/common/settings/Settings";
+import { type ProjectSettings } from "@/lib/common/settings/Settings";
 import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
-import { type RepositoryService, type TestScriptOption } from "latteart-client";
-import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
+import { type RepositoryService } from "latteart-client";
 
 const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
+const SAVE_SETTING_FAILED_MESSAGE_KEY = "error.common.save_settings_failed";
 
 export class ReadSettingAction {
   public async readProjectSettings(
@@ -33,27 +33,39 @@ export class ReadSettingAction {
 
     return new ActionSuccess(getSettingsResult.data);
   }
+}
 
-  public async readViewSettings(): Promise<ActionResult<ViewSettings>> {
-    const result = await new LocalStorageSettingRepository().getViewSettings();
+export class SaveSettingAction {
+  public async saveProjectSettings(
+    settings: ProjectSettings,
+    repositoryService: Pick<RepositoryService, "settingRepository">
+  ): Promise<ActionResult<ProjectSettings>> {
+    const putSettingsRequest = {
+      ...settings,
+      config: {
+        ...settings.config,
+        autofillSetting: {
+          conditionGroups: settings.config.autofillSetting.conditionGroups
+        }
+      }
+    };
+    const putSettingsResult =
+      await repositoryService.settingRepository.putSettings(putSettingsRequest);
 
-    if (result.isFailure()) {
-      return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
+    if (putSettingsResult.isFailure()) {
+      return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });
     }
 
-    return new ActionSuccess(result.data);
-  }
+    const savedSettings = {
+      ...putSettingsResult.data,
+      config: {
+        ...putSettingsResult.data.config,
+        autofillSetting: {
+          ...putSettingsResult.data.config.autofillSetting
+        }
+      }
+    };
 
-  public async readTestScriptOption(): Promise<
-    ActionResult<Pick<TestScriptOption, "buttonDefinitions">>
-  > {
-    const getTestScriptOptionResult =
-      await new LocalStorageSettingRepository().getTestScriptOption();
-
-    if (getTestScriptOptionResult.isFailure()) {
-      return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
-    }
-
-    return new ActionSuccess(getTestScriptOptionResult.data);
+    return new ActionSuccess(savedSettings);
   }
 }
