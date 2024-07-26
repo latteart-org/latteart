@@ -56,7 +56,7 @@ export type TestHintSetting = {
     extraWords: string[];
     excludedWords: string[];
   };
-  defaultCommentRecommendSeconds: number;
+  defaultSearchSeconds: number;
 };
 
 export type ExperimentalFeatureSetting = ProjectSettings["config"]["experimentalFeatureSetting"];

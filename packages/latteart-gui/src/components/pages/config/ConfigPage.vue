@@ -301,7 +301,7 @@ export default defineComponent({
             extraWords: [],
             excludedWords: []
           },
-          defaultCommentRecommendSeconds: 30
+          defaultSearchSeconds: 30
         };
       }
 

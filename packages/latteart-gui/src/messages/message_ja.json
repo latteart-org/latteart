@@ -217,7 +217,7 @@
     "setting-test-hint": "テストヒント設定",
     "test-hint": {
       "search-scope": "検索時のテストヒントタグ自動補完範囲",
-      "default-recommend-tag-seconds": "デフォルト値",
+      "default-search-seconds": "デフォルト値",
       "suffix": "秒前まで",
       "info": "※0でヒントの検索による自動補完無効",
       "matching-range": "登録時・検索時のコメントとテストヒントタグのマッチング対象範囲",

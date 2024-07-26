@@ -17,14 +17,16 @@
 import type { DataLoader } from "@/lib/common/dataLoader";
 import type { I18nProvider } from "@/lib/common/internationalization";
 import {
-  ReadLocaleAction,
-  SaveLocaleAction,
-  ReadDeviceSettingAction,
-  SaveDeviceSettingAction,
-  ReadUserSettingAction
-} from "@/lib/common/settings/UserSettingsAction";
-import { SaveSettingAction } from "@/lib/common/settings/ProjectSettingsAction";
-import { SaveUserSettingAction } from "@/lib/common/settings/UserSettingsAction";
+  readDeviceSettings,
+  readLocale,
+  readTestScriptOption,
+  readViewSettings,
+  saveDeviceSettings,
+  saveLocale,
+  saveTestScriptOption,
+  saveViewSettings
+} from "@/lib/common/settings/userSettings";
+import { saveProjectSettings } from "@/lib/common/settings/projectSettings";
 import type { DeviceSettings, ProjectSettings, ViewSettings } from "@/lib/common/settings/Settings";
 import { ExportConfigAction } from "@/lib/operationHistory/actions/ExportConfigAction";
 import {
@@ -122,7 +124,7 @@ export const useRootStore = defineStore("root", {
           extraWords: [],
           excludedWords: []
         },
-        defaultCommentRecommendSeconds: 30
+        defaultSearchSeconds: 30
       }
     },
     deviceSettings: {
@@ -241,7 +243,7 @@ export const useRootStore = defineStore("root", {
      * @param payload.settings Settings.
      */
     async loadLocaleFromSettings() {
-      const result = await new ReadLocaleAction().readLocale();
+      const result = await readLocale();
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -258,7 +260,7 @@ export const useRootStore = defineStore("root", {
      * @param payload.locale Locale.
      */
     async changeLocale(payload: { locale: string }) {
-      const saveLocaleActionResult = await new SaveLocaleAction().saveLocale(payload.locale);
+      const saveLocaleActionResult = await saveLocale(payload.locale);
 
       if (saveLocaleActionResult.isFailure()) {
         throw new Error(
@@ -359,10 +361,7 @@ export const useRootStore = defineStore("root", {
         viewPointsPreset: payload.settings.viewPointsPreset ?? this.projectSettings.viewPointsPreset
       };
 
-      const result = await new SaveSettingAction().saveProjectSettings(
-        settings,
-        this.repositoryService
-      );
+      const result = await saveProjectSettings(settings, this.repositoryService);
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -395,7 +394,7 @@ export const useRootStore = defineStore("root", {
     },
 
     async readViewSettings() {
-      const result = await new ReadUserSettingAction().readViewSettings();
+      const result = await readViewSettings();
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -410,7 +409,7 @@ export const useRootStore = defineStore("root", {
         testHint: payload.viewSettings.testHint ?? this.viewSettings.testHint
       };
 
-      const result = await new SaveUserSettingAction().saveViewSettings(settings);
+      const result = await saveViewSettings(settings);
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -420,7 +419,7 @@ export const useRootStore = defineStore("root", {
     },
 
     async readTestScriptOption() {
-      const result = await new ReadUserSettingAction().readTestScriptOption();
+      const result = await readTestScriptOption();
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -430,7 +429,7 @@ export const useRootStore = defineStore("root", {
     },
 
     async writeTestScriptOption(payload: { option: Pick<TestScriptOption, "buttonDefinitions"> }) {
-      const result = await new SaveUserSettingAction().saveTestScriptOption(payload.option);
+      const result = await saveTestScriptOption(payload.option);
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -442,7 +441,7 @@ export const useRootStore = defineStore("root", {
      * @param context Action context.
      */
     async readDeviceSettings() {
-      const result = await new ReadDeviceSettingAction().readDeviceSettings();
+      const result = await readDeviceSettings();
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -468,7 +467,7 @@ export const useRootStore = defineStore("root", {
         }
       };
 
-      const result = await new SaveDeviceSettingAction().saveDeviceSettings(deviceSettings);
+      const result = await saveDeviceSettings(deviceSettings);
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));

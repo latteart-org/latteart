@@ -217,7 +217,7 @@
     "setting-test-hint": "Test Hint Settings",
     "test-hint": {
       "search-scope": "Test hint tag auto-completion range when searching",
-      "default-recommend-tag-seconds": "Default value",
+      "default-search-seconds": "Default value",
       "suffix": "seconds",
       "info": "*0 disables auto-completion by hint search",
       "matching-range": "Matching scope of comments and test hint tags when registering or searching",

@@ -182,7 +182,7 @@ export class LocalStorageSettingRepository {
         ? JSON.parse(tmpTestHintSettings)
         : {
             commentMatching: { target: "all", extraWords: [], excludedWords: [] },
-            defaultCommentRecommendSeconds: 30
+            defaultSearchSeconds: 30
           }
     };
 
@@ -212,7 +212,7 @@ export class LocalStorageSettingRepository {
         extraWords: viewSettings.testHint.commentMatching.extraWords,
         excludedWords: viewSettings.testHint.commentMatching.excludedWords
       },
-      defaultCommentRecommendSeconds: viewSettings.testHint.defaultCommentRecommendSeconds
+      defaultSearchSeconds: viewSettings.testHint.defaultSearchSeconds
     };
 
     localStorage.setItem("latteart-config-testHintSettings", JSON.stringify(tmpTestHintSettings));

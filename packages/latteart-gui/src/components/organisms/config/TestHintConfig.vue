@@ -14,17 +14,19 @@
 <template>
   <v-container class="mt-0 pt-0">
     <v-row>
-      <v-col cols="12">
+      <v-col cols="12" class="py-0 my-0">
         <h4>{{ $t("config-page.test-hint.search-scope") }}</h4>
+      </v-col>
+      <v-col cols="12" class="pl-5">
         <v-text-field
-          v-model="tempConfig.defaultCommentRecommendSeconds"
+          v-model="tempConfig.defaultSearchSeconds"
           hide-details
           variant="underlined"
-          :label="$t('config-page.test-hint.default-recommend-tag-seconds')"
+          :label="$t('config-page.test-hint.default-search-seconds')"
           min="0"
           :suffix="$t('config-page.test-hint.suffix')"
           type="number"
-          @change="(e: any) => updateDefaultCommentRecommendSeconds(e.target._value)"
+          @change="(e: any) => updateDefaultSearchSeconds(e.target._value)"
         />
         <span style="font-size: smaller">{{ $t("config-page.test-hint.info") }}</span>
       </v-col>
@@ -34,6 +36,7 @@
         </h4>
         <div>
           <v-radio-group
+            hide-details
             :model-value="tempConfig.commentMatching.target"
             class="pr-0 my-0"
             @update:model-value="changeTarget"
@@ -48,6 +51,7 @@
       </v-col>
       <v-col cols="12" class="pl-5 py-0">
         <v-text-field
+          hide-details
           variant="underlined"
           :disabled="tempConfig.commentMatching.target !== 'wordsOnPageOnly'"
           :label="$t('config-page.test-hint.extra-words')"
@@ -57,6 +61,7 @@
       </v-col>
       <v-col cols="12" class="pl-5">
         <v-text-field
+          hide-details
           variant="underlined"
           :label="$t('config-page.test-hint.excluded-words')"
           :model-value="tempConfig.commentMatching.excludedWords"
@@ -93,7 +98,7 @@ export default defineComponent({
             ? setting.commentMatching.excludedWords.join(" ")
             : ""
         },
-        defaultCommentRecommendSeconds: setting.defaultCommentRecommendSeconds
+        defaultSearchSeconds: setting.defaultSearchSeconds
       };
     };
 
@@ -120,15 +125,15 @@ export default defineComponent({
                   ? tempConfig.value.commentMatching.excludedWords.split(/\s/)
                   : []
             },
-            defaultCommentRecommendSeconds: tempConfig.value.defaultCommentRecommendSeconds
+            defaultSearchSeconds: tempConfig.value.defaultSearchSeconds
           }
         });
       }
     };
 
-    const updateDefaultCommentRecommendSeconds = (seconds: number) => {
+    const updateDefaultSearchSeconds = (seconds: number) => {
       const defaultSeconds = seconds < 0 ? 0 : seconds;
-      tempConfig.value = { ...tempConfig.value, defaultCommentRecommendSeconds: defaultSeconds };
+      tempConfig.value = { ...tempConfig.value, defaultSearchSeconds: defaultSeconds };
     };
 
     const changeTarget = (target: "all" | "wordsOnPageOnly" | null) => {
@@ -162,7 +167,7 @@ export default defineComponent({
 
     return {
       tempConfig,
-      updateDefaultCommentRecommendSeconds,
+      updateDefaultSearchSeconds,
       changeTarget,
       updateExtraWords,
       updateExcludedWords
