@@ -214,6 +214,18 @@
       "title": "Auto operation: Set Content",
       "details-list": "Details"
     },
+    "setting-test-hint": "Test Hint Settings",
+    "test-hint": {
+      "search-scope": "Test hint tag auto-completion range when searching",
+      "default-search-seconds": "Default value",
+      "suffix": "seconds",
+      "info": "*0 disables auto-completion by hint search",
+      "matching-range": "Matching scope of comments and test hint tags when registering or searching",
+      "all": "Entire comment",
+      "words-on-page-only": "On-screen text present in a comment",
+      "extra-words": "Additional Word",
+      "excluded-words": "Reject Word"
+    },
     "setting-experimental-features": "Experimental Feature Settings",
     "recording-method": "Recording Method",
     "capture-arch": "Record operations on the test page using PUSH method",

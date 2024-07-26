@@ -31,31 +31,49 @@
           <div>
             <v-textarea
               v-model="testHintValue"
+              variant="underlined"
               :label="$t('test-hint.common.hint-text')"
               :disabled="processing"
             />
           </div>
 
           <div>
-            <v-text-field v-model="testMatrixName" :label="$t('test-hint.common.test-matrix')" />
+            <v-text-field
+              v-model="testMatrixName"
+              variant="underlined"
+              :label="$t('test-hint.common.test-matrix')"
+            />
           </div>
 
           <div>
-            <v-text-field v-model="groupName" :label="$t('test-hint.common.group')" />
+            <v-text-field
+              v-model="groupName"
+              variant="underlined"
+              :label="$t('test-hint.common.group')"
+            />
           </div>
 
           <div>
-            <v-text-field v-model="testTargetName" :label="$t('test-hint.common.test-target')" />
+            <v-text-field
+              v-model="testTargetName"
+              variant="underlined"
+              :label="$t('test-hint.common.test-target')"
+            />
           </div>
 
           <div>
-            <v-text-field v-model="viewPointName" :label="$t('test-hint.common.view-point')" />
+            <v-text-field
+              v-model="viewPointName"
+              variant="underlined"
+              :label="$t('test-hint.common.view-point')"
+            />
           </div>
 
           <div v-for="(testHintProp, index) in customPropHeaders" :key="index + testHintProp.id">
             <div v-if="testHintProp.type === 'string'">
               <v-textarea
                 v-model="customPropValues[index]"
+                variant="underlined"
                 :label="testHintProp.name"
                 :disabled="processing"
               />
@@ -63,6 +81,7 @@
             <div v-if="testHintProp.type === 'list'">
               <v-select
                 v-model="customPropValues[index]"
+                variant="underlined"
                 :label="testHintProp.name"
                 :items="testHintProp.listItems"
                 item-title="value"
@@ -75,6 +94,7 @@
           <div>
             <v-textarea
               v-model="commentWords"
+              variant="underlined"
               :label="$t('test-hint.common.comment-words')"
               :disabled="processing"
             />
@@ -221,7 +241,8 @@ export default defineComponent({
           (word, index, array) => array.indexOf(word) === index
         );
 
-        const matchingTarget: "all" | "wordsOnPageOnly" = "all";
+        const matchingTarget: "all" | "wordsOnPageOnly" =
+          rootStore.viewSettings.testHint.commentMatching.target;
 
         commentWords.value = (
           matchingTarget === "all"

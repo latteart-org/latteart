@@ -214,6 +214,18 @@
       "title": "自動操作：セット内容",
       "details-list": "詳細"
     },
+    "setting-test-hint": "テストヒント設定",
+    "test-hint": {
+      "search-scope": "検索時のテストヒントタグ自動補完範囲",
+      "default-search-seconds": "デフォルト値",
+      "suffix": "秒前まで",
+      "info": "※0でヒントの検索による自動補完無効",
+      "matching-range": "登録時・検索時のコメントとテストヒントタグのマッチング対象範囲",
+      "all": "コメント全体",
+      "words-on-page-only": "コメント内に存在する画面中のテキスト",
+      "extra-words": "追加ワード",
+      "excluded-words": "拒否ワード"
+    },
     "setting-experimental-features": "実験的機能設定",
     "recording-method": "記録方式",
     "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",

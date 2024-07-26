@@ -32,7 +32,7 @@ import { LoadHistoryAction } from "../operationHistory/actions/LoadHistoryAction
 import { parseHistoryLog } from "./util";
 import type { OperationHistoryItem } from "../captureControl/OperationHistoryItem";
 import type { ProjectSettings } from "./settings/Settings";
-import { ReadSettingAction } from "./settings/ReadSettingAction";
+import { readProjectSettings } from "./settings/projectSettings";
 import { GetTestResultListAction } from "../operationHistory/actions/testResult/GetTestResultListAction";
 import type { TestHint, TestHintProp } from "../operationHistory/types";
 
@@ -195,7 +195,7 @@ export class RepositoryDataLoader implements DataLoader {
   constructor(private repositoryService: RepositoryService) {}
 
   async loadProjectSettings() {
-    const result = await new ReadSettingAction().readProjectSettings(this.repositoryService);
+    const result = await readProjectSettings(this.repositoryService);
 
     if (result.isFailure()) {
       return;
