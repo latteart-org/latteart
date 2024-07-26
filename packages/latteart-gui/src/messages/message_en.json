@@ -348,6 +348,7 @@
   "navigation": {
     "group-label": {
       "capture": "Test Capturing",
+      "test-design-support": "Test Design Support",
       "management": "Test Management",
       "recent-stories": "Recent Stories",
       "current-review": "Current Review",
@@ -360,6 +361,9 @@
     "starting-capture": "Starting capture."
   },
   "test-hint": {
+    "list-page": {
+      "title": "Test Hint List"
+    },
     "edit-props-dialog": {
       "title": "Edit Custom Field",
       "add": "Add Column",
@@ -376,7 +380,8 @@
       "comment-words": "Words in Comments",
       "operation": "Operation",
       "screen-elements": "Screen elements",
-      "add-element": "Add Element"
+      "add-element": "Add Element",
+      "search": "String search"
     }
   },
   "optional-features": {
