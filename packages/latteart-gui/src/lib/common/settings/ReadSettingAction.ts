@@ -35,16 +35,13 @@ export class ReadSettingAction {
   }
 
   public async readViewSettings(): Promise<ActionResult<ViewSettings>> {
-    const getAutoPopupSettingsResult =
-      await new LocalStorageSettingRepository().getAutoPopupSettings();
+    const result = await new LocalStorageSettingRepository().getViewSettings();
 
-    if (getAutoPopupSettingsResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
     }
 
-    return new ActionSuccess({
-      autofill: getAutoPopupSettingsResult.data
-    });
+    return new ActionSuccess(result.data);
   }
 
   public async readTestScriptOption(): Promise<

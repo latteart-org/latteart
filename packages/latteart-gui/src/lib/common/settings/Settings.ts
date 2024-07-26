@@ -37,14 +37,26 @@ export type DeviceSettings = {
 };
 
 export type ViewSettings = {
-  autofill: {
-    autoPopupRegistrationDialog: boolean;
-    autoPopupSelectionDialog: boolean;
-  };
+  autofill: LocalAutofillSetting;
+  testHint: TestHintSetting;
+};
+
+export type LocalAutofillSetting = {
+  autoPopupRegistrationDialog: boolean;
+  autoPopupSelectionDialog: boolean;
 };
 
 export type SnapshotConfig = SnapshotConfigForRepository;
 
 export type TestResultComparisonSetting = ProjectSettings["config"]["testResultComparison"];
+
+export type TestHintSetting = {
+  commentMatching: {
+    target: "all" | "wordsOnPageOnly";
+    extraWords: string[];
+    excludedWords: string[];
+  };
+  defaultCommentRecommendSeconds: number;
+};
 
 export type ExperimentalFeatureSetting = ProjectSettings["config"]["experimentalFeatureSetting"];

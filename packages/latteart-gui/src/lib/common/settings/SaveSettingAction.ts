@@ -56,16 +56,13 @@ export class SaveSettingAction {
   }
 
   public async saveViewSettings(settings: ViewSettings): Promise<ActionResult<ViewSettings>> {
-    const putAutoPopupSettingsResult =
-      await new LocalStorageSettingRepository().putAutoPopupSettings(settings.autofill);
+    const result = await new LocalStorageSettingRepository().putViewSettings(settings);
 
-    if (putAutoPopupSettingsResult.isFailure()) {
+    if (result.isFailure()) {
       return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });
     }
 
-    return new ActionSuccess({
-      autofill: putAutoPopupSettingsResult.data
-    });
+    return new ActionSuccess(result.data);
   }
 
   public async saveTestScriptOption(

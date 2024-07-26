@@ -112,6 +112,14 @@ export const useRootStore = defineStore("root", {
       autofill: {
         autoPopupRegistrationDialog: false,
         autoPopupSelectionDialog: false
+      },
+      testHint: {
+        commentMatching: {
+          target: "all",
+          extraWords: [],
+          excludedWords: []
+        },
+        defaultCommentRecommendSeconds: 30
       }
     },
     deviceSettings: {
@@ -393,8 +401,13 @@ export const useRootStore = defineStore("root", {
       this.viewSettings = result.data;
     },
 
-    async writeViewSettings(payload: { viewSettings: ViewSettings }) {
-      const result = await new SaveSettingAction().saveViewSettings(payload.viewSettings);
+    async writeViewSettings(payload: { viewSettings: Partial<ViewSettings> }) {
+      const settings: ViewSettings = {
+        autofill: payload.viewSettings.autofill ?? this.viewSettings.autofill,
+        testHint: payload.viewSettings.testHint ?? this.viewSettings.testHint
+      };
+
+      const result = await new SaveSettingAction().saveViewSettings(settings);
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
