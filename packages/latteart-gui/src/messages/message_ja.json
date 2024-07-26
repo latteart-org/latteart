@@ -247,9 +247,7 @@
     "details": "操作セット詳細"
   },
   "test-hint-register-dialog": {
-    "title": "テストヒント登録",
-    "hint-text": "ヒント本文",
-    "comment-words": "コメント内のワード"
+    "title": "テストヒント登録"
   },
   "note-edit": {
     "take-screenshot": "登録するスクリーンショット",

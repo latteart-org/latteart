@@ -31,7 +31,7 @@
           <div>
             <v-textarea
               v-model="testHintValue"
-              :label="$t('test-hint-register-dialog.hint-text')"
+              :label="$t('test-hint.common.hint-text')"
               :disabled="processing"
             />
           </div>
@@ -75,7 +75,7 @@
           <div>
             <v-textarea
               v-model="commentWords"
-              :label="$t('test-hint-register-dialog.comment-words')"
+              :label="$t('test-hint.common.comment-words')"
               :disabled="processing"
             />
           </div>

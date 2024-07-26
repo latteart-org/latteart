@@ -247,9 +247,7 @@
     "details": "Operation Set Details"
   },
   "test-hint-register-dialog": {
-    "title": "Register Test Hint",
-    "hint-text": "Hint Text",
-    "comment-words": "Words in Comments"
+    "title": "Register Test Hint"
   },
   "note-edit": {
     "take-screenshot": "Screenshot to register",
