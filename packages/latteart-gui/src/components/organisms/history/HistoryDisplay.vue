@@ -120,6 +120,7 @@
           :displayed-operations="displayedOperations"
           :on-select-operation="selectOperation"
           :history="history"
+          :comments="comments"
           :selected-operation-info="selectedOperationInfo"
           :message="message"
           :operation-context-enabled="operationContextEnabled"
@@ -190,6 +191,7 @@ import { computed, defineComponent, onMounted, ref, nextTick, watch, inject } fr
 import type { PropType } from "vue";
 import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
+import type { Comment } from "latteart-client";
 
 export default defineComponent({
   components: {
@@ -214,6 +216,11 @@ export default defineComponent({
     rawHistory: {
       type: Array as PropType<OperationHistory>,
       default: () => []
+    },
+    rawComments: {
+      type: Array as PropType<Comment[]>,
+      default: () => [],
+      requried: false
     },
     message: {
       type: Function as PropType<MessageProvider>,
@@ -439,6 +446,10 @@ export default defineComponent({
       return [...props.rawHistory];
     });
 
+    const comments = computed(() => {
+      return [...props.rawComments];
+    });
+
     const selectedOperationInfo = computed((): { sequence: number; doScroll: boolean } => {
       return operationHistoryState.value.selectedOperationInfo;
     });
@@ -618,6 +629,7 @@ export default defineComponent({
       mermaidGraphDisplay,
       dispCoverage,
       history,
+      comments,
       selectedOperationInfo,
       displayedMediaType,
       hasStillImage,

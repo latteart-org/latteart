@@ -97,9 +97,11 @@
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import UpDownArrows from "@/components/molecules/UpDownArrows.vue";
-import type { TestHintType, TestHintPropForUpdate as Prop } from "@/lib/operationHistory/types";
+import type { TestHintProp } from "@/lib/operationHistory/types";
 import { defineComponent, ref, toRefs, watch, type PropType } from "vue";
 import { useRootStore } from "@/stores/root";
+
+type TempTestHintProp = Omit<TestHintProp, "id"> & { id?: string };
 
 export default defineComponent({
   components: {
@@ -107,14 +109,14 @@ export default defineComponent({
     "up-down-arrows": UpDownArrows
   },
   props: {
-    props: { type: Array as PropType<TestHintType["props"]>, required: true },
+    props: { type: Array as PropType<TestHintProp[]>, required: true },
     opened: { type: Boolean, default: false }
   },
   emits: ["close", "update"],
   setup(props, context) {
     const rootStore = useRootStore();
 
-    const tempProps = ref<Prop[]>([]);
+    const tempProps = ref<TempTestHintProp[]>([]);
 
     const initialize = () => {
       if (!props.opened) {
@@ -129,7 +131,7 @@ export default defineComponent({
       });
     };
 
-    const addList = (prop: Prop) => {
+    const addList = (prop: TempTestHintProp) => {
       tempProps.value = tempProps.value.map((p) => {
         const key = `${new Date().getTime()}`;
         if (p === prop) {
@@ -143,7 +145,7 @@ export default defineComponent({
       });
     };
 
-    const deleteList = (prop: Prop, listIndex: number) => {
+    const deleteList = (prop: TempTestHintProp, listIndex: number) => {
       tempProps.value = tempProps.value.map((p) => {
         if (p === prop) {
           p.listItems = p.listItems?.filter((_, i) => i !== listIndex);
@@ -166,7 +168,7 @@ export default defineComponent({
       });
     };
 
-    const convertProp = (prop: Prop) => {
+    const convertProp = (prop: TempTestHintProp) => {
       if (prop.id) {
         return { id: prop.id, name: prop.name, type: prop.type };
       } else {

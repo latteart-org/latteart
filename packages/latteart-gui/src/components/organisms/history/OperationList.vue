@@ -15,151 +15,189 @@
 -->
 
 <template>
-  <v-row
-    id="operation-list"
-    align-content="space-around"
-    justify="space-between"
-    class="fill-height"
-  >
-    <v-col cols="12" align-self="center" style="height: 40px">
+  <v-container id="operation-list" fluid class="px-0 fill-height">
+    <v-row class="px-2" style="height: 40px; width: 100%">
       <auto-operation-register-button v-if="!isViewerMode" />
-    </v-col>
-    <v-row align-content="space-around" justify="end" style="height: calc(100% - 90px)" no-gutters>
-      <v-col cols="12" :style="{ height: '100%' }">
-        <v-container fluid class="fill-height">
-          <v-data-table
-            v-model:sort-by="sortBy"
-            v-model="checkedItems"
-            v-model:page="page"
-            v-model:items-per-page="itemsPerPage"
-            :row-props="appendClass"
-            height="calc(100% - 59px)"
-            :style="{ height: '100%', width: '100%' }"
-            density="compact"
-            fixed-header
-            :show-select="!isViewerMode"
-            item-key="operation.sequence"
-            :custom-sort="(items: any) => items"
-            must-sort
-            :headers="headers"
-            :items="displayedHistoryItems"
-            :search="search"
-            :items-per-page-options="itemsPerPageOptions"
-            @click:row="(_: any, obj: any) => onSelectOperations(obj.item.index)"
-            @contextmenu:row="
-              (event: MouseEvent, item: any) => contextmenu(item.item.operation.sequence, event)
-            "
-          >
-            <template #[`header.data-table-select`]>
+      <test-hint-register-button v-if="!isViewerMode" />
+      <comment-register-field></comment-register-field>
+    </v-row>
+
+    <v-row
+      align-content="space-around"
+      justify="end"
+      style="height: calc(100% - 90px); width: 100%"
+      no-gutters
+    >
+      <v-container fluid class="pa-0 fill-height">
+        <v-data-table
+          v-model:sort-by="sortBy"
+          v-model="checkedItems"
+          v-model:page="page"
+          v-model:items-per-page="itemsPerPage"
+          v-model:expanded="expanded as unknown as string[]"
+          :row-props="appendClass"
+          height="calc(100% - 59px)"
+          :style="{ height: '100%', width: '100%' }"
+          density="compact"
+          fixed-header
+          :show-select="!isViewerMode"
+          item-value="index"
+          :custom-sort="(items: any) => items"
+          must-sort
+          :headers="headers"
+          :items="displayedHistoryItems"
+          :search="search"
+          :items-per-page-options="itemsPerPageOptions"
+          @click:row="(_: any, obj: any) => onSelectOperations(obj.item.index)"
+          @contextmenu:row="
+            (event: MouseEvent, item: any) => contextmenu(item.item.operation.sequence, event)
+          "
+        >
+          <template #[`header.data-table-select`]>
+            <v-checkbox-btn
+              :model-value="checkboxStatus.allChecked"
+              :true-value="true"
+              :false-value="false"
+              :indeterminate="checkboxStatus.indeterminate"
+              @input="checkAllItems"
+            />
+          </template>
+          <template #[`item.data-table-select`]="props">
+            <td>
               <v-checkbox-btn
-                :model-value="checkboxStatus.allChecked"
+                :model-value="checkedItems.includes(props.item.index)"
                 :true-value="true"
                 :false-value="false"
-                :indeterminate="checkboxStatus.indeterminate"
-                @input="checkAllItems"
+                class="item-checkbox"
+                @input="updateCheckedItem(props.item.index)"
               />
-            </template>
-            <template #[`item.data-table-select`]="props">
-              <td>
+            </td>
+          </template>
+
+          <template #[`item.operation.sequence`]="{ item }">
+            <td :class="`sequence_${item.operation.sequence}`">
+              {{ item.operation.sequence }}
+            </td>
+          </template>
+
+          <template #[`item.notes`]="{ item }">
+            <td>
+              <v-icon v-if="item.notes.intention" :title="message('app.intention')" color="blue"
+                >event_note</v-icon
+              >
+              <v-icon
+                v-if="item.notes.notices.length + item.notes.bugs.length > 0"
+                :title="message('app.note')"
+                color="purple-lighten-3"
+                >announcement</v-icon
+              >
+            </td>
+          </template>
+
+          <template #[`item.operation.title`]="{ item }">
+            <td :title="item.operation.title" :class="{ ellipsis: true }">
+              {{ item.operation.title.substring(0, 60) }}
+            </td>
+          </template>
+
+          <template #[`item.operation.elementInfo.tagname`]="{ item }">
+            <td :title="item.operation.elementInfo.tagname" :class="{ ellipsis: true }">
+              {{ item.operation.elementInfo.tagname }}
+            </td>
+          </template>
+
+          <template #[`item.operation.elementInfo.attributes.name`]="{ item }">
+            <td :title="item.operation.elementInfo.attributes.name" :class="{ ellipsis: true }">
+              {{ item.operation.elementInfo.attributes.name }}
+            </td>
+          </template>
+
+          <template #[`item.operation.elementInfo.text`]="{ item }">
+            <td :title="item.operation.elementInfo.text" :class="{ ellipsis: true }">
+              {{ item.operation.elementInfo.text.substring(0, 60) }}
+            </td>
+          </template>
+
+          <template #[`item.operation.type`]="{ item }">
+            <td :title="item.operation.type" :class="{ ellipsis: true }">
+              {{ item.operation.type }}
+            </td>
+          </template>
+
+          <template #[`item.operation.inputValue`]="{ item }">
+            <td :title="item.operation.inputValue" :class="{ ellipsis: true }">
+              {{ item.operation.inputValue.substring(0, 60) }}
+            </td>
+          </template>
+
+          <template #[`item.operation.timestamp`]="{ item }">
+            <td :title="formatTimestamp(item.operation.timestamp)" :class="{ ellipsis: true }">
+              {{ formatTimestamp(item.operation.timestamp) }}
+            </td>
+          </template>
+
+          <template #expanded-row="{ columns, item }">
+            <tr v-for="comment in item.comments" :key="comment.timestamp" style="height: 32px">
+              <td
+                class="text-blue-grey-darken-1 bg-blue-grey-lighten-5"
+                style="height: 32px; padding: 0 8px"
+                :colspan="1"
+              >
                 <v-checkbox-btn
-                  :model-value="checkedItems.includes(props.item.index)"
+                  disabled
+                  :model-value="checkedItems.includes(item.index)"
                   :true-value="true"
                   :false-value="false"
                   class="item-checkbox"
-                  @input="updateCheckedItem(props.item.index)"
                 />
               </td>
-            </template>
-
-            <template #[`item.operation.sequence`]="{ item }">
-              <td :class="`sequence_${item.operation.sequence}`">
-                {{ item.operation.sequence }}
+              <td
+                class="text-blue-grey-darken-1 bg-blue-grey-lighten-5"
+                style="height: 32px"
+                :colspan="columns.length - 2"
+              >
+                <v-icon class="mr-3">sms</v-icon>
+                {{ comment.value }}
               </td>
-            </template>
-
-            <template #[`item.notes`]="{ item }">
-              <td>
-                <v-icon v-if="item.notes.intention" :title="message('app.intention')" color="blue"
-                  >event_note</v-icon
-                >
-                <v-icon
-                  v-if="item.notes.notices.length + item.notes.bugs.length > 0"
-                  :title="message('app.note')"
-                  color="purple-lighten-3"
-                  >announcement</v-icon
-                >
+              <td
+                class="text-blue-grey-darken-1 bg-blue-grey-lighten-5"
+                style="height: 32px"
+                :colspan="1"
+              >
+                {{ formatTimestamp(comment.timestamp) }}
               </td>
-            </template>
-
-            <template #[`item.operation.title`]="{ item }">
-              <td :title="item.operation.title" :class="{ ellipsis: true }">
-                {{ item.operation.title.substring(0, 60) }}
-              </td>
-            </template>
-
-            <template #[`item.operation.elementInfo.tagname`]="{ item }">
-              <td :title="item.operation.elementInfo.tagname" :class="{ ellipsis: true }">
-                {{ item.operation.elementInfo.tagname }}
-              </td>
-            </template>
-
-            <template #[`item.operation.elementInfo.attributes.name`]="{ item }">
-              <td :title="item.operation.elementInfo.attributes.name" :class="{ ellipsis: true }">
-                {{ item.operation.elementInfo.attributes.name }}
-              </td>
-            </template>
-
-            <template #[`item.operation.elementInfo.text`]="{ item }">
-              <td :title="item.operation.elementInfo.text" :class="{ ellipsis: true }">
-                {{ item.operation.elementInfo.text.substring(0, 60) }}
-              </td>
-            </template>
-
-            <template #[`item.operation.type`]="{ item }">
-              <td :title="item.operation.type" :class="{ ellipsis: true }">
-                {{ item.operation.type }}
-              </td>
-            </template>
-
-            <template #[`item.operation.inputValue`]="{ item }">
-              <td :title="item.operation.inputValue" :class="{ ellipsis: true }">
-                {{ item.operation.inputValue.substring(0, 60) }}
-              </td>
-            </template>
-
-            <template #[`item.operation.timestamp`]="{ item }">
-              <td :title="formatTimestamp(item.operation.timestamp)" :class="{ ellipsis: true }">
-                {{ formatTimestamp(item.operation.timestamp) }}
-              </td>
-            </template>
-          </v-data-table>
-        </v-container>
-      </v-col>
+            </tr>
+          </template>
+        </v-data-table>
+      </v-container>
     </v-row>
 
-    <v-col cols="12">
-      <v-row id="operation-search" style="height: 50px" @keydown="cancelKeydown">
-        <span class="search-title pt-5 pl-4"
-          ><v-icon>search</v-icon>{{ message("operation.search") }}</span
-        >
-        <v-checkbox
-          v-model="isPurposeFilterEnabled"
-          class="search-checkbox pl-4"
-          :label="message('operation.purpose')"
-        ></v-checkbox>
-        <v-checkbox
-          v-model="isNoteFilterEnabled"
-          class="search-checkbox"
-          :label="message('operation.notice')"
-        ></v-checkbox>
-        <v-text-field
-          v-model="search"
-          variant="underlined"
-          class="pl-4"
-          :label="message('operation.query')"
-        ></v-text-field>
-      </v-row>
-    </v-col>
+    <v-row
+      id="operation-search"
+      class="mt-0"
+      style="height: 50px; width: 100%"
+      @keydown="cancelKeydown"
+    >
+      <span class="search-title pt-5 pl-4"
+        ><v-icon>search</v-icon>{{ message("operation.search") }}</span
+      >
+      <v-checkbox
+        v-model="isPurposeFilterEnabled"
+        class="search-checkbox pl-4"
+        :label="message('operation.purpose')"
+      ></v-checkbox>
+      <v-checkbox
+        v-model="isNoteFilterEnabled"
+        class="search-checkbox"
+        :label="message('operation.notice')"
+      ></v-checkbox>
+      <v-text-field
+        v-model="search"
+        variant="underlined"
+        class="pl-4"
+        :label="message('operation.query')"
+      ></v-text-field>
+    </v-row>
 
     <operation-context-menu
       :opened="contextMenuOpened"
@@ -168,7 +206,7 @@
       :operation-info="contextMenuInfo"
       @operation-context-menu-close="contextMenuOpened = false"
     />
-  </v-row>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -178,6 +216,7 @@ import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { TimestampImpl } from "@/lib/common/Timestamp";
 import AutoOperationRegisterButton from "./AutoOperationRegisterButton.vue";
+import TestHintRegisterButton from "./TestHintRegisterButton.vue";
 import { filterTableRows, sortTableRows } from "@/lib/common/table";
 import {
   computed,
@@ -193,6 +232,8 @@ import {
 import type { PropType } from "vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useGoTo } from "vuetify";
+import type { Comment } from "latteart-client";
+import CommentRegisterField from "./CommentRegisterField.vue";
 
 type ElementInfoForDisplay = {
   tagname: string;
@@ -214,18 +255,26 @@ type HistoryItemForDisplay = {
     notices: NoteForGUI[];
     intention: NoteForGUI | null;
   };
+  comments: { value: string; timestamp: string }[];
 };
 
 export default defineComponent({
   components: {
     "operation-context-menu": OperationContextMenu,
-    "auto-operation-register-button": AutoOperationRegisterButton
+    "auto-operation-register-button": AutoOperationRegisterButton,
+    "test-hint-register-button": TestHintRegisterButton,
+    "comment-register-field": CommentRegisterField
   },
   props: {
     history: {
       type: Array as PropType<OperationHistory>,
       default: () => [],
       required: true
+    },
+    comments: {
+      type: Array as PropType<Comment[]>,
+      default: () => [],
+      required: false
     },
     selectedOperationInfo: {
       type: Object as PropType<{ sequence: number; doScroll: boolean }>,
@@ -256,6 +305,11 @@ export default defineComponent({
     const isPurposeFilterEnabled = ref(false);
     const isNoteFilterEnabled = ref(false);
 
+    const expanded = computed(() => {
+      return displayedHistoryItems.value
+        .filter(({ comments }) => comments.length > 0)
+        .map(({ index }) => index);
+    });
     const contextMenuOpened = ref(false);
     const contextMenuX = ref(-1);
     const contextMenuY = ref(-1);
@@ -496,7 +550,7 @@ export default defineComponent({
     });
 
     const displayedHistoryItems = computed((): HistoryItemForDisplay[] => {
-      const items = props.history.map((operationWithNotes, index) => {
+      const items = props.history.map((operationWithNotes, index, array) => {
         const elementInfo = operationWithNotes.operation.elementInfo;
 
         const elementInfoForDisplay: ElementInfoForDisplay = {
@@ -519,7 +573,19 @@ export default defineComponent({
           intention: operationWithNotes.intention
         };
 
-        return { index, operation, notes };
+        const comments = props.comments
+          .filter((comment) => {
+            const nextOperation = array.at(index + 1)?.operation;
+            return (
+              comment.timestamp >= parseInt(operation.timestamp, 10) &&
+              (nextOperation ? comment.timestamp < parseInt(nextOperation.timestamp, 10) : true)
+            );
+          })
+          .map((comment) => {
+            return { value: comment.value, timestamp: `${comment.timestamp}` };
+          });
+
+        return { index, operation, notes, comments };
       });
 
       const filteredItems = filterTableRows(items, [
@@ -532,7 +598,7 @@ export default defineComponent({
     });
 
     const getCheckedItems = computed((): { index: number; operation: OperationForGUI }[] => {
-      return operationHistoryStore.checkedOperations;
+      return operationHistoryStore.checkedTestSteps;
     });
 
     const displayedOperationFilterPredicate = (item: HistoryItemForDisplay) => {
@@ -599,15 +665,15 @@ export default defineComponent({
     };
 
     const updateCheckedOperationList = (): void => {
-      const checkedOperations = displayedHistoryItems.value
+      const checkedTestSteps = displayedHistoryItems.value
         .filter((_, index) => {
           return checkedItems.value.includes(index);
         })
         .map((v) => {
-          return { index: v.index, operation: v.operation };
+          return { index: v.index, operation: v.operation, comments: v.comments };
         });
 
-      operationHistoryStore.checkedOperations = checkedOperations;
+      operationHistoryStore.checkedTestSteps = checkedTestSteps;
     };
 
     const contextmenu = (itemSequence: number, event: MouseEvent) => {
@@ -773,6 +839,7 @@ export default defineComponent({
     initializeSelectedSequences();
 
     return {
+      expanded,
       selectedSequences,
       checkAllItems,
       checkboxStatus,

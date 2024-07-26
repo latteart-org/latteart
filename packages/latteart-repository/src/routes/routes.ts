@@ -3594,7 +3594,7 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
-        list: {
+        listItems: {
           dataType: "array",
           array: {
             dataType: "nestedObjectLiteral",
@@ -3606,7 +3606,7 @@ const models: TsoaRoute.Models = {
         },
         type: { dataType: "string", required: true },
         id: { dataType: "string", required: true },
-        title: { dataType: "string", required: true },
+        name: { dataType: "string", required: true },
       },
       validators: {},
     },
@@ -3651,10 +3651,10 @@ const models: TsoaRoute.Models = {
   PutTestHintPropDto: {
     dataType: "refObject",
     properties: {
-      title: { dataType: "string", required: true },
+      name: { dataType: "string", required: true },
       id: { dataType: "string" },
       type: { dataType: "string", required: true },
-      list: {
+      listItems: {
         dataType: "array",
         array: {
           dataType: "nestedObjectLiteral",
@@ -3694,7 +3694,7 @@ const models: TsoaRoute.Models = {
       nestedProperties: {
         text: { dataType: "string", required: true },
         type: { dataType: "string", required: true },
-        tag: { dataType: "string", required: true },
+        tagname: { dataType: "string", required: true },
       },
       validators: {},
     },

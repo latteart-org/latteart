@@ -28,6 +28,7 @@
     "note": "Note",
     "notice": "Finding",
     "register-operation": "Operation Registration",
+    "register-test-hint": "Test Hint Registration",
     "select-operation": "Operation Selection",
     "auto-operation": "Auto Operation",
     "autofill": "Autofill"
@@ -245,6 +246,9 @@
     "name": "Operation Set Name",
     "details": "Operation Set Details"
   },
+  "test-hint-register-dialog": {
+    "title": "Register Test Hint"
+  },
   "note-edit": {
     "take-screenshot": "Screenshot to register",
     "previous-screen": "Test screen from the previous operation",
@@ -349,6 +353,18 @@
       "add": "Add Column",
       "name": "Column Name",
       "add-option": "Add Option"
+    },
+    "common": {
+      "match-count": "Match count",
+      "hint-text": "Hint text",
+      "test-matrix": "Test matrix",
+      "group": "Group",
+      "test-target": "Test target",
+      "view-point": "View point",
+      "comment-words": "Words in Comments",
+      "operation": "Operation",
+      "screen-elements": "Screen elements",
+      "add-element": "Add Element"
     }
   },
   "optional-features": {
@@ -607,7 +623,6 @@
       "move_test_purpose_failed": "Failed to move test purpose.",
       "record_test_purpose_failed": "Failed to record test purpose.",
       "create_test_result_failed": "Failed to create test result.",
-      "get_test_result_failed": "Failed to get test result.",
       "get_test_result_list_failed": "Failed to get test result list.",
       "get_session_ids_failed": "Failed to get session ids.",
       "register_failed_with_invalid_type": "Could not be registered because it includes an operation that does not support automatic operation.\nUnsupported operation:{value}",

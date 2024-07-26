@@ -22,8 +22,8 @@ import {
   type TestResultForRepository,
   type TestResultComparisonResultForRepository,
   type Note,
-  type TestHintForRepository,
-  type TestHintPropForRepository
+  type TestHintPropForRepository,
+  type TestHintForRepository
 } from "latteart-client";
 
 /**
@@ -200,8 +200,6 @@ export type ScreenImage = {
   };
 };
 
-export type TestHintType = TestHintForRepository;
+export type TestHintProp = TestHintPropForRepository;
 
-export type TestHintPropForUpdate = Omit<TestHintPropForRepository, "id"> & {
-  id?: string;
-};
+export type TestHint = TestHintForRepository;

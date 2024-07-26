@@ -28,6 +28,7 @@
     "note": "メモ",
     "notice": "気づき",
     "register-operation": "操作の登録",
+    "register-test-hint": "テストヒントの登録",
     "select-operation": "操作の選択",
     "auto-operation": "自動操作",
     "autofill": "自動入力"
@@ -245,6 +246,9 @@
     "name": "操作セット名",
     "details": "操作セット詳細"
   },
+  "test-hint-register-dialog": {
+    "title": "テストヒント登録"
+  },
   "note-edit": {
     "take-screenshot": "登録するスクリーンショット",
     "previous-screen": "直前の操作時のテスト画面",
@@ -349,6 +353,18 @@
       "add": "カラム追加",
       "name": "カラム名",
       "add-option": "項目追加"
+    },
+    "common": {
+      "match-count": "マッチ数",
+      "hint-text": "ヒント本文",
+      "test-matrix": "テストマトリクス",
+      "group": "グループ",
+      "test-target": "テスト対象",
+      "view-point": "観点",
+      "comment-words": "コメント内のワード",
+      "operation": "操作",
+      "screen-elements": "画面要素",
+      "add-element": "要素の追加"
     }
   },
   "optional-features": {
@@ -607,7 +623,6 @@
       "move_test_purpose_failed": "テスト目的の移動に失敗しました。",
       "record_test_purpose_failed": "テスト目的の記録に失敗しました。",
       "create_test_result_failed": "テスト結果の作成に失敗しました。",
-      "get_test_result_failed": "テスト結果の取得に失敗しました。",
       "get_test_result_list_failed": "テスト結果一覧の取得に失敗しました。",
       "get_session_ids_failed": "セッションIDの取得に失敗しました。",
       "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できませんでした。\n非対応操作:{value}",

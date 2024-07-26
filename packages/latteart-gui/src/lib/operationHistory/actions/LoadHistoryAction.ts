@@ -15,21 +15,27 @@
  */
 
 import { type OperationHistoryItem } from "@/lib/captureControl/OperationHistoryItem";
-import { type TestResult } from "../types";
 import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
 import {
   convertTestStepOperation,
   convertNote,
   convertIntention
 } from "@/lib/common/replyDataConverter";
-import { type RepositoryService } from "latteart-client";
-import { GetTestResultAction } from "./testResult/GetTestResultAction";
+import {
+  type Comment,
+  type CommentForRepository,
+  type RepositoryService,
+  type TestResultForRepository
+} from "latteart-client";
 
 const LOAD_HISTORY_FAILED_MESSAGE_KEY = "error.operation_history.load_history_failed";
 
 export class LoadHistoryAction {
   constructor(
-    private repositoryService: Pick<RepositoryService, "testResultRepository" | "serviceUrl">
+    private repositoryService: Pick<
+      RepositoryService,
+      "testResultRepository" | "commentRepository" | "serviceUrl"
+    >
   ) {}
 
   /**
@@ -44,21 +50,84 @@ export class LoadHistoryAction {
       testResultInfo: { id: string; name: string; parentTestResultId?: string };
       testStepIds: string[];
       testingTime: number;
+      comments: Comment[];
     }>
   > {
-    const result = await new GetTestResultAction(this.repositoryService).getTestResult(
-      testResultId
-    );
+    const getTestResultResult =
+      await this.repositoryService.testResultRepository.getTestResult(testResultId);
 
-    if (result.isFailure()) {
+    if (getTestResultResult.isFailure()) {
       return new ActionFailure({ messageKey: LOAD_HISTORY_FAILED_MESSAGE_KEY });
     }
 
-    return new ActionSuccess(this.convertData(result.data));
+    const getCommentsResult =
+      await this.repositoryService.commentRepository.getComments(testResultId);
+
+    if (getCommentsResult.isFailure()) {
+      return new ActionFailure({ messageKey: LOAD_HISTORY_FAILED_MESSAGE_KEY });
+    }
+
+    return new ActionSuccess(this.convertData(getTestResultResult.data, getCommentsResult.data));
   }
 
-  private convertData(testResult: TestResult) {
-    const operationHistoryItems = testResult.testSteps.map((testStep, index) => {
+  private convertData(testResult: TestResultForRepository, comments: CommentForRepository[]) {
+    const testSteps = testResult.testSteps.map((testStep) => {
+      const {
+        input,
+        type,
+        elementInfo,
+        title,
+        url,
+        timestamp,
+        windowHandle,
+        keywordTexts,
+        scrollPosition,
+        clientSize,
+        isAutomatic,
+        videoFrame,
+        imageFileUrl,
+        inputElements
+      } = testStep.operation;
+
+      const operation = {
+        input,
+        type,
+        elementInfo,
+        title,
+        url,
+        timestamp,
+        windowHandle,
+        keywordTexts,
+        scrollPosition,
+        clientSize,
+        isAutomatic,
+        imageFileUrl,
+        videoFrame,
+        inputElements
+      };
+
+      return {
+        ...testStep,
+        operation,
+        notices: [...testStep.bugs, ...testStep.notices].map((note) => {
+          const { id, type, value, details, tags, timestamp, imageFileUrl, videoFrame } = note;
+
+          return {
+            id,
+            type,
+            value,
+            details,
+            tags,
+            timestamp,
+            imageFileUrl,
+            videoFrame
+          };
+        }),
+        bugs: []
+      };
+    });
+
+    const operationHistoryItems = testSteps.map((testStep, index) => {
       const sequence = index + 1;
       const operation = testStep.operation
         ? convertTestStepOperation(testStep.operation, sequence)
@@ -85,8 +154,9 @@ export class LoadHistoryAction {
         name: testResult.name,
         parentTestResultId: testResult.parentTestResultId
       },
-      testStepIds: testResult.testSteps.map(({ id }) => id),
-      testingTime: testResult.testingTime
+      testStepIds: testSteps.map(({ id }) => id),
+      testingTime: testResult.testingTime,
+      comments
     };
   }
 }
