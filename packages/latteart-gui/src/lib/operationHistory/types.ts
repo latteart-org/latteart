@@ -23,7 +23,9 @@ import {
   type TestResultComparisonResultForRepository,
   type Note,
   type TestHintPropForRepository,
-  type TestHintForRepository
+  type TestHintForRepository,
+  type CommentForRepository,
+  type CoverageSourceForRepository
 } from "latteart-client";
 
 /**
@@ -34,6 +36,7 @@ export interface OperationWithNotes {
   intention: NoteForGUI | null;
   bugs: NoteForGUI[] | null;
   notices: NoteForGUI[] | null;
+  coverageSource?: CoverageSourceForRepository;
 }
 
 /**
@@ -203,3 +206,5 @@ export type ScreenImage = {
 export type TestHintProp = TestHintPropForRepository;
 
 export type TestHint = TestHintForRepository;
+
+export type Comment = CommentForRepository;

@@ -21,6 +21,7 @@ import {
   TestStepNote,
   RunnableOperation,
   Video,
+  CoverageSource,
 } from "../types";
 import { ServiceResult } from "../result";
 
@@ -63,6 +64,7 @@ export type CaptureEventListeners = {
   onAddTestStep?: (testStep: {
     id: string;
     operation: Operation;
+    coverageSource: CoverageSource;
   }) => Promise<void>;
   onAddNote?: (testStepNote: TestStepNote) => Promise<void>;
   onAddTestPurpose?: (testStepNote: TestStepNote) => Promise<void>;

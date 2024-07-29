@@ -106,7 +106,8 @@
     "edit-test-purpose": "テスト目的の編集",
     "image": "静止画",
     "video": "動画",
-    "loading-test-results": "テスト結果読込中"
+    "loading-test-results": "テスト結果読込中",
+    "search-test-hints": "テストヒントを受ける"
   },
   "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
@@ -369,6 +370,15 @@
       "add": "カラム追加",
       "name": "カラム名",
       "add-option": "項目追加"
+    },
+    "search-dialog": {
+      "title": "テストヒント:検索",
+      "filter-test-hints": "テストヒントのマッチング",
+      "matching-words": "マッチングワード",
+      "matching-result": "マッチング結果",
+      "show": "対象範囲表示",
+      "hide": "対象範囲非表示",
+      "comment": "コメント"
     },
     "common": {
       "match-count": "マッチ数",

@@ -34,6 +34,8 @@
 
       <note-register-button />
 
+      <test-hint-search-button />
+
       <extension-contents />
 
       <v-divider vertical class="mx-3" />
@@ -52,6 +54,7 @@ import RecordingTime from "./RecordingTime.vue";
 import SelectWindowButton from "./SelectWindowButton.vue";
 import AutofillButton from "./AutofillButton.vue";
 import RunAutoOperationButton from "./RunAutoOperationButton.vue";
+import TestHintSearchButton from "./TestHintSearchButton.vue";
 import { defineComponent } from "vue";
 import ExtensionContents from "../extensions/ExtensionContents.vue";
 
@@ -65,6 +68,7 @@ export default defineComponent({
     "recording-time": RecordingTime,
     "autofill-button": AutofillButton,
     "run-auto-operation-button": RunAutoOperationButton,
+    "test-hint-search-button": TestHintSearchButton,
     "extension-contents": ExtensionContents
   }
 });

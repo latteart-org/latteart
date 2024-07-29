@@ -30,6 +30,7 @@ import {
   Video,
   ScreenMutation,
   Comment,
+  CoverageSource,
 } from "../types";
 import {
   TestResultRepository,
@@ -201,7 +202,13 @@ export class TestResultAccessorImpl implements TestResultAccessor {
   async addOperation(
     operation: CapturedOperation,
     option: { compressScreenshot: boolean }
-  ): Promise<ServiceResult<{ operation: Operation; id: string }>> {
+  ): Promise<
+    ServiceResult<{
+      operation: Operation;
+      id: string;
+      coverageSource: CoverageSource;
+    }>
+  > {
     const registerOperationResult =
       await this.repositories.testStepRepository.postTestSteps(
         this.testResultId,

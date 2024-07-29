@@ -106,7 +106,8 @@
     "edit-test-purpose": "Edit Test Purpose",
     "image": "Image",
     "video": "Video",
-    "loading-test-results": "Loading Test Results."
+    "loading-test-results": "Loading Test Results.",
+    "search-test-hints": "Get test hint"
   },
   "test-result-navigation-drawer": {
     "title": "Test Result List",
@@ -369,6 +370,15 @@
       "add": "Add Column",
       "name": "Column Name",
       "add-option": "Add Option"
+    },
+    "search-dialog": {
+      "title": "Test Hint: Search",
+      "filter-test-hints": "Filter test hints",
+      "matching-words": "Matching words",
+      "matching-result": "Matching result",
+      "show": "Show Scope",
+      "hide": "Hide Scope",
+      "comment": "Comments"
     },
     "common": {
       "match-count": "Match count",
