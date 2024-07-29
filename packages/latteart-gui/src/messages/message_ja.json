@@ -348,6 +348,7 @@
   "navigation": {
     "group-label": {
       "capture": "テスト記録",
+      "test-design-support": "テスト設計支援",
       "management": "テスト管理",
       "recent-stories": "最近読み込んだストーリー",
       "current-review": "現在のレビュー",
@@ -360,6 +361,9 @@
     "starting-capture": "記録開始中"
   },
   "test-hint": {
+    "list-page": {
+      "title": "テストヒント一覧"
+    },
     "edit-props-dialog": {
       "title": "カスタムフィールド編集",
       "add": "カラム追加",
@@ -376,7 +380,8 @@
       "comment-words": "コメント内のワード",
       "operation": "操作",
       "screen-elements": "画面要素",
-      "add-element": "要素の追加"
+      "add-element": "要素の追加",
+      "search": "文字列検索"
     }
   },
   "optional-features": {

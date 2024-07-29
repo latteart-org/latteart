@@ -30,6 +30,7 @@ import type { NavigationGuardNext, RouteLocationNormalized } from "vue-router";
 import ReviewPage from "@/components/pages/review/ReviewPage.vue";
 import TestMatrixEditPage from "@/components/pages/testMatrixEdit/TestMatrixEditPage.vue";
 import ConfigPage from "@/components/pages/config/ConfigPage.vue";
+import TestHintListPage from "@/components/pages/testHintList/TestHintListPage.vue";
 
 const defaultRoutes = [
   {
@@ -90,6 +91,11 @@ const defaultRoutes = [
             path: "test-result-list",
             component: TestResultListPage,
             meta: { title: "test-result-navigation-drawer.title" }
+          },
+          {
+            path: "test-hint-list",
+            component: TestHintListPage,
+            meta: { title: "test-hint.list-page.title" }
           },
           {
             path: "test-matrix",
