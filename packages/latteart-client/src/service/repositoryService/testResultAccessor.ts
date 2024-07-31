@@ -55,6 +55,7 @@ import {
   MutationRepository,
   CommentRepository,
   TestHintRepository,
+  TestHintPropRepository,
 } from "../../gateway/repository";
 import { TestResultAccessor, SequenceView } from "./types";
 
@@ -81,6 +82,7 @@ export type RepositoryContainer = {
   readonly mutationRepository: MutationRepository;
   readonly commentRepository: CommentRepository;
   readonly testHintRepository: TestHintRepository;
+  readonly testHintPropRepository: TestHintPropRepository;
 };
 
 export class TestResultAccessorImpl implements TestResultAccessor {

@@ -38,3 +38,4 @@ export * from "./videoRepository";
 export * from "./mutationRepository";
 export * from "./commentRepository";
 export * from "./testHintRepository";
+export * from "./testHintPropRepository";

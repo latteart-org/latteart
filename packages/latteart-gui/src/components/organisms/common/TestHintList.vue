@@ -18,12 +18,17 @@
   <v-container fluid class="pa-0">
     <v-card flat height="100%">
       <v-card-text>
-        <v-text-field
-          v-model="search"
-          variant="underlined"
-          :label="$t('test-hint.common.search')"
-          clearable
-        ></v-text-field>
+        <v-row align="center">
+          <slot name="actions"></slot>
+          <v-spacer></v-spacer>
+          <v-text-field
+            v-model="search"
+            style="min-width: 50%"
+            variant="underlined"
+            :label="$t('test-hint.common.search')"
+            clearable
+          ></v-text-field>
+        </v-row>
 
         <v-data-table
           v-model="selectedItemIds"
@@ -154,6 +159,7 @@ export default defineComponent({
         return {
           title: customProp.name,
           value: customProp.id,
+          width: "170",
           sortable: true
         };
       });
@@ -172,7 +178,6 @@ export default defineComponent({
         {
           title: rootStore.message("test-hint.common.hint-text"),
           value: "value",
-          width: "300",
           sortable: true
         },
         ...customColumns,
@@ -199,22 +204,22 @@ export default defineComponent({
           value: "viewPointName",
           width: "170",
           sortable: true
-        },
-        {
-          title: rootStore.message("test-hint.common.comment-words"),
-          value: "commentWords",
-          sortable: false
-        },
-        {
-          title: rootStore.message("test-hint.common.screen-elements"),
-          value: "operationElements",
-          sortable: false
-        },
-        {
-          title: rootStore.message("test-hint.common.match-count"),
-          value: "matchCount",
-          sortable: false
         }
+        // {
+        //   title: rootStore.message("test-hint.common.comment-words"),
+        //   value: "commentWords",
+        //   sortable: false
+        // },
+        // {
+        //   title: rootStore.message("test-hint.common.screen-elements"),
+        //   value: "operationElements",
+        //   sortable: false
+        // },
+        // {
+        //   title: rootStore.message("test-hint.common.match-count"),
+        //   value: "matchCount",
+        //   sortable: false
+        // }
       ];
     });
 
@@ -226,6 +231,12 @@ export default defineComponent({
           matchCount:
             props.testHintMatchCounts.find(({ id }) => id === testHint.id)?.matchCount ?? 0,
           ...other,
+          commentWords: other.commentWords.join(" "),
+          operationElements: other.operationElements
+            .map(({ tagname, type, text }) => {
+              return `[${tagname}, ${type}, ${text}]`;
+            })
+            .join(" "),
           ...Object.fromEntries(
             customs.map((custom) => {
               const customProp = props.testHintProps.find(({ id }) => id === custom.propId);

@@ -38,6 +38,10 @@ export type TestHintRepository = {
   putTestHint(
     testHint: TestHintForRepository
   ): Promise<RepositoryAccessResult<TestHintForRepository>>;
+
+  deleteTestHint(
+    testHint: Pick<TestHintForRepository, "id">
+  ): Promise<RepositoryAccessResult<void>>;
 };
 
 export class TestHintRepositoryImpl implements TestHintRepository {
@@ -118,6 +122,25 @@ export class TestHintRepositoryImpl implements TestHintRepository {
 
       return createRepositoryAccessSuccess({
         data: response.data as TestHintForRepository,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  public async deleteTestHint(
+    testHint: Pick<TestHintForRepository, "id">
+  ): Promise<RepositoryAccessResult<void>> {
+    try {
+      const response = await this.restClient.httpDelete(
+        `api/v1/test-hints/${testHint.id}`
+      );
+      if (response.status !== 204) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return createRepositoryAccessSuccess({
+        data: response.data as void,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

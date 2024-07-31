@@ -32,7 +32,7 @@
       </v-col>
       <v-col cols="12" class="py-0 my-0">
         <h4>
-          {{ $t("config-page.test-hint.matching-range") }}
+          {{ $t("config-page.test-hint.matching-scope") }}
         </h4>
         <div>
           <v-radio-group

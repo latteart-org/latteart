@@ -17,16 +17,16 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$t('test-hint-register-dialog.title')"
+    :title="$t('test-hint-edit-dialog.title')"
     :accept-button-disabled="isOkButtonDisabled"
     @accept="
-      registerTestHint();
+      saveTestHint();
       close();
     "
     @cancel="close()"
   >
     <test-hint-input-form
-      :model-value="testHint"
+      :model-value="editingTestHint"
       @update:model-value="updateTestHint"
     ></test-hint-input-form>
   </execute-dialog>
@@ -34,13 +34,10 @@
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
-import { useOperationHistoryStore } from "@/stores/operationHistory";
-import { useTestManagementStore } from "@/stores/testManagement";
 import { useRootStore } from "@/stores/root";
-import type { TestHintProp } from "@/lib/operationHistory/types";
+import type { TestHint, TestHintProp } from "@/lib/operationHistory/types";
 import TestHintInputForm from "./TestHintInputForm.vue";
 
 export default defineComponent({
@@ -50,19 +47,18 @@ export default defineComponent({
   },
   props: {
     opened: { type: Boolean, default: false, required: true },
-    relatedTestSteps: {
-      type: Array as PropType<
-        { operation: OperationForGUI; comments: { value: string; timestamp: string }[] }[]
-      >,
-      default: () => [],
-      required: false
+    testHintProps: {
+      type: Array as PropType<TestHintProp[]>,
+      required: true
+    },
+    testHint: {
+      type: Object as PropType<TestHint>,
+      required: true
     }
   },
   emits: ["accept", "close"],
   setup(props, context) {
     const rootStore = useRootStore();
-    const operationHistoryStore = useOperationHistoryStore();
-    const testManagementStore = useTestManagementStore();
     const processing = ref(false);
 
     const testHintValue = ref("");
@@ -79,7 +75,7 @@ export default defineComponent({
       return !testHintValue.value ? true : false;
     });
 
-    const testHint = computed(() => {
+    const editingTestHint = computed(() => {
       return {
         testHintValue: testHintValue.value,
         testMatrixName: testMatrixName.value,
@@ -119,86 +115,19 @@ export default defineComponent({
       resetItems();
 
       try {
-        const testHints = await rootStore.dataLoader?.loadTestHints();
-        customPropHeaders.value = testHints?.props ?? [];
-
-        const testResultId = operationHistoryStore.testResultInfo.id;
-
-        if (!testResultId) {
-          return;
-        }
-
-        const story = testManagementStore.stories
-          .filter(({ sessions }) => {
-            return sessions.some(({ testResultFiles }) => {
-              return testResultFiles.some(({ id }) => id === testResultId);
-            });
-          })
-          .at(0);
-
-        if (story) {
-          const testMatrix = testManagementStore.findTestMatrix(story.testMatrixId);
-          const group = testMatrix?.groups.find(({ testTargets }) =>
-            testTargets.some(({ id }) => id === story.testTargetId)
-          );
-          const testTarget = group?.testTargets.find(({ id }) => id === story.testTargetId);
-          const viewPoint = testMatrix?.viewPoints.find(({ id }) => id === story.viewPointId);
-
-          testMatrixName.value = testMatrix?.name ?? "";
-          groupName.value = group?.name ?? "";
-          testTargetName.value = testTarget?.name ?? "";
-          viewPointName.value = viewPoint?.name ?? "";
-        }
-
-        const defaultValues = props.relatedTestSteps.reduce(
-          (acc, testStep) => {
-            const commentWords = testStep.comments.flatMap(({ value }) => value.split(" "));
-            acc.commentWords.push(...commentWords);
-
-            const displayedWords = testStep.operation.keywordSet
-              ? Array.from(testStep.operation.keywordSet)
-              : [];
-            acc.displayedWords.push(...displayedWords);
-
-            const element = testStep.operation.elementInfo;
-            if (element && element.tagname) {
-              acc.elements.push({
-                tagname: element.tagname,
-                type: element.attributes.type ?? "",
-                text: element.text ?? ""
-              });
-            }
-
-            return acc;
-          },
-          {
-            commentWords: new Array<string>(),
-            displayedWords: new Array<string>(),
-            elements: new Array<{ tagname: string; type: string; text: string }>()
-          }
-        );
-
-        const allCommentWords = defaultValues.commentWords.filter(
-          (word, index, array) => array.indexOf(word) === index
-        );
-
-        const matchingTarget: "all" | "wordsOnPageOnly" =
-          rootStore.viewSettings.testHint.commentMatching.target;
-
-        commentWords.value = (
-          matchingTarget === "all"
-            ? allCommentWords
-            : allCommentWords.filter((word) => defaultValues.displayedWords.includes(word))
-        ).join(" ");
-        operatedElements.value = defaultValues.elements.filter((e1, index, array) => {
-          return (
-            array.findIndex((e2) => {
-              return (
-                `${e2.tagname}_${e2.type}_${e2.text}` === `${e1.tagname}_${e1.type}_${e1.text}`
-              );
-            }) === index
-          );
+        testHintValue.value = props.testHint.value;
+        testMatrixName.value = props.testHint.testMatrixName;
+        groupName.value = props.testHint.groupName;
+        testTargetName.value = props.testHint.testTargetName;
+        viewPointName.value = props.testHint.viewPointName;
+        customPropHeaders.value = props.testHintProps;
+        customPropValues.value = props.testHintProps.map((testHintProp) => {
+          const value =
+            props.testHint.customs.find(({ propId }) => propId === testHintProp.id)?.value ?? "";
+          return typeof value === "string" ? value : value.join(" ");
         });
+        commentWords.value = props.testHint.commentWords.join(" ");
+        operatedElements.value = props.testHint.operationElements;
       } finally {
         processing.value = false;
       }
@@ -225,10 +154,11 @@ export default defineComponent({
       operatedElements.value = newValue.operatedElements;
     };
 
-    const registerTestHint = async () => {
+    const saveTestHint = async () => {
       processing.value = true;
       try {
-        await rootStore.repositoryService?.testHintRepository.postTestHint({
+        await rootStore.repositoryService?.testHintRepository.putTestHint({
+          id: props.testHint.id,
           value: testHintValue.value,
           testMatrixName: testMatrixName.value,
           groupName: groupName.value,
@@ -262,10 +192,10 @@ export default defineComponent({
 
     return {
       processing,
-      registerTestHint,
+      saveTestHint,
       close,
       updateTestHint,
-      testHint,
+      editingTestHint,
       isOkButtonDisabled
     };
   }

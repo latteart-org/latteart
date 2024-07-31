@@ -19,7 +19,7 @@
     <v-btn
       :disabled="!isCapturing"
       color="green"
-      icon="help_outline"
+      icon="live_help"
       size="small"
       :title="$t('test-result-page.search-test-hints')"
       class="mx-2"

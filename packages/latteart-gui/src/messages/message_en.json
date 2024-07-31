@@ -221,7 +221,7 @@
       "default-search-seconds": "Default value",
       "suffix": "seconds",
       "info": "*0 disables auto-completion by hint search",
-      "matching-range": "Matching scope of comments and test hint tags when registering or searching",
+      "matching-scope": "Matching scope of comments and test hint tags when registering or searching",
       "all": "Entire comment",
       "words-on-page-only": "On-screen text present in a comment",
       "extra-words": "Additional Word",
@@ -261,6 +261,9 @@
   },
   "test-hint-register-dialog": {
     "title": "Register Test Hint"
+  },
+  "test-hint-edit-dialog": {
+    "title": "Edit Test Hint"
   },
   "note-edit": {
     "take-screenshot": "Screenshot to register",
@@ -371,14 +374,15 @@
       "name": "Column Name",
       "add-option": "Add Option"
     },
+    "delete-dialog": {
+      "title": "Are you sure you want to delete this Test hint?"
+    },
     "search-dialog": {
       "title": "Test Hint: Search",
       "filter-test-hints": "Filter test hints",
       "matching-words": "Matching words",
       "matching-result": "Matching result",
-      "show": "Show Scope",
-      "hide": "Hide Scope",
-      "comment": "Comments"
+      "matching-scope": "Matching scope:"
     },
     "common": {
       "match-count": "Match count",

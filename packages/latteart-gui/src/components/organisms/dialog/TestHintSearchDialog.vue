@@ -21,57 +21,60 @@
     </template>
 
     <template #content>
-      <v-row
-        :class="{
-          'align-center': true,
-          'pl-2': true,
-          'default-search-area': !defaultSearchSecondsOpened
-        }"
-      >
-        <h4>{{ $t("test-hint.search-dialog.filter-test-hints") }}</h4>
-        <v-btn class="mx-2" variant="elevated" @click="changeDefaultSearchSecondsOpened">{{
-          defaultSearchSecondsOpened
-            ? $t("test-hint.search-dialog.hide")
-            : $t("test-hint.search-dialog.show")
-        }}</v-btn>
-        <v-text-field
-          v-if="defaultSearchSecondsOpened"
-          v-model="defaultSearchSeconds"
-          variant="underlined"
-          class="pb-3 pt-0"
-          hide-details
-          type="number"
-          min="0"
-          :disabled="!isFilteringByElementsEnabled && !isFilteringByCommentsEnabled"
-          style="max-width: 150px"
-          :suffix="$t('config-page.test-hint.suffix')"
-          @update:model-value="
-            setSearchText();
-            filterTestHints();
-          "
-          @change="(e: any) => updateDefaultSearchSeconds(e.target._value)"
-        />
-      </v-row>
-      <v-checkbox
-        v-model="isFilteringByElementsEnabled"
-        :label="$t('test-hint.common.screen-elements')"
-        hide-details
-      ></v-checkbox>
-      <v-row class="align-center pl-3">
-        <v-checkbox
-          v-model="isFilteringByCommentsEnabled"
-          :label="$t('test-hint.search-dialog.comment')"
-          class="mr-2"
-        ></v-checkbox>
-        <v-text-field
-          v-model="search"
-          class="pb-4"
-          variant="underlined"
-          :label="$t('test-hint.search-dialog.matching-words')"
-          :disabled="!isFilteringByCommentsEnabled"
-          @update:model-value="filterTestHints"
-        />
-      </v-row>
+      <v-container fluid class="pa-0">
+        <v-card flat height="100%">
+          <v-card-text class="py-0">
+            <v-row class="pb-4 my-0">
+              <v-col>
+                <v-row class="align-center py-0">
+                  <v-checkbox
+                    v-model="isFilteringByElementsEnabled"
+                    density="comfortable"
+                    :label="$t('test-hint.common.screen-elements')"
+                    hide-details
+                  ></v-checkbox>
+                </v-row>
+                <v-row class="align-center py-0">
+                  <v-checkbox
+                    v-model="isFilteringByCommentsEnabled"
+                    :label="$t('test-hint.common.comment-words')"
+                    class="mr-4"
+                    hide-details
+                    density="comfortable"
+                  ></v-checkbox>
+                  <v-text-field
+                    v-model="search"
+                    density="comfortable"
+                    hide-details
+                    :disabled="!isFilteringByCommentsEnabled"
+                    @update:model-value="filterTestHints"
+                  />
+                </v-row>
+                <v-row class="align-center ml-n1 mr-0 py-0">
+                  <v-list-subheader class="pt-4 pr-3">{{
+                    $t("test-hint.search-dialog.matching-scope")
+                  }}</v-list-subheader>
+                  <v-text-field
+                    v-model="defaultSearchSeconds"
+                    variant="underlined"
+                    hide-details
+                    type="number"
+                    min="0"
+                    :disabled="!isFilteringByElementsEnabled && !isFilteringByCommentsEnabled"
+                    style="max-width: 150px"
+                    :suffix="$t('config-page.test-hint.suffix')"
+                    @update:model-value="
+                      setSearchText();
+                      filterTestHints();
+                    "
+                    @change="(e: any) => updateDefaultSearchSeconds(e.target._value)"
+                  />
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-card-text>
+        </v-card>
+      </v-container>
 
       <v-divider />
 
@@ -82,7 +85,13 @@
         :checked-test-hint-ids="checkedTestHintIds"
         :test-hint-match-counts="testHintMatchCounts"
         @change:test-hints-selection="changeSelectedTestHintIds"
-      ></test-hint-list>
+      >
+        <template #actions>
+          <span class="text-subtitle-1 font-weight-bold">{{
+            `マッチング結果 (${filteredTestHints.length}/${testHints.length})`
+          }}</span>
+        </template></test-hint-list
+      >
     </template>
     <template #footer>
       <v-spacer></v-spacer>
@@ -113,7 +122,6 @@ export default defineComponent({
     const rootStore = useRootStore();
     const operationHistoryStore = useOperationHistoryStore();
 
-    const defaultSearchSecondsOpened = ref(false);
     const defaultSearchSeconds = ref(30);
     const isFilteringByElementsEnabled = ref(true);
     const isFilteringByCommentsEnabled = ref(true);
@@ -168,10 +176,6 @@ export default defineComponent({
 
       setSearchText();
       filterTestHints();
-    };
-
-    const changeDefaultSearchSecondsOpened = () => {
-      defaultSearchSecondsOpened.value = defaultSearchSecondsOpened.value ? false : true;
     };
 
     const updateDefaultSearchSeconds = (seconds: number) => {
@@ -246,16 +250,15 @@ export default defineComponent({
     watch(isFilteringByElementsEnabled, filterTestHints);
 
     return {
-      defaultSearchSecondsOpened,
       defaultSearchSeconds,
       isFilteringByElementsEnabled,
       isFilteringByCommentsEnabled,
       search,
       testHintProps,
+      testHints,
       filteredTestHints,
       testHintMatchCounts,
       checkedTestHintIds,
-      changeDefaultSearchSecondsOpened,
       updateDefaultSearchSeconds,
       setSearchText,
       filterTestHints,

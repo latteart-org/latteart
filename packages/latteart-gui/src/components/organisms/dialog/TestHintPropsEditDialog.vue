@@ -18,7 +18,10 @@
   <execute-dialog
     :opened="opened"
     :title="$t('test-hint.edit-props-dialog.title')"
-    @accept="update"
+    @accept="
+      update();
+      close();
+    "
     @cancel="close"
   >
     <v-container>
@@ -177,15 +180,17 @@ export default defineComponent({
     };
 
     const update = () => {
-      const updateProps = tempProps.value.map((prop) => {
-        if (prop.type === "list") {
-          return {
-            ...convertProp(prop),
-            list: prop.listItems ? prop.listItems.filter((l) => l.value !== "") : ""
-          };
+      const updateProps: (Omit<TestHintProp, "id"> & { id?: string })[] = tempProps.value.map(
+        (prop) => {
+          if (prop.type === "list") {
+            return {
+              ...convertProp(prop),
+              listItems: prop.listItems ? prop.listItems.filter((l) => l.value !== "") : []
+            };
+          }
+          return { ...convertProp(prop) };
         }
-        return { ...convertProp(prop) };
-      });
+      );
       context.emit("update", updateProps);
     };
 
