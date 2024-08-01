@@ -81,7 +81,7 @@ describe("ProjectImportService", () => {
       viewPointsPreset: [],
     };
 
-    it("includeProject: true, includeTestResults: true, includeConfig: true", async () => {
+    it("includeProject: true, includeTestResults: true, includeTestHints: true, includeConfig: true", async () => {
       const service = new ProjectImportService();
       service["readImportFile"] = jest.fn().mockResolvedValue({
         configFiles: [{ filePath: "config/config.json", data: "{}" }],
@@ -90,6 +90,18 @@ describe("ProjectImportService", () => {
         ],
         projectFiles: [
           { filePath: "projects/projectId/project.json", data: "{}" },
+        ],
+        testHintFiles: [
+          {
+            filePath: "projects/test-hints/test-hints.json",
+            data: "{}",
+          },
+        ],
+        commentFiles: [
+          {
+            filePath: "projects/testResultId/comments.json",
+            data: "[]",
+          },
         ],
       });
       service["importConfig"] = jest.fn().mockResolvedValue(settings);
