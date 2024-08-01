@@ -114,6 +114,7 @@ import TestHintList from "@/components/organisms/common/TestHintList.vue";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { useCaptureControlStore } from "@/stores/captureControl";
 import { selectMatchedTestHints } from "@/lib/operationHistory/testHint";
 
 export default defineComponent({
@@ -128,6 +129,7 @@ export default defineComponent({
   setup(props, context) {
     const rootStore = useRootStore();
     const operationHistoryStore = useOperationHistoryStore();
+    const captureControlStore = useCaptureControlStore();
 
     const matchingConditionsOpened = ref(false);
     const defaultSearchSeconds = ref(30);
@@ -140,8 +142,7 @@ export default defineComponent({
     const testHintMatchCounts = ref<{ id: string; matchCount: number }[]>([]);
 
     const checkedTestHintIds = computed(() => {
-      return [];
-      // return operationHistoryStore.checkedTestHintIds;
+      return captureControlStore.checkedTestHintIds;
     });
 
     const history = computed(() => {
@@ -245,7 +246,7 @@ export default defineComponent({
     };
 
     const changeSelectedTestHintIds = (selectedTestHintIds: string[]) => {
-      operationHistoryStore.checkedTestHintIds = selectedTestHintIds;
+      captureControlStore.checkedTestHintIds = selectedTestHintIds;
     };
 
     const changeMatchingConditionsOpened = () => {

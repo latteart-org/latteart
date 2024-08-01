@@ -129,6 +129,11 @@ export type CaptureControlState = {
    * Dialog to display completion message.
    */
   completionDialogData: { title: string; message: string } | null;
+
+  /**
+   * Checked test hint ids.
+   */
+  checkedTestHintIds: string[];
 };
 
 export const useCaptureControlStore = defineStore("captureControl", {
@@ -154,7 +159,8 @@ export const useCaptureControlStore = defineStore("captureControl", {
     timer: new Timer(),
     captureSession: null,
     isWindowSelectorDialogOpened: false,
-    completionDialogData: null
+    completionDialogData: null,
+    checkedTestHintIds: []
   }),
   getters: {
     /**
@@ -727,6 +733,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
       this.isWindowSelectorDialogOpened = false;
       this.isPaused = false;
       this.captureSession = null;
+      this.checkedTestHintIds = [];
     },
 
     takeNote(payload: { noteEditInfo: NoteEditInfo }) {

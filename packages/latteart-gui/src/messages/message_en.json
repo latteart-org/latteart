@@ -385,7 +385,8 @@
       "matching-result": "Matching result",
       "matching-scope": "Matching scope:",
       "show": "Show matching conditions",
-      "hide": "Hide matching conditions"
+      "hide": "Hide matching conditions",
+      "ignore-check-box": "During the current test, you will no longer be eligible for matching."
     },
     "common": {
       "match-count": "Match count",

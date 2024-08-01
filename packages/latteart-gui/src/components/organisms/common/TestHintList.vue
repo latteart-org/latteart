@@ -63,6 +63,13 @@
               </v-btn>
             </td>
           </template>
+          <template #[`item.data-table-select`]="{ isSelected, toggleSelect, internalItem }">
+            <v-checkbox-btn
+              :model-value="isSelected([internalItem])"
+              :onclick="withModifiers(() => toggleSelect(internalItem), ['stop'])"
+              :title="$t('test-hint.search-dialog.ignore-check-box')"
+            />
+          </template>
         </v-data-table>
       </v-card-text>
     </v-card>
@@ -86,7 +93,7 @@
 import { type TestHint, type TestHintProp } from "@/lib/operationHistory/types";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import InformationMessageDialog from "@/components/molecules/InformationMessageDialog.vue";
-import { computed, defineComponent, ref, watch, type PropType } from "vue";
+import { computed, defineComponent, ref, watch, type PropType, withModifiers } from "vue";
 import { useRootStore } from "@/stores/root";
 
 export default defineComponent({
@@ -284,7 +291,8 @@ export default defineComponent({
       items,
       getRowClass,
       emitTestHintEditButtonClicked,
-      emitTestHintDeleteButtonClicked
+      emitTestHintDeleteButtonClicked,
+      withModifiers
     };
   }
 });
