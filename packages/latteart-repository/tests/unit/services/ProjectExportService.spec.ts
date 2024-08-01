@@ -135,6 +135,8 @@ describe("ProjectExportService", () => {
 
     it("includeProject: true, includeTestResults: true, includeTestHint: true, includeConfig: trueの場合、Project・TestResult・Configのexport処理が実行される", async () => {
       const service = new ProjectExportService(TestDataSource);
+      service["extractTestHintExportData"] = jest.fn();
+
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
       testResultService.collectAllScreenshots = jest
         .fn()
@@ -170,6 +172,7 @@ describe("ProjectExportService", () => {
       );
 
       const service = new ProjectExportService(TestDataSource);
+      service["extractTestHintExportData"] = jest.fn();
       await service.export("1", false, false, false, false, {
         projectService,
         testResultService,
