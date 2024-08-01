@@ -24,7 +24,14 @@
       <v-container fluid class="pa-0">
         <v-card flat height="100%">
           <v-card-text class="py-0">
-            <v-row class="pb-4 my-0">
+            <v-row class="my-1 pb-2">
+              <v-btn variant="elevated" @click="changeMatchingConditionsOpened">{{
+                matchingConditionsOpened
+                  ? $t("test-hint.search-dialog.show")
+                  : $t("test-hint.search-dialog.hide")
+              }}</v-btn>
+            </v-row>
+            <v-row v-if="matchingConditionsOpened" class="pb-4 my-0">
               <v-col>
                 <v-row class="align-center py-0">
                   <v-checkbox
@@ -88,7 +95,7 @@
       >
         <template #actions>
           <span class="text-subtitle-1 font-weight-bold">{{
-            `マッチング結果 (${filteredTestHints.length}/${testHints.length})`
+            `${$t("test-hint.search-dialog.matching-result")} (${filteredTestHints.length}/${testHints.length})`
           }}</span>
         </template></test-hint-list
       >
@@ -122,6 +129,7 @@ export default defineComponent({
     const rootStore = useRootStore();
     const operationHistoryStore = useOperationHistoryStore();
 
+    const matchingConditionsOpened = ref(false);
     const defaultSearchSeconds = ref(30);
     const isFilteringByElementsEnabled = ref(true);
     const isFilteringByCommentsEnabled = ref(true);
@@ -240,6 +248,10 @@ export default defineComponent({
       operationHistoryStore.checkedTestHintIds = selectedTestHintIds;
     };
 
+    const changeMatchingConditionsOpened = () => {
+      matchingConditionsOpened.value = matchingConditionsOpened.value ? false : true;
+    };
+
     const close = () => {
       context.emit("close");
     };
@@ -250,6 +262,7 @@ export default defineComponent({
     watch(isFilteringByElementsEnabled, filterTestHints);
 
     return {
+      matchingConditionsOpened,
       defaultSearchSeconds,
       isFilteringByElementsEnabled,
       isFilteringByCommentsEnabled,
@@ -263,6 +276,7 @@ export default defineComponent({
       setSearchText,
       filterTestHints,
       changeSelectedTestHintIds,
+      changeMatchingConditionsOpened,
       close
     };
   }
@@ -275,7 +289,4 @@ export default defineComponent({
 
 :deep(.v-text-field__details)
   display: none
-
-.default-search-area
-  margin-top:2px
 </style>

@@ -382,7 +382,9 @@
       "filter-test-hints": "テストヒントのマッチング",
       "matching-words": "マッチングワード",
       "matching-result": "マッチング結果",
-      "matching-scope": "対象範囲:"
+      "matching-scope": "対象範囲:",
+      "show": "マッチング条件表示",
+      "hide": "マッチング条件非表示"
     },
     "common": {
       "match-count": "マッチ数",
