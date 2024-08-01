@@ -81,6 +81,12 @@ describe("ProjectImportService", () => {
     };
 
     it("includeProject: true, includeTestResults: true, includeTestHints: true, includeConfig: true", async () => {
+      jest.mock("./../../../src/services/TestHintsService");
+      jest.mock("./../../../src/services/CommentsService");
+
+      TestHintsService as jest.Mock;
+      CommentsService as jest.Mock;
+
       const service = new ProjectImportService();
       service["readImportFile"] = jest.fn().mockResolvedValue({
         configFiles: [{ filePath: "config/config.json", data: "{}" }],
@@ -106,10 +112,13 @@ describe("ProjectImportService", () => {
       service["importConfig"] = jest.fn().mockResolvedValue(settings);
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
-      jest.mock("./../../../src/services/TestHintsService");
-      jest.mock("./../../../src/services/CommentsService");
-      TestHintsService as jest.Mock;
-      CommentsService as jest.Mock;
+      service["importComments"] = jest.fn().mockResolvedValue("1");
+      service["importTestHints"] = jest.fn().mockResolvedValue("1");
+
+      const commentsService = new CommentsService(TestDataSource);
+      commentsService.importComments = jest.fn();
+      const testHintsService = new TestHintsService(TestDataSource);
+      testHintsService.importAllTestHints = jest.fn();
 
       const testResultImportService = new TestResultImportServiceImpl(
         TestDataSource,
@@ -146,8 +155,8 @@ describe("ProjectImportService", () => {
           transactionRunner: new TransactionRunner(TestDataSource),
           testResultImportService,
           importFileRepository,
-          commentsService: new CommentsService(TestDataSource),
-          testHintsService: new TestHintsService(TestDataSource),
+          commentsService,
+          testHintsService,
         }
       );
 
@@ -159,6 +168,8 @@ describe("ProjectImportService", () => {
       expect(service["importConfig"]).toBeCalledTimes(1);
       expect(service["importTestResults"]).toBeCalledTimes(1);
       expect(service["importProject"]).toBeCalledTimes(1);
+      expect(service["importComments"]).toBeCalledTimes(1);
+      expect(service["importTestHints"]).toBeCalledTimes(1);
     });
 
     it("includeProject: false, includeTestResults: false, includeConfig: false", async () => {
