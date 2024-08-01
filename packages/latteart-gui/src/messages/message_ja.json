@@ -384,7 +384,8 @@
       "matching-result": "マッチング結果",
       "matching-scope": "対象範囲:",
       "show": "マッチング条件表示",
-      "hide": "マッチング条件非表示"
+      "hide": "マッチング条件非表示",
+      "ignore-check-box": "現在のテスト中は以後マッチング対象外になります"
     },
     "common": {
       "match-count": "マッチ数",
