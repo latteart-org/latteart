@@ -43,7 +43,6 @@ export class TestHintsService {
     const paramRepository = this.dataSource.getRepository(TestHintPropEntity);
     let props = await paramRepository.find();
 
-    console.log(props);
     if (props.length === 0) {
       await this.initProps();
       props = await paramRepository.find();

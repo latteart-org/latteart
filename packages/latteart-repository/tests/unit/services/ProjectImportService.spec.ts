@@ -26,11 +26,10 @@ import { ImportFileRepository } from "@/interfaces/importFileRepository";
 import { ConfigsService } from "@/services/ConfigsService";
 import { TestHintsService } from "../../../src/services/TestHintsService";
 import { CommentsService } from "@/services/CommentsService";
+import { TestResultEntity } from "@/entities/TestResultEntity";
+import { CommentEntity } from "@/entities/CommentEntity";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
-
-jest.mock("./../../../src/services/TestHintsService");
-jest.mock("./../../../src/services/CommentsService");
 
 beforeEach(async () => {
   await testConnectionHelper.createTestConnection();
@@ -107,7 +106,8 @@ describe("ProjectImportService", () => {
       service["importConfig"] = jest.fn().mockResolvedValue(settings);
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
-
+      jest.mock("./../../../src/services/TestHintsService");
+      jest.mock("./../../../src/services/CommentsService");
       TestHintsService as jest.Mock;
       CommentsService as jest.Mock;
 
@@ -342,6 +342,84 @@ describe("ProjectImportService", () => {
       });
 
       expect(projectId).toEqual(project?.id);
+    });
+    it("TestHintの登録", async () => {
+      const testHintData = {
+        props: [{ name: "name", id: "propId", type: "string" }],
+        data: [
+          {
+            id: "testHintId",
+            value: "value",
+            testMatrixName: "tm",
+            groupName: "gn",
+            testTargetName: "tt",
+            viewPointName: "vp",
+            customs: [],
+            commentWords: [],
+            createdAt: 10,
+            operationElements: [],
+          },
+        ],
+      };
+      const service = new ProjectImportService();
+      await service["importTestHints"](
+        new TestHintsService(TestDataSource),
+        new TransactionRunner(TestDataSource),
+        JSON.stringify(testHintData)
+      );
+
+      const result = await new TestHintsService(
+        TestDataSource
+      ).getAllTestHints();
+
+      expect(result).toEqual({
+        props: [
+          {
+            ...testHintData.props[0],
+
+            id: expect.any(String),
+          },
+        ],
+        data: [
+          {
+            ...testHintData.data[0],
+            id: expect.any(String),
+            createdAt: expect.any(Number),
+          },
+        ],
+      });
+    });
+    it("Commentsの登録", async () => {
+      const testResultEntity = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
+      const commentData = [
+        {
+          testResult: "oldId",
+          id: "commentId",
+          value: "value",
+          timestamp: 10,
+        },
+      ];
+      const idMap = new Map<string, string>();
+      idMap.set("oldId", testResultEntity.id);
+
+      const service = new ProjectImportService();
+      await service["importComments"](
+        new CommentsService(TestDataSource),
+        [JSON.stringify(commentData)],
+        idMap
+      );
+
+      const comments = await TestDataSource.getRepository(CommentEntity).find();
+
+      expect(comments).toEqual([
+        {
+          id: expect.any(String),
+          timestamp: 10,
+          value: "value",
+        },
+      ]);
     });
   });
 });
