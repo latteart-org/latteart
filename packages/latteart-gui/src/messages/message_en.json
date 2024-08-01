@@ -382,7 +382,9 @@
       "filter-test-hints": "Filter test hints",
       "matching-words": "Matching words",
       "matching-result": "Matching result",
-      "matching-scope": "Matching scope:"
+      "matching-scope": "Matching scope:",
+      "show": "Show matching conditions",
+      "hide": "Hide matching conditions"
     },
     "common": {
       "match-count": "Match count",
