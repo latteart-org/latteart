@@ -1121,6 +1121,7 @@ export const useTestManagementStore = defineStore("testManagement", {
      * @param payload.source.testResultFileUrl Source import file url.
      * @param payload.option.selectedOptionProject Whether to import project management data.
      * @param payload.option.selectedOptionTestresult Whether to import project test result data.
+     * @param payload.option.selectedOptionTestHint Whether to import tes hint data.
      * @param payload.option.selectedOptionConfig Whether to import project config data.
      * @returns id ,name
      */
@@ -1129,6 +1130,7 @@ export const useTestManagementStore = defineStore("testManagement", {
       option: {
         selectedOptionProject: boolean;
         selectedOptionTestresult: boolean;
+        selectedOptionTestHint: boolean;
         selectedOptionConfig: boolean;
       };
     }) {
@@ -1141,6 +1143,7 @@ export const useTestManagementStore = defineStore("testManagement", {
       const selectOption = {
         includeProject: payload.option.selectedOptionProject,
         includeTestResults: payload.option.selectedOptionTestresult,
+        includeTestHints: payload.option.selectedOptionTestHint,
         includeConfig: payload.option.selectedOptionConfig
       };
 
@@ -1166,6 +1169,7 @@ export const useTestManagementStore = defineStore("testManagement", {
       option: {
         selectedOptionProject: boolean;
         selectedOptionTestresult: boolean;
+        selectedOptionTestHint: boolean;
         selectedOptionConfig: boolean;
       };
     }) {
@@ -1179,6 +1183,7 @@ export const useTestManagementStore = defineStore("testManagement", {
       const selectOption = {
         includeProject: payload.option.selectedOptionProject,
         includeTestResults: payload.option.selectedOptionTestresult,
+        includeTestHints: payload.option.selectedOptionTestHint,
         includeConfig: payload.option.selectedOptionConfig
       };
 

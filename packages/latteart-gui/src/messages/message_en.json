@@ -134,6 +134,7 @@
     "project-data": "Project Information",
     "testresult-data": "Test Result Information",
     "config-data": "Config Information",
+    "test-hint": "Test Hint Information",
     "select-test-result-file-label": "Test result file",
     "select-test-result-file-button": "Select",
     "select-project-file-label": "Project file",

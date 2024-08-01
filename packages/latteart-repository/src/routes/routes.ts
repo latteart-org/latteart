@@ -1142,6 +1142,7 @@ const models: TsoaRoute.Models = {
     properties: {
       includeTestResults: { dataType: "boolean", required: true },
       includeProject: { dataType: "boolean", required: true },
+      includeTestHints: { dataType: "boolean", required: true },
       includeConfig: { dataType: "boolean", required: true },
     },
     additionalProperties: false,
@@ -3568,6 +3569,7 @@ const models: TsoaRoute.Models = {
       dataType: "nestedObjectLiteral",
       nestedProperties: {
         includeConfig: { dataType: "boolean", required: true },
+        includeTestHints: { dataType: "boolean", required: true },
         includeProject: { dataType: "boolean", required: true },
         includeTestResults: { dataType: "boolean", required: true },
         source: {

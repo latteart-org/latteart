@@ -24,8 +24,13 @@ import { FileRepository } from "@/interfaces/fileRepository";
 import { TestResultImportServiceImpl } from "@/services/TestResultImportService";
 import { ImportFileRepository } from "@/interfaces/importFileRepository";
 import { ConfigsService } from "@/services/ConfigsService";
+import { TestHintsService } from "../../../src/services/TestHintsService";
+import { CommentsService } from "@/services/CommentsService";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
+
+jest.mock("./../../../src/services/TestHintsService");
+jest.mock("./../../../src/services/CommentsService");
 
 beforeEach(async () => {
   await testConnectionHelper.createTestConnection();
@@ -91,6 +96,9 @@ describe("ProjectImportService", () => {
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
 
+      TestHintsService as jest.Mock;
+      CommentsService as jest.Mock;
+
       const testResultImportService = new TestResultImportServiceImpl(
         TestDataSource,
         {
@@ -105,12 +113,14 @@ describe("ProjectImportService", () => {
       const option = {
         includeProject: true,
         includeTestResults: true,
+        includeTestHints: true,
         includeConfig: true,
       };
       await service.import(
         importFile,
         option.includeProject,
         option.includeTestResults,
+        option.includeTestHints,
         option.includeConfig,
         {
           timestampService,
@@ -124,6 +134,8 @@ describe("ProjectImportService", () => {
           transactionRunner: new TransactionRunner(TestDataSource),
           testResultImportService,
           importFileRepository,
+          commentsService: new CommentsService(TestDataSource),
+          testHintsService: new TestHintsService(TestDataSource),
         }
       );
 
@@ -152,6 +164,9 @@ describe("ProjectImportService", () => {
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
 
+      const testHintsService = TestHintsService as jest.Mock;
+      const commentsService = CommentsService as jest.Mock;
+
       const testResultImportService = new TestResultImportServiceImpl(
         TestDataSource,
         {
@@ -166,12 +181,14 @@ describe("ProjectImportService", () => {
       const option = {
         includeProject: false,
         includeTestResults: false,
+        includeTestHints: false,
         includeConfig: false,
       };
       await service.import(
         importFile,
         option.includeProject,
         option.includeTestResults,
+        option.includeTestHints,
         option.includeConfig,
         {
           timestampService,
@@ -185,6 +202,8 @@ describe("ProjectImportService", () => {
           transactionRunner: new TransactionRunner(TestDataSource),
           testResultImportService,
           importFileRepository,
+          commentsService: new CommentsService(TestDataSource),
+          testHintsService: new TestHintsService(TestDataSource),
         }
       );
 

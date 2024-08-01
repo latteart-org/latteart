@@ -39,6 +39,8 @@ import { ImportFileRepositoryImpl } from "@/gateways/importFileRepository";
 import { CreateProjectImportDto } from "@/interfaces/importFileRepository";
 import { PutConfigResponse } from "@/interfaces/Configs";
 import { AppDataSource } from "@/data-source";
+import { CommentsService } from "@/services/CommentsService";
+import { TestHintsService } from "@/services/TestHintsService";
 
 @Route("imports/projects")
 @Tags("imports")
@@ -118,6 +120,7 @@ export class ProjectImportController extends Controller {
         requestBody.source.projectFile,
         requestBody.includeProject,
         requestBody.includeTestResults,
+        requestBody.includeTestHints,
         requestBody.includeConfig,
         {
           timestampService,
@@ -131,6 +134,8 @@ export class ProjectImportController extends Controller {
           transactionRunner,
           testResultImportService,
           importFileRepository,
+          commentsService: new CommentsService(AppDataSource),
+          testHintsService: new TestHintsService(AppDataSource),
         }
       );
 

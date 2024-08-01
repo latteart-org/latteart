@@ -141,7 +141,7 @@ describe("ProjectExportService", () => {
         new TestResultEntity()
       );
 
-      const result = await service.export("1", true, true, true, {
+      const result = await service.export("1", true, true, true, true, {
         projectService,
         testResultService,
         configService,
@@ -166,6 +166,7 @@ describe("ProjectExportService", () => {
 
       await new ProjectExportService(TestDataSource).export(
         "1",
+        false,
         false,
         false,
         false,

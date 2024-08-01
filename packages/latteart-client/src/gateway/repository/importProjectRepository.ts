@@ -34,6 +34,7 @@ export type ImportProjectRepository = {
     selectOption: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeTestHints: boolean;
       includeConfig: boolean;
     }
   ): Promise<
@@ -52,6 +53,7 @@ export class ImportProjectRepositoryImpl implements ImportProjectRepository {
     selectOption: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeTestHints: boolean;
       includeConfig: boolean;
     }
   ): Promise<
@@ -67,6 +69,7 @@ export class ImportProjectRepositoryImpl implements ImportProjectRepository {
           source,
           includeTestResults: selectOption.includeTestResults,
           includeProject: selectOption.includeProject,
+          includeTestHints: selectOption.includeTestHints,
           includeConfig: selectOption.includeConfig,
         }
       );
