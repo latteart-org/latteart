@@ -282,11 +282,6 @@ export type OperationHistoryState = {
   checkedTestResults: string[];
 
   /**
-   * Checked test hint ids.
-   */
-  checkedTestHintIds: string[];
-
-  /**
    * Whether Picture-in-Picture window is displayed.
    */
   isPictureInPictureWindowDisplayed: boolean;
@@ -365,7 +360,6 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
     tmpNoteInfoForEdit: null,
     checkedTestSteps: [],
     checkedTestResults: [],
-    checkedTestHintIds: [],
     isPictureInPictureWindowDisplayed: false,
     testResultListOption: {
       search: "",
