@@ -106,7 +106,8 @@
     "edit-test-purpose": "テスト目的の編集",
     "image": "静止画",
     "video": "動画",
-    "loading-test-results": "テスト結果読込中"
+    "loading-test-results": "テスト結果読込中",
+    "search-test-hints": "テストヒントを受ける"
   },
   "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
@@ -220,7 +221,7 @@
       "default-search-seconds": "デフォルト値",
       "suffix": "秒前まで",
       "info": "※0でヒントの検索による自動補完無効",
-      "matching-range": "登録時・検索時のコメントとテストヒントタグのマッチング対象範囲",
+      "matching-scope": "登録時・検索時のコメントとテストヒントタグのマッチング対象範囲",
       "all": "コメント全体",
       "words-on-page-only": "コメント内に存在する画面中のテキスト",
       "extra-words": "追加ワード",
@@ -260,6 +261,9 @@
   },
   "test-hint-register-dialog": {
     "title": "テストヒント登録"
+  },
+  "test-hint-edit-dialog": {
+    "title": "テストヒント編集"
   },
   "note-edit": {
     "take-screenshot": "登録するスクリーンショット",
@@ -369,6 +373,16 @@
       "add": "カラム追加",
       "name": "カラム名",
       "add-option": "項目追加"
+    },
+    "delete-dialog": {
+      "title": "テストヒントを削除しますか？"
+    },
+    "search-dialog": {
+      "title": "テストヒント:検索",
+      "filter-test-hints": "テストヒントのマッチング",
+      "matching-words": "マッチングワード",
+      "matching-result": "マッチング結果",
+      "matching-scope": "対象範囲:"
     },
     "common": {
       "match-count": "マッチ数",

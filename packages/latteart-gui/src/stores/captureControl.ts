@@ -23,6 +23,7 @@ import type {
   CaptureConfig,
   CaptureEventListeners,
   CaptureSession,
+  CoverageSource,
   Operation,
   ServiceResult,
   TestStep,
@@ -514,8 +515,12 @@ export const useCaptureControlStore = defineStore("captureControl", {
       const rootStore = useRootStore();
       const operationHistoryStore = useOperationHistoryStore();
 
-      const postRegisterOperation = async (data: { id: string; operation: OperationForGUI }) => {
-        const { id, operation } = data;
+      const postRegisterOperation = async (data: {
+        id: string;
+        operation: OperationForGUI;
+        coverageSource: CoverageSource;
+      }) => {
+        const { id, operation, coverageSource } = data;
 
         await payload.videoRecorder?.updateVideo();
 
@@ -525,7 +530,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         operation.sequence = sequence;
 
         operationHistoryStore.addHistory({
-          entry: { operation, intention: null, bugs: null, notices: null }
+          entry: { operation, intention: null, bugs: null, notices: null, coverageSource }
         });
         operationHistoryStore.canUpdateModels = true;
       };
@@ -536,7 +541,11 @@ export const useCaptureControlStore = defineStore("captureControl", {
       };
 
       const captureEventListeners: CaptureEventListeners = {
-        onAddTestStep: async (testStep: { id: string; operation: Operation }) => {
+        onAddTestStep: async (testStep: {
+          id: string;
+          operation: Operation;
+          coverageSource: CoverageSource;
+        }) => {
           const beforeOperation =
             operationHistoryStore.history[operationHistoryStore.history.length - 1]?.operation;
 

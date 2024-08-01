@@ -27,8 +27,8 @@
 
     <test-hint-register-dialog
       :opened="registerDialogOpened"
-      :target-test-steps="targetTestSteps"
-      @ok="clearCheckedOperations"
+      :related-test-steps="checkedTestSteps"
+      @accept="clearCheckedOperations"
       @close="registerDialogOpened = false"
     />
   </div>
@@ -51,7 +51,7 @@ export default defineComponent({
 
     const registerDialogOpened = ref(false);
 
-    const targetTestSteps = computed(
+    const checkedTestSteps = computed(
       (): { operation: OperationForGUI; comments: { value: string; timestamp: string }[] }[] => {
         return operationHistoryStore.checkedTestSteps.map((item) => {
           return { operation: item.operation, comments: item.comments };
@@ -64,17 +64,16 @@ export default defineComponent({
     });
 
     const isDisabled = computed((): boolean => {
-      return targetTestSteps.value.length < 1 || isReplaying.value;
+      return checkedTestSteps.value.length < 1 || isReplaying.value;
     });
 
     const clearCheckedOperations = () => {
       operationHistoryStore.checkedTestSteps = [];
-      registerDialogOpened.value = false;
     };
 
     return {
       registerDialogOpened,
-      targetTestSteps,
+      checkedTestSteps,
       isDisabled,
       clearCheckedOperations
     };

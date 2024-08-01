@@ -130,7 +130,7 @@ export type CommentForRepository = {
 export type TestHintPropForRepository = {
   id: string;
   name: string;
-  type: "string" | "list" | "commentWord" | "element";
+  type: "string" | "list";
   listItems?: { key: string; value: string }[];
 };
 

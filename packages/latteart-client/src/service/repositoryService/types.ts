@@ -26,6 +26,7 @@ import {
   Video,
   ScreenMutation,
   Comment,
+  CoverageSource,
 } from "../types";
 import { RepositoryContainer } from "./testResultAccessor";
 
@@ -78,7 +79,13 @@ export type TestResultAccessor = {
   addOperation(
     operation: CapturedOperation,
     option: { compressScreenshot: boolean }
-  ): Promise<ServiceResult<{ operation: Operation; id: string }>>;
+  ): Promise<
+    ServiceResult<{
+      operation: Operation;
+      id: string;
+      coverageSource: CoverageSource;
+    }>
+  >;
 
   /**
    * add Mutations

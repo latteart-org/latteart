@@ -39,6 +39,7 @@ import {
   MutationRepositoryImpl,
   CommentRepositoryImpl,
   TestHintRepositoryImpl,
+  TestHintPropRepositoryImpl,
 } from "../../gateway/repository";
 import {
   ServiceResult,
@@ -83,6 +84,7 @@ export function createRepositoryService(
     mutationRepository: new MutationRepositoryImpl(restClient),
     commentRepository: new CommentRepositoryImpl(restClient),
     testHintRepository: new TestHintRepositoryImpl(restClient),
+    testHintPropRepository: new TestHintPropRepositoryImpl(restClient),
   };
 
   return {

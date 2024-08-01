@@ -30,6 +30,7 @@ import {
   Video,
   ScreenMutation,
   Comment,
+  CoverageSource,
 } from "../types";
 import {
   TestResultRepository,
@@ -54,6 +55,7 @@ import {
   MutationRepository,
   CommentRepository,
   TestHintRepository,
+  TestHintPropRepository,
 } from "../../gateway/repository";
 import { TestResultAccessor, SequenceView } from "./types";
 
@@ -80,6 +82,7 @@ export type RepositoryContainer = {
   readonly mutationRepository: MutationRepository;
   readonly commentRepository: CommentRepository;
   readonly testHintRepository: TestHintRepository;
+  readonly testHintPropRepository: TestHintPropRepository;
 };
 
 export class TestResultAccessorImpl implements TestResultAccessor {
@@ -201,7 +204,13 @@ export class TestResultAccessorImpl implements TestResultAccessor {
   async addOperation(
     operation: CapturedOperation,
     option: { compressScreenshot: boolean }
-  ): Promise<ServiceResult<{ operation: Operation; id: string }>> {
+  ): Promise<
+    ServiceResult<{
+      operation: Operation;
+      id: string;
+      coverageSource: CoverageSource;
+    }>
+  > {
     const registerOperationResult =
       await this.repositories.testStepRepository.postTestSteps(
         this.testResultId,
