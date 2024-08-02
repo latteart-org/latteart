@@ -230,6 +230,41 @@ export const useTestManagementStore = defineStore("testManagement", {
           );
         }) !== -1
       );
+    },
+
+    /**
+     * Get current story info from the State.
+     * @param state State.
+     * @returns Current story info from the State.
+     */
+    getCurrentStoryInfo: (state) => (testResultId: string) => {
+      const story = state.stories
+        .filter(({ sessions }) => {
+          return sessions.some(({ testResultFiles }) => {
+            return testResultFiles.some(({ id }) => id === testResultId);
+          });
+        })
+        .at(0);
+
+      if (!story) {
+        return undefined;
+      }
+
+      const testMatrix = state.testMatrices.find((testMatrix) => {
+        return testMatrix.id === story.testMatrixId;
+      });
+      const group = testMatrix?.groups.find(({ testTargets }) =>
+        testTargets.some(({ id }) => id === story.testTargetId)
+      );
+      const testTarget = group?.testTargets.find(({ id }) => id === story.testTargetId);
+      const viewPoint = testMatrix?.viewPoints.find(({ id }) => id === story.viewPointId);
+
+      return {
+        testMatrixName: testMatrix?.name ?? "",
+        groupName: group?.name ?? "",
+        testTargetName: testTarget?.name ?? "",
+        viewPointName: viewPoint?.name ?? ""
+      };
     }
   },
   actions: {

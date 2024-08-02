@@ -128,26 +128,13 @@ export default defineComponent({
           return;
         }
 
-        const story = testManagementStore.stories
-          .filter(({ sessions }) => {
-            return sessions.some(({ testResultFiles }) => {
-              return testResultFiles.some(({ id }) => id === testResultId);
-            });
-          })
-          .at(0);
+        const currentStoryInfo = testManagementStore.getCurrentStoryInfo(testResultId);
 
-        if (story) {
-          const testMatrix = testManagementStore.findTestMatrix(story.testMatrixId);
-          const group = testMatrix?.groups.find(({ testTargets }) =>
-            testTargets.some(({ id }) => id === story.testTargetId)
-          );
-          const testTarget = group?.testTargets.find(({ id }) => id === story.testTargetId);
-          const viewPoint = testMatrix?.viewPoints.find(({ id }) => id === story.viewPointId);
-
-          testMatrixName.value = testMatrix?.name ?? "";
-          groupName.value = group?.name ?? "";
-          testTargetName.value = testTarget?.name ?? "";
-          viewPointName.value = viewPoint?.name ?? "";
+        if (currentStoryInfo) {
+          testMatrixName.value = currentStoryInfo.testMatrixName;
+          groupName.value = currentStoryInfo.groupName;
+          testTargetName.value = currentStoryInfo.testTargetName;
+          viewPointName.value = currentStoryInfo.viewPointName;
         }
 
         const defaultValues = props.relatedTestSteps.reduce(

@@ -35,6 +35,14 @@
               <v-col>
                 <v-row class="align-center py-0">
                   <v-checkbox
+                    v-model="isFilteringByStoryEnabled"
+                    density="comfortable"
+                    :label="$t('test-hint.search-dialog.story-filter')"
+                    hide-details
+                  ></v-checkbox>
+                </v-row>
+                <v-row class="align-center py-0">
+                  <v-checkbox
                     v-model="isFilteringByElementsEnabled"
                     density="comfortable"
                     :label="$t('test-hint.common.screen-elements')"
@@ -115,6 +123,7 @@ import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useCaptureControlStore } from "@/stores/captureControl";
+import { useTestManagementStore } from "@/stores/testManagement";
 import { selectMatchedTestHints } from "@/lib/operationHistory/testHint";
 
 export default defineComponent({
@@ -130,9 +139,11 @@ export default defineComponent({
     const rootStore = useRootStore();
     const operationHistoryStore = useOperationHistoryStore();
     const captureControlStore = useCaptureControlStore();
+    const testManagementStore = useTestManagementStore();
 
     const matchingConditionsOpened = ref(false);
     const defaultSearchSeconds = ref(30);
+    const isFilteringByStoryEnabled = ref(true);
     const isFilteringByElementsEnabled = ref(true);
     const isFilteringByCommentsEnabled = ref(true);
     const search = ref("");
@@ -155,6 +166,10 @@ export default defineComponent({
 
     const testHintSetting = computed(() => {
       return rootStore.viewSettings.testHint;
+    });
+
+    const currentStoryInfo = computed(() => {
+      return testManagementStore.getCurrentStoryInfo(operationHistoryStore.testResultInfo.id);
     });
 
     const borderTimestampByLastComment = computed((): number => {
@@ -236,10 +251,20 @@ export default defineComponent({
       const matchingCondition = {
         comments:
           isFilteringByCommentsEnabled.value && search.value ? search.value.split(/\s/) : [],
-        elements: isFilteringByElementsEnabled.value ? collectRecentOperatedElements() : []
+        elements: isFilteringByElementsEnabled.value ? collectRecentOperatedElements() : [],
+        currentStoryInfo: isFilteringByStoryEnabled.value ? currentStoryInfo.value : undefined
       };
+      const tempTestHints = isFilteringByStoryEnabled.value
+        ? testHints.value.filter(
+            (testHint) =>
+              testHint.testMatrixName === currentStoryInfo.value?.testMatrixName &&
+              testHint.groupName === currentStoryInfo.value?.groupName &&
+              testHint.testTargetName === currentStoryInfo.value?.testTargetName &&
+              testHint.viewPointName === currentStoryInfo.value?.viewPointName
+          )
+        : testHints.value;
 
-      const data = selectMatchedTestHints(testHints.value, matchingCondition);
+      const data = selectMatchedTestHints(tempTestHints, matchingCondition);
 
       filteredTestHints.value = data.testHints;
       testHintMatchCounts.value = data.testHintMatchCounts;
@@ -261,10 +286,12 @@ export default defineComponent({
     watch(opened, initialize);
     watch(isFilteringByCommentsEnabled, filterTestHints);
     watch(isFilteringByElementsEnabled, filterTestHints);
+    watch(isFilteringByStoryEnabled, filterTestHints);
 
     return {
       matchingConditionsOpened,
       defaultSearchSeconds,
+      isFilteringByStoryEnabled,
       isFilteringByElementsEnabled,
       isFilteringByCommentsEnabled,
       search,
@@ -273,6 +300,7 @@ export default defineComponent({
       filteredTestHints,
       testHintMatchCounts,
       checkedTestHintIds,
+      currentStoryInfo,
       updateDefaultSearchSeconds,
       setSearchText,
       filterTestHints,
