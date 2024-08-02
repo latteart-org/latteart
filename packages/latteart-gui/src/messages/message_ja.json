@@ -134,6 +134,7 @@
     "project-data": "プロジェクト情報",
     "testresult-data": "テスト結果情報",
     "config-data": "設定情報",
+    "test-hint": "テストヒント情報",
     "select-test-result-file-label": "テスト結果ファイル",
     "select-test-result-file-button": "選択",
     "select-project-file-label": "プロジェクトファイル",

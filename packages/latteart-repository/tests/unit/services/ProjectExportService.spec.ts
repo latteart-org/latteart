@@ -9,6 +9,10 @@ import { ExportFileRepositoryService } from "@/services/ExportFileRepositoryServ
 import { TestResultEntity } from "@/entities/TestResultEntity";
 import { TestProgressService } from "@/services/TestProgressService";
 import { ConfigsService } from "@/services/ConfigsService";
+import { CommentEntity } from "@/entities/CommentEntity";
+import { TestHintsService } from "@/services/TestHintsService";
+import { TestHintPropsService } from "@/services/TestHintPropsService";
+import { TransactionRunner } from "@/TransactionRunner";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -129,8 +133,10 @@ describe("ProjectExportService", () => {
 
     const configService = new ConfigsService(TestDataSource);
 
-    it("includeProject: true, includeTestResults: true, includeConfig: trueの場合、Project・TestResult・Configのexport処理が実行される", async () => {
+    it("includeProject: true, includeTestResults: true, includeTestHint: true, includeConfig: trueの場合、Project・TestResult・Configのexport処理が実行される", async () => {
       const service = new ProjectExportService(TestDataSource);
+      service["extractTestHintExportData"] = jest.fn();
+
       projectService.getProject = jest.fn().mockResolvedValue(projectData);
       testResultService.collectAllScreenshots = jest
         .fn()
@@ -141,7 +147,7 @@ describe("ProjectExportService", () => {
         new TestResultEntity()
       );
 
-      const result = await service.export("1", true, true, true, {
+      const result = await service.export("1", true, true, true, true, {
         projectService,
         testResultService,
         configService,
@@ -153,6 +159,7 @@ describe("ProjectExportService", () => {
       expect(projectService.getProject).toBeCalledTimes(1);
       expect(testResultService.collectAllScreenshots).toBeCalledTimes(1);
       expect(configService.getProjectConfig).toBeCalledTimes(1);
+      expect(service["extractTestHintExportData"]).toBeCalledTimes(1);
     });
 
     it("includeProject: false, includeTestResults: false, includeConfig: falseの場合、Project・TestResult・Configのexport処理が共に実行しない", async () => {
@@ -164,23 +171,20 @@ describe("ProjectExportService", () => {
         new TestResultEntity()
       );
 
-      await new ProjectExportService(TestDataSource).export(
-        "1",
-        false,
-        false,
-        false,
-        {
-          projectService,
-          testResultService,
-          configService,
-          exportFileRepositoryService,
-          testProgressService,
-        }
-      );
+      const service = new ProjectExportService(TestDataSource);
+      service["extractTestHintExportData"] = jest.fn();
+      await service.export("1", false, false, false, false, {
+        projectService,
+        testResultService,
+        configService,
+        exportFileRepositoryService,
+        testProgressService,
+      });
 
       expect(projectService.getProject).toBeCalledTimes(0);
       expect(testResultService.collectAllScreenshots).toBeCalledTimes(0);
       expect(configService.getProjectConfig).toBeCalledTimes(0);
+      expect(service["extractTestHintExportData"]).toBeCalledTimes(0);
     });
 
     it("extractProjectExportDataで、ProjectのexportDataを返す", async () => {
@@ -271,6 +275,35 @@ describe("ProjectExportService", () => {
       ]);
     });
 
+    it("extractCommentsExportDataで、commentsのexportDataを返す", async () => {
+      const testResult = await TestDataSource.getRepository(
+        TestResultEntity
+      ).save(new TestResultEntity());
+      const comment = await TestDataSource.getRepository(CommentEntity).save({
+        testResult,
+        value: "value",
+        timestamp: 10,
+      });
+
+      const service = new ProjectExportService(TestDataSource);
+      const comments = await service["extractCommentsExportData"]();
+
+      expect(comments).toEqual([
+        {
+          testResultId: testResult.id,
+          fileName: "comments.json",
+          fileData: JSON.stringify([
+            {
+              id: comment.id,
+              testResult: testResult.id,
+              value: "value",
+              timestamp: 10,
+            },
+          ]),
+        },
+      ]);
+    });
+
     it("extractConfigExportDataで、ConfigのexportDataを返す", async () => {
       const service = new ProjectExportService(TestDataSource);
       configService.getProjectConfig = jest.fn().mockResolvedValue(settings);
@@ -282,6 +315,59 @@ describe("ProjectExportService", () => {
       expect(config).toEqual({
         fileName: "config.json",
         data: JSON.stringify(settings, null, 2),
+      });
+    });
+
+    it("extractTestHintExportDataで、TestHintのexportDataを返す", async () => {
+      const props = await new TestHintPropsService(
+        TestDataSource
+      ).putTestHintProps(
+        [{ name: "name", type: "string", listItems: [] }],
+        new TransactionRunner(TestDataSource)
+      );
+      const testHintService = new TestHintsService(TestDataSource);
+      await testHintService.postTestHint({
+        value: "value",
+        testMatrixName: "tm",
+        groupName: "gn",
+        testTargetName: "tt",
+        viewPointName: "vp",
+        customs: [],
+        commentWords: [],
+        operationElements: [],
+      });
+      const testHint = await testHintService.getAllTestHints();
+
+      const service = new ProjectExportService(TestDataSource);
+      const testHintData = await service["extractTestHintExportData"]();
+
+      expect(testHintData).toEqual({
+        fileName: "test-hints.json",
+        data: JSON.stringify({
+          props: [
+            {
+              id: props[0].id,
+              name: props[0].name,
+              type: props[0].type,
+              listItems: props[0].listItems,
+              index: 0,
+            },
+          ],
+          data: [
+            {
+              id: testHint.data[0].id,
+              value: testHint.data[0].value,
+              testMatrixName: testHint.data[0].testMatrixName,
+              groupName: testHint.data[0].groupName,
+              testTargetName: testHint.data[0].testTargetName,
+              viewPointName: testHint.data[0].viewPointName,
+              customs: testHint.data[0].customs,
+              commentWords: testHint.data[0].commentWords,
+              operationElements: testHint.data[0].operationElements,
+              createdAt: new Date(testHint.data[0].createdAt),
+            },
+          ],
+        }),
       });
     });
   });

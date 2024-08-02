@@ -31,6 +31,7 @@ export class ImportProjectAction {
     selectOption: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeTestHints: boolean;
       includeConfig: boolean;
     }
   ): Promise<ActionResult<{ projectId: string; config?: ProjectSettings }>> {

@@ -25,6 +25,7 @@ export class ExportProjectAction {
     selectOption: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeTestHints: boolean;
       includeConfig: boolean;
     }
   ): Promise<ActionResult<string>> {

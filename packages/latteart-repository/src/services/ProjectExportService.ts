@@ -22,6 +22,8 @@ import { ProjectsService } from "./ProjectsService";
 import { TestProgressService } from "./TestProgressService";
 import { TestResultService } from "./TestResultService";
 import { DataSource } from "typeorm";
+import { TestHintPropEntity } from "@/entities/TestHintPropEntity";
+import { TestHintEntity } from "@/entities/TestHintEntity";
 
 export class ProjectExportService {
   constructor(private dataSource: DataSource) {}
@@ -31,6 +33,7 @@ export class ProjectExportService {
     includeProject: boolean,
     includeTestResults: boolean,
     includeConfig: boolean,
+    includeTestHints: boolean,
     service: {
       projectService: ProjectsService;
       testResultService: TestResultService;
@@ -52,6 +55,14 @@ export class ProjectExportService {
         })
       : [];
 
+    const commentsExportData = includeTestResults
+      ? await this.extractCommentsExportData()
+      : [];
+
+    const testHintsExportData = includeTestHints
+      ? await this.extractTestHintExportData()
+      : null;
+
     const configExportData = includeConfig
       ? await this.extractConfigExportData(projectId, {
           configService: service.configService,
@@ -60,6 +71,8 @@ export class ProjectExportService {
     return await service.exportFileRepositoryService.exportProject(
       exportProjectData,
       testResultsExportData,
+      testHintsExportData,
+      commentsExportData,
       configExportData
     );
   }
@@ -94,6 +107,71 @@ export class ProjectExportService {
         };
       })
     );
+  }
+
+  private async extractCommentsExportData(): Promise<
+    {
+      testResultId: string;
+      fileName: string;
+      fileData: string;
+    }[]
+  > {
+    return (
+      await this.dataSource
+        .getRepository(TestResultEntity)
+        .find({ relations: ["comments"] })
+    ).map((testResult) => {
+      return {
+        testResultId: testResult.id,
+        fileName: "comments.json",
+        fileData: JSON.stringify(
+          (testResult.comments ?? []).map((comment) => {
+            return {
+              id: comment.id,
+              testResult: testResult.id,
+              value: comment.value,
+              timestamp: comment.timestamp,
+            };
+          })
+        ),
+      };
+    });
+  }
+
+  private async extractTestHintExportData() {
+    const props = (
+      await this.dataSource.getRepository(TestHintPropEntity).find()
+    ).map((prop) => {
+      return {
+        id: prop.id,
+        name: prop.name,
+        type: prop.type,
+        listItems: prop.listItems ? JSON.parse(prop.listItems) : [],
+        index: prop.index,
+      };
+    });
+
+    const data = (
+      await this.dataSource.getRepository(TestHintEntity).find()
+    ).map((hint) => {
+      return {
+        id: hint.id,
+        value: hint.value,
+        testMatrixName: hint.testMatrixName,
+        groupName: hint.groupName,
+        testTargetName: hint.testTargetName,
+        viewPointName: hint.viewPointName,
+        customs: JSON.parse(hint.customs),
+        commentWords: JSON.parse(hint.commentWords),
+        operationElements: JSON.parse(hint.operationElements),
+        createdAt: hint.createdAt,
+      };
+    });
+
+    return {
+      fileName: "test-hints.json",
+      data: JSON.stringify({ props, data }),
+    };
   }
 
   private async extractProjectExportData(

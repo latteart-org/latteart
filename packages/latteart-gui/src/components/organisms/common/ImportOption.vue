@@ -45,6 +45,12 @@
             :label="$t('import-export-dialog.testresult-data')"
           />
           <v-checkbox
+            v-model="option.selectedOptionTestHint"
+            density="comfortable"
+            hide-details
+            :label="$t('import-export-dialog.test-hint')"
+          />
+          <v-checkbox
             v-model="option.selectedOptionConfig"
             density="comfortable"
             hide-details
@@ -69,11 +75,13 @@ export default defineComponent({
     const option = ref<{
       selectedOptionProject: boolean;
       selectedOptionTestresult: boolean;
+      selectedOptionTestHint: boolean;
       selectedOptionConfig: boolean;
       targetFile: File | null;
     }>({
       selectedOptionProject: true,
       selectedOptionTestresult: true,
+      selectedOptionTestHint: true,
       selectedOptionConfig: true,
       targetFile: null
     });

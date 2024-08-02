@@ -38,12 +38,23 @@ type ExportTestResultData = {
   testResultFile: { fileName: string; data: string };
   fileData: { id: string; fileUrl: string }[];
 };
+
+type ExportTestHintData = { fileName: string; data: string };
+
+type ExportCommentData = {
+  testResultId: string;
+  fileName: string;
+  fileData: string;
+};
+
 type ExportConfigData = { fileName: string; data: string };
 
 export type ExportFileRepositoryService = {
   exportProject(
     project: ExportProjectData | null,
     testResults: ExportTestResultData[],
+    testHints: ExportTestHintData | null,
+    comments: ExportCommentData[],
     config: ExportConfigData | null
   ): Promise<string>;
 
@@ -68,6 +79,8 @@ export class ExportFileRepositoryServiceImpl
   public async exportProject(
     project: ExportProjectData | null,
     testResults: ExportTestResultData[],
+    testHints: ExportTestHintData | null,
+    comments: ExportCommentData[],
     config: ExportConfigData | null
   ): Promise<string> {
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
@@ -80,17 +93,28 @@ export class ExportFileRepositoryServiceImpl
       );
     }
 
+    if (testHints) {
+      await this.outputFile(path.join(outputDirName, "test-hints"), testHints);
+    }
+
     if (testResults.length > 0) {
       const testResultsDirPath = path.join(outputDirName, "test-results");
       await Promise.all(
         testResults.map(async (testResult) => {
-          await this.outputTestResultFiles(testResultsDirPath, testResult);
+          const comment = comments.find(
+            (comment) => comment.testResultId === testResult.testResultId
+          );
+          await this.outputTestResultAndCommentsFiles(
+            testResultsDirPath,
+            testResult,
+            comment
+          );
         })
       );
     }
 
     if (config) {
-      await this.outputConfigFile(path.join(outputDirName, "config"), config);
+      await this.outputFile(path.join(outputDirName, "config"), config);
     }
 
     const zipFilePath = await this.service.workingFileRepository.outputZip(
@@ -156,9 +180,10 @@ export class ExportFileRepositoryServiceImpl
     );
   }
 
-  public async outputTestResultFiles(
+  public async outputTestResultAndCommentsFiles(
     testResultsDirPath: string,
-    testResult: ExportTestResultData
+    testResult: ExportTestResultData,
+    comments?: ExportCommentData
   ): Promise<void> {
     const testResultPath = path.join(
       testResultsDirPath,
@@ -174,6 +199,13 @@ export class ExportFileRepositoryServiceImpl
       path.join(testResultPath, testResult.testResultFile.fileName),
       testResult.testResultFile.data
     );
+
+    if (comments) {
+      await this.service.workingFileRepository.outputFile(
+        path.join(testResultPath, comments.fileName),
+        comments.fileData
+      );
+    }
 
     await Promise.all(
       testResult.fileData.map(async (videoOrScreenshot) => {
@@ -197,13 +229,13 @@ export class ExportFileRepositoryServiceImpl
     });
   }
 
-  public async outputConfigFile(
-    configDirPath: string,
-    config: ExportConfigData
+  public async outputFile(
+    filePath: string,
+    file: { fileName: string; data: string }
   ): Promise<void> {
     await this.service.workingFileRepository.outputFile(
-      path.join(configDirPath, config.fileName),
-      config.data
+      path.join(filePath, file.fileName),
+      file.data
     );
   }
 

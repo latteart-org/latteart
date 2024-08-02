@@ -38,8 +38,10 @@ import { FileRepository } from "@/interfaces/fileRepository";
 import { ImportFileRepository } from "@/interfaces/importFileRepository";
 import {
   ConfigData,
+  extractCommentData,
   extractConfigData,
   extractProjectData,
+  extractTestHintData,
   extractTestResultsData,
   ProjectData,
   TestResultData,
@@ -47,12 +49,16 @@ import {
 import { ProjectConfig } from "@/interfaces/Configs";
 import { ConfigsService } from "./ConfigsService";
 import { In } from "typeorm";
+import { CommentsService } from "./CommentsService";
+import { TestHintsService } from "./TestHintsService";
+import { ImportTestHints } from "@/interfaces/TestHints";
 
 export class ProjectImportService {
   public async import(
     importFile: { data: string; name: string },
     includeProject: boolean,
     includeTestResults: boolean,
+    includeTestHints: boolean,
     includeConfig: boolean,
     service: {
       timestampService: TimestampService;
@@ -66,14 +72,26 @@ export class ProjectImportService {
       transactionRunner: TransactionRunner;
       testResultImportService: TestResultImportService;
       importFileRepository: ImportFileRepository;
+      testHintsService: TestHintsService;
+      commentsService: CommentsService;
     }
   ): Promise<{ projectId: string; config: ProjectConfig | undefined }> {
-    const { configFiles, testResultFiles, projectFiles } =
-      await this.readImportFile(service.importFileRepository, importFile.data, {
+    const {
+      configFiles,
+      testResultFiles,
+      projectFiles,
+      testHintFiles,
+      commentFiles,
+    } = await this.readImportFile(
+      service.importFileRepository,
+      importFile.data,
+      {
         includeProject,
         includeTestResults,
+        includeTestHints,
         includeConfig,
-      });
+      }
+    );
 
     let testResultIdMap: Map<string, string> = new Map();
     let projectId = "";
@@ -90,6 +108,12 @@ export class ProjectImportService {
       testResultIdMap = await this.importTestResults(testResultDatas, {
         testResultImportService: service.testResultImportService,
       });
+      const commentsDatas = extractCommentData(commentFiles);
+      await this.importComments(
+        service.commentsService,
+        commentsDatas,
+        testResultIdMap
+      );
     }
 
     if (includeProject) {
@@ -99,6 +123,15 @@ export class ProjectImportService {
         attachedFileRepository: service.attachedFileRepository,
         transactionRunner: service.transactionRunner,
       });
+    }
+
+    if (includeTestHints) {
+      const testHintData = extractTestHintData(testHintFiles);
+      await this.importTestHints(
+        service.testHintsService,
+        service.transactionRunner,
+        testHintData
+      );
     }
 
     return { projectId, config };
@@ -391,6 +424,51 @@ export class ProjectImportService {
     return projectId;
   }
 
+  private async importTestHints(
+    service: TestHintsService,
+    transactionRunner: TransactionRunner,
+    hintData: string
+  ): Promise<void> {
+    const data = JSON.parse(hintData) as ImportTestHints;
+
+    await service.importAllTestHints(data, transactionRunner);
+  }
+
+  private async importComments(
+    service: CommentsService,
+    commentDatas: string[],
+    idMap: Map<string, string>
+  ): Promise<void> {
+    const data = commentDatas
+      .map((comment) => {
+        const data = JSON.parse(comment) as {
+          id: string;
+          testResult: string;
+          value: string;
+          timestamp: number;
+        }[];
+        if (data.length === 0) {
+          return null;
+        }
+        const newTestResultId = idMap.get(data[0].testResult);
+        return {
+          testResultId: newTestResultId,
+          data: data.map((d) => {
+            return { value: d.value, timestamp: d.timestamp };
+          }),
+        };
+      })
+      .filter((comment) => comment) as {
+      testResultId: string;
+      data: {
+        testResult: string;
+        value: string;
+        timestamp: number;
+      }[];
+    }[];
+    await service.importComments(data);
+  }
+
   private async importTestResults(
     testResultDatas: TestResultData[],
     service: {
@@ -439,6 +517,7 @@ export class ProjectImportService {
     option: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeTestHints: boolean;
       includeConfig: boolean;
     }
   ) {
@@ -453,11 +532,19 @@ export class ProjectImportService {
     const projectFiles = files.filter((file) => {
       return file.filePath.includes("projects");
     });
+    const commentFiles = files.filter((file) => {
+      return file.filePath.includes("comments.json");
+    });
+    const testHintFiles = files.filter((file) => {
+      return file.filePath.includes("test-hints.json");
+    });
 
     if (
       testResultFiles.length === 0 &&
       projectFiles.length === 0 &&
-      configFiles.length === 0
+      configFiles.length === 0 &&
+      commentFiles.length === 0 &&
+      testHintFiles.length === 0
     ) {
       throw Error("Invalid project data file.");
     }
@@ -474,10 +561,16 @@ export class ProjectImportService {
       throw new Error("Project information does not exist.");
     }
 
+    if (option.includeTestHints && testHintFiles.length === 0) {
+      throw new Error("Test hint information dose not exists.");
+    }
+
     return {
       configFiles,
       testResultFiles,
       projectFiles,
+      testHintFiles,
+      commentFiles,
     };
   }
 }

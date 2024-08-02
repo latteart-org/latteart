@@ -74,6 +74,7 @@ export default defineComponent({
     const option = ref({
       selectedOptionProject: true,
       selectedOptionTestresult: true,
+      selectedOptionTestHint: true,
       selectedOptionConfig: true
     });
 
@@ -81,6 +82,7 @@ export default defineComponent({
       return (
         !option.value.selectedOptionProject &&
         !option.value.selectedOptionTestresult &&
+        !option.value.selectedOptionTestHint &&
         !option.value.selectedOptionConfig
       );
     });
@@ -92,6 +94,7 @@ export default defineComponent({
     const updateOption = (updateOption: {
       selectedOptionProject: boolean;
       selectedOptionTestresult: boolean;
+      selectedOptionTestHint: boolean;
       selectedOptionConfig: boolean;
     }) => {
       option.value = updateOption;

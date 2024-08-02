@@ -72,4 +72,38 @@ export class CommentsService {
       timestamp: comment.timestamp,
     };
   }
+
+  public async importComments(
+    comments: {
+      testResultId: string;
+      data: {
+        testResult: string;
+        value: string;
+        timestamp: number;
+      }[];
+    }[]
+  ) {
+    const testResultEntities = await this.dataSource
+      .getRepository(TestResultEntity)
+      .find();
+    const commentEntities = comments
+      .map((comment) => {
+        const testResult = testResultEntities.find(
+          (testResultEntity) => testResultEntity.id === comment.testResultId
+        );
+        return comment.data
+          .map((d) => {
+            return testResult
+              ? new CommentEntity({
+                  testResult,
+                  value: d.value,
+                  timestamp: d.timestamp,
+                })
+              : null;
+          })
+          .filter((e) => e) as CommentEntity[];
+      })
+      .flat();
+    await this.dataSource.getRepository(CommentEntity).save(commentEntities);
+  }
 }

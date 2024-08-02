@@ -71,11 +71,13 @@ export default defineComponent({
     const option = ref<{
       selectedOptionProject: boolean;
       selectedOptionTestresult: boolean;
+      selectedOptionTestHint: boolean;
       selectedOptionConfig: boolean;
       targetFile: File | null;
     }>({
       selectedOptionProject: true,
       selectedOptionTestresult: true,
+      selectedOptionTestHint: true,
       selectedOptionConfig: true,
       targetFile: null
     });
@@ -88,6 +90,7 @@ export default defineComponent({
       if (
         !option.value.selectedOptionProject &&
         !option.value.selectedOptionTestresult &&
+        !option.value.selectedOptionTestHint &&
         !option.value.selectedOptionConfig
       ) {
         return true;
@@ -99,6 +102,7 @@ export default defineComponent({
     const updateOption = (updateOption: {
       selectedOptionProject: boolean;
       selectedOptionTestresult: boolean;
+      selectedOptionTestHint: boolean;
       selectedOptionConfig: boolean;
       targetFile: File | null;
     }) => {
@@ -118,6 +122,7 @@ export default defineComponent({
       const importOption = {
         selectedOptionProject: option.value.selectedOptionProject,
         selectedOptionTestresult: option.value.selectedOptionTestresult,
+        selectedOptionTestHint: option.value.selectedOptionTestHint,
         selectedOptionConfig: option.value.selectedOptionConfig
       };
 
