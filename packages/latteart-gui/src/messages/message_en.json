@@ -386,7 +386,8 @@
       "matching-scope": "Matching scope:",
       "show": "Show matching conditions",
       "hide": "Hide matching conditions",
-      "ignore-check-box": "During the current test, you will no longer be eligible for matching."
+      "ignore-check-box": "During the current test, you will no longer be eligible for matching.",
+      "story-filter": "Current Story Only"
     },
     "common": {
       "match-count": "Match count",
