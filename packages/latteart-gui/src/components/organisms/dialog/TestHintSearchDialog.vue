@@ -153,6 +153,10 @@ export default defineComponent({
       return operationHistoryStore.comments;
     });
 
+    const testHintSetting = computed(() => {
+      return rootStore.viewSettings.testHint;
+    });
+
     const borderTimestampByLastComment = computed((): number => {
       return (
         comments.value[comments.value.length - 1].timestamp - defaultSearchSeconds.value * 1000
@@ -166,11 +170,6 @@ export default defineComponent({
       );
     });
 
-    const testHintCommentWords = computed(() => {
-      const commentWords = testHints.value.flatMap(({ commentWords }) => commentWords);
-      return Array.from(new Set(commentWords));
-    });
-
     const initialize = async () => {
       if (!props.opened || !rootStore.dataLoader) {
         return;
@@ -181,7 +180,7 @@ export default defineComponent({
       testHintProps.value = testHintPropsAndData.props;
       testHints.value = testHintPropsAndData.data;
 
-      defaultSearchSeconds.value = rootStore.viewSettings.testHint.defaultSearchSeconds;
+      defaultSearchSeconds.value = testHintSetting.value.defaultSearchSeconds;
 
       setSearchText();
       filterTestHints();
@@ -198,14 +197,15 @@ export default defineComponent({
       const filteredComments = comments.value.filter(
         (comment) => comment.timestamp > borderTimestampByLastComment.value
       );
-      if (testHintCommentWords.value.length > 0) {
+
+      if (filteredComments.length > 0) {
+        const excludedWords = testHintSetting.value.commentMatching.excludedWords;
+
         const commentParts = Array.from(
           new Set(filteredComments.flatMap((comment) => comment.value.split(/\s/)))
         );
 
-        const targetComments = commentParts.filter((part) =>
-          testHintCommentWords.value.includes(part)
-        );
+        const targetComments = commentParts.filter((part) => !excludedWords.includes(part));
 
         search.value = targetComments.length > 0 ? targetComments.join(" ") : "";
       } else {
