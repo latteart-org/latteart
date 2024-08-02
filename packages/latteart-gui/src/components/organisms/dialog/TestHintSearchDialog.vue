@@ -27,20 +27,12 @@
             <v-row class="my-1 pb-2">
               <v-btn variant="elevated" @click="changeMatchingConditionsOpened">{{
                 matchingConditionsOpened
-                  ? $t("test-hint.search-dialog.show")
-                  : $t("test-hint.search-dialog.hide")
+                  ? $t("test-hint.search-dialog.hide")
+                  : $t("test-hint.search-dialog.show")
               }}</v-btn>
             </v-row>
             <v-row v-if="matchingConditionsOpened" class="pb-4 my-0">
               <v-col>
-                <v-row class="align-center py-0">
-                  <v-checkbox
-                    v-model="isFilteringByStoryEnabled"
-                    density="comfortable"
-                    :label="$t('test-hint.search-dialog.story-filter')"
-                    hide-details
-                  ></v-checkbox>
-                </v-row>
                 <v-row class="align-center py-0">
                   <v-checkbox
                     v-model="isFilteringByElementsEnabled"
@@ -84,6 +76,14 @@
                     "
                     @change="(e: any) => updateDefaultSearchSeconds(e.target._value)"
                   />
+                </v-row>
+                <v-row class="align-center py-0">
+                  <v-checkbox
+                    v-model="isFilteringByStoryEnabled"
+                    density="comfortable"
+                    :label="$t('test-hint.search-dialog.story-filter')"
+                    hide-details
+                  ></v-checkbox>
                 </v-row>
               </v-col>
             </v-row>
