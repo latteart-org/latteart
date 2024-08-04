@@ -74,6 +74,7 @@ describe("ImportProjectAction", () => {
           source,
           includeTestResults: selectOption.includeTestResults,
           includeProject: selectOption.includeProject,
+          includeTestHints: selectOption.includeTestHints,
           includeConfig: selectOption.includeConfig
         });
         if (result.isSuccess()) {
