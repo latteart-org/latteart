@@ -39,6 +39,7 @@ import {
 } from "./helper/snapshotHelper";
 import { VideoFrame } from "@/interfaces/Videos";
 import { SequenceView } from "@/domain/types";
+import { CommentsService } from "./CommentsService";
 
 export interface SnapshotFileRepositoryService {
   write(project: Project, snapshotConfig: SnapshotConfig): Promise<string>;
@@ -53,6 +54,7 @@ export class SnapshotFileRepositoryServiceImpl
       timestamp: TimestampService;
       testResult: TestResultService;
       testStep: TestStepService;
+      comments: CommentsService;
       note: NotesServiceImpl;
       testPurpose: TestPurposeServiceImpl;
       config: ConfigsService;
@@ -202,6 +204,11 @@ export class SnapshotFileRepositoryServiceImpl
 
     const historyLog: any[] = [];
     const sequenceViewData: SequenceView[] = [];
+    const commentData: {
+      id: string;
+      value: string;
+      timestamp: number;
+    }[] = [];
     const { config } = await this.service.config.getProjectConfig("");
     const viewOption = convertViewOptionForSnapshot(config);
 
@@ -239,6 +246,18 @@ export class SnapshotFileRepositoryServiceImpl
           })
         );
 
+        commentData.push(
+          ...(await this.service.comments.getComments(testResultId)).map(
+            (comment) => {
+              return {
+                id: comment.id,
+                value: comment.value,
+                timestamp: comment.timestamp,
+              };
+            }
+          )
+        );
+
         // output log file
         const history = convertTestStepsForSnapshot(testSteps);
         historyLog.push({
@@ -262,6 +281,12 @@ export class SnapshotFileRepositoryServiceImpl
     await this.service.workingFileRepository.outputFile(
       path.join(destTestResultPath, "log.json"),
       JSON.stringify(historyLog),
+      "utf8"
+    );
+
+    await this.service.workingFileRepository.outputFile(
+      path.join(destTestResultPath, "comments.json"),
+      JSON.stringify(commentData),
       "utf8"
     );
 

@@ -84,6 +84,7 @@ export class SnapshotDataLoader implements DataLoader {
         historyLogs: unknown;
         sequenceViews: unknown;
         graphView: unknown;
+        comments: unknown;
       };
       project?: {
         stories: unknown;
@@ -151,8 +152,9 @@ export class SnapshotDataLoader implements DataLoader {
     }
 
     const historyItems = parseHistoryLog(historyLog.history);
+    const comments = this.source.testResult.comments as Comment[];
 
-    return { historyItems };
+    return { historyItems, comments };
   }
 
   async loadTestResultSummaries() {
@@ -246,7 +248,6 @@ export class RepositoryDataLoader implements DataLoader {
 
   async loadTestResult(testResultId: string) {
     const result = await new LoadHistoryAction(this.repositoryService).loadHistory(testResultId);
-
     if (result.isFailure()) {
       return;
     }

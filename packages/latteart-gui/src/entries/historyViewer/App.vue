@@ -79,6 +79,9 @@ export default defineComponent({
       operationHistoryStore.resetHistory({
         historyItems: parseHistoryLog(testResult.historyItems)
       });
+      if (testResult.comments) {
+        operationHistoryStore.comments = testResult.comments;
+      }
 
       operationHistoryStore.storingTestResultInfos = testResultInfos;
       operationHistoryStore.testResultInfo = {
