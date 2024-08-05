@@ -46,6 +46,7 @@ import {
 } from "@/gateways/viewerTemplate";
 import { createLogger } from "@/logger/logger";
 import { AppDataSource } from "@/data-source";
+import { CommentsService } from "@/services/CommentsService";
 
 @Route("projects/{projectId}/snapshots")
 @Tags("projects")
@@ -136,6 +137,7 @@ export class SnapshotsController extends Controller {
         timestamp: timestampService,
         testResult: testResultService,
         testStep: testStepService,
+        comments: new CommentsService(AppDataSource),
         note: noteService,
         testPurpose: testPurposeService,
         config: new ConfigsService(AppDataSource),
