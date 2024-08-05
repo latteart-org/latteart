@@ -218,11 +218,11 @@
     },
     "setting-test-hint": "テストヒント設定",
     "test-hint": {
-      "search-scope": "検索時のテストヒントタグ自動補完範囲",
+      "search-scope": "検索時の画面要素・コメント内のワード自動補完範囲",
       "default-search-seconds": "デフォルト値",
       "suffix": "秒前まで",
       "info": "※0でヒントの検索による自動補完無効",
-      "matching-scope": "登録時・検索時のコメントとテストヒントタグのマッチング対象範囲",
+      "matching-scope": "登録時・検索時のコメントと画面要素・コメント内のワードのマッチング対象範囲",
       "all": "コメント全体",
       "words-on-page-only": "コメント内に存在する画面中のテキスト",
       "extra-words": "追加ワード",
