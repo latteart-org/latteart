@@ -471,13 +471,15 @@ export default defineComponent({
       page.value = Math.floor(index / numberOfDisplayedItems.value) + 1;
 
       nextTick(() => {
-        const seqElement = document.querySelector(
+        const seqChild = document.querySelector(
           `.sequence_${props.selectedOperationInfo.sequence}`
         );
 
+        const seqParent = seqChild?.parentElement;
+
         const dataTableElement = document.querySelector(".v-table__wrapper");
-        if (seqElement && dataTableElement) {
-          dataTableElement.scrollTop = (seqElement as HTMLElement).offsetTop - 32;
+        if (seqParent && dataTableElement) {
+          dataTableElement.scrollTop = seqParent.offsetTop - 42;
         }
       });
     };
