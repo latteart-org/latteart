@@ -73,14 +73,18 @@ queryStr.split("&").forEach((q) => {
   }
 });
 
+const rootStore = useRootStore();
+rootStore.i18nProvider = i18nProvider;
+
 const repositoryService = createRepositoryService(
   new RESTClientImpl(repository ? repository : "http://127.0.0.1:3002")
 );
-const captureClService = createCaptureClService(capture ? capture : "http://127.0.0.1:3001");
-const rootStore = useRootStore();
-rootStore.i18nProvider = i18nProvider;
 rootStore.repositoryService = repositoryService;
-rootStore.captureClService = captureClService;
+
+if (capture) {
+  rootStore.captureClService = createCaptureClService(capture);
+}
+
 rootStore.dataLoader = new RepositoryDataLoader(repositoryService);
 
 app.mount("#app");
