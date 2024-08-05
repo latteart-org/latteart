@@ -69,6 +69,7 @@
                 :true-value="true"
                 :false-value="false"
                 class="item-checkbox"
+                @click.shift="selectRange($event, props.item.index)"
                 @input="updateCheckedItem(props.item.index)"
               />
             </td>
@@ -821,6 +822,33 @@ export default defineComponent({
       }
     };
 
+    const selectRange = (event: PointerEvent, index: number) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const minIndex = itemsPerPage.value * (page.value - 1);
+      const maxIndex = minIndex + itemsPerPage.value - 1;
+
+      const lastIndex = checkedItems.value[checkedItems.value.length - 1];
+      if (lastIndex < minIndex || maxIndex < lastIndex) {
+        return;
+      }
+      const ope =
+        index < lastIndex
+          ? { start: index, end: lastIndex }
+          : lastIndex < index
+            ? { start: lastIndex, end: index }
+            : undefined;
+      if (!ope) {
+        return;
+      }
+      for (let i = ope.start; i <= ope.end; i++) {
+        if (!checkedItems.value.includes(i)) {
+          checkedItems.value.push(i);
+        }
+      }
+    };
+
     onMounted((): void => {
       document.addEventListener("keydown", keyDown);
     });
@@ -864,7 +892,8 @@ export default defineComponent({
       contextmenu,
       cancelKeydown,
       updateCheckedItem,
-      currentItemIndex
+      currentItemIndex,
+      selectRange
     };
   }
 });
