@@ -42,6 +42,10 @@ import { useTestManagementStore } from "@/stores/testManagement";
 import { useRootStore } from "@/stores/root";
 import type { TestHintProp } from "@/lib/operationHistory/types";
 import TestHintInputForm from "./TestHintInputForm.vue";
+import {
+  buildCommentMatchingWords,
+  extractTestHintResources
+} from "@/lib/common/testHintResourceHelper";
 
 export default defineComponent({
   components: {
@@ -97,10 +101,6 @@ export default defineComponent({
       };
     });
 
-    const commentMatchingSetting = computed(() => {
-      return rootStore.viewSettings.testHint.commentMatching;
-    });
-
     const resetItems = () => {
       testHintValue.value = "";
       testMatrixName.value = "";
@@ -124,15 +124,11 @@ export default defineComponent({
 
       try {
         const testHints = await rootStore.dataLoader?.loadTestHints();
-        customPropHeaders.value = testHints?.props ?? [];
-
+        const testHintResources = extractTestHintResources(props.relatedTestSteps);
         const testResultId = operationHistoryStore.testResultInfo.id;
-
-        if (!testResultId) {
-          return;
-        }
-
-        const currentStoryInfo = testManagementStore.getCurrentStoryInfo(testResultId);
+        const currentStoryInfo = testResultId
+          ? testManagementStore.getCurrentStoryInfo(testResultId)
+          : undefined;
 
         if (currentStoryInfo) {
           testMatrixName.value = currentStoryInfo.testMatrixName;
@@ -141,61 +137,12 @@ export default defineComponent({
           viewPointName.value = currentStoryInfo.viewPointName;
         }
 
-        const defaultValues = props.relatedTestSteps.reduce(
-          (acc, testStep) => {
-            const commentWords = testStep.comments.flatMap(({ value }) => value.split(" "));
-            acc.commentWords.push(...commentWords);
-
-            const displayedWords = testStep.operation.keywordSet
-              ? Array.from(testStep.operation.keywordSet)
-              : [];
-            acc.displayedWords.push(...displayedWords);
-
-            const element = testStep.operation.elementInfo;
-            if (element && element.tagname) {
-              acc.elements.push({
-                tagname: element.tagname,
-                type: element.attributes.type ?? "",
-                text: element.text ?? ""
-              });
-            }
-
-            return acc;
-          },
-          {
-            commentWords: new Array<string>(),
-            displayedWords: new Array<string>(),
-            elements: new Array<{ tagname: string; type: string; text: string }>()
-          }
-        );
-
-        const allCommentWords = defaultValues.commentWords.filter(
-          (word, index, array) => array.indexOf(word) === index
-        );
-
-        const filteredCommentWords =
-          commentMatchingSetting.value.excludedWords.length > 0
-            ? allCommentWords.filter(
-                (word) => !commentMatchingSetting.value.excludedWords.includes(word)
-              )
-            : allCommentWords;
-
-        const matchingTarget: "all" | "wordsOnPageOnly" = commentMatchingSetting.value.target;
-
-        commentWords.value = (
-          matchingTarget === "all"
-            ? filteredCommentWords
-            : filteredCommentWords.filter((word) => defaultValues.displayedWords.includes(word))
+        customPropHeaders.value = testHints?.props ?? [];
+        commentWords.value = buildCommentMatchingWords(
+          testHintResources,
+          rootStore.viewSettings.testHint.commentMatching
         ).join(" ");
-        operatedElements.value = defaultValues.elements.filter((e1, index, array) => {
-          return (
-            array.findIndex((e2) => {
-              return (
-                `${e2.tagname}_${e2.type}_${e2.text}` === `${e1.tagname}_${e1.type}_${e1.text}`
-              );
-            }) === index
-          );
-        });
+        operatedElements.value = testHintResources.elements;
       } finally {
         processing.value = false;
       }
