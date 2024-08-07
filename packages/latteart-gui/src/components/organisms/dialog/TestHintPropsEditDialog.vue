@@ -33,6 +33,7 @@
                 <v-col cols="9">
                   <v-text-field
                     v-model="prop.name"
+                    variant="underlined"
                     :placeholder="$t('test-hint.edit-props-dialog.name')"
                     @click="(e: any) => e.stopPropagation()"
                   ></v-text-field>
@@ -55,7 +56,11 @@
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <div>
-                <v-select v-model="prop.type" :items="['string', 'list', 'tag']"></v-select>
+                <v-select
+                  v-model="prop.type"
+                  variant="underlined"
+                  :items="['string', 'list', 'tag']"
+                ></v-select>
                 <div v-if="prop.type === 'list'" class="pt-2">
                   <v-btn size="small" @click="addList(prop)">{{
                     $t("test-hint.edit-props-dialog.add-option")
@@ -67,13 +72,14 @@
                           <v-btn
                             variant="text"
                             icon
-                            color="error"
+                            color="red"
                             @click="deleteList(prop, listIndex)"
                             ><v-icon>delete</v-icon></v-btn
                           >
                         </v-col>
                         <v-col cols="11" class="py-0">
                           <v-text-field
+                            variant="underlined"
                             label="value"
                             :model-value="keyValue.value"
                             @update:model-value="(value) => inputValue(value, listIndex, index)"
