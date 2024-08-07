@@ -62,6 +62,10 @@ export class ProjectImportController extends Controller {
     500,
     "Project information does not exist"
   )
+  @Response<ServerErrorData<"import_test_hint_not_exist">>(
+    500,
+    "Test hint information does not exist"
+  )
   @Response<ServerErrorData<"import_project_failed">>(
     500,
     "Import project failed"
@@ -156,6 +160,11 @@ export class ProjectImportController extends Controller {
         if (error.message === "Project information does not exist.") {
           throw new ServerError(500, {
             code: "import_project_not_exist",
+          });
+        }
+        if (error.message === "Test hint information dose not exist.") {
+          throw new ServerError(500, {
+            code: "import_test_hint_not_exist",
           });
         }
         throw new ServerError(500, {

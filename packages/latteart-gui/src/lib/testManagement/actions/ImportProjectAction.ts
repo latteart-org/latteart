@@ -56,6 +56,11 @@ export class ImportProjectAction {
           messageKey: "error.import_export.import-project-not-exist"
         });
       }
+      if (postProjectsResult.error?.code === "import_test_hint_not_exist") {
+        return new ActionFailure({
+          messageKey: "error.import_export.import-test-hint-not-exist"
+        });
+      }
 
       return new ActionFailure({
         messageKey: "error.import_export.import-data-error"

@@ -680,6 +680,7 @@
       "import-data-error": "データインポートに失敗しました。",
       "import-project-not-exist": "インポートデータにプロジェクト情報が存在しません。",
       "import-test-result-not-exist": "インポートデータにテスト結果情報が存在しません。",
+      "import-test-hint-not-exist": "インポートデータにテストヒント情報が存在しません。",
       "import-config-not-exist": "インポートデータに設定情報が存在しません。",
       "create-export-data-error": "データエクスポートに失敗しました。"
     }
