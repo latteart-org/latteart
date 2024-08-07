@@ -32,7 +32,7 @@
     </v-row>
     <v-row v-for="(element, index) in modelValue" :key="index" class="body">
       <v-col cols="1" class="px-1 py-0"
-        ><v-btn variant="text" size="small" icon color="error" @click="deleteElement(index)"
+        ><v-btn variant="text" size="small" icon color="red" @click="deleteElement(index)"
           ><v-icon>delete</v-icon></v-btn
         ></v-col
       >
