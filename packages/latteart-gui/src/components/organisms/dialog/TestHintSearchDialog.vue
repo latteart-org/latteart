@@ -83,6 +83,7 @@
                     density="comfortable"
                     :label="$t('test-hint.search-dialog.story-filter')"
                     hide-details
+                    :disabled="currentStoryInfo ? false : true"
                   ></v-checkbox>
                 </v-row>
               </v-col>
@@ -143,7 +144,7 @@ export default defineComponent({
 
     const matchingConditionsOpened = ref(false);
     const defaultSearchSeconds = ref(30);
-    const isFilteringByStoryEnabled = ref(true);
+    const isFilteringByStoryEnabled = ref(false);
     const isFilteringByElementsEnabled = ref(true);
     const isFilteringByCommentsEnabled = ref(true);
     const search = ref("");
