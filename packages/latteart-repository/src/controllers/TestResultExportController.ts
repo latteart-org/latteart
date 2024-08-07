@@ -33,6 +33,7 @@ import {
 import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
 import { AppDataSource } from "@/data-source";
+import { CommentsService } from "@/services/CommentsService";
 
 @Route("test-results/{testResultId}/export")
 @Tags("test-results")
@@ -82,6 +83,7 @@ export class TestResultExportController extends Controller {
     try {
       return await new TestResultExportServiceImpl({
         testResult: testResultService,
+        comment: new CommentsService(AppDataSource),
         exportFileRepository: exportFileRepositoryService,
       }).export(testResultId);
     } catch (error) {

@@ -17,6 +17,7 @@
 import { TestResultService } from "./TestResultService";
 import { ExportFileRepositoryService } from "./ExportFileRepositoryService";
 import { serializeTestResult } from "./helper/testResultExportHelper";
+import { CommentsService } from "./CommentsService";
 
 export interface TestResultExportService {
   export(testResultId: string): Promise<{ url: string }>;
@@ -26,14 +27,14 @@ export class TestResultExportServiceImpl implements TestResultExportService {
   constructor(
     private service: {
       testResult: TestResultService;
+      comment: CommentsService;
       exportFileRepository: ExportFileRepositoryService;
     }
   ) {}
 
   public async export(testResultId: string): Promise<{ url: string }> {
-    const testResult = await this.service.testResult.getTestResultForExport(
-      testResultId
-    );
+    const testResult =
+      await this.service.testResult.getTestResultForExport(testResultId);
 
     if (!testResult) {
       throw Error(`Test result not found: ${testResultId}`);
@@ -45,11 +46,28 @@ export class TestResultExportServiceImpl implements TestResultExportService {
 
     const serializedTestResult = serializeTestResult(testResult);
 
-    const url = await this.service.exportFileRepository.exportTestResult({
-      name: testResult.name,
-      testResultFile: { fileName: "log.json", data: serializedTestResult },
-      fileData,
+    const comments = (
+      (await this.service.comment.getComments(testResultId)) ?? []
+    ).map((comment) => {
+      return {
+        id: comment.id,
+        testResult: testResultId,
+        value: comment.value,
+        timestamp: comment.timestamp,
+      };
     });
+
+    const url = await this.service.exportFileRepository.exportTestResult(
+      {
+        name: testResult.name,
+        testResultFile: { fileName: "log.json", data: serializedTestResult },
+        fileData,
+      },
+      {
+        fileName: "comments.json",
+        fileData: JSON.stringify(comments),
+      }
+    );
 
     return { url };
   }

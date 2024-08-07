@@ -58,11 +58,17 @@ export type ExportFileRepositoryService = {
     config: ExportConfigData | null
   ): Promise<string>;
 
-  exportTestResult(testResult: {
-    name: string;
-    testResultFile: { fileName: string; data: string };
-    fileData: { id: string; fileUrl: string }[];
-  }): Promise<string>;
+  exportTestResult(
+    testResult: {
+      name: string;
+      testResultFile: { fileName: string; data: string };
+      fileData: { id: string; fileUrl: string }[];
+    },
+    comments: {
+      fileName: string;
+      fileData: string;
+    }
+  ): Promise<string>;
 };
 
 export class ExportFileRepositoryServiceImpl
@@ -239,12 +245,23 @@ export class ExportFileRepositoryServiceImpl
     );
   }
 
-  public async exportTestResult(testResult: {
-    name: string;
-    testResultFile: { fileName: string; data: string };
-    fileData: { id: string; fileUrl: string }[];
-  }): Promise<string> {
+  public async exportTestResult(
+    testResult: {
+      name: string;
+      testResultFile: { fileName: string; data: string };
+      fileData: { id: string; fileUrl: string }[];
+    },
+    comments: {
+      fileName: string;
+      fileData: string;
+    }
+  ): Promise<string> {
     const outputDirName = await this.outputFiles(testResult);
+
+    await this.service.workingFileRepository.outputFile(
+      path.join(outputDirName, comments.fileName),
+      comments.fileData
+    );
 
     const zipFilePath = await this.service.workingFileRepository.outputZip(
       outputDirName,
