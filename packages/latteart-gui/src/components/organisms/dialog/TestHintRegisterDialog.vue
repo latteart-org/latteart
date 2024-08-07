@@ -97,6 +97,10 @@ export default defineComponent({
       };
     });
 
+    const commentMatchingSetting = computed(() => {
+      return rootStore.viewSettings.testHint.commentMatching;
+    });
+
     const resetItems = () => {
       testHintValue.value = "";
       testMatrixName.value = "";
@@ -169,13 +173,19 @@ export default defineComponent({
           (word, index, array) => array.indexOf(word) === index
         );
 
-        const matchingTarget: "all" | "wordsOnPageOnly" =
-          rootStore.viewSettings.testHint.commentMatching.target;
+        const filteredCommentWords =
+          commentMatchingSetting.value.excludedWords.length > 0
+            ? allCommentWords.filter(
+                (word) => !commentMatchingSetting.value.excludedWords.includes(word)
+              )
+            : allCommentWords;
+
+        const matchingTarget: "all" | "wordsOnPageOnly" = commentMatchingSetting.value.target;
 
         commentWords.value = (
           matchingTarget === "all"
-            ? allCommentWords
-            : allCommentWords.filter((word) => defaultValues.displayedWords.includes(word))
+            ? filteredCommentWords
+            : filteredCommentWords.filter((word) => defaultValues.displayedWords.includes(word))
         ).join(" ");
         operatedElements.value = defaultValues.elements.filter((e1, index, array) => {
           return (
