@@ -562,7 +562,7 @@ export class ProjectImportService {
     }
 
     if (option.includeTestHints && testHintFiles.length === 0) {
-      throw new Error("Test hint information dose not exists.");
+      throw new Error("Test hint information dose not exist.");
     }
 
     return {

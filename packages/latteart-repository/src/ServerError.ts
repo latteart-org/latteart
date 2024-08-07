@@ -44,6 +44,7 @@ export type ServerErrorCode =
   | "import_project_failed"
   | "import_project_not_exist"
   | "import_test_result_not_exist"
+  | "import_test_hint_not_exist"
   | "import_config_not_exist"
   | "get_screenshots_failed"
   | "get_test_matrix_failed"

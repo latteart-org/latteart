@@ -680,6 +680,7 @@
       "import-data-error": "Data import failed.",
       "import-project-not-exist": "Project information does not exist.",
       "import-test-result-not-exist": "Test result information does not exist.",
+      "import-test-hint-not-exist": "Test hint information does not exist.",
       "import-config-not-exist": "Setting information does not exist.",
       "create-export-data-error": "Data export failed."
     }
