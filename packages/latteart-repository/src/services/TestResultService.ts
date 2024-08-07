@@ -59,6 +59,8 @@ import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
 import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
 import { v4 as uuidv4 } from "uuid";
 import { VideoEntity } from "@/entities/VideoEntity";
+import { CommentEntity } from "@/entities/CommentEntity";
+import { MutationEntity } from "@/entities/MutationEntity";
 
 export type TestResultService = {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
@@ -240,6 +242,12 @@ export class TestResultServiceImpl implements TestResultService {
         testResult: { id: testResultId },
       });
       await transactionalEntityManager.delete(TestPurposeEntity, {
+        testResult: { id: testResultId },
+      });
+      await transactionalEntityManager.delete(MutationEntity, {
+        testResult: { id: testResultId },
+      });
+      await transactionalEntityManager.delete(CommentEntity, {
         testResult: { id: testResultId },
       });
 
