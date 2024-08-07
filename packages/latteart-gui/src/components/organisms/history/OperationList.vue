@@ -19,7 +19,7 @@
     <v-row class="px-2" style="height: 40px; width: 100%">
       <auto-operation-register-button v-if="!isViewerMode" />
       <test-hint-register-button v-if="!isViewerMode" />
-      <comment-register-field></comment-register-field>
+      <comment-register-field v-if="!isViewerMode" />
     </v-row>
 
     <v-row
@@ -140,6 +140,7 @@
           <template #expanded-row="{ columns, item }">
             <tr v-for="comment in item.comments" :key="comment.timestamp" style="height: 32px">
               <td
+                v-if="!isViewerMode"
                 class="text-blue-grey-darken-1 bg-blue-grey-lighten-5"
                 style="height: 32px; padding: 0 8px"
                 :colspan="1"
@@ -155,7 +156,7 @@
               <td
                 class="text-blue-grey-darken-1 bg-blue-grey-lighten-5"
                 style="height: 32px"
-                :colspan="columns.length - 2"
+                :colspan="!isViewerMode ? columns.length - 2 : columns.length - 1"
               >
                 <v-icon class="mr-3">sms</v-icon>
                 {{ comment.value }}
