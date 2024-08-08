@@ -177,7 +177,7 @@ export default defineComponent({
               {
                 title: "",
                 value: "actions",
-                minWidth: "112px",
+                width: "112px",
                 sortable: false
               }
             ]
