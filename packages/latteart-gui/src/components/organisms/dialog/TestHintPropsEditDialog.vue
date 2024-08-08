@@ -56,11 +56,7 @@
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <div>
-                <v-select
-                  v-model="prop.type"
-                  variant="underlined"
-                  :items="['string', 'list', 'tag']"
-                ></v-select>
+                <v-select v-model="prop.type" variant="underlined" :items="['string', 'list']" />
                 <div v-if="prop.type === 'list'" class="pt-2">
                   <v-btn size="small" @click="addList(prop)">{{
                     $t("test-hint.edit-props-dialog.add-option")
