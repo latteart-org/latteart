@@ -44,24 +44,17 @@
           :row-props="getRowClass"
         >
           <template v-if="editable" #[`item.actions`]="{ item }">
-            <td :class="{ ellipsis: true }">
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="emitTestHintEditButtonClicked(item.id)"
-              >
-                <v-icon>edit</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="emitTestHintDeleteButtonClicked(item.id)"
-              >
-                <v-icon>delete</v-icon>
-              </v-btn>
-            </td>
+            <v-btn icon size="small" variant="text" @click="emitTestHintEditButtonClicked(item.id)">
+              <v-icon>edit</v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              @click="emitTestHintDeleteButtonClicked(item.id)"
+            >
+              <v-icon>delete</v-icon>
+            </v-btn>
           </template>
           <template #[`item.data-table-select`]="{ isSelected, toggleSelect, internalItem }">
             <v-checkbox-btn
@@ -70,6 +63,27 @@
               :title="$t('test-hint.search-dialog.ignore-check-box')"
             />
           </template>
+          <template #[`item.value`]="{ item }">
+            <div :style="{ 'min-width': '170px' }" :title="item.value">
+              {{ item.value.length > 100 ? item.value.slice(0, 100) + "..." : item.value }}
+            </div>
+          </template>
+          <template
+            v-for="({ value }, index) in headers.filter(
+              (h) => h.value !== 'actions' && h.value !== 'value'
+            )"
+            #[`item.${value}`]="{ item }"
+            :key="index"
+          >
+            <div
+              class="text-truncate"
+              :style="{ 'max-width': '100%', width: 'inherit' }"
+              :title="getItemValue(Object.entries(item), value)"
+            >
+              {{ getItemValue(Object.entries(item), value) }}
+            </div>
+          </template>
+          <template v-if="pagingDisabled" #bottom />
         </v-data-table>
       </v-card-text>
     </v-card>
@@ -131,7 +145,8 @@ export default defineComponent({
       type: Array as PropType<{ id: string; matchCount: number }[]>,
       default: () => [],
       required: false
-    }
+    },
+    pagingDisabled: { type: Boolean, default: false, required: false }
   },
   emits: [
     "click:edit-test-hint-button",
@@ -149,7 +164,7 @@ export default defineComponent({
 
     const search = ref("");
     const page = ref<number>(1);
-    const itemsPerPage = ref<number>(10);
+    const itemsPerPage = ref<number>(props.pagingDisabled ? -1 : 10);
     const syncSortBy = ref<
       {
         readonly key: string;
@@ -177,7 +192,7 @@ export default defineComponent({
               {
                 title: "",
                 value: "actions",
-                width: "112px",
+                width: "112",
                 sortable: false
               }
             ]
@@ -273,6 +288,14 @@ export default defineComponent({
       context.emit("click:delete-test-hint-button", testHintId);
     };
 
+    const getItemValue = (
+      itemEntries: [string, string | number | boolean][],
+      itemPropName: string
+    ) => {
+      const itemValue = itemEntries.find(([key]) => key === itemPropName)?.at(1);
+      return itemValue ? itemValue.toString() : undefined;
+    };
+
     watch(selectedItemIds, (selectedTestHintIds) => {
       context.emit("change:test-hints-selection", selectedTestHintIds);
     });
@@ -292,7 +315,8 @@ export default defineComponent({
       getRowClass,
       emitTestHintEditButtonClicked,
       emitTestHintDeleteButtonClicked,
-      withModifiers
+      withModifiers,
+      getItemValue
     };
   }
 });
