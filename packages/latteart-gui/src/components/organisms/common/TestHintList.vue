@@ -70,6 +70,51 @@
               :title="$t('test-hint.search-dialog.ignore-check-box')"
             />
           </template>
+          <template #[`item.value`]="{ item }">
+            <div
+              class="text-truncate"
+              :style="{ 'max-width': '100%', width: 'inherit' }"
+              :title="item.value"
+            >
+              {{ item.value }}
+            </div>
+          </template>
+          <template #[`item.testMatrixName`]="{ item }">
+            <div
+              class="text-truncate"
+              :style="{ 'max-width': '100%', width: 'inherit' }"
+              :title="item.testMatrixName"
+            >
+              {{ item.testMatrixName }}
+            </div>
+          </template>
+          <template #[`item.groupName`]="{ item }">
+            <div
+              class="text-truncate"
+              :style="{ 'max-width': '100%', width: 'inherit' }"
+              :title="item.groupName"
+            >
+              {{ item.groupName }}
+            </div>
+          </template>
+          <template #[`item.testTargetName`]="{ item }">
+            <div
+              class="text-truncate"
+              :style="{ 'max-width': '100%', width: 'inherit' }"
+              :title="item.testTargetName"
+            >
+              {{ item.testTargetName }}
+            </div>
+          </template>
+          <template #[`item.viewPointName`]="{ item }">
+            <div
+              class="text-truncate"
+              :style="{ 'max-width': '100%', width: 'inherit' }"
+              :title="item.viewPointName"
+            >
+              {{ item.viewPointName }}
+            </div>
+          </template>
         </v-data-table>
       </v-card-text>
     </v-card>
@@ -185,32 +230,37 @@ export default defineComponent({
         {
           title: rootStore.message("test-hint.common.hint-text"),
           value: "value",
-          sortable: true
+          sortable: true,
+          cellProps: { class: "text-truncate", style: "max-width: 450px" }
         },
         ...customColumns,
         {
           title: rootStore.message("test-hint.common.test-matrix"),
           value: "testMatrixName",
           width: "170",
-          sortable: true
+          sortable: true,
+          cellProps: { class: "text-truncate", style: "max-width: 170px" }
         },
         {
           title: rootStore.message("test-hint.common.group"),
           value: "groupName",
           width: "170",
-          sortable: true
+          sortable: true,
+          cellProps: { class: "text-truncate", style: "max-width: 170px" }
         },
         {
           title: rootStore.message("test-hint.common.test-target"),
           value: "testTargetName",
           width: "170",
-          sortable: true
+          sortable: true,
+          cellProps: { class: "text-truncate", style: "max-width: 170px" }
         },
         {
           title: rootStore.message("test-hint.common.view-point"),
           value: "viewPointName",
           width: "170",
-          sortable: true
+          sortable: true,
+          cellProps: { class: "text-truncate", style: "max-width: 170px" }
         }
         // {
         //   title: rootStore.message("test-hint.common.comment-words"),
