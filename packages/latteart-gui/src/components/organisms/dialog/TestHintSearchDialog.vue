@@ -196,6 +196,11 @@ export default defineComponent({
       testHintProps.value = testHintPropsAndData.props;
       testHints.value = testHintPropsAndData.data;
 
+      matchingConditionsOpened.value = false;
+      isFilteringByStoryEnabled.value = false;
+      isFilteringByElementsEnabled.value = true;
+      isFilteringByCommentsEnabled.value = true;
+
       defaultSearchSeconds.value = testHintSetting.value.defaultSearchSeconds;
 
       setSearchText();
