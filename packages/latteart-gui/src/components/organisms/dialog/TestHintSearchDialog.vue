@@ -100,6 +100,7 @@
         :selectable="true"
         :checked-test-hint-ids="checkedTestHintIds"
         :test-hint-match-counts="testHintMatchCounts"
+        :paging-disabled="true"
         @change:test-hints-selection="changeSelectedTestHintIds"
       >
         <template #actions>

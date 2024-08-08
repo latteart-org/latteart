@@ -44,24 +44,17 @@
           :row-props="getRowClass"
         >
           <template v-if="editable" #[`item.actions`]="{ item }">
-            <td :class="{ ellipsis: true }">
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="emitTestHintEditButtonClicked(item.id)"
-              >
-                <v-icon>edit</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                size="small"
-                variant="text"
-                @click="emitTestHintDeleteButtonClicked(item.id)"
-              >
-                <v-icon>delete</v-icon>
-              </v-btn>
-            </td>
+            <v-btn icon size="small" variant="text" @click="emitTestHintEditButtonClicked(item.id)">
+              <v-icon>edit</v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              size="small"
+              variant="text"
+              @click="emitTestHintDeleteButtonClicked(item.id)"
+            >
+              <v-icon>delete</v-icon>
+            </v-btn>
           </template>
           <template #[`item.data-table-select`]="{ isSelected, toggleSelect, internalItem }">
             <v-checkbox-btn
@@ -71,50 +64,26 @@
             />
           </template>
           <template #[`item.value`]="{ item }">
+            <div :style="{ 'min-width': '170px' }" :title="item.value">
+              {{ item.value.length > 100 ? item.value.slice(0, 100) + "..." : item.value }}
+            </div>
+          </template>
+          <template
+            v-for="({ value }, index) in headers.filter(
+              (h) => h.value !== 'actions' && h.value !== 'value'
+            )"
+            #[`item.${value}`]="{ item }"
+            :key="index"
+          >
             <div
               class="text-truncate"
               :style="{ 'max-width': '100%', width: 'inherit' }"
-              :title="item.value"
+              :title="getItemValue(item, value)"
             >
-              {{ item.value }}
+              {{ getItemValue(item, value) }}
             </div>
           </template>
-          <template #[`item.testMatrixName`]="{ item }">
-            <div
-              class="text-truncate"
-              :style="{ 'max-width': '100%', width: 'inherit' }"
-              :title="item.testMatrixName"
-            >
-              {{ item.testMatrixName }}
-            </div>
-          </template>
-          <template #[`item.groupName`]="{ item }">
-            <div
-              class="text-truncate"
-              :style="{ 'max-width': '100%', width: 'inherit' }"
-              :title="item.groupName"
-            >
-              {{ item.groupName }}
-            </div>
-          </template>
-          <template #[`item.testTargetName`]="{ item }">
-            <div
-              class="text-truncate"
-              :style="{ 'max-width': '100%', width: 'inherit' }"
-              :title="item.testTargetName"
-            >
-              {{ item.testTargetName }}
-            </div>
-          </template>
-          <template #[`item.viewPointName`]="{ item }">
-            <div
-              class="text-truncate"
-              :style="{ 'max-width': '100%', width: 'inherit' }"
-              :title="item.viewPointName"
-            >
-              {{ item.viewPointName }}
-            </div>
-          </template>
+          <template v-if="pagingDisabled" #bottom />
         </v-data-table>
       </v-card-text>
     </v-card>
@@ -176,7 +145,8 @@ export default defineComponent({
       type: Array as PropType<{ id: string; matchCount: number }[]>,
       default: () => [],
       required: false
-    }
+    },
+    pagingDisabled: { type: Boolean, default: false, required: false }
   },
   emits: [
     "click:edit-test-hint-button",
@@ -194,7 +164,7 @@ export default defineComponent({
 
     const search = ref("");
     const page = ref<number>(1);
-    const itemsPerPage = ref<number>(10);
+    const itemsPerPage = ref<number>(props.pagingDisabled ? -1 : 10);
     const syncSortBy = ref<
       {
         readonly key: string;
@@ -222,7 +192,7 @@ export default defineComponent({
               {
                 title: "",
                 value: "actions",
-                width: "112px",
+                width: "112",
                 sortable: false
               }
             ]
@@ -230,37 +200,32 @@ export default defineComponent({
         {
           title: rootStore.message("test-hint.common.hint-text"),
           value: "value",
-          sortable: true,
-          cellProps: { class: "text-truncate", style: "max-width: 450px" }
+          sortable: true
         },
         ...customColumns,
         {
           title: rootStore.message("test-hint.common.test-matrix"),
           value: "testMatrixName",
           width: "170",
-          sortable: true,
-          cellProps: { class: "text-truncate", style: "max-width: 170px" }
+          sortable: true
         },
         {
           title: rootStore.message("test-hint.common.group"),
           value: "groupName",
           width: "170",
-          sortable: true,
-          cellProps: { class: "text-truncate", style: "max-width: 170px" }
+          sortable: true
         },
         {
           title: rootStore.message("test-hint.common.test-target"),
           value: "testTargetName",
           width: "170",
-          sortable: true,
-          cellProps: { class: "text-truncate", style: "max-width: 170px" }
+          sortable: true
         },
         {
           title: rootStore.message("test-hint.common.view-point"),
           value: "viewPointName",
           width: "170",
-          sortable: true,
-          cellProps: { class: "text-truncate", style: "max-width: 170px" }
+          sortable: true
         }
         // {
         //   title: rootStore.message("test-hint.common.comment-words"),
@@ -323,6 +288,28 @@ export default defineComponent({
       context.emit("click:delete-test-hint-button", testHintId);
     };
 
+    const getItemValue = (
+      item: {
+        commentWords: string;
+        operationElements: string;
+        id: string;
+        value: string;
+        testMatrixName: string;
+        groupName: string;
+        testTargetName: string;
+        viewPointName: string;
+        isChecked: boolean;
+        matchCount: number;
+      },
+      value: string
+    ) => {
+      for (const [key, itemValue] of Object.entries(item)) {
+        if (key === value) {
+          return itemValue.toString();
+        }
+      }
+    };
+
     watch(selectedItemIds, (selectedTestHintIds) => {
       context.emit("change:test-hints-selection", selectedTestHintIds);
     });
@@ -342,7 +329,8 @@ export default defineComponent({
       getRowClass,
       emitTestHintEditButtonClicked,
       emitTestHintDeleteButtonClicked,
-      withModifiers
+      withModifiers,
+      getItemValue
     };
   }
 });
