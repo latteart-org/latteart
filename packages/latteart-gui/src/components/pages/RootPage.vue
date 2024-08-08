@@ -71,7 +71,7 @@
         }}</v-list-subheader>
 
         <v-list-item
-          :disabled="isCapturing || isReplaying"
+          :disabled="isReplaying"
           to="/page/test-hint-list"
           :title.attr="$t('test-hint.list-page.title')"
           exact
