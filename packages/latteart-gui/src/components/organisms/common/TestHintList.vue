@@ -78,9 +78,9 @@
             <div
               class="text-truncate"
               :style="{ 'max-width': '100%', width: 'inherit' }"
-              :title="getItemValue(item, value)"
+              :title="getItemValue(Object.entries(item), value)"
             >
-              {{ getItemValue(item, value) }}
+              {{ getItemValue(Object.entries(item), value) }}
             </div>
           </template>
           <template v-if="pagingDisabled" #bottom />
@@ -289,25 +289,11 @@ export default defineComponent({
     };
 
     const getItemValue = (
-      item: {
-        commentWords: string;
-        operationElements: string;
-        id: string;
-        value: string;
-        testMatrixName: string;
-        groupName: string;
-        testTargetName: string;
-        viewPointName: string;
-        isChecked: boolean;
-        matchCount: number;
-      },
-      value: string
+      itemEntries: [string, string | number | boolean][],
+      itemPropName: string
     ) => {
-      for (const [key, itemValue] of Object.entries(item)) {
-        if (key === value) {
-          return itemValue.toString();
-        }
-      }
+      const itemValue = itemEntries.find(([key]) => key === itemPropName)?.at(1);
+      return itemValue ? itemValue.toString() : undefined;
     };
 
     watch(selectedItemIds, (selectedTestHintIds) => {
