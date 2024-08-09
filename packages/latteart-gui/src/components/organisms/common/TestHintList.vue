@@ -170,10 +170,7 @@ export default defineComponent({
         readonly key: string;
         readonly order: "desc" | "asc";
       }[]
-    >([
-      { key: "isChecked", order: "asc" },
-      { key: "matchCount", order: "desc" }
-    ]);
+    >([{ key: "matchCount", order: "desc" }]);
     const selectedItemIds = ref<string[]>([...props.checkedTestHintIds]);
 
     const headers = computed(() => {
