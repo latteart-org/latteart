@@ -162,6 +162,13 @@ export default defineComponent({
     const errorDialogOpened = ref(false);
     const errorMessage = ref("");
 
+    const testHints: TestHint[] = [...props.testHints].sort((a, b) => {
+      return (
+        Number(props.checkedTestHintIds.includes(a.id)) -
+        Number(props.checkedTestHintIds.includes(b.id))
+      );
+    });
+
     const search = ref("");
     const page = ref<number>(1);
     const itemsPerPage = ref<number>(props.pagingDisabled ? -1 : 10);
@@ -170,10 +177,7 @@ export default defineComponent({
         readonly key: string;
         readonly order: "desc" | "asc";
       }[]
-    >([
-      { key: "isChecked", order: "asc" },
-      { key: "matchCount", order: "desc" }
-    ]);
+    >([{ key: "matchCount", order: "desc" }]);
     const selectedItemIds = ref<string[]>([...props.checkedTestHintIds]);
 
     const headers = computed(() => {
@@ -246,7 +250,7 @@ export default defineComponent({
     });
 
     const items = computed(() => {
-      return props.testHints.map((testHint) => {
+      return testHints.map((testHint) => {
         const { customs, ...other } = testHint;
         return {
           isChecked: props.checkedTestHintIds.includes(other.id),
