@@ -43,7 +43,8 @@ export default defineComponent({
 
       operationHistoryStore
         .addComment({
-          comment: comment.value
+          comment: comment.value,
+          timestamp: new Date().getTime()
         })
         .then(() => {
           comment.value = "";
