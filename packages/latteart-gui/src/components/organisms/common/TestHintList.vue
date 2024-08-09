@@ -163,9 +163,10 @@ export default defineComponent({
     const errorMessage = ref("");
 
     const testHints: TestHint[] = [...props.testHints].sort((a, b) => {
-      const aid = props.checkedTestHintIds.includes(a.id);
-      const bid = props.checkedTestHintIds.includes(b.id);
-      return aid && !bid ? 1 : !aid && bid ? -1 : 0;
+      return (
+        Number(props.checkedTestHintIds.includes(a.id)) -
+        Number(props.checkedTestHintIds.includes(b.id))
+      );
     });
 
     const search = ref("");
