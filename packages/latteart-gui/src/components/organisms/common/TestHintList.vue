@@ -162,6 +162,12 @@ export default defineComponent({
     const errorDialogOpened = ref(false);
     const errorMessage = ref("");
 
+    const testHints: TestHint[] = [...props.testHints].sort((a, b) => {
+      const aid = props.checkedTestHintIds.includes(a.id);
+      const bid = props.checkedTestHintIds.includes(b.id);
+      return aid && !bid ? 1 : !aid && bid ? -1 : 0;
+    });
+
     const search = ref("");
     const page = ref<number>(1);
     const itemsPerPage = ref<number>(props.pagingDisabled ? -1 : 10);
@@ -243,7 +249,7 @@ export default defineComponent({
     });
 
     const items = computed(() => {
-      return props.testHints.map((testHint) => {
+      return testHints.map((testHint) => {
         const { customs, ...other } = testHint;
         return {
           isChecked: props.checkedTestHintIds.includes(other.id),
