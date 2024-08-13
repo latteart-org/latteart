@@ -87,17 +87,14 @@ export function buildCommentMatchingWords(
     excludedWords: string[];
   }
 ): string[] {
+  const wordSet = new Set([
+    ...testHintResources.displayedWords,
+    ...commentMatchingConfig.extraWords
+  ]);
   const baseCommentWords =
     commentMatchingConfig.target === "all"
       ? testHintResources.commentWords
-      : [
-          ...testHintResources.commentWords.filter((word) =>
-            testHintResources.displayedWords.some((displayedWord) => {
-              return displayedWord.includes(word);
-            })
-          ),
-          ...commentMatchingConfig.extraWords
-        ];
+      : [...testHintResources.commentWords.filter((word) => wordSet.has(word))];
 
   return baseCommentWords.filter((word) => {
     return !commentMatchingConfig.excludedWords.includes(word);

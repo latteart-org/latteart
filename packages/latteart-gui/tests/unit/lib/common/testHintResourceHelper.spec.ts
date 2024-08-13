@@ -266,7 +266,7 @@ describe("buildCommentMatchingWords", () => {
 
         const result = buildCommentMatchingWords(testHintResource, commentMatchingConfig);
 
-        expect(result).toEqual(["word1", "word11"]);
+        expect(result).toEqual(["word11"]);
       });
 
       it("excludedWordsが指定されている場合は対象となる文字列の内、excludedWords内の文字列と合致しないもののみを返す", () => {
@@ -285,20 +285,20 @@ describe("buildCommentMatchingWords", () => {
         expect(result).toEqual(["word111"]);
       });
 
-      it("extraWordsが指定されている場合は対象となる文字列とextraWords内のすべての文字列を返す", () => {
+      it("extraWordsが指定されているwordはdisplayedWordsに含まれていなくてもcommentWordsに含まれていればそれを返す", () => {
         const testHintResource = {
           commentWords: ["word1", "word2", "word11"],
-          displayedWords: ["word11"]
+          displayedWords: ["word1"]
         };
         const commentMatchingConfig = {
           target: "wordsOnPageOnly" as const,
-          extraWords: ["extraWord1", "extraWord2"],
+          extraWords: ["word2", "word3"],
           excludedWords: []
         };
 
         const result = buildCommentMatchingWords(testHintResource, commentMatchingConfig);
 
-        expect(result).toEqual(["word1", "word11", "extraWord1", "extraWord2"]);
+        expect(result).toEqual(["word1", "word2"]);
       });
     });
   });
