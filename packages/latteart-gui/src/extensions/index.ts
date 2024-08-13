@@ -23,6 +23,7 @@ export type GuiExtension = {
   components: {
     contents?: { name: string }[];
     configs?: { name: string; title: string }[];
+    globals?: { name: string }[];
   };
   plugin: { install(app: any): void };
   messages: { ja: Record<string, any>; en: Record<string, any> };

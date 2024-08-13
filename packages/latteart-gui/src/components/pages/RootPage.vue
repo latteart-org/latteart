@@ -197,6 +197,8 @@
           <v-list-item-title>{{ $t("manage-header.capture-config") }}</v-list-item-title>
         </v-list-item>
       </v-list>
+
+      <extension-global-contents />
     </v-navigation-drawer>
 
     <v-main>
@@ -224,12 +226,14 @@ import { useRootStore } from "@/stores/root";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useTestManagementStore } from "@/stores/testManagement";
+import ExtensionGlobalContents from "../organisms/extensions/ExtensionGlobalContents.vue";
 
 export default defineComponent({
   components: {
     "progress-dialog": ProgressDialog,
     "error-message-dialog": ErrorMessageDialog,
-    "autofill-register-dialog": AutofillRegisterDialog
+    "autofill-register-dialog": AutofillRegisterDialog,
+    "extension-global-contents": ExtensionGlobalContents
   },
   setup() {
     const rootStore = useRootStore();

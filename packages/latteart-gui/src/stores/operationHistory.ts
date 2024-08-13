@@ -1876,7 +1876,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       this.screenImage = screenImage;
     },
 
-    async addComment(payload: { comment: string }) {
+    async addComment(payload: { comment: string; timestamp: number }) {
       const rootStore = useRootStore();
 
       if (!rootStore.repositoryService) {
@@ -1890,7 +1890,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
 
         return testResult.addComment({
           value: payload.comment,
-          timestamp: new Date().getTime()
+          timestamp: payload.timestamp
         });
       })();
 
