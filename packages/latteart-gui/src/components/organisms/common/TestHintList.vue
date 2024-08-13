@@ -162,13 +162,6 @@ export default defineComponent({
     const errorDialogOpened = ref(false);
     const errorMessage = ref("");
 
-    const testHints: TestHint[] = [...props.testHints].sort((a, b) => {
-      return (
-        Number(props.checkedTestHintIds.includes(a.id)) -
-        Number(props.checkedTestHintIds.includes(b.id))
-      );
-    });
-
     const search = ref("");
     const page = ref<number>(1);
     const itemsPerPage = ref<number>(props.pagingDisabled ? -1 : 10);
@@ -179,6 +172,8 @@ export default defineComponent({
       }[]
     >([{ key: "matchCount", order: "desc" }]);
     const selectedItemIds = ref<string[]>([...props.checkedTestHintIds]);
+
+    const checkedTestHintIds = props.checkedTestHintIds;
 
     const headers = computed(() => {
       const customColumns = props.testHintProps.map((customProp) => {
@@ -250,32 +245,34 @@ export default defineComponent({
     });
 
     const items = computed(() => {
-      return testHints.map((testHint) => {
-        const { customs, ...other } = testHint;
-        return {
-          isChecked: props.checkedTestHintIds.includes(other.id),
-          matchCount:
-            props.testHintMatchCounts.find(({ id }) => id === testHint.id)?.matchCount ?? 0,
-          ...other,
-          commentWords: other.commentWords.join(" "),
-          operationElements: other.operationElements
-            .map(({ tagname, type, text }) => {
-              return `[${tagname}, ${type}, ${text}]`;
-            })
-            .join(" "),
-          ...Object.fromEntries(
-            customs.map((custom) => {
-              const customProp = props.testHintProps.find(({ id }) => id === custom.propId);
-              const value = customProp
-                ? customProp.type === "list"
-                  ? customProp.listItems?.find(({ key }) => key === custom.value)?.value ?? ""
-                  : custom.value
-                : "";
-              return [custom.propId, value];
-            })
-          )
-        };
-      });
+      return props.testHints
+        .map((testHint) => {
+          const { customs, ...other } = testHint;
+          return {
+            isChecked: checkedTestHintIds.includes(other.id),
+            matchCount:
+              props.testHintMatchCounts.find(({ id }) => id === testHint.id)?.matchCount ?? 0,
+            ...other,
+            commentWords: other.commentWords.join(" "),
+            operationElements: other.operationElements
+              .map(({ tagname, type, text }) => {
+                return `[${tagname}, ${type}, ${text}]`;
+              })
+              .join(" "),
+            ...Object.fromEntries(
+              customs.map((custom) => {
+                const customProp = props.testHintProps.find(({ id }) => id === custom.propId);
+                const value = customProp
+                  ? customProp.type === "list"
+                    ? customProp.listItems?.find(({ key }) => key === custom.value)?.value ?? ""
+                    : custom.value
+                  : "";
+                return [custom.propId, value];
+              })
+            )
+          };
+        })
+        .sort((a, b) => Number(a.isChecked) - Number(b.isChecked));
     });
 
     const getRowClass = ({ item }: { item: { id: string } }) => {
