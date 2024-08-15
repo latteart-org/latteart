@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type { DataLoader } from "@/lib/common/dataLoader";
+import { RepositoryDataLoader, type DataLoader } from "@/lib/common/dataLoader";
 import type { I18nProvider } from "@/lib/common/internationalization";
 import {
   readDeviceSettings,
@@ -321,6 +321,10 @@ export const useRootStore = defineStore("root", {
       }
 
       this.setRepositoryServiceUrl({ url: serverUrl });
+
+      if (this.repositoryService) {
+        this.dataLoader = new RepositoryDataLoader(this.repositoryService);
+      }
 
       this.registerRepositoryServiceUrl({
         url: serverUrl
