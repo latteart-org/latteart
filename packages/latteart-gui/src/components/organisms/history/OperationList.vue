@@ -845,11 +845,14 @@ export default defineComponent({
       if (!ope) {
         return;
       }
+
+      const tempCheckedItems = [...checkedItems.value];
       for (let i = ope.start; i <= ope.end; i++) {
         if (!checkedItems.value.includes(i)) {
-          checkedItems.value.push(i);
+          tempCheckedItems.push(i);
         }
       }
+      checkedItems.value = [...tempCheckedItems];
     };
 
     onMounted((): void => {
