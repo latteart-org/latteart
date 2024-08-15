@@ -170,7 +170,7 @@ export default defineComponent({
         readonly key: string;
         readonly order: "desc" | "asc";
       }[]
-    >([{ key: "matchCount", order: "desc" }]);
+    >([]);
     const selectedItemIds = ref<string[]>([...props.checkedTestHintIds]);
 
     const checkedTestHintIds = props.checkedTestHintIds;
@@ -272,6 +272,7 @@ export default defineComponent({
             )
           };
         })
+        .sort((a, b) => b.matchCount - a.matchCount)
         .sort((a, b) => Number(a.isChecked) - Number(b.isChecked));
     });
 
