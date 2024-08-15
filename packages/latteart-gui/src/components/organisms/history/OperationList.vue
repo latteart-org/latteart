@@ -860,6 +860,7 @@ export default defineComponent({
     });
 
     onBeforeUnmount((): void => {
+      operationHistoryStore.checkedTestSteps = [];
       document.removeEventListener("keydown", keyDown);
     });
 
