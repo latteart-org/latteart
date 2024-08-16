@@ -34,11 +34,11 @@ export class TestHintPropsService {
   ): Promise<PutTestHintPropResponse> {
     await transactionRunner.waitAndRun(async (entityManager) => {
       const params = await entityManager.find(TestHintPropEntity);
-      const existsParams = params.filter((p) => p.name !== "none");
-      const noneParam = params.find((p) => p.name === "none");
+      const existsParams = params.filter((p) => p.type !== "dummy");
+      const dummyParam = params.find((p) => p.type === "dummy");
 
-      if (noneParam && testHintProps.length > 0) {
-        await entityManager.delete(TestHintPropEntity, noneParam.id);
+      if (dummyParam && testHintProps.length > 0) {
+        await entityManager.delete(TestHintPropEntity, dummyParam.id);
       }
 
       const idList = testHintProps
@@ -65,8 +65,8 @@ export class TestHintPropsService {
 
       if (testHintProps.length === 0) {
         await entityManager.save(TestHintPropEntity, {
-          name: "none",
-          type: "string",
+          name: "",
+          type: "dummy",
           listItems: "",
           index: 0,
         });
@@ -100,7 +100,7 @@ export class TestHintPropsService {
       .getRepository(TestHintPropEntity)
       .find();
     return results
-      .filter((p) => p.name !== "none")
+      .filter((p) => p.type !== "dummy")
       .sort((a, b) => a.index - b.index)
       .map((r) => testHintPropEntityToResponse(r));
   }
