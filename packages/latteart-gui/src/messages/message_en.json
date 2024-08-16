@@ -387,7 +387,8 @@
       "show": "Show matching conditions",
       "hide": "Hide matching conditions",
       "ignore-check-box": "During the current test, you will no longer be eligible for matching.",
-      "story-filter": "Current Story Only"
+      "story-filter": "Current Story Only",
+      "comment-words": "Hint text/Words in Comments"
     },
     "common": {
       "match-count": "Match count",

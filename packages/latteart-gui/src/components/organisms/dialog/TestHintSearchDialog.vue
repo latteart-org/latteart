@@ -44,7 +44,7 @@
                 <v-row class="align-center py-0">
                   <v-checkbox
                     v-model="isFilteringByCommentsEnabled"
-                    :label="$t('test-hint.common.comment-words')"
+                    :label="$t('test-hint.search-dialog.comment-words')"
                     class="mr-4"
                     hide-details
                     density="comfortable"
