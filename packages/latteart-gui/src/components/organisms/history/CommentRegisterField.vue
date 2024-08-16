@@ -35,11 +35,14 @@ export default defineComponent({
     const operationHistoryStore = useOperationHistoryStore();
 
     const comment = ref("");
+    const isSaving = ref(false);
 
     const addComment = () => {
-      if (comment.value === "") {
+      if (comment.value === "" || isSaving.value) {
         return;
       }
+
+      isSaving.value = true;
 
       operationHistoryStore
         .addComment({
@@ -48,6 +51,7 @@ export default defineComponent({
         })
         .then(() => {
           comment.value = "";
+          isSaving.value = false;
         });
     };
 
