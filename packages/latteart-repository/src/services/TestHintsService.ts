@@ -50,6 +50,7 @@ export class TestHintsService {
 
     return {
       props: props
+        .filter((p) => p.type !== "dummy")
         .sort((a, b) => a.index - b.index)
         .map(testHintPropEntityToResponse),
       data: testHints
