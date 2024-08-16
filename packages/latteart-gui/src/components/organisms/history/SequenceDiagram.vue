@@ -177,6 +177,14 @@ export default defineComponent({
       resetTestPurposeIndex();
     };
 
+    const selectPreviousIndex = () => {
+      if (!selectedTestPurposeIndex.value) {
+        return;
+      }
+      const tempIndex = selectedTestPurposeIndex.value;
+      selectedTestPurposeIndex.value = tempIndex === 0 ? tempIndex : tempIndex - 1;
+    };
+
     onMounted(() => {
       resetTestPurposeIndex();
       const sequenceDiagram = document.getElementById("sequence-diagram-container") as any;
@@ -185,6 +193,7 @@ export default defineComponent({
 
     watch(currentTestResultId, resetTestPurposeIndex);
     watch(graph, changeIndex);
+    watch(testPurposes, selectPreviousIndex);
 
     return {
       errorMessageDialogOpened,
