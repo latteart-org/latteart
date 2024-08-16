@@ -740,12 +740,7 @@ export default defineComponent({
       duration: 100
     });
 
-    const scrollToTableRow = (itemIndex: number) => {
-      const perPage =
-        numberOfDisplayedItems.value > 0
-          ? numberOfDisplayedItems.value
-          : displayedHistoryItems.value.length;
-      const rowIndex = Math.floor(itemIndex % perPage);
+    const scrollToTableRow = (rowIndex: number) => {
       const rowHeight = 32;
       const rowTop = rowIndex * rowHeight;
       const rowBottom = rowTop + rowHeight;
@@ -821,7 +816,19 @@ export default defineComponent({
 
       if (itemIndex !== -1) {
         switchTablePage(itemIndex);
-        scrollToTableRow(itemIndex);
+
+        const perPage =
+          numberOfDisplayedItems.value > 0
+            ? numberOfDisplayedItems.value
+            : displayedHistoryItems.value.length;
+        const itemIndexPerPage = Math.floor(itemIndex % perPage);
+        const prevItemsCommentNumber = (() => {
+          const prevItems = displayedHistoryItems.value.filter(
+            ({ index }) => index >= currentIndex - itemIndexPerPage && index <= currentIndex
+          );
+          return prevItems.flatMap(({ comments }) => comments).length;
+        })();
+        scrollToTableRow(itemIndexPerPage + prevItemsCommentNumber);
       }
     };
 
@@ -864,12 +871,16 @@ export default defineComponent({
       document.removeEventListener("keydown", keyDown);
     });
 
-    const { selectedOperationInfo } = toRefs(props);
+    const { selectedOperationInfo, comments } = toRefs(props);
     watch(selectedOperationInfo, initializeSelectedSequences);
     watch(getCheckedItems, clearCheckedItems);
     watch(checkedItems, updateCheckedOperationList);
     watch(itemsPerPage, resetPosition);
     watch(displayedHistoryStr, resetPosition);
+    watch(comments, () => {
+      onSelectOperations(displayedHistoryItems.value.length - 1);
+      resetPosition();
+    });
 
     initializeSelectedSequences();
 
