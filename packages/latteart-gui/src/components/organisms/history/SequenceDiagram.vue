@@ -183,7 +183,7 @@ export default defineComponent({
       if (
         !selectedTestPurposeIndex.value ||
         testPurposes.value.length === 0 ||
-        testPurposes.value.length === testPurposeLength.value
+        testPurposes.value.length >= testPurposeLength.value
       ) {
         return;
       }
