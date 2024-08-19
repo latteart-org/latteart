@@ -127,7 +127,8 @@ export function extractTestResultsData(
   return result;
 }
 
-export function extractCommentData(
+export function extracttData(
+  fileName: string,
   files: {
     filePath: string;
     data: string | Buffer;
@@ -135,8 +136,7 @@ export function extractCommentData(
 ) {
   const datas: string[] = [];
   for (const file of files) {
-    const fileName = path.basename(file.filePath);
-    if (fileName === "comments.json") {
+    if (path.basename(file.filePath) === fileName) {
       datas.push(file.data as string);
     }
   }

@@ -47,6 +47,12 @@ type ExportCommentData = {
   fileData: string;
 };
 
+type ExportMutationData = {
+  testResultId: string;
+  fileName: string;
+  fileData: string;
+};
+
 type ExportConfigData = { fileName: string; data: string };
 
 export type ExportFileRepositoryService = {
@@ -55,6 +61,7 @@ export type ExportFileRepositoryService = {
     testResults: ExportTestResultData[],
     testHints: ExportTestHintData | null,
     comments: ExportCommentData[],
+    mutations: ExportMutationData[],
     config: ExportConfigData | null
   ): Promise<string>;
 
@@ -65,6 +72,10 @@ export type ExportFileRepositoryService = {
       fileData: { id: string; fileUrl: string }[];
     },
     comments: {
+      fileName: string;
+      fileData: string;
+    },
+    mutations: {
       fileName: string;
       fileData: string;
     }
@@ -87,6 +98,7 @@ export class ExportFileRepositoryServiceImpl
     testResults: ExportTestResultData[],
     testHints: ExportTestHintData | null,
     comments: ExportCommentData[],
+    mutations: ExportMutationData[],
     config: ExportConfigData | null
   ): Promise<string> {
     const timestamp = this.service.timestamp.format("YYYYMMDD_HHmmss");
@@ -110,10 +122,14 @@ export class ExportFileRepositoryServiceImpl
           const comment = comments.find(
             (comment) => comment.testResultId === testResult.testResultId
           );
-          await this.outputTestResultAndCommentsFiles(
+          const mutation = mutations.find(
+            (mutation) => mutation.testResultId === testResult.testResultId
+          );
+          await this.outputTestResult(
             testResultsDirPath,
             testResult,
-            comment
+            comment,
+            mutation
           );
         })
       );
@@ -186,10 +202,11 @@ export class ExportFileRepositoryServiceImpl
     );
   }
 
-  public async outputTestResultAndCommentsFiles(
+  public async outputTestResult(
     testResultsDirPath: string,
     testResult: ExportTestResultData,
-    comments?: ExportCommentData
+    comments: ExportCommentData | undefined,
+    mutations: ExportMutationData | undefined
   ): Promise<void> {
     const testResultPath = path.join(
       testResultsDirPath,
@@ -210,6 +227,12 @@ export class ExportFileRepositoryServiceImpl
       await this.service.workingFileRepository.outputFile(
         path.join(testResultPath, comments.fileName),
         comments.fileData
+      );
+    }
+    if (mutations) {
+      await this.service.workingFileRepository.outputFile(
+        path.join(testResultPath, mutations.fileName),
+        mutations.fileData
       );
     }
 
@@ -254,6 +277,10 @@ export class ExportFileRepositoryServiceImpl
     comments: {
       fileName: string;
       fileData: string;
+    },
+    mutations: {
+      fileName: string;
+      fileData: string;
     }
   ): Promise<string> {
     const outputDirName = await this.outputFiles(testResult);
@@ -261,6 +288,11 @@ export class ExportFileRepositoryServiceImpl
     await this.service.workingFileRepository.outputFile(
       path.join(outputDirName, comments.fileName),
       comments.fileData
+    );
+
+    await this.service.workingFileRepository.outputFile(
+      path.join(outputDirName, mutations.fileName),
+      mutations.fileData
     );
 
     const zipFilePath = await this.service.workingFileRepository.outputZip(

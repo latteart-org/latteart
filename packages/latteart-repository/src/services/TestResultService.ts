@@ -867,12 +867,20 @@ export class TestResultServiceImpl implements TestResultService {
         where: { testResult: { id: testResultId } },
       })
     ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
+    const mutationScreenshots = (
+      await this.dataSource.getRepository(MutationEntity).find({
+        relations: ["screenshot"],
+        where: { testResult: { id: testResultId } },
+      })
+    ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
 
-    const screenshots = [...testStepScreenshots, ...noteScreenshots].filter(
-      (screenshot, index, array) => {
-        return array.findIndex(({ id }) => id === screenshot.id) === index;
-      }
-    );
+    const screenshots = [
+      ...testStepScreenshots,
+      ...noteScreenshots,
+      ...mutationScreenshots,
+    ].filter((screenshot, index, array) => {
+      return array.findIndex(({ id }) => id === screenshot.id) === index;
+    });
 
     return screenshots.map(({ id, fileUrl }) => {
       return { id, fileUrl };

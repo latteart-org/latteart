@@ -33,12 +33,19 @@ import {
 import { VideoEntity } from "@/entities/VideoEntity";
 import { VideoFrame } from "@/interfaces/Videos";
 import { DataSource } from "typeorm";
+import { extracttData, TestResultData } from "@/domain/dataExtractor";
+import { deserializeComments } from "./helper/commentHelper";
+import { MutationService } from "./MutationsService";
+import { CommentsService } from "./CommentsService";
+import { deserializeMutations } from "./helper/mutationHelper";
 
 export interface TestResultImportService {
   importTestResult(
     importFile: { data: string; name: string },
     testResultId: string | null
-  ): Promise<{ testResultId: string }>;
+  ): Promise<{
+    testResultId: string;
+  }>;
   saveImportFileDatas(
     ...args: {
       importFileData: {
@@ -53,8 +60,13 @@ export interface TestResultImportService {
       };
       testResultId: string | null;
     }[]
-  ): Promise<{ newTestResultId: string; oldTestResultId?: string }[]>;
-  saveImportFileData(
+  ): Promise<
+    {
+      newTestResultId: string;
+      oldTestResultId?: string;
+    }[]
+  >;
+  saveTestResultFileData(
     importFileData: {
       testResultFile: {
         fileName: string;
@@ -77,20 +89,43 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       screenshotFileRepository: FileRepository;
       videoFileRepository: FileRepository;
       timestamp: TimestampService;
+      mutationService: MutationService;
+      commentsService: CommentsService;
     }
   ) {}
 
   public async importTestResult(
     importFile: { data: string; name: string },
     testResultId: string | null
-  ): Promise<{ testResultId: string }> {
+  ): Promise<{
+    testResultId: string;
+  }> {
     console.log(importFile.name);
 
-    const importFileData = await this.readImportFile(importFile.data);
+    const { testResultData, commentFiles, mutationFiles, mutationImageFiles } =
+      await this.readImportFile(importFile.data);
 
-    const { newTestResultId } = await this.saveImportFileData(
-      importFileData,
+    const { newTestResultId } = await this.saveTestResultFileData(
+      testResultData,
       testResultId
+    );
+
+    const commentsDatas = extracttData("comments.json", commentFiles);
+    const importCommentsData = deserializeComments(
+      commentsDatas,
+      newTestResultId
+    );
+    await this.service.commentsService.importComments(importCommentsData);
+
+    const mutationsDatas = extracttData("mutations.json", mutationFiles);
+    const importMutationsData = deserializeMutations(
+      mutationsDatas,
+      newTestResultId
+    );
+    await this.service.mutationService.importMutations(
+      importMutationsData,
+      mutationImageFiles,
+      this.service.screenshotFileRepository
     );
 
     return {
@@ -106,21 +141,38 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       throw Error("Invalid test result file.");
     }
 
-    const fileData = files.filter(
-      (file): file is { filePath: string; data: Buffer } => {
+    const fileData = files
+      .filter((file): file is { filePath: string; data: Buffer } => {
         return (
           [".png", ".webp", ".webm"].includes(path.extname(file.filePath)) &&
           typeof file.data !== "string"
         );
-      }
+      })
+      .filter((file) => !file.filePath.includes("mutation_"));
+    const mutationImageFiles = files.filter((file) =>
+      file.filePath.includes("mutation_")
     );
 
-    return {
+    const commentFiles = files.filter((file) => {
+      return file.filePath.includes("comments.json");
+    });
+    const mutationFiles = files.filter((file) => {
+      return file.filePath.includes("mutations.json");
+    });
+
+    const testResultData: TestResultData = {
+      testResultId: "",
       testResultFile: {
         fileName: testResultFile.filePath,
         data: testResultFile.data,
       },
       fileData,
+    };
+    return {
+      testResultData,
+      commentFiles,
+      mutationFiles,
+      mutationImageFiles,
     };
   }
 
@@ -138,15 +190,20 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       };
       testResultId: string | null;
     }[]
-  ): Promise<{ newTestResultId: string; oldTestResultId?: string }[]> {
+  ): Promise<
+    {
+      newTestResultId: string;
+      oldTestResultId?: string;
+    }[]
+  > {
     return Promise.all(
       args.map(({ importFileData, testResultId }) =>
-        this.saveImportFileData(importFileData, testResultId)
+        this.saveTestResultFileData(importFileData, testResultId)
       )
     );
   }
 
-  public async saveImportFileData(
+  public async saveTestResultFileData(
     importFileData: {
       testResultFile: {
         fileName: string;
@@ -158,7 +215,10 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       }[];
     },
     testResultId: string | null
-  ): Promise<{ newTestResultId: string; oldTestResultId?: string }> {
+  ): Promise<{
+    newTestResultId: string;
+    oldTestResultId?: string;
+  }> {
     const testResult = deserializeTestResult(
       importFileData.testResultFile.data
     );

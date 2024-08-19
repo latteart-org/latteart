@@ -28,6 +28,7 @@ import { MutationEntity } from "../entities/MutationEntity";
 import { TransactionRunner } from "@/TransactionRunner";
 import { ElementInfo } from "@/domain/types";
 import { mergeCoverage } from "./helper/coverageHelper";
+import { ImportMutationData } from "./helper/mutationHelper";
 
 export class MutationService {
   constructor(private dataSource: DataSource) {}
@@ -137,5 +138,89 @@ export class MutationService {
         });
       }
     )) as CreateMutationResponse[];
+  }
+
+  public async getMutationEntities(
+    testResultId: string
+  ): Promise<MutationEntity[]> {
+    return await this.dataSource.getRepository(MutationEntity).find({
+      relations: ["screenshot"],
+      where: { testResult: { id: testResultId } },
+      order: { timestamp: "ASC" },
+    });
+  }
+
+  public async importMutations(
+    data: {
+      testResultId: string;
+      data: ImportMutationData[];
+    }[],
+    mutationImageFiles: {
+      filePath: string;
+      data: string | Buffer;
+    }[],
+    screenshotFileRepository: FileRepository
+  ) {
+    const testResultEntities = await this.dataSource
+      .getRepository(TestResultEntity)
+      .find();
+
+    const mutationRepository = this.dataSource.getRepository(MutationEntity);
+    const screenshotRepository =
+      this.dataSource.getRepository(ScreenshotEntity);
+
+    await Promise.all(
+      data.map(async (mutationsData) => {
+        const testResult = testResultEntities.find(
+          (e) => e.id === mutationsData.testResultId
+        );
+        if (!testResult) {
+          throw new Error(
+            `testResult not found. ${mutationsData.testResultId}`
+          );
+        }
+        await Promise.all(
+          mutationsData.data.map(async (mutation) => {
+            const paths = mutation.screenshot.split("_");
+            const timestamp = paths[2].split(".")[0];
+
+            const targetFile = mutationImageFiles.find((file) => {
+              return (
+                file.filePath.includes(timestamp) &&
+                file.filePath.includes(mutation.testResult)
+              );
+            });
+
+            const screenshotEntity = new ScreenshotEntity();
+            if (targetFile) {
+              const fileName = `mutation_${testResult.id}_${timestamp}.png`;
+              await screenshotFileRepository.outputFile(
+                fileName,
+                targetFile.data
+              );
+              screenshotEntity.fileUrl =
+                screenshotFileRepository.getFileUrl(fileName);
+            } else {
+              screenshotEntity.fileUrl = "";
+            }
+            const savedScreenshotEntity =
+              await screenshotRepository.save(screenshotEntity);
+            const mutationEntity = new MutationEntity();
+            mutationEntity.testResult = testResult;
+            mutationEntity.elementMutations = mutation.elementMutations;
+            mutationEntity.timestamp = mutation.timestamp;
+            mutationEntity.screenshot = savedScreenshotEntity;
+            mutationEntity.windowHandle = mutation.windowHandle;
+            mutationEntity.scrollPositionX = mutation.scrollPositionX;
+            mutationEntity.scrollPositionY = mutation.scrollPositionY;
+            mutationEntity.clientSizeWidth = mutation.clientSizeWidth;
+            mutationEntity.clientSizeHeight = mutation.clientSizeHeight;
+            mutationEntity.url = mutation.url;
+            mutationEntity.title = mutation.title;
+            await mutationRepository.save(mutationEntity);
+          })
+        );
+      })
+    );
   }
 }
