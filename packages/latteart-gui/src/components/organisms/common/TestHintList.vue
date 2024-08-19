@@ -19,7 +19,9 @@
     <v-card flat height="100%">
       <v-card-text>
         <v-row align="center">
-          <slot name="actions"></slot>
+          <v-col cols="6" class="pa-0">
+            <slot name="actions"></slot>
+          </v-col>
           <v-spacer></v-spacer>
           <v-text-field
             v-model="search"
@@ -146,7 +148,8 @@ export default defineComponent({
       default: () => [],
       required: false
     },
-    pagingDisabled: { type: Boolean, default: false, required: false }
+    pagingDisabled: { type: Boolean, default: false, required: false },
+    showMatchCounts: { type: Boolean, default: false, required: false }
   },
   emits: [
     "click:edit-test-hint-button",
@@ -225,7 +228,7 @@ export default defineComponent({
           value: "viewPointName",
           width: "170",
           sortable: true
-        }
+        },
         // {
         //   title: rootStore.message("test-hint.common.comment-words"),
         //   value: "commentWords",
@@ -236,11 +239,16 @@ export default defineComponent({
         //   value: "operationElements",
         //   sortable: false
         // },
-        // {
-        //   title: rootStore.message("test-hint.common.match-count"),
-        //   value: "matchCount",
-        //   sortable: false
-        // }
+        ...(props.showMatchCounts
+          ? [
+              {
+                title: rootStore.message("test-hint.common.match-count"),
+                value: "matchCount",
+                width: "30",
+                sortable: false
+              }
+            ]
+          : [])
       ];
     });
 
