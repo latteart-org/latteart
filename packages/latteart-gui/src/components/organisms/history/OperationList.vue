@@ -354,7 +354,7 @@ export default defineComponent({
       const start = (page.value - 1) * numberOfDisplayedItems.value;
       const _end = start + (numberOfDisplayedItems.value - 1);
       const end =
-        _end > displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
+        _end >= displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
       const items: number[] = [];
       const add = !checkboxStatus.value.allChecked;
       for (let i = start; i <= end; i++) {
@@ -378,7 +378,7 @@ export default defineComponent({
       const start = (page.value - 1) * numberOfDisplayedItems.value;
       const _end = start + (numberOfDisplayedItems.value - 1);
       const end =
-        _end > displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
+        _end >= displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
       let include = false;
       let notInclude = false;
       for (let i = start; i <= end; i++) {
@@ -808,28 +808,30 @@ export default defineComponent({
     });
 
     const resetPosition = () => {
-      const currentIndex = selectedOperationIndexes.value[0];
+      nextTick(() => {
+        const currentIndex = selectedOperationIndexes.value[0];
 
-      const itemIndex = displayedHistoryItems.value.findIndex(
-        ({ index }) => index === currentIndex
-      );
+        const itemIndex = displayedHistoryItems.value.findIndex(
+          ({ index }) => index === currentIndex
+        );
 
-      if (itemIndex !== -1) {
-        switchTablePage(itemIndex);
+        if (itemIndex !== -1) {
+          switchTablePage(itemIndex);
 
-        const perPage =
-          numberOfDisplayedItems.value > 0
-            ? numberOfDisplayedItems.value
-            : displayedHistoryItems.value.length;
-        const itemIndexPerPage = Math.floor(itemIndex % perPage);
-        const prevItemsCommentNumber = (() => {
-          const prevItems = displayedHistoryItems.value.filter(
-            ({ index }) => index >= currentIndex - itemIndexPerPage && index <= currentIndex
-          );
-          return prevItems.flatMap(({ comments }) => comments).length;
-        })();
-        scrollToTableRow(itemIndexPerPage + prevItemsCommentNumber);
-      }
+          const perPage =
+            numberOfDisplayedItems.value > 0
+              ? numberOfDisplayedItems.value
+              : displayedHistoryItems.value.length;
+          const itemIndexPerPage = Math.floor(itemIndex % perPage);
+          const prevItemsCommentNumber = (() => {
+            const prevItems = displayedHistoryItems.value.filter(
+              ({ index }) => index >= currentIndex - itemIndexPerPage && index <= currentIndex
+            );
+            return prevItems.flatMap(({ comments }) => comments).length;
+          })();
+          scrollToTableRow(itemIndexPerPage + prevItemsCommentNumber);
+        }
+      });
     };
 
     const selectRange = (event: PointerEvent, index: number) => {
