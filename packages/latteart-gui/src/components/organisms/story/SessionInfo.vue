@@ -313,7 +313,9 @@ export default defineComponent({
         message: rootStore.message("session-info.call-test-results")
       });
       try {
-        testResults.value = await operationHistoryStore.getTestResults();
+        testResults.value = (await operationHistoryStore.getTestResults()).sort(
+          (a, b) => b.creationTimestamp - a.creationTimestamp
+        );
       } finally {
         rootStore.closeProgressDialog();
       }
