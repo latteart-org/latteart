@@ -40,7 +40,6 @@ import {
   ConfigData,
   extractConfigData,
   extractProjectData,
-  extracttData,
   extractTestHintData,
   extractTestResultsData,
   ProjectData,
@@ -115,7 +114,7 @@ export class ProjectImportService {
         testResultImportService: service.testResultImportService,
       });
 
-      const commentsDatas = extracttData("comments.json", commentFiles);
+      const commentsDatas = commentFiles.map((file) => file.data as string);
       const importCommentsData = deserializeComments(
         commentsDatas,
         "",
@@ -123,7 +122,7 @@ export class ProjectImportService {
       );
       await service.commentsService.importComments(importCommentsData);
 
-      const mutationsDatas = extracttData("mutations.json", mutationFiles);
+      const mutationsDatas = mutationFiles.map((file) => file.data as string);
       const importMutationsData = deserializeMutations(
         mutationsDatas,
         "",

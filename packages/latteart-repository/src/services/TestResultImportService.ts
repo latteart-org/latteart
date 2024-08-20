@@ -33,7 +33,7 @@ import {
 import { VideoEntity } from "@/entities/VideoEntity";
 import { VideoFrame } from "@/interfaces/Videos";
 import { DataSource } from "typeorm";
-import { extracttData, TestResultData } from "@/domain/dataExtractor";
+import { TestResultData } from "@/domain/dataExtractor";
 import { deserializeComments } from "./helper/commentHelper";
 import { MutationService } from "./MutationsService";
 import { CommentsService } from "./CommentsService";
@@ -110,14 +110,14 @@ export class TestResultImportServiceImpl implements TestResultImportService {
       testResultId
     );
 
-    const commentsDatas = extracttData("comments.json", commentFiles);
+    const commentsDatas = commentFiles.map((file) => file.data as string);
     const importCommentsData = deserializeComments(
       commentsDatas,
       newTestResultId
     );
     await this.service.commentsService.importComments(importCommentsData);
 
-    const mutationsDatas = extracttData("mutations.json", mutationFiles);
+    const mutationsDatas = mutationFiles.map((file) => file.data as string);
     const importMutationsData = deserializeMutations(
       mutationsDatas,
       newTestResultId

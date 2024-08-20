@@ -29,6 +29,7 @@ import { TransactionRunner } from "@/TransactionRunner";
 import { ElementInfo } from "@/domain/types";
 import { mergeCoverage } from "./helper/coverageHelper";
 import { ImportMutationData } from "./helper/mutationHelper";
+import path from "path";
 
 export class MutationService {
   constructor(private dataSource: DataSource) {}
@@ -181,19 +182,15 @@ export class MutationService {
         }
         await Promise.all(
           mutationsData.data.map(async (mutation) => {
-            const paths = mutation.screenshot.split("_");
-            const timestamp = paths[2].split(".")[0];
+            const oldFileName = path.basename(mutation.screenshot);
 
-            const targetFile = mutationImageFiles.find((file) => {
-              return (
-                file.filePath.includes(timestamp) &&
-                file.filePath.includes(mutation.testResult)
-              );
-            });
+            const targetFile = mutationImageFiles.find(
+              (file) => path.basename(file.filePath) === oldFileName
+            );
 
             const screenshotEntity = new ScreenshotEntity();
             if (targetFile) {
-              const fileName = `mutation_${testResult.id}_${timestamp}.png`;
+              const fileName = `mutation_${testResult.id}_${mutation.timestamp}.png`;
               await screenshotFileRepository.outputFile(
                 fileName,
                 targetFile.data

@@ -127,22 +127,6 @@ export function extractTestResultsData(
   return result;
 }
 
-export function extracttData(
-  fileName: string,
-  files: {
-    filePath: string;
-    data: string | Buffer;
-  }[]
-) {
-  const datas: string[] = [];
-  for (const file of files) {
-    if (path.basename(file.filePath) === fileName) {
-      datas.push(file.data as string);
-    }
-  }
-  return datas;
-}
-
 export function extractTestHintData(
   files: {
     filePath: string;
