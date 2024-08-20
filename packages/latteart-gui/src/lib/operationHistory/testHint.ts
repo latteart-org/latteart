@@ -95,7 +95,7 @@ export function selectMatchedTestHints(
 
 function matchHintByComments(targetTestHint: TestHint, condition: { comments: string[] }) {
   if (condition.comments.length === 0) {
-    return 1;
+    return 0;
   }
 
   return condition.comments.reduce((acc, comment) => {
@@ -119,7 +119,7 @@ function matchHintByElements(
   const { elementTagAndTypeSet, elementTextSet } = condition;
 
   if (elementTagAndTypeSet.size + elementTextSet.size === 0) {
-    return 1;
+    return 0;
   }
 
   return targetTestHint.operationElements.reduce((acc, targetElement) => {
