@@ -17,17 +17,28 @@
 <template>
   <v-text-field
     v-model="comment"
+    :label="$t('test-result-page.comment-register-field-label')"
     variant="outlined"
     density="compact"
     hide-details
     class="mt-n1 mx-2"
-    append-inner-icon="sms"
     @click:append-inner="addComment"
-  ></v-text-field>
+    @keydown.enter.prevent="addComment"
+  >
+    <template #append-inner>
+      <v-btn
+        :disabled="isRegisterButtonDisabled"
+        density="compact"
+        variant="plain"
+        icon="sms"
+        @click="addComment"
+      ></v-btn>
+    </template>
+  </v-text-field>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
 export default defineComponent({
@@ -37,8 +48,12 @@ export default defineComponent({
     const comment = ref("");
     const isSaving = ref(false);
 
+    const isRegisterButtonDisabled = computed(() => {
+      return comment.value === "" || isSaving.value;
+    });
+
     const addComment = () => {
-      if (comment.value === "" || isSaving.value) {
+      if (isRegisterButtonDisabled.value) {
         return;
       }
 
@@ -57,7 +72,8 @@ export default defineComponent({
 
     return {
       comment,
-      addComment
+      addComment,
+      isRegisterButtonDisabled
     };
   }
 });

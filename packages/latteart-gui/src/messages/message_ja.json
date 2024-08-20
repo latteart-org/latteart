@@ -107,7 +107,8 @@
     "image": "静止画",
     "video": "動画",
     "loading-test-results": "テスト結果読込中",
-    "search-test-hints": "テストヒントを受ける"
+    "search-test-hints": "テストヒントを受ける",
+    "comment-register-field-label": "コメント"
   },
   "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
