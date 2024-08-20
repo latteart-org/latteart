@@ -34,6 +34,7 @@ import { createFileRepositoryManager } from "@/gateways/fileRepository";
 import { createLogger } from "@/logger/logger";
 import { AppDataSource } from "@/data-source";
 import { CommentsService } from "@/services/CommentsService";
+import { MutationService } from "@/services/MutationsService";
 
 @Route("test-results/{testResultId}/export")
 @Tags("test-results")
@@ -84,6 +85,7 @@ export class TestResultExportController extends Controller {
       return await new TestResultExportServiceImpl({
         testResult: testResultService,
         comment: new CommentsService(AppDataSource),
+        mutation: new MutationService(AppDataSource),
         exportFileRepository: exportFileRepositoryService,
       }).export(testResultId);
     } catch (error) {

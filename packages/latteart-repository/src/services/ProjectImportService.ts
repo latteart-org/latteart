@@ -38,7 +38,6 @@ import { FileRepository } from "@/interfaces/fileRepository";
 import { ImportFileRepository } from "@/interfaces/importFileRepository";
 import {
   ConfigData,
-  extractCommentData,
   extractConfigData,
   extractProjectData,
   extractTestHintData,
@@ -52,6 +51,9 @@ import { In } from "typeorm";
 import { CommentsService } from "./CommentsService";
 import { TestHintsService } from "./TestHintsService";
 import { ImportTestHints } from "@/interfaces/TestHints";
+import { MutationService } from "./MutationsService";
+import { deserializeMutations } from "./helper/mutationHelper";
+import { deserializeComments } from "./helper/commentHelper";
 
 export class ProjectImportService {
   public async import(
@@ -74,6 +76,7 @@ export class ProjectImportService {
       importFileRepository: ImportFileRepository;
       testHintsService: TestHintsService;
       commentsService: CommentsService;
+      mutationService: MutationService;
     }
   ): Promise<{ projectId: string; config: ProjectConfig | undefined }> {
     const {
@@ -82,6 +85,8 @@ export class ProjectImportService {
       projectFiles,
       testHintFiles,
       commentFiles,
+      mutationFiles,
+      mutationImageFiles,
     } = await this.readImportFile(
       service.importFileRepository,
       importFile.data,
@@ -108,11 +113,25 @@ export class ProjectImportService {
       testResultIdMap = await this.importTestResults(testResultDatas, {
         testResultImportService: service.testResultImportService,
       });
-      const commentsDatas = extractCommentData(commentFiles);
-      await this.importComments(
-        service.commentsService,
+
+      const commentsDatas = commentFiles.map((file) => file.data as string);
+      const importCommentsData = deserializeComments(
         commentsDatas,
+        "",
         testResultIdMap
+      );
+      await service.commentsService.importComments(importCommentsData);
+
+      const mutationsDatas = mutationFiles.map((file) => file.data as string);
+      const importMutationsData = deserializeMutations(
+        mutationsDatas,
+        "",
+        testResultIdMap
+      );
+      await service.mutationService.importMutations(
+        importMutationsData,
+        mutationImageFiles,
+        service.screenshotFileRepository
       );
     }
 
@@ -434,41 +453,6 @@ export class ProjectImportService {
     await service.importAllTestHints(data, transactionRunner);
   }
 
-  private async importComments(
-    service: CommentsService,
-    commentDatas: string[],
-    idMap: Map<string, string>
-  ): Promise<void> {
-    const data = commentDatas
-      .map((comment) => {
-        const data = JSON.parse(comment) as {
-          id: string;
-          testResult: string;
-          value: string;
-          timestamp: number;
-        }[];
-        if (data.length === 0) {
-          return null;
-        }
-        const newTestResultId = idMap.get(data[0].testResult);
-        return {
-          testResultId: newTestResultId,
-          data: data.map((d) => {
-            return { value: d.value, timestamp: d.timestamp };
-          }),
-        };
-      })
-      .filter((comment) => comment) as {
-      testResultId: string;
-      data: {
-        testResult: string;
-        value: string;
-        timestamp: number;
-      }[];
-    }[];
-    await service.importComments(data);
-  }
-
   private async importTestResults(
     testResultDatas: TestResultData[],
     service: {
@@ -526,15 +510,23 @@ export class ProjectImportService {
     const configFiles = files.filter((file) => {
       return file.filePath.includes("config");
     });
-    const testResultFiles = files.filter((file) => {
-      return file.filePath.includes("test-results");
-    });
+    const testResultFiles = files
+      .filter((file) => {
+        return file.filePath.includes("test-results");
+      })
+      .filter((file) => !file.filePath.includes("mutation_"));
     const projectFiles = files.filter((file) => {
       return file.filePath.includes("projects");
     });
     const commentFiles = files.filter((file) => {
       return file.filePath.includes("comments.json");
     });
+    const mutationFiles = files.filter((file) => {
+      return file.filePath.includes("mutations.json");
+    });
+    const mutationImageFiles = files.filter((file) =>
+      file.filePath.includes("mutation_")
+    );
     const testHintFiles = files.filter((file) => {
       return file.filePath.includes("test-hints.json");
     });
@@ -544,6 +536,7 @@ export class ProjectImportService {
       projectFiles.length === 0 &&
       configFiles.length === 0 &&
       commentFiles.length === 0 &&
+      mutationFiles.length === 0 &&
       testHintFiles.length === 0
     ) {
       throw Error("Invalid project data file.");
@@ -571,6 +564,8 @@ export class ProjectImportService {
       projectFiles,
       testHintFiles,
       commentFiles,
+      mutationFiles,
+      mutationImageFiles,
     };
   }
 }

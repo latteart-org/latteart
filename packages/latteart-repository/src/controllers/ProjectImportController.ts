@@ -41,6 +41,7 @@ import { PutConfigResponse } from "@/interfaces/Configs";
 import { AppDataSource } from "@/data-source";
 import { CommentsService } from "@/services/CommentsService";
 import { TestHintsService } from "@/services/TestHintsService";
+import { MutationService } from "@/services/MutationsService";
 
 @Route("imports/projects")
 @Tags("imports")
@@ -117,6 +118,8 @@ export class ProjectImportController extends Controller {
           screenshotFileRepository,
           videoFileRepository,
           timestamp: timestampService,
+          mutationService: new MutationService(AppDataSource),
+          commentsService: new CommentsService(AppDataSource),
         }
       );
 
@@ -138,8 +141,9 @@ export class ProjectImportController extends Controller {
           transactionRunner,
           testResultImportService,
           importFileRepository,
-          commentsService: new CommentsService(AppDataSource),
           testHintsService: new TestHintsService(AppDataSource),
+          commentsService: new CommentsService(AppDataSource),
+          mutationService: new MutationService(AppDataSource),
         }
       );
 

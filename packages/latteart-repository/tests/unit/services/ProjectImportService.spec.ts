@@ -26,8 +26,7 @@ import { ImportFileRepository } from "@/interfaces/importFileRepository";
 import { ConfigsService } from "@/services/ConfigsService";
 import { TestHintsService } from "../../../src/services/TestHintsService";
 import { CommentsService } from "@/services/CommentsService";
-import { TestResultEntity } from "@/entities/TestResultEntity";
-import { CommentEntity } from "@/entities/CommentEntity";
+import { MutationService } from "@/services/MutationsService";
 
 const testConnectionHelper = new SqliteTestConnectionHelper();
 
@@ -108,15 +107,23 @@ describe("ProjectImportService", () => {
             data: "[]",
           },
         ],
+        mutationFiles: [
+          {
+            filePath: "projects/testResultId/mutations.json",
+            data: "[]",
+          },
+        ],
+        mutationImageFiles: [],
       });
       service["importConfig"] = jest.fn().mockResolvedValue(settings);
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
-      service["importComments"] = jest.fn().mockResolvedValue("1");
       service["importTestHints"] = jest.fn().mockResolvedValue("1");
 
       const commentsService = new CommentsService(TestDataSource);
       commentsService.importComments = jest.fn();
+      const mutationService = new MutationService(TestDataSource);
+      mutationService.importMutations = jest.fn();
       const testHintsService = new TestHintsService(TestDataSource);
       testHintsService.importAllTestHints = jest.fn();
 
@@ -127,6 +134,8 @@ describe("ProjectImportService", () => {
           screenshotFileRepository,
           videoFileRepository,
           timestamp: timestampService,
+          commentsService,
+          mutationService,
         }
       );
 
@@ -156,6 +165,7 @@ describe("ProjectImportService", () => {
           testResultImportService,
           importFileRepository,
           commentsService,
+          mutationService,
           testHintsService,
         }
       );
@@ -168,7 +178,6 @@ describe("ProjectImportService", () => {
       expect(service["importConfig"]).toBeCalledTimes(1);
       expect(service["importTestResults"]).toBeCalledTimes(1);
       expect(service["importProject"]).toBeCalledTimes(1);
-      expect(service["importComments"]).toBeCalledTimes(1);
       expect(service["importTestHints"]).toBeCalledTimes(1);
     });
 
@@ -187,9 +196,6 @@ describe("ProjectImportService", () => {
       service["importTestResults"] = jest.fn().mockResolvedValue(new Map());
       service["importProject"] = jest.fn().mockResolvedValue("1");
 
-      const testHintsService = TestHintsService as jest.Mock;
-      const commentsService = CommentsService as jest.Mock;
-
       const testResultImportService = new TestResultImportServiceImpl(
         TestDataSource,
         {
@@ -197,6 +203,8 @@ describe("ProjectImportService", () => {
           screenshotFileRepository,
           videoFileRepository,
           timestamp: timestampService,
+          commentsService: new CommentsService(TestDataSource),
+          mutationService: new MutationService(TestDataSource),
         }
       );
 
@@ -226,6 +234,7 @@ describe("ProjectImportService", () => {
           testResultImportService,
           importFileRepository,
           commentsService: new CommentsService(TestDataSource),
+          mutationService: new MutationService(TestDataSource),
           testHintsService: new TestHintsService(TestDataSource),
         }
       );
@@ -399,38 +408,6 @@ describe("ProjectImportService", () => {
           },
         ],
       });
-    });
-    it("Commentsの登録", async () => {
-      const testResultEntity = await TestDataSource.getRepository(
-        TestResultEntity
-      ).save(new TestResultEntity());
-      const commentData = [
-        {
-          testResult: "oldId",
-          id: "commentId",
-          value: "value",
-          timestamp: 10,
-        },
-      ];
-      const idMap = new Map<string, string>();
-      idMap.set("oldId", testResultEntity.id);
-
-      const service = new ProjectImportService();
-      await service["importComments"](
-        new CommentsService(TestDataSource),
-        [JSON.stringify(commentData)],
-        idMap
-      );
-
-      const comments = await TestDataSource.getRepository(CommentEntity).find();
-
-      expect(comments).toEqual([
-        {
-          id: expect.any(String),
-          timestamp: 10,
-          value: "value",
-        },
-      ]);
     });
   });
 });
