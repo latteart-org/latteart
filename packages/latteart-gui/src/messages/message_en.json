@@ -107,7 +107,8 @@
     "image": "Image",
     "video": "Video",
     "loading-test-results": "Loading Test Results.",
-    "search-test-hints": "Get test hint"
+    "search-test-hints": "Get test hint",
+    "comment-register-field-label": "Comment"
   },
   "test-result-navigation-drawer": {
     "title": "Test Result List",
