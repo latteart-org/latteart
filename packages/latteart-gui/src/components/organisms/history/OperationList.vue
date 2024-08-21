@@ -48,6 +48,7 @@
           :items="displayedHistoryItems"
           :search="search"
           :items-per-page-options="itemsPerPageOptions"
+          class="operation-history"
           @click:row="(_: any, obj: any) => onSelectOperations(obj.item.index)"
           @contextmenu:row="
             (event: MouseEvent, item: any) => contextmenu(item.item.operation.sequence, event)
@@ -96,43 +97,49 @@
           </template>
 
           <template #[`item.operation.title`]="{ item }">
-            <td :title="item.operation.title" :class="{ ellipsis: true }">
-              {{ item.operation.title.substring(0, 60) }}
+            <td :title="item.operation.title" class="text-column-width text-truncate">
+              {{ item.operation.title }}
             </td>
           </template>
 
           <template #[`item.operation.elementInfo.tagname`]="{ item }">
-            <td :title="item.operation.elementInfo.tagname" :class="{ ellipsis: true }">
+            <td :title="item.operation.elementInfo.tagname" class="text-column-width text-truncate">
               {{ item.operation.elementInfo.tagname }}
             </td>
           </template>
 
           <template #[`item.operation.elementInfo.attributes.name`]="{ item }">
-            <td :title="item.operation.elementInfo.attributes.name" :class="{ ellipsis: true }">
+            <td
+              :title="item.operation.elementInfo.attributes.name"
+              class="text-column-width text-truncate"
+            >
               {{ item.operation.elementInfo.attributes.name }}
             </td>
           </template>
 
           <template #[`item.operation.elementInfo.text`]="{ item }">
-            <td :title="item.operation.elementInfo.text" :class="{ ellipsis: true }">
-              {{ item.operation.elementInfo.text.substring(0, 60) }}
+            <td :title="item.operation.elementInfo.text" class="text-column-width text-truncate">
+              {{ item.operation.elementInfo.text }}
             </td>
           </template>
 
           <template #[`item.operation.type`]="{ item }">
-            <td :title="item.operation.type" :class="{ ellipsis: true }">
+            <td :title="item.operation.type" class="text-column-width text-truncate">
               {{ item.operation.type }}
             </td>
           </template>
 
           <template #[`item.operation.inputValue`]="{ item }">
-            <td :title="item.operation.inputValue" :class="{ ellipsis: true }">
-              {{ item.operation.inputValue.substring(0, 60) }}
+            <td :title="item.operation.inputValue" class="text-column-width text-truncate">
+              {{ item.operation.inputValue }}
             </td>
           </template>
 
           <template #[`item.operation.timestamp`]="{ item }">
-            <td :title="formatTimestamp(item.operation.timestamp)" :class="{ ellipsis: true }">
+            <td
+              :title="formatTimestamp(item.operation.timestamp)"
+              class="text-column-width text-truncate"
+            >
               {{ formatTimestamp(item.operation.timestamp) }}
             </td>
           </template>
@@ -157,9 +164,13 @@
                 class="text-blue-grey-darken-1 bg-blue-grey-lighten-5"
                 style="height: 32px"
                 :colspan="!isViewerMode ? columns.length - 2 : columns.length - 1"
+                :title="comment.value"
               >
-                <v-icon class="mr-3">sms</v-icon>
-                {{ comment.value }}
+                <div class="text-truncate" style="max-width: 1250px">
+                  <v-icon class="mr-3">sms</v-icon>
+
+                  {{ comment.value }}
+                </div>
               </td>
               <td
                 class="text-blue-grey-darken-1 bg-blue-grey-lighten-5"
@@ -930,10 +941,7 @@ export default defineComponent({
   --v-selection-control-size: 26px !important
   margin-left: 7px
 
-.ellipsis
-  overflow: hidden
-  white-space: nowrap
-  text-overflow: ellipsis
+.text-column-width
   max-width: 250px
 
 #operation-list
