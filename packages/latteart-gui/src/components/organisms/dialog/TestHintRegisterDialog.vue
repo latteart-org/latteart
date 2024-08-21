@@ -132,10 +132,7 @@ export default defineComponent({
           ? testManagementStore.getCurrentStoryInfo(testResultId)
           : undefined;
 
-        if (
-          currentStoryInfo &&
-          (captureControlStore.isCapturing || props.relatedTestSteps.length > 0)
-        ) {
+        if (currentStoryInfo && props.relatedTestSteps.length > 0) {
           testMatrixName.value = currentStoryInfo.testMatrixName;
           groupName.value = currentStoryInfo.groupName;
           testTargetName.value = currentStoryInfo.testTargetName;
