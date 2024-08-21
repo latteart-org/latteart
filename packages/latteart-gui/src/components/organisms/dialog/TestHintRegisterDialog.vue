@@ -39,7 +39,6 @@ import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useTestManagementStore } from "@/stores/testManagement";
-import { useCaptureControlStore } from "@/stores/captureControl";
 import { useRootStore } from "@/stores/root";
 import type { TestHintProp } from "@/lib/operationHistory/types";
 import TestHintInputForm from "./TestHintInputForm.vue";
@@ -68,7 +67,6 @@ export default defineComponent({
     const rootStore = useRootStore();
     const operationHistoryStore = useOperationHistoryStore();
     const testManagementStore = useTestManagementStore();
-    const captureControlStore = useCaptureControlStore();
     const processing = ref(false);
 
     const testHintValue = ref("");
@@ -132,10 +130,7 @@ export default defineComponent({
           ? testManagementStore.getCurrentStoryInfo(testResultId)
           : undefined;
 
-        if (
-          currentStoryInfo &&
-          (captureControlStore.isCapturing || props.relatedTestSteps.length > 0)
-        ) {
+        if (currentStoryInfo && props.relatedTestSteps.length > 0) {
           testMatrixName.value = currentStoryInfo.testMatrixName;
           groupName.value = currentStoryInfo.groupName;
           testTargetName.value = currentStoryInfo.testTargetName;
