@@ -962,6 +962,9 @@ export default defineComponent({
 
 .search-title
   color: rgba(0,0,0,0.54)
+
+.operation-history :deep(.v-data-table-footer__items-per-page .v-field__input)
+  padding-left: 8px
 </style>
 
 <style lang="sass">
