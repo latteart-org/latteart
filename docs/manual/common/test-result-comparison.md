@@ -17,7 +17,7 @@
 
 <img src="./images/replay-button.png"/>
 
-リプレイ対象のテスト結果を読み込んだ状態で、履歴画面ヘッダ部のメニューボタンから「テスト結果のリプレイ」を選択するとダイアログが表示されます。
+リプレイ対象のテスト結果を読み込んだ状態で、テスト結果画面ヘッダ部のメニューボタンから「テスト結果のリプレイ」を選択するとダイアログが表示されます。
 
 <img src="./images/replay-dialog.png" width="500"/>
 
@@ -36,7 +36,7 @@
 
 <img src="./images/comparison-button.png"/>
 
-一度保存したリプレイ結果は、テスト結果一覧画面から「テスト結果を読み込む」から読み込んだ後、履歴画面ヘッダ部のメニューボタンから「テスト結果の比較」を選択することで、いつでもリプレイ元のテスト結果と差分比較することができます。
+一度保存したリプレイ結果は、テスト結果一覧画面から「テスト結果を読み込む」から読み込んだ後、テスト結果画面ヘッダ部のメニューボタンから「テスト結果の比較」を選択することで、いつでもリプレイ元のテスト結果と差分比較することができます。
 
 :bulb: リプレイ元が見つからないテスト結果(リプレイ結果以外のテスト結果)を読み込んでいる場合は、「テスト結果の比較」は非活性になり選択できません。
 
@@ -74,7 +74,7 @@ compare_YYYYMMDD_HHmmss/
 {
   "targetNames": {
     "actual": "テスト結果1", // 比較先のテスト結果名
-    "expected": "テスト結果2" // 比較元のテスト結果名
+    "expected": "テスト結果2", // 比較元のテスト結果名
   },
   "result": {
     "isOk": false, // テスト全体の合否
@@ -85,40 +85,40 @@ compare_YYYYMMDD_HHmmss/
           "title": {
             "isOk": true, // ページタイトルの合否
             "actual": "aaa", // 比較先のテスト結果側の値
-            "expected": "aaa" // 比較元のテスト結果側の値
+            "expected": "aaa", // 比較元のテスト結果側の値
           },
           "url": {
             "isOk": true, // ページURLの合否
             "actual": "aaa",
-            "expected": "aaa"
+            "expected": "aaa",
           },
           "elementTexts": {
             "isOk": false, // ページ内文字列の合否
             "actual": [
               { "tagname": "H1", "value": "aaa" },
               { "tagname": "A", "value": "aaa" },
-              { "tagname": "A", "value": "aaa" }
+              { "tagname": "A", "value": "aaa" },
             ],
             "expected": [
               { "tagname": "H1", "value": "bbb" },
               { "tagname": "A", "value": "bbb" },
-              { "tagname": "A", "value": "bbb" }
-            ]
+              { "tagname": "A", "value": "bbb" },
+            ],
           },
           "screenshot": {
             "isOk": false, // スクリーンショットの合否
-            "diffFilePath": "screenshots/3.png" // 差分画像のファイルパス
-          }
-        }
+            "diffFilePath": "screenshots/3.png", // 差分画像のファイルパス
+          },
+        },
       },
       {
         // ...
       },
       {
         // ...
-      }
-    ]
-  }
+      },
+    ],
+  },
 }
 ```
 
