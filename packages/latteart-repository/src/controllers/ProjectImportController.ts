@@ -39,6 +39,9 @@ import { ImportFileRepositoryImpl } from "@/gateways/importFileRepository";
 import { CreateProjectImportDto } from "@/interfaces/importFileRepository";
 import { PutConfigResponse } from "@/interfaces/Configs";
 import { AppDataSource } from "@/data-source";
+import { CommentsService } from "@/services/CommentsService";
+import { TestHintsService } from "@/services/TestHintsService";
+import { MutationService } from "@/services/MutationsService";
 
 @Route("imports/projects")
 @Tags("imports")
@@ -59,6 +62,10 @@ export class ProjectImportController extends Controller {
   @Response<ServerErrorData<"import_project_not_exist">>(
     500,
     "Project information does not exist"
+  )
+  @Response<ServerErrorData<"import_test_hint_not_exist">>(
+    500,
+    "Test hint information does not exist"
   )
   @Response<ServerErrorData<"import_project_failed">>(
     500,
@@ -111,6 +118,8 @@ export class ProjectImportController extends Controller {
           screenshotFileRepository,
           videoFileRepository,
           timestamp: timestampService,
+          mutationService: new MutationService(AppDataSource),
+          commentsService: new CommentsService(AppDataSource),
         }
       );
 
@@ -118,6 +127,7 @@ export class ProjectImportController extends Controller {
         requestBody.source.projectFile,
         requestBody.includeProject,
         requestBody.includeTestResults,
+        requestBody.includeTestHints,
         requestBody.includeConfig,
         {
           timestampService,
@@ -131,6 +141,9 @@ export class ProjectImportController extends Controller {
           transactionRunner,
           testResultImportService,
           importFileRepository,
+          testHintsService: new TestHintsService(AppDataSource),
+          commentsService: new CommentsService(AppDataSource),
+          mutationService: new MutationService(AppDataSource),
         }
       );
 
@@ -151,6 +164,11 @@ export class ProjectImportController extends Controller {
         if (error.message === "Project information does not exist.") {
           throw new ServerError(500, {
             code: "import_project_not_exist",
+          });
+        }
+        if (error.message === "Test hint information dose not exist.") {
+          throw new ServerError(500, {
+            code: "import_test_hint_not_exist",
           });
         }
         throw new ServerError(500, {

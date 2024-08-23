@@ -27,6 +27,7 @@ import {
   CapturedOperation,
   CapturedScreenTransition,
   RunnableOperation,
+  ScreenMutation,
 } from "../../service/types";
 import { CaptureCLServerError } from "./types";
 
@@ -87,6 +88,7 @@ export class CaptureClServerAdapter {
     config: CaptureConfig,
     eventListeners: {
       onGetOperation: (capturedOperation: CapturedOperation) => Promise<void>;
+      onGetMutation: (screenMutations: ScreenMutation[]) => Promise<void>;
       onGetScreenTransition: (
         capturedScreenTransition: CapturedScreenTransition
       ) => Promise<void>;
@@ -131,6 +133,10 @@ export class CaptureClServerAdapter {
         const capturedOperation = data as CapturedOperation;
 
         await eventListeners.onGetOperation(capturedOperation);
+      };
+
+      const onGetMutation = async (data?: unknown) => {
+        await eventListeners.onGetMutation(data as ScreenMutation[]);
       };
 
       const onGetScreenTransition = async (data?: unknown) => {
@@ -202,6 +208,7 @@ export class CaptureClServerAdapter {
         onDisconnect,
         ...[
           { eventName: "operation_captured", eventHandler: onGetOperation },
+          { eventName: "mutation_captured", eventHandler: onGetMutation },
           {
             eventName: "screen_transition_captured",
             eventHandler: onGetScreenTransition,

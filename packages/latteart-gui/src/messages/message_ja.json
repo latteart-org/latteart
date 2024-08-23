@@ -28,6 +28,7 @@
     "note": "メモ",
     "notice": "気づき",
     "register-operation": "操作の登録",
+    "register-test-hint": "テストヒントの登録",
     "select-operation": "操作の選択",
     "auto-operation": "自動操作",
     "autofill": "自動入力"
@@ -105,7 +106,9 @@
     "edit-test-purpose": "テスト目的の編集",
     "image": "静止画",
     "video": "動画",
-    "loading-test-results": "テスト結果読込中"
+    "loading-test-results": "テスト結果読込中",
+    "search-test-hints": "テストヒントを受ける",
+    "comment-register-field-label": "コメント"
   },
   "test-result-navigation-drawer": {
     "title": "テスト結果一覧",
@@ -132,6 +135,7 @@
     "project-data": "プロジェクト情報",
     "testresult-data": "テスト結果情報",
     "config-data": "設定情報",
+    "test-hint": "テストヒント情報",
     "select-test-result-file-label": "テスト結果ファイル",
     "select-test-result-file-button": "選択",
     "select-project-file-label": "プロジェクトファイル",
@@ -213,6 +217,18 @@
       "title": "自動操作：セット内容",
       "details-list": "詳細"
     },
+    "setting-test-hint": "テストヒント設定",
+    "test-hint": {
+      "search-scope": "検索時の画面要素・キーワード自動補完範囲",
+      "default-search-seconds": "デフォルト値",
+      "suffix": "秒前まで",
+      "info": "※0でヒントの検索による自動補完無効",
+      "matching-scope": "登録時・検索時のキーワード自動補完対象",
+      "all": "「コメント全体」からキーワードを補完",
+      "words-on-page-only": "コメント内に存在する「画面中のテキスト」及び「任意ワード」からキーワードを補完",
+      "extra-words": "任意ワード",
+      "excluded-words": "除外ワード"
+    },
     "setting-experimental-features": "実験的機能設定",
     "recording-method": "記録方式",
     "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
@@ -244,6 +260,12 @@
     "message": "自動操作する場合は操作セット名を選択してください。",
     "name": "操作セット名",
     "details": "操作セット詳細"
+  },
+  "test-hint-register-dialog": {
+    "title": "テストヒント登録"
+  },
+  "test-hint-edit-dialog": {
+    "title": "テストヒント編集"
   },
   "note-edit": {
     "take-screenshot": "登録するスクリーンショット",
@@ -332,6 +354,7 @@
   "navigation": {
     "group-label": {
       "capture": "テスト記録",
+      "test-design-support": "テスト設計支援",
       "management": "テスト管理",
       "recent-stories": "最近読み込んだストーリー",
       "current-review": "現在のレビュー",
@@ -342,6 +365,49 @@
     "title": "テスト記録開始",
     "execute-button": "記録を開始する",
     "starting-capture": "記録開始中"
+  },
+  "test-hint": {
+    "list-page": {
+      "title": "テストヒント一覧"
+    },
+    "edit-props-dialog": {
+      "title": "カスタムフィールド編集",
+      "add": "カラム追加",
+      "name": "カラム名",
+      "add-option": "項目追加"
+    },
+    "delete-dialog": {
+      "title": "テストヒントを削除しますか？"
+    },
+    "search-dialog": {
+      "title": "テストヒント:検索",
+      "filter-test-hints": "テストヒントのマッチング",
+      "matching-words": "マッチングワード",
+      "matching-result": "現在のテストに関連するヒント",
+      "matching-scope": "対象範囲:",
+      "show": "マッチング条件表示",
+      "hide": "マッチング条件非表示",
+      "ignore-check-box": "現在のテスト中は以後マッチング対象外になります",
+      "story-filter": "現在のストーリーのみ",
+      "comment-words": "ヒント本文・キーワード",
+      "display-all-test-hints": "全てのテストヒントを表示",
+      "display-matched-test-hints": "マッチするテストヒントのみ表示",
+      "information": "ヒントはマッチング条件に多く該当した順で表示されます",
+      "no-test-hint-matched": "マッチするテストヒントがありません。全てのテストヒントを表示します。"
+    },
+    "common": {
+      "match-count": "マッチ数",
+      "hint-text": "ヒント本文",
+      "test-matrix": "テストマトリクス",
+      "group": "グループ",
+      "test-target": "テスト対象",
+      "view-point": "観点",
+      "comment-words": "キーワード",
+      "operation": "操作",
+      "screen-elements": "画面要素",
+      "add-element": "要素の追加",
+      "search": "文字列検索"
+    }
   },
   "optional-features": {
     "title": "オプション機能",
@@ -574,6 +640,7 @@
       "web_driver_not_ready": "WebDriverの起動に失敗しました。WebDriverへのパスが正しく設定されているかご確認ください。",
       "appium_not_started": "Appiumが起動していません。",
       "device_not_connected": "デバイスが接続されていません。",
+      "detect_devices_failed": "デバイスの検出に失敗しました。",
       "web_driver_version_mismatch": "ご利用のバージョンのWebDriverはテスト対象のブラウザをサポートしていません。WebDriverのバージョンをご確認ください。",
       "connection_refused": "テスト対象ページへの接続に失敗しました。",
       "add_test_step_failed": "操作の登録に失敗しました。",
@@ -598,7 +665,6 @@
       "move_test_purpose_failed": "テスト目的の移動に失敗しました。",
       "record_test_purpose_failed": "テスト目的の記録に失敗しました。",
       "create_test_result_failed": "テスト結果の作成に失敗しました。",
-      "get_test_result_failed": "テスト結果の取得に失敗しました。",
       "get_test_result_list_failed": "テスト結果一覧の取得に失敗しました。",
       "get_session_ids_failed": "セッションIDの取得に失敗しました。",
       "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できませんでした。\n非対応操作:{value}",
@@ -620,6 +686,7 @@
       "import-data-error": "データインポートに失敗しました。",
       "import-project-not-exist": "インポートデータにプロジェクト情報が存在しません。",
       "import-test-result-not-exist": "インポートデータにテスト結果情報が存在しません。",
+      "import-test-hint-not-exist": "インポートデータにテストヒント情報が存在しません。",
       "import-config-not-exist": "インポートデータに設定情報が存在しません。",
       "create-export-data-error": "データエクスポートに失敗しました。"
     }

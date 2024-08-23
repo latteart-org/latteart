@@ -89,6 +89,7 @@ export default defineComponent({
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
     const selectedTestPurposeIndex = ref<number | null>(null);
+    const testPurposeLength = ref(0);
 
     const isViewerMode = computed((): boolean => {
       return inject("isViewerMode") ?? false;
@@ -124,6 +125,7 @@ export default defineComponent({
     const resetTestPurposeIndex = () => {
       const history = operationHistoryStore.history;
       selectedTestPurposeIndex.value = history.length > 0 ? 0 : null;
+      testPurposeLength.value = history.length > 0 ? testPurposes.value.length : 0;
     };
 
     const changeCurrentTestResultId = async (testResultId: string) => {
@@ -177,6 +179,19 @@ export default defineComponent({
       resetTestPurposeIndex();
     };
 
+    const selectPreviousIndex = () => {
+      if (
+        !selectedTestPurposeIndex.value ||
+        testPurposes.value.length === 0 ||
+        testPurposes.value.length >= testPurposeLength.value
+      ) {
+        return;
+      }
+      const tempIndex = selectedTestPurposeIndex.value;
+      selectedTestPurposeIndex.value = tempIndex === 0 ? tempIndex : tempIndex - 1;
+      testPurposeLength.value = testPurposes.value.length;
+    };
+
     onMounted(() => {
       resetTestPurposeIndex();
       const sequenceDiagram = document.getElementById("sequence-diagram-container") as any;
@@ -185,6 +200,7 @@ export default defineComponent({
 
     watch(currentTestResultId, resetTestPurposeIndex);
     watch(graph, changeIndex);
+    watch(testPurposes, selectPreviousIndex);
 
     return {
       errorMessageDialogOpened,

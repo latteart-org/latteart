@@ -24,6 +24,9 @@ import {
   TestResultViewOption,
   VideoFrame,
   Video,
+  ScreenMutation,
+  Comment,
+  CoverageSource,
 } from "../types";
 import { RepositoryContainer } from "./testResultAccessor";
 
@@ -76,7 +79,33 @@ export type TestResultAccessor = {
   addOperation(
     operation: CapturedOperation,
     option: { compressScreenshot: boolean }
-  ): Promise<ServiceResult<{ operation: Operation; id: string }>>;
+  ): Promise<
+    ServiceResult<{
+      operation: Operation;
+      id: string;
+      coverageSource: CoverageSource;
+    }>
+  >;
+
+  /**
+   * add Mutations
+   * @param screenElements new Mutation contexts
+   */
+  addMutations(screenMutations: ScreenMutation[]): Promise<ServiceResult<void>>;
+
+  /**
+   * collect Comments
+   * @param filter filter for collection
+   */
+  collectComments(filter?: {
+    period?: { since?: number; until?: number };
+  }): Promise<ServiceResult<Comment[]>>;
+
+  /**
+   * add a Comment
+   * @param comment new Comment context
+   */
+  addComment(comment: Omit<Comment, "id">): Promise<ServiceResult<Comment>>;
 
   /**
    * add a Note to a Test Step
@@ -304,6 +333,9 @@ export type RepositoryServiceErrorCode =
   | "get_test_result_failed"
   | "get_test_step_failed"
   | "add_test_step_failed"
+  | "add_mutation_failed"
+  | "add_comment_failed"
+  | "get_comments_failed"
   | "compress_test_step_screenshot_failed"
   | "add_note_failed"
   | "edit_note_failed"

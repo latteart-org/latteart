@@ -203,6 +203,7 @@ type RepositoryServerErrorCode =
   | "import_project_failed"
   | "import_project_not_exist"
   | "import_test_result_not_exist"
+  | "import_test_hint_not_exist"
   | "import_config_not_exist"
   | "upload_request_failed"
   | "upload_failed"

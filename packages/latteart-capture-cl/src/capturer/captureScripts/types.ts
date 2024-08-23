@@ -180,6 +180,7 @@ export type CaptureScripts = {
   }) => {
     capturedItems: SuspendedCapturedItem[];
     screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
+    mutatedItems: ScreenMutationForScript[];
   };
 };
 
@@ -198,8 +199,88 @@ export type CapturedElementInfo = {
   textWithoutChildren?: string;
 };
 
+export type MutatedElementInfo = {
+  tagname: string;
+  text?: string;
+  value?: string;
+  xpath: string;
+  checked?: boolean;
+  attributes: { [key: string]: string };
+  iframe?: Iframe;
+};
+
+export type ScreenMutationForScript = {
+  timestamp: number;
+  elementMutations: ElementMutationForScript[];
+  scrollPosition: { x: number; y: number };
+  iframe?: Iframe;
+};
+
+export type ElementMutationForScript =
+  | ChildElementAdditionForScript
+  | TextContentAdditionForScript
+  | AttributeAdditionForScript
+  | ChildElementRemovalForScript
+  | TextContentRemovalForScript
+  | AttributeRemovalForScript
+  | TextContentChangeForScript
+  | AttributeChangeForScript;
+
+export type ChildElementAdditionForScript = {
+  type: "childElementAddition";
+  targetElement: MutatedElementInfo;
+  addedChildElement: MutatedElementInfo;
+};
+
+export type TextContentAdditionForScript = {
+  type: "textContentAddition";
+  targetElement: MutatedElementInfo;
+  addedTextContent: string;
+};
+
+export type ChildElementRemovalForScript = {
+  type: "childElementRemoval";
+  targetElement: MutatedElementInfo;
+  removedChildElement: MutatedElementInfo;
+};
+
+export type TextContentRemovalForScript = {
+  type: "textContentRemoval";
+  targetElement: MutatedElementInfo;
+  removedTextContent: string;
+};
+
+export type TextContentChangeForScript = {
+  type: "textContentChange";
+  targetElement: MutatedElementInfo;
+  oldValue: string;
+};
+
+export type AttributeAdditionForScript = {
+  type: "attributeAddition";
+  targetElement: MutatedElementInfo;
+  attributeName: string;
+  newValue: string;
+};
+
+export type AttributeRemovalForScript = {
+  type: "attributeRemoval";
+  targetElement: MutatedElementInfo;
+  attributeName: string;
+  oldValue: string;
+};
+
+export type AttributeChangeForScript = {
+  type: "attributeChange";
+  targetElement: MutatedElementInfo;
+  attributeName: string;
+  newValue: string;
+  oldValue: string;
+};
+
 export type ExtendedDocument = Document & {
   __sendDatas?: SuspendedCapturedItem[];
+  __sendMutatedDatas?: ScreenMutationForScript[];
   __latteartEventIdToEvent?: Map<string, Event>;
   __capturingIsPaused?: boolean;
   __protected?: boolean;

@@ -33,6 +33,7 @@ import { useRootStore } from "./root";
 import { convertNote } from "@/lib/common/replyDataConverter";
 import {
   ServiceSuccess,
+  type Comment,
   type ElementInfo,
   type GraphView,
   type SequenceView,
@@ -107,6 +108,11 @@ export type OperationHistoryState = {
    * Operation with notes history.
    */
   history: OperationWithNotes[];
+
+  /**
+   * Comments.
+   */
+  comments: Comment[];
 
   /**
    * Window informations.
@@ -262,9 +268,13 @@ export type OperationHistoryState = {
   } | null;
 
   /**
-   * Checked operations.
+   * Checked Test steps.
    */
-  checkedOperations: { index: number; operation: OperationForGUI }[];
+  checkedTestSteps: {
+    index: number;
+    operation: OperationForGUI;
+    comments: { value: string; timestamp: string }[];
+  }[];
 
   /**
    * Checked test result ids.
@@ -335,6 +345,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
     storingTestResultInfos: [],
     testStepIds: [],
     history: [],
+    comments: [],
     windows: [],
     sequenceDiagramGraphs: [],
     screenTransitionDiagramGraph: null,
@@ -347,7 +358,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
     displayedOperations: [],
     screenImage: null,
     tmpNoteInfoForEdit: null,
-    checkedOperations: [],
+    checkedTestSteps: [],
     checkedTestResults: [],
     isPictureInPictureWindowDisplayed: false,
     testResultListOption: {
@@ -355,7 +366,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       page: 1,
       itemsPerPage: 10,
       sortBy: "creationTimestamp",
-      sortDesc: false
+      sortDesc: true
     },
     openNoteEditDialog: () => {
       /* Do nothing. */
@@ -1072,6 +1083,9 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
         if (testResult.testingTime) {
           captureControlStore.resetTimer({ millis: testResult.testingTime });
         }
+        if (testResult.comments) {
+          this.comments = [...testResult.comments];
+        }
 
         this.resetHistory({ historyItems: testResult.historyItems });
       } finally {
@@ -1160,7 +1174,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
      */
     clearTestResult() {
       this.history = [];
-      this.checkedOperations = [];
+      this.checkedTestSteps = [];
       this.windows = [];
       this.clearSequenceDiagramGraphs();
       this.testResultInfo = {
@@ -1171,6 +1185,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       };
       this.testStepIds = [];
       this.screenImage = null;
+      this.comments = [];
     },
 
     /**
@@ -1859,6 +1874,33 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       const screenImage = { background, overlay };
 
       this.screenImage = screenImage;
+    },
+
+    async addComment(payload: { comment: string; timestamp: number }) {
+      const rootStore = useRootStore();
+
+      if (!rootStore.repositoryService) {
+        throw new Error("repository service is not active.");
+      }
+
+      const result = await (() => {
+        const testResult = rootStore.repositoryService.createTestResultAccessor(
+          this.testResultInfo.id
+        );
+
+        return testResult.addComment({
+          value: payload.comment,
+          timestamp: payload.timestamp
+        });
+      })();
+
+      if (result.isFailure()) {
+        throw new Error(rootStore.message(`error.operation_history.${result.error.errorCode}`));
+      }
+
+      this.comments.push(result.data);
+
+      this.canUpdateModels = true;
     }
   }
 });

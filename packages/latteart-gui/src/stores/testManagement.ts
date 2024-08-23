@@ -27,8 +27,6 @@ import type {
 } from "@/lib/testManagement/types";
 import { defineStore } from "pinia";
 import { useRootStore } from "./root";
-import type { TestResultSummary } from "@/lib/operationHistory/types";
-import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResult/GetTestResultListAction";
 import { AddNewTestMatrixAction } from "@/lib/testManagement/actions/AddNewTestMatrixAction";
 import { UpdateTestMatrixAction } from "@/lib/testManagement/actions/UpdateTestMatrixAction";
 import { DeleteTestMatrixAction } from "@/lib/testManagement/actions/DeleteTestMatrixAction";
@@ -232,6 +230,41 @@ export const useTestManagementStore = defineStore("testManagement", {
           );
         }) !== -1
       );
+    },
+
+    /**
+     * Get current story info from the State.
+     * @param state State.
+     * @returns Current story info from the State.
+     */
+    getCurrentStoryInfo: (state) => (testResultId: string) => {
+      const story = state.stories
+        .filter(({ sessions }) => {
+          return sessions.some(({ testResultFiles }) => {
+            return testResultFiles.some(({ id }) => id === testResultId);
+          });
+        })
+        .at(0);
+
+      if (!story) {
+        return undefined;
+      }
+
+      const testMatrix = state.testMatrices.find((testMatrix) => {
+        return testMatrix.id === story.testMatrixId;
+      });
+      const group = testMatrix?.groups.find(({ testTargets }) =>
+        testTargets.some(({ id }) => id === story.testTargetId)
+      );
+      const testTarget = group?.testTargets.find(({ id }) => id === story.testTargetId);
+      const viewPoint = testMatrix?.viewPoints.find(({ id }) => id === story.viewPointId);
+
+      return {
+        testMatrixName: testMatrix?.name ?? "",
+        groupName: group?.name ?? "",
+        testTargetName: testTarget?.name ?? "",
+        viewPointName: viewPoint?.name ?? ""
+      };
     }
   },
   actions: {
@@ -1123,6 +1156,7 @@ export const useTestManagementStore = defineStore("testManagement", {
      * @param payload.source.testResultFileUrl Source import file url.
      * @param payload.option.selectedOptionProject Whether to import project management data.
      * @param payload.option.selectedOptionTestresult Whether to import project test result data.
+     * @param payload.option.selectedOptionTestHint Whether to import tes hint data.
      * @param payload.option.selectedOptionConfig Whether to import project config data.
      * @returns id ,name
      */
@@ -1131,6 +1165,7 @@ export const useTestManagementStore = defineStore("testManagement", {
       option: {
         selectedOptionProject: boolean;
         selectedOptionTestresult: boolean;
+        selectedOptionTestHint: boolean;
         selectedOptionConfig: boolean;
       };
     }) {
@@ -1143,6 +1178,7 @@ export const useTestManagementStore = defineStore("testManagement", {
       const selectOption = {
         includeProject: payload.option.selectedOptionProject,
         includeTestResults: payload.option.selectedOptionTestresult,
+        includeTestHints: payload.option.selectedOptionTestHint,
         includeConfig: payload.option.selectedOptionConfig
       };
 
@@ -1168,6 +1204,7 @@ export const useTestManagementStore = defineStore("testManagement", {
       option: {
         selectedOptionProject: boolean;
         selectedOptionTestresult: boolean;
+        selectedOptionTestHint: boolean;
         selectedOptionConfig: boolean;
       };
     }) {
@@ -1181,6 +1218,7 @@ export const useTestManagementStore = defineStore("testManagement", {
       const selectOption = {
         includeProject: payload.option.selectedOptionProject,
         includeTestResults: payload.option.selectedOptionTestresult,
+        includeTestHints: payload.option.selectedOptionTestHint,
         includeConfig: payload.option.selectedOptionConfig
       };
 

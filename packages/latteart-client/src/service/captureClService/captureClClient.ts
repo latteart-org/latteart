@@ -21,6 +21,7 @@ import {
   RunnableOperation,
   Video,
   CapturedScreenTransition,
+  ScreenMutation,
 } from "../types";
 import {
   ServiceResult,
@@ -294,6 +295,14 @@ class CaptureSessionImpl implements CaptureSession {
           if (this.eventListeners.onAddTestPurpose) {
             this.eventListeners.onAddTestPurpose(addTestPurposeResult.data);
           }
+        },
+        onGetMutation: async (
+          screenMutations: ScreenMutation[]
+        ): Promise<void> => {
+          if (!this.option.testResult) {
+            return;
+          }
+          await this.option.testResult.addMutations(screenMutations);
         },
         onGetScreenTransition: async (
           capturedScreenTransition: CapturedScreenTransition

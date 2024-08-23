@@ -28,6 +28,7 @@
     "note": "Note",
     "notice": "Finding",
     "register-operation": "Operation Registration",
+    "register-test-hint": "Test Hint Registration",
     "select-operation": "Operation Selection",
     "auto-operation": "Auto Operation",
     "autofill": "Autofill"
@@ -105,7 +106,9 @@
     "edit-test-purpose": "Edit Test Purpose",
     "image": "Image",
     "video": "Video",
-    "loading-test-results": "Loading Test Results."
+    "loading-test-results": "Loading Test Results.",
+    "search-test-hints": "Get test hint",
+    "comment-register-field-label": "Comment"
   },
   "test-result-navigation-drawer": {
     "title": "Test Result List",
@@ -132,6 +135,7 @@
     "project-data": "Project Information",
     "testresult-data": "Test Result Information",
     "config-data": "Config Information",
+    "test-hint": "Test Hint Information",
     "select-test-result-file-label": "Test result file",
     "select-test-result-file-button": "Select",
     "select-project-file-label": "Project file",
@@ -213,6 +217,18 @@
       "title": "Auto operation: Set Content",
       "details-list": "Details"
     },
+    "setting-test-hint": "Test Hint Settings",
+    "test-hint": {
+      "search-scope": "Scope of auto-complete for Screen Elements / Keywords when searching",
+      "default-search-seconds": "Default value",
+      "suffix": "seconds",
+      "info": "*0 disables auto-completion by hint search",
+      "matching-scope": "Target of auto-complete for Keywords when registration and searching",
+      "all": "Complete Keywords from 'Entire comment'",
+      "words-on-page-only": "Complete Keywords from 'Words on page' and 'Extra Words'",
+      "extra-words": "Extra Words",
+      "excluded-words": "Excluded Words"
+    },
     "setting-experimental-features": "Experimental Feature Settings",
     "recording-method": "Recording Method",
     "capture-arch": "Record operations on the test page using PUSH method",
@@ -244,6 +260,12 @@
     "message": "For automatic operation, select the operation set name.",
     "name": "Operation Set Name",
     "details": "Operation Set Details"
+  },
+  "test-hint-register-dialog": {
+    "title": "Register Test Hint"
+  },
+  "test-hint-edit-dialog": {
+    "title": "Edit Test Hint"
   },
   "note-edit": {
     "take-screenshot": "Screenshot to register",
@@ -332,6 +354,7 @@
   "navigation": {
     "group-label": {
       "capture": "Test Capturing",
+      "test-design-support": "Test Design Support",
       "management": "Test Management",
       "recent-stories": "Recent Stories",
       "current-review": "Current Review",
@@ -342,6 +365,49 @@
     "title": "Start Capturing",
     "execute-button": "Start",
     "starting-capture": "Starting capture."
+  },
+  "test-hint": {
+    "list-page": {
+      "title": "Test Hint List"
+    },
+    "edit-props-dialog": {
+      "title": "Edit Custom Field",
+      "add": "Add Column",
+      "name": "Column Name",
+      "add-option": "Add Option"
+    },
+    "delete-dialog": {
+      "title": "Are you sure you want to delete this Test hint?"
+    },
+    "search-dialog": {
+      "title": "Test Hint: Search",
+      "filter-test-hints": "Filter test hints",
+      "matching-words": "Matching words",
+      "matching-result": "Hints related to current test",
+      "matching-scope": "Matching scope:",
+      "show": "Show matching conditions",
+      "hide": "Hide matching conditions",
+      "ignore-check-box": "During the current test, you will no longer be eligible for matching.",
+      "story-filter": "Current Story Only",
+      "comment-words": "Hint text / Keyword",
+      "display-all-test-hints": "Display all Test Hints",
+      "display-matched-test-hints": "Display only matched Test Hints",
+      "information": "Hints displayed in the order that most of the Matching Conditions are met",
+      "no-test-hint-matched": "No Test Hints matched. Display all Test Hints."
+    },
+    "common": {
+      "match-count": "Match count",
+      "hint-text": "Hint text",
+      "test-matrix": "Test matrix",
+      "group": "Group",
+      "test-target": "Test target",
+      "view-point": "View point",
+      "comment-words": "Keywords",
+      "operation": "Operation",
+      "screen-elements": "Screen elements",
+      "add-element": "Add Element",
+      "search": "String search"
+    }
   },
   "optional-features": {
     "title": "Optional Features",
@@ -574,6 +640,7 @@
       "web_driver_not_ready": "Failed to start WebDriver. Please check if a correct path to WebDriver is set.",
       "appium_not_started": "Appium is not started.",
       "device_not_connected": "Device is not connected.",
+      "detect_devices_failed": "Failed to detect device.",
       "web_driver_version_mismatch": "This version of WebDriver does not support the target browser. Please check WebDriver version.",
       "connection_refused": "Failed to connect to test target page.",
       "add_test_step_failed": "Failed to register operation.",
@@ -598,7 +665,6 @@
       "move_test_purpose_failed": "Failed to move test purpose.",
       "record_test_purpose_failed": "Failed to record test purpose.",
       "create_test_result_failed": "Failed to create test result.",
-      "get_test_result_failed": "Failed to get test result.",
       "get_test_result_list_failed": "Failed to get test result list.",
       "get_session_ids_failed": "Failed to get session ids.",
       "register_failed_with_invalid_type": "Could not be registered because it includes an operation that does not support automatic operation.\nUnsupported operation:{value}",
@@ -620,6 +686,7 @@
       "import-data-error": "Data import failed.",
       "import-project-not-exist": "Project information does not exist.",
       "import-test-result-not-exist": "Test result information does not exist.",
+      "import-test-hint-not-exist": "Test hint information does not exist.",
       "import-config-not-exist": "Setting information does not exist.",
       "create-export-data-error": "Data export failed."
     }

@@ -21,7 +21,11 @@ import {
   type ElementInfo,
   type TestResultForRepository,
   type TestResultComparisonResultForRepository,
-  type Note
+  type Note,
+  type TestHintPropForRepository,
+  type TestHintForRepository,
+  type CommentForRepository,
+  type CoverageSourceForRepository
 } from "latteart-client";
 
 /**
@@ -32,6 +36,7 @@ export interface OperationWithNotes {
   intention: NoteForGUI | null;
   bugs: NoteForGUI[] | null;
   notices: NoteForGUI[] | null;
+  coverageSource?: CoverageSourceForRepository;
 }
 
 /**
@@ -197,3 +202,9 @@ export type ScreenImage = {
     markerRect?: { top: number; left: number; width: number; height: number };
   };
 };
+
+export type TestHintProp = TestHintPropForRepository;
+
+export type TestHint = TestHintForRepository;
+
+export type Comment = CommentForRepository;

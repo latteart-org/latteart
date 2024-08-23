@@ -16,11 +16,20 @@
 
 <template>
   <v-app>
-    <error-handler>
-      <div style="height: 100vh">
-        <history-display :raw-history="history" :message="messageProvider"></history-display>
-      </div>
-    </error-handler>
+    <v-container fluid class="fill-height pa-0">
+      <v-app-bar color="#424242" absolute flat>
+        <v-toolbar-title>{{ $t("manager-history-view.review") }}</v-toolbar-title>
+      </v-app-bar>
+      <error-handler>
+        <v-container fluid class="pa-0" style="height: calc(100vh); padding-top: 64px !important">
+          <history-display
+            :raw-history="history"
+            :raw-comments="comments"
+            :message="messageProvider"
+          ></history-display>
+        </v-container>
+      </error-handler>
+    </v-container>
   </v-app>
 </template>
 
@@ -46,6 +55,10 @@ export default defineComponent({
       return operationHistoryStore.history;
     });
 
+    const comments = computed(() => {
+      return operationHistoryStore.comments;
+    });
+
     const messageProvider = computed((): MessageProvider => {
       return (message: string, args?: any) => {
         return rootStore.message(message, args).toString();
@@ -57,15 +70,18 @@ export default defineComponent({
       const firstTestResultId = testResultInfos.at(0)?.id ?? "";
       const firstTestResultName = testResultInfos.at(0)?.name ?? "";
 
-      const history = await rootStore.dataLoader?.loadTestResult(firstTestResultId);
+      const testResult = await rootStore.dataLoader?.loadTestResult(firstTestResultId);
 
-      if (!history) {
+      if (!testResult) {
         return;
       }
 
       operationHistoryStore.resetHistory({
-        historyItems: parseHistoryLog(history.historyItems)
+        historyItems: parseHistoryLog(testResult.historyItems)
       });
+      if (testResult.comments) {
+        operationHistoryStore.comments = testResult.comments;
+      }
 
       operationHistoryStore.storingTestResultInfos = testResultInfos;
       operationHistoryStore.testResultInfo = {
@@ -87,6 +103,7 @@ export default defineComponent({
 
     return {
       history,
+      comments,
       messageProvider
     };
   }

@@ -39,6 +39,12 @@ import { AddVideoEntity1693220246649 } from "./migrations/1693220246649-AddVideo
 import { LinkMultipleTestResultsToSession1694494561042 } from "./migrations/1694494561042-LinkMultipleTestResultsToSession";
 import { appRootPath } from "./common";
 import { extensions } from "./extensions";
+import { MutationEntity } from "./entities/MutationEntity";
+import { AddMutationEntity1720152936071 } from "./migrations/1720152936071-AddMutationEntity";
+import { CommentEntity } from "./entities/CommentEntity";
+import { TestHintEntity } from "./entities/TestHintEntity";
+import { TestHintPropEntity } from "./entities/TestHintPropEntity";
+import { AddTestDesignSupport1721721469884 } from "./migrations/1721721469884-AddTestDesignSupport";
 
 const extensionEntities = extensions.flatMap(({ entities }) => entities);
 const extensionMigrations = extensions.flatMap(({ migrations }) => migrations);
@@ -68,6 +74,10 @@ export const AppDataSource = new DataSource({
     ViewPointPresetEntity,
     TestProgressEntity,
     VideoEntity,
+    MutationEntity,
+    CommentEntity,
+    TestHintEntity,
+    TestHintPropEntity,
     ...extensionEntities,
   ],
   migrations: [
@@ -86,6 +96,8 @@ export const AppDataSource = new DataSource({
     UpdateTestResultEntity1689841542715,
     AddVideoEntity1693220246649,
     LinkMultipleTestResultsToSession1694494561042,
+    AddMutationEntity1720152936071,
+    AddTestDesignSupport1721721469884,
     ...extensionMigrations,
   ],
 });

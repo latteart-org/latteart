@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <div>
+  <div class="text-truncate w-33">
     {{ currentWindowName }}
   </div>
 </template>

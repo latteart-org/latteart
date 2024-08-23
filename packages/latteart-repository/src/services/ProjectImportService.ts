@@ -40,6 +40,7 @@ import {
   ConfigData,
   extractConfigData,
   extractProjectData,
+  extractTestHintData,
   extractTestResultsData,
   ProjectData,
   TestResultData,
@@ -47,12 +48,19 @@ import {
 import { ProjectConfig } from "@/interfaces/Configs";
 import { ConfigsService } from "./ConfigsService";
 import { In } from "typeorm";
+import { CommentsService } from "./CommentsService";
+import { TestHintsService } from "./TestHintsService";
+import { ImportTestHints } from "@/interfaces/TestHints";
+import { MutationService } from "./MutationsService";
+import { deserializeMutations } from "./helper/mutationHelper";
+import { deserializeComments } from "./helper/commentHelper";
 
 export class ProjectImportService {
   public async import(
     importFile: { data: string; name: string },
     includeProject: boolean,
     includeTestResults: boolean,
+    includeTestHints: boolean,
     includeConfig: boolean,
     service: {
       timestampService: TimestampService;
@@ -66,14 +74,29 @@ export class ProjectImportService {
       transactionRunner: TransactionRunner;
       testResultImportService: TestResultImportService;
       importFileRepository: ImportFileRepository;
+      testHintsService: TestHintsService;
+      commentsService: CommentsService;
+      mutationService: MutationService;
     }
   ): Promise<{ projectId: string; config: ProjectConfig | undefined }> {
-    const { configFiles, testResultFiles, projectFiles } =
-      await this.readImportFile(service.importFileRepository, importFile.data, {
+    const {
+      configFiles,
+      testResultFiles,
+      projectFiles,
+      testHintFiles,
+      commentFiles,
+      mutationFiles,
+      mutationImageFiles,
+    } = await this.readImportFile(
+      service.importFileRepository,
+      importFile.data,
+      {
         includeProject,
         includeTestResults,
+        includeTestHints,
         includeConfig,
-      });
+      }
+    );
 
     let testResultIdMap: Map<string, string> = new Map();
     let projectId = "";
@@ -90,6 +113,26 @@ export class ProjectImportService {
       testResultIdMap = await this.importTestResults(testResultDatas, {
         testResultImportService: service.testResultImportService,
       });
+
+      const commentsDatas = commentFiles.map((file) => file.data as string);
+      const importCommentsData = deserializeComments(
+        commentsDatas,
+        "",
+        testResultIdMap
+      );
+      await service.commentsService.importComments(importCommentsData);
+
+      const mutationsDatas = mutationFiles.map((file) => file.data as string);
+      const importMutationsData = deserializeMutations(
+        mutationsDatas,
+        "",
+        testResultIdMap
+      );
+      await service.mutationService.importMutations(
+        importMutationsData,
+        mutationImageFiles,
+        service.screenshotFileRepository
+      );
     }
 
     if (includeProject) {
@@ -99,6 +142,15 @@ export class ProjectImportService {
         attachedFileRepository: service.attachedFileRepository,
         transactionRunner: service.transactionRunner,
       });
+    }
+
+    if (includeTestHints) {
+      const testHintData = extractTestHintData(testHintFiles);
+      await this.importTestHints(
+        service.testHintsService,
+        service.transactionRunner,
+        testHintData
+      );
     }
 
     return { projectId, config };
@@ -391,6 +443,16 @@ export class ProjectImportService {
     return projectId;
   }
 
+  private async importTestHints(
+    service: TestHintsService,
+    transactionRunner: TransactionRunner,
+    hintData: string
+  ): Promise<void> {
+    const data = JSON.parse(hintData) as ImportTestHints;
+
+    await service.importAllTestHints(data, transactionRunner);
+  }
+
   private async importTestResults(
     testResultDatas: TestResultData[],
     service: {
@@ -439,6 +501,7 @@ export class ProjectImportService {
     option: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeTestHints: boolean;
       includeConfig: boolean;
     }
   ) {
@@ -447,17 +510,34 @@ export class ProjectImportService {
     const configFiles = files.filter((file) => {
       return file.filePath.includes("config");
     });
-    const testResultFiles = files.filter((file) => {
-      return file.filePath.includes("test-results");
-    });
+    const testResultFiles = files
+      .filter((file) => {
+        return file.filePath.includes("test-results");
+      })
+      .filter((file) => !file.filePath.includes("mutation_"));
     const projectFiles = files.filter((file) => {
       return file.filePath.includes("projects");
+    });
+    const commentFiles = files.filter((file) => {
+      return file.filePath.includes("comments.json");
+    });
+    const mutationFiles = files.filter((file) => {
+      return file.filePath.includes("mutations.json");
+    });
+    const mutationImageFiles = files.filter((file) =>
+      file.filePath.includes("mutation_")
+    );
+    const testHintFiles = files.filter((file) => {
+      return file.filePath.includes("test-hints.json");
     });
 
     if (
       testResultFiles.length === 0 &&
       projectFiles.length === 0 &&
-      configFiles.length === 0
+      configFiles.length === 0 &&
+      commentFiles.length === 0 &&
+      mutationFiles.length === 0 &&
+      testHintFiles.length === 0
     ) {
       throw Error("Invalid project data file.");
     }
@@ -474,10 +554,18 @@ export class ProjectImportService {
       throw new Error("Project information does not exist.");
     }
 
+    if (option.includeTestHints && testHintFiles.length === 0) {
+      throw new Error("Test hint information dose not exist.");
+    }
+
     return {
       configFiles,
       testResultFiles,
       projectFiles,
+      testHintFiles,
+      commentFiles,
+      mutationFiles,
+      mutationImageFiles,
     };
   }
 }

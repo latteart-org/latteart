@@ -51,7 +51,7 @@ export default defineComponent({
       const url = imageInfo.value.decode;
       const ar = url.split(".");
       const ext = ar[ar.length - 1];
-      const sequence = selectedOperationInfo.value;
+      const sequence = selectedOperationInfo.value.sequence;
       return `${sequence}.${ext}`;
     });
 

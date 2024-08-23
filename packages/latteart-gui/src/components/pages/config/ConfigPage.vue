@@ -126,6 +126,20 @@
 
               <v-expansion-panel>
                 <v-expansion-panel-title>
+                  {{ $t("config-page.setting-test-hint") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <test-hint-config
+                    :test-hint-setting="testHintSetting"
+                    :opened="testHintSettingOpened"
+                    @save-view-config="saveViewConfig"
+                  >
+                  </test-hint-config>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+
+              <v-expansion-panel>
+                <v-expansion-panel-title>
                   {{ $t("config-page.setting-experimental-features") }}
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
@@ -160,6 +174,8 @@ import {
   type ViewSettings,
   type TestResultComparisonSetting,
   type CaptureMediaSetting,
+  type LocalAutofillSetting,
+  type TestHintSetting,
   type ExperimentalFeatureSetting
 } from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "@/components/organisms/config/AutofillConfig.vue";
@@ -169,12 +185,12 @@ import CompareConfig from "@/components/organisms/config/CompareConfig.vue";
 import ExperimentalFeatureConfig from "@/components/organisms/config/ExperimentalFeatureConfig.vue";
 import RemoteAccessField from "@/components/organisms/config/RemoteAccessField.vue";
 import { computed, defineComponent, ref, watch } from "vue";
-
 import { useRoute } from "vue-router";
 import { useRootStore } from "@/stores/root";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import ExtensionConfigs from "@/components/organisms/extensions/ExtensionConfigs.vue";
+import TestHintConfig from "@/components/organisms/config/TestHintConfig.vue";
 
 export default defineComponent({
   components: {
@@ -186,7 +202,8 @@ export default defineComponent({
     "auto-operation-setting": AutoOperationSettingComponent,
     "experimental-feature-config": ExperimentalFeatureConfig,
     "remote-access-field": RemoteAccessField,
-    "extension-configs": ExtensionConfigs
+    "extension-configs": ExtensionConfigs,
+    "test-hint-config": TestHintConfig
   },
   setup() {
     const rootStore = useRootStore();
@@ -195,7 +212,7 @@ export default defineComponent({
 
     const route = useRoute();
 
-    const panels = ref<number[]>([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    const panels = ref<number[]>([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
     const locales = ref<string[]>(["ja", "en"]);
 
@@ -276,6 +293,23 @@ export default defineComponent({
       return rootStore.projectSettings.config.testResultComparison;
     });
 
+    const testHintSetting = computed((): TestHintSetting => {
+      if (!viewSettings.value?.testHint) {
+        return {
+          commentMatching: {
+            target: "all",
+            extraWords: [],
+            excludedWords: []
+          },
+          defaultSearchSeconds: 30
+        };
+      }
+
+      return {
+        ...viewSettings.value.testHint
+      };
+    });
+
     const experimentalFeatureSetting = computed((): ExperimentalFeatureSetting => {
       return config.value?.experimentalFeatureSetting ?? { captureArch: "polling" };
     });
@@ -310,8 +344,12 @@ export default defineComponent({
       return panels.value.includes(5);
     });
 
-    const experimentalFeatureSettingOpened = computed(() => {
+    const testHintSettingOpened = computed(() => {
       return panels.value.includes(7);
+    });
+
+    const experimentalFeatureSettingOpened = computed(() => {
+      return panels.value.includes(8);
     });
 
     const saveConfig = (config: {
@@ -334,6 +372,7 @@ export default defineComponent({
       if (config.autofillSetting) {
         rootStore.writeViewSettings({
           viewSettings: {
+            ...viewSettings.value,
             autofill: {
               autoPopupRegistrationDialog: config.autofillSetting.autoPopupRegistrationDialog,
               autoPopupSelectionDialog: config.autofillSetting.autoPopupSelectionDialog
@@ -345,6 +384,13 @@ export default defineComponent({
       if (config.screenDefinition || config.coverage) {
         operationHistoryStore.canUpdateModels = true;
       }
+    };
+
+    const saveViewConfig = (viewSettings: {
+      autofill?: LocalAutofillSetting;
+      testHint?: TestHintSetting;
+    }) => {
+      rootStore.writeViewSettings({ viewSettings });
     };
 
     watch(locale, updateWindowTitle);
@@ -370,14 +416,17 @@ export default defineComponent({
       autofillSetting,
       autoOperationSetting,
       testResultComparisonSetting,
+      testHintSetting,
       experimentalFeatureSetting,
       captureMediaSettingOpened,
       coverageOpened,
       screenDefinitionSettingOpened,
       autofillSettingOpened,
       autoOperationSettingOpened,
+      testHintSettingOpened,
       experimentalFeatureSettingOpened,
-      saveConfig
+      saveConfig,
+      saveViewConfig
     };
   }
 });

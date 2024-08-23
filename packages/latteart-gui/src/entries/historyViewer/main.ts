@@ -60,6 +60,7 @@ const i18nProvider: I18nProvider = {
 (async () => {
   const settings = await (await fetch("../../latteart.config.json")).json();
   const historyLogs = await (await fetch("./testResult/log.json")).json();
+  const comments = await (await fetch("./testResult/comments.json")).json();
   const sequenceViews = await (await fetch("./testResult/sequence-view.json")).json();
   const graphView = await (await fetch("./testResult/graph-view.json")).json();
 
@@ -69,7 +70,7 @@ const i18nProvider: I18nProvider = {
   rootStore.i18nProvider = i18nProvider;
   rootStore.dataLoader = new SnapshotDataLoader({
     settings,
-    testResult: { historyLogs, sequenceViews, graphView }
+    testResult: { historyLogs, sequenceViews, graphView, comments }
   });
 
   app.mount("#app");

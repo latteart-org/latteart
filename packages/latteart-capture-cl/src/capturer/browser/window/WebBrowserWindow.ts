@@ -30,12 +30,16 @@ import {
   captureScripts,
   Iframe,
   SuspendedCapturedItem,
+  ScreenMutationForScript,
+  MutatedElementInfo,
 } from "@/capturer/captureScripts";
 import { CapturedOperation, isIgnoreOperation } from "./webBrowserWindowHelper";
+import { ElementMutation, ScreenMutation } from "@/ScreenMutation";
 
 type CapturingAction = (iframe?: Iframe) => Promise<{
   capturedItems: SuspendedCapturedItem[];
   screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
+  mutatedItems: ScreenMutationForScript[];
 } | null>;
 
 /**
@@ -49,6 +53,7 @@ export default class WebBrowserWindow {
   private captureArch: "polling" | "push";
   private _windowHandle: string;
   private onGetOperation: (operation: Operation) => void;
+  private onGetMutation: (screenMutation: ScreenMutation[]) => void;
   private onGetScreenTransition: (screenTransition: ScreenTransition) => void;
   private onHistoryChanged: (browserStatus: {
     canGoBack: boolean;
@@ -77,6 +82,7 @@ export default class WebBrowserWindow {
     captureArch: "polling" | "push",
     option?: {
       onGetOperation?: (operation: Operation) => void;
+      onGetMutation?: (screenMutation: ScreenMutation[]) => void;
       onGetScreenTransition?: (screenTransition: ScreenTransition) => void;
       onHistoryChanged?: (browserStatus: {
         canGoBack: boolean;
@@ -102,6 +108,11 @@ export default class WebBrowserWindow {
       option?.onHistoryChanged ??
       (() => {
         /* Do nothing. */
+      });
+    this.onGetMutation =
+      option?.onGetMutation ??
+      (() => {
+        /* Do noting. */
       });
     this._windowHandle = windowHandle;
   }
@@ -154,7 +165,13 @@ export default class WebBrowserWindow {
   public async registerCapturedItem(
     capturedItem: CapturedItem,
     shouldTakeScreenshot: boolean
-  ) {
+  ): Promise<{
+    imageData?: string;
+    clientSize?: {
+      width: number;
+      height: number;
+    };
+  }> {
     const clientSize = await this.client.getClientSize();
     let elements = await this.collectAllFrameScreenElements();
 
@@ -171,6 +188,10 @@ export default class WebBrowserWindow {
     if (operation) {
       this.onGetOperation(operation);
     }
+    return {
+      imageData: operation?.imageData,
+      clientSize: operation?.clientSize,
+    };
   }
 
   public async deleteCapturedItems(): Promise<void> {
@@ -364,11 +385,13 @@ export default class WebBrowserWindow {
             ...acc.screenElements,
             ...(result ? [result.screenElements] : []),
           ],
+          mutatedItems: [...acc.mutatedItems, ...(result?.mutatedItems ?? [])],
         };
       },
       {
         capturedItems: Array<SuspendedCapturedItem>(),
         screenElements: Array<ScreenElements>(),
+        mutatedItems: Array<ScreenMutationForScript>(),
       }
     );
 
@@ -381,15 +404,106 @@ export default class WebBrowserWindow {
         ...(defaultContentResult ? [defaultContentResult.screenElements] : []),
         ...iframeResult.screenElements,
       ],
+      mutatedItems: [
+        ...(defaultContentResult?.mutatedItems ?? []),
+        ...iframeResult.mutatedItems,
+      ],
     };
 
     const screenElements = result.screenElements;
     const pageSource = await this.client.getCurrentPageText();
 
     await this.captureScreenTransition();
-    await this.captureOperations(result.capturedItems);
+    const data = await this.captureOperations(result.capturedItems);
+    if (result.mutatedItems.length > 0) {
+      await this.registerMutatedItem(result.mutatedItems, data);
+    }
 
     return { screenElements, pageSource };
+  }
+
+  public async registerMutatedItem(
+    screenMutationForScripts: ScreenMutationForScript[],
+    data: {
+      imageData?: string;
+      clientSize?: {
+        width: number;
+        height: number;
+      };
+    }
+  ) {
+    const imageData = data.imageData
+      ? data.imageData
+      : await this.client.takeScreenshot();
+    const clientSize = data.clientSize
+      ? data.clientSize
+      : await this.client.getClientSize();
+
+    const convertMutatedElementInfoToElementInfo = (
+      mutatedElementInfo: MutatedElementInfo,
+      iframe?: Iframe
+    ) => {
+      return {
+        tagname: mutatedElementInfo.tagname,
+        text: mutatedElementInfo.text,
+        value: mutatedElementInfo.value,
+        xpath: mutatedElementInfo.xpath,
+        attributes: mutatedElementInfo.attributes,
+        boundingRect: { top: 0, left: 0, width: 0, height: 0 },
+        iframe: iframe,
+        innerHeight: 0,
+        innerWidth: 0,
+        outerHeight: 0,
+        outerWidth: 0,
+      };
+    };
+
+    const screenMutations: ScreenMutation[] = screenMutationForScripts.map(
+      (screenMutation, index) => {
+        const elementMutations: ElementMutation[] =
+          screenMutation.elementMutations.map((mutation) => {
+            const targetElement = convertMutatedElementInfoToElementInfo(
+              mutation.targetElement,
+              screenMutation.iframe
+            );
+
+            switch (mutation.type) {
+              case "childElementAddition":
+                return {
+                  ...mutation,
+                  targetElement,
+                  addedChildElement: convertMutatedElementInfoToElementInfo(
+                    mutation.addedChildElement,
+                    screenMutation.iframe
+                  ),
+                };
+              case "childElementRemoval":
+                return {
+                  ...mutation,
+                  targetElement,
+                  removedChildElement: convertMutatedElementInfoToElementInfo(
+                    mutation.removedChildElement,
+                    screenMutation.iframe
+                  ),
+                };
+              default:
+                return { ...mutation, targetElement };
+            }
+          });
+
+        return {
+          elementMutations,
+          title: this.currentTitle,
+          url: this.currentUrl,
+          timestamp: screenMutation.timestamp,
+          imageData: index === 0 ? imageData : "",
+          windowHandle: this.windowHandle,
+          scrollPosition: screenMutation.scrollPosition,
+          clientSize,
+        };
+      }
+    );
+    this.onGetMutation(screenMutations);
   }
 
   public async collectAllFrameScreenElements(): Promise<
@@ -416,15 +530,30 @@ export default class WebBrowserWindow {
 
   private async captureOperations(
     capturedItems: SuspendedCapturedItem[]
-  ): Promise<void> {
+  ): Promise<{
+    imageData?: string;
+    clientSize?: {
+      width: number;
+      height: number;
+    };
+  }> {
+    let imageData = "";
+    let clientSize = undefined;
     for (const item of capturedItems) {
       if (await this.client.alertIsVisible()) {
         break;
       }
 
-      await this.registerCapturedItem(item, true);
+      const data = await this.registerCapturedItem(item, true);
+      if (data.imageData !== undefined) {
+        imageData = data.imageData;
+      }
+      if (data.clientSize !== undefined) {
+        clientSize = data.clientSize;
+      }
       await this.refireSuspendedEvent(item);
     }
+    return { imageData, clientSize };
   }
 
   private async captureScreenTransition(): Promise<void> {

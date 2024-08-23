@@ -17,7 +17,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import { useRootStore } from "@/stores/root";
-import { RESTClientImpl, createRepositoryService } from "latteart-client";
+import { RESTClientImpl, createCaptureClService, createRepositoryService } from "latteart-client";
 import { RepositoryDataLoader } from "@/lib/common/dataLoader";
 import type { I18nProvider } from "@/lib/common/internationalization";
 import { createDefaultRouter } from "@/plugins/router";
@@ -57,11 +57,34 @@ const i18nProvider: I18nProvider = {
     i18n.global.locale = locale;
   }
 };
-const repositoryService = createRepositoryService(new RESTClientImpl("http://127.0.0.1:3002"));
+
+const queryStr = window.location.search.slice(1);
+
+let repository = "";
+let capture = "";
+
+queryStr.split("&").forEach((q) => {
+  const kv = q.split("=");
+  if (kv[0] === "repository") {
+    repository = kv[1];
+  }
+  if (kv[0] === "capture") {
+    capture = kv[1];
+  }
+});
 
 const rootStore = useRootStore();
 rootStore.i18nProvider = i18nProvider;
+
+const repositoryService = createRepositoryService(
+  new RESTClientImpl(repository ? repository : "http://127.0.0.1:3002")
+);
 rootStore.repositoryService = repositoryService;
+
+if (capture) {
+  rootStore.captureClService = createCaptureClService(capture);
+}
+
 rootStore.dataLoader = new RepositoryDataLoader(repositoryService);
 
 app.mount("#app");

@@ -45,6 +45,79 @@ export type CapturedOperation = CapturedOperationForCaptureCl & {
   videoTime?: number;
 };
 
+type ElementMutation =
+  | ChildElementAddition
+  | TextContentAddition
+  | AttributeAddition
+  | ChildElementRemoval
+  | TextContentRemoval
+  | AttributeRemoval
+  | TextContentChange
+  | AttributeChange;
+
+type ChildElementAddition = {
+  type: "childElementAddition";
+  targetElement: ElementInfo;
+  addedChildElement: ElementInfo;
+};
+
+type TextContentAddition = {
+  type: "textContentAddition";
+  targetElement: ElementInfo;
+  addedTextContent: string;
+};
+
+type ChildElementRemoval = {
+  type: "childElementRemoval";
+  targetElement: ElementInfo;
+  removedChildElement: ElementInfo;
+};
+
+type TextContentRemoval = {
+  type: "textContentRemoval";
+  targetElement: ElementInfo;
+  removedTextContent: string;
+};
+
+type TextContentChange = {
+  type: "textContentChange";
+  targetElement: ElementInfo;
+  oldValue: string;
+};
+
+type AttributeAddition = {
+  type: "attributeAddition";
+  targetElement: ElementInfo;
+  attributeName: string;
+  newValue: string;
+};
+
+type AttributeRemoval = {
+  type: "attributeRemoval";
+  targetElement: ElementInfo;
+  attributeName: string;
+  oldValue: string;
+};
+
+type AttributeChange = {
+  type: "attributeChange";
+  targetElement: ElementInfo;
+  attributeName: string;
+  newValue: string;
+  oldValue: string;
+};
+
+export type ScreenMutation = {
+  elementMutations: ElementMutation[];
+  url: string;
+  title: string;
+  timestamp: string;
+  imageData: string;
+  windowHandle: string;
+  scrollPosition: { x: number; y: number };
+  clientSize: { width: number; height: number };
+};
+
 export type ScreenElements = ScreenElementsForCaptureCl;
 
 export type ElementInfo = ElementInfoForCaptureCl;
@@ -98,6 +171,12 @@ export type Note = {
 export type TestStepNote = {
   note: Note;
   testStep: TestStep;
+};
+
+export type Comment = {
+  id: string;
+  value: string;
+  timestamp: number;
 };
 
 export type CoverageSource = {

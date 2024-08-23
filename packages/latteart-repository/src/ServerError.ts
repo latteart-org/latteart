@@ -44,6 +44,7 @@ export type ServerErrorCode =
   | "import_project_failed"
   | "import_project_not_exist"
   | "import_test_result_not_exist"
+  | "import_test_hint_not_exist"
   | "import_config_not_exist"
   | "get_screenshots_failed"
   | "get_test_matrix_failed"
@@ -69,7 +70,15 @@ export type ServerErrorCode =
   | "generate_graph_view_failed"
   | "compare_test_results_failed"
   | "save_video_failed"
-  | "create_video_failed";
+  | "create_video_failed"
+  | "add_mutation_failed"
+  | "put_test_hint_props_failed"
+  | "get_all_test_hints_failed"
+  | "post_test_hint_failed"
+  | "put_test_hint_failed"
+  | "delete_test_hint_failed"
+  | "get_comment_failed"
+  | "post_comment_failed";
 
 /**
  * Server error data.

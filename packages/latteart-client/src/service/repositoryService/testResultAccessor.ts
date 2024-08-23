@@ -28,6 +28,9 @@ import {
   Note,
   TestResultViewOption,
   Video,
+  ScreenMutation,
+  Comment,
+  CoverageSource,
 } from "../types";
 import {
   TestResultRepository,
@@ -49,6 +52,10 @@ import {
   ProjectRepository,
   TestResultComparisonRepository,
   VideoRepository,
+  MutationRepository,
+  CommentRepository,
+  TestHintRepository,
+  TestHintPropRepository,
 } from "../../gateway/repository";
 import { TestResultAccessor, SequenceView } from "./types";
 
@@ -72,6 +79,10 @@ export type RepositoryContainer = {
   readonly storyRepository: StoryRepository;
   readonly testResultComparisonRepository: TestResultComparisonRepository;
   readonly videoRepository: VideoRepository;
+  readonly mutationRepository: MutationRepository;
+  readonly commentRepository: CommentRepository;
+  readonly testHintRepository: TestHintRepository;
+  readonly testHintPropRepository: TestHintPropRepository;
 };
 
 export class TestResultAccessorImpl implements TestResultAccessor {
@@ -129,10 +140,77 @@ export class TestResultAccessorImpl implements TestResultAccessor {
     return new ServiceSuccess(result.data);
   }
 
+  async addMutations(
+    screenMutations: ScreenMutation[]
+  ): Promise<ServiceResult<void>> {
+    const result = await this.repositories.mutationRepository.postMutation(
+      this.testResultId,
+      screenMutations
+    );
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "add_mutation_failed",
+        message: "Add Mutation failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data as void);
+  }
+
+  async collectComments(
+    filter: { period?: { since?: number; until?: number } } = {}
+  ): Promise<ServiceResult<Comment[]>> {
+    const result = await this.repositories.commentRepository.getComments(
+      this.testResultId,
+      filter
+    );
+
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "get_comments_failed",
+        message: "Get Comments failed.",
+        variables: { testResultId: this.testResultId },
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    const comments = result.data;
+
+    return new ServiceSuccess(comments);
+  }
+
+  async addComment(
+    comment: Omit<Comment, "id">
+  ): Promise<ServiceResult<Comment>> {
+    const result = await this.repositories.commentRepository.postComment(
+      this.testResultId,
+      comment
+    );
+    if (result.isFailure()) {
+      const error: ServiceError = {
+        errorCode: "add_comment_failed",
+        message: "Add Comment failed.",
+      };
+      console.error(error.message);
+      return new ServiceFailure(error);
+    }
+
+    return new ServiceSuccess(result.data);
+  }
+
   async addOperation(
     operation: CapturedOperation,
     option: { compressScreenshot: boolean }
-  ): Promise<ServiceResult<{ operation: Operation; id: string }>> {
+  ): Promise<
+    ServiceResult<{
+      operation: Operation;
+      id: string;
+      coverageSource: CoverageSource;
+    }>
+  > {
     const registerOperationResult =
       await this.repositories.testStepRepository.postTestSteps(
         this.testResultId,

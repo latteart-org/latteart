@@ -23,6 +23,9 @@ describe("動作確認用", () => {
         })}`
       );
     },
+    onGetMutation: (a: any) => {
+      console.log(a);
+    },
     onGetScreenTransition: (screenTransition: ScreenTransition) => {
       console.log(
         `get screen transition.: ${JSON.stringify({

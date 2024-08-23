@@ -127,6 +127,24 @@ export function extractTestResultsData(
   return result;
 }
 
+export function extractTestHintData(
+  files: {
+    filePath: string;
+    data: string | Buffer;
+  }[]
+) {
+  const testHintData = { fileName: "", data: "" };
+  for (const file of files) {
+    const fileName = path.basename(file.filePath);
+
+    if (fileName === "test-hints.json") {
+      testHintData.data = file.data as string;
+      break;
+    }
+  }
+  return testHintData.data;
+}
+
 export function extractConfigData(
   files: {
     filePath: string;

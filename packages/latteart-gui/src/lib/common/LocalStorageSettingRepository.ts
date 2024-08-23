@@ -20,7 +20,7 @@ import {
   createRepositoryAccessSuccess,
   type TestScriptOption
 } from "latteart-client";
-import { type DeviceSettings } from "./settings/Settings";
+import { type DeviceSettings, type ViewSettings } from "./settings/Settings";
 
 export class LocalStorageSettingRepository {
   /**
@@ -163,6 +163,62 @@ export class LocalStorageSettingRepository {
 
     return createRepositoryAccessSuccess({
       data: option
+    });
+  }
+
+  /**
+   * Get view settings information.
+   * @returns View settings information.
+   */
+  public async getViewSettings(): Promise<RepositoryAccessResult<ViewSettings>> {
+    const tmpAutofillSettings = localStorage.getItem("latteart-config-autoPopupSettings");
+    const tmpTestHintSettings = localStorage.getItem("latteart-config-testHintSettings");
+
+    const viewSettings = {
+      autofill: tmpAutofillSettings
+        ? JSON.parse(tmpAutofillSettings)
+        : { autoPopupRegistrationDialog: false, autoPopupSelectionDialog: false },
+      testHint: tmpTestHintSettings
+        ? JSON.parse(tmpTestHintSettings)
+        : {
+            commentMatching: { target: "all", extraWords: [], excludedWords: [] },
+            defaultSearchSeconds: 30
+          }
+    };
+
+    return createRepositoryAccessSuccess({
+      data: viewSettings as ViewSettings
+    });
+  }
+
+  /**
+   * Save view settings information.
+   * @param viewSettings  View settings information.
+   * @returns  Saved view settings information.
+   */
+  public async putViewSettings(
+    viewSettings: ViewSettings
+  ): Promise<RepositoryAccessResult<ViewSettings>> {
+    const tmpAutoPopupSettings = {
+      autoPopupRegistrationDialog: viewSettings.autofill.autoPopupRegistrationDialog,
+      autoPopupSelectionDialog: viewSettings.autofill.autoPopupSelectionDialog
+    };
+
+    localStorage.setItem("latteart-config-autoPopupSettings", JSON.stringify(tmpAutoPopupSettings));
+
+    const tmpTestHintSettings = {
+      commentMatching: {
+        target: viewSettings.testHint.commentMatching.target,
+        extraWords: viewSettings.testHint.commentMatching.extraWords,
+        excludedWords: viewSettings.testHint.commentMatching.excludedWords
+      },
+      defaultSearchSeconds: viewSettings.testHint.defaultSearchSeconds
+    };
+
+    localStorage.setItem("latteart-config-testHintSettings", JSON.stringify(tmpTestHintSettings));
+
+    return createRepositoryAccessSuccess({
+      data: viewSettings as ViewSettings
     });
   }
 }

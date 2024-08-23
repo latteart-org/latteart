@@ -26,6 +26,8 @@ import {
   TestResultExportDataV3,
 } from "@/interfaces/exportData";
 import { VideoEntity } from "@/entities/VideoEntity";
+import { MutationService } from "@/services/MutationsService";
+import { CommentsService } from "@/services/CommentsService";
 
 const packageRootDirPath = path.join(__dirname, "..", "..");
 const testConnectionHelper = new SqliteTestConnectionHelper();
@@ -80,6 +82,8 @@ describe("TestResultImportService", () => {
         videoFileRepository,
         importFileRepository,
         timestamp: timestampService,
+        mutationService: new MutationService(TestDataSource),
+        commentsService: new CommentsService(TestDataSource),
       });
 
       const testImage = await fs.promises.readFile(
@@ -151,7 +155,7 @@ describe("TestResultImportService", () => {
         history: { "1": historyItem1 },
       };
 
-      const result = await service.saveImportFileData(
+      const result = await service.saveTestResultFileData(
         {
           testResultFile: {
             fileName: "log.json",
@@ -336,6 +340,8 @@ describe("TestResultImportService", () => {
         videoFileRepository,
         importFileRepository,
         timestamp: timestampService,
+        mutationService: new MutationService(TestDataSource),
+        commentsService: new CommentsService(TestDataSource),
       });
 
       const testImage = await fs.promises.readFile(
@@ -406,7 +412,7 @@ describe("TestResultImportService", () => {
         ],
       };
 
-      const result = await service.saveImportFileData(
+      const result = await service.saveTestResultFileData(
         {
           testResultFile: {
             fileName: "log.json",
@@ -592,6 +598,8 @@ describe("TestResultImportService", () => {
         videoFileRepository,
         importFileRepository,
         timestamp: timestampService,
+        mutationService: new MutationService(TestDataSource),
+        commentsService: new CommentsService(TestDataSource),
       });
 
       const testImage = await fs.promises.readFile(
@@ -665,7 +673,7 @@ describe("TestResultImportService", () => {
         ],
       };
 
-      const result = await service.saveImportFileData(
+      const result = await service.saveTestResultFileData(
         {
           testResultFile: {
             fileName: "log.json",
@@ -859,6 +867,8 @@ describe("TestResultImportService", () => {
         videoFileRepository,
         importFileRepository,
         timestamp: timestampService,
+        mutationService: new MutationService(TestDataSource),
+        commentsService: new CommentsService(TestDataSource),
       });
 
       const testImage = await fs.promises.readFile(
@@ -933,7 +943,7 @@ describe("TestResultImportService", () => {
         creationTimestamp: 10,
       };
 
-      const result = await service.saveImportFileData(
+      const result = await service.saveTestResultFileData(
         {
           testResultFile: {
             fileName: "log.json",
@@ -1129,6 +1139,8 @@ describe("TestResultImportService", () => {
         screenshotFileRepository,
         videoFileRepository,
         timestamp: timestampService,
+        mutationService: new MutationService(TestDataSource),
+        commentsService: new CommentsService(TestDataSource),
       });
 
       const testVideo = await fs.promises.readFile(
@@ -1214,7 +1226,7 @@ describe("TestResultImportService", () => {
         creationTimestamp: 10,
       };
 
-      const result = await service.saveImportFileData(
+      const result = await service.saveTestResultFileData(
         {
           testResultFile: {
             fileName: "log.json",

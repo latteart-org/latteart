@@ -23,6 +23,7 @@ import type {
   CaptureConfig,
   CaptureEventListeners,
   CaptureSession,
+  CoverageSource,
   Operation,
   ServiceResult,
   TestStep,
@@ -128,6 +129,11 @@ export type CaptureControlState = {
    * Dialog to display completion message.
    */
   completionDialogData: { title: string; message: string } | null;
+
+  /**
+   * Checked test hint ids.
+   */
+  checkedTestHintIds: string[];
 };
 
 export const useCaptureControlStore = defineStore("captureControl", {
@@ -153,7 +159,8 @@ export const useCaptureControlStore = defineStore("captureControl", {
     timer: new Timer(),
     captureSession: null,
     isWindowSelectorDialogOpened: false,
-    completionDialogData: null
+    completionDialogData: null,
+    checkedTestHintIds: []
   }),
   getters: {
     /**
@@ -514,8 +521,12 @@ export const useCaptureControlStore = defineStore("captureControl", {
       const rootStore = useRootStore();
       const operationHistoryStore = useOperationHistoryStore();
 
-      const postRegisterOperation = async (data: { id: string; operation: OperationForGUI }) => {
-        const { id, operation } = data;
+      const postRegisterOperation = async (data: {
+        id: string;
+        operation: OperationForGUI;
+        coverageSource: CoverageSource;
+      }) => {
+        const { id, operation, coverageSource } = data;
 
         await payload.videoRecorder?.updateVideo();
 
@@ -525,7 +536,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         operation.sequence = sequence;
 
         operationHistoryStore.addHistory({
-          entry: { operation, intention: null, bugs: null, notices: null }
+          entry: { operation, intention: null, bugs: null, notices: null, coverageSource }
         });
         operationHistoryStore.canUpdateModels = true;
       };
@@ -536,7 +547,11 @@ export const useCaptureControlStore = defineStore("captureControl", {
       };
 
       const captureEventListeners: CaptureEventListeners = {
-        onAddTestStep: async (testStep: { id: string; operation: Operation }) => {
+        onAddTestStep: async (testStep: {
+          id: string;
+          operation: Operation;
+          coverageSource: CoverageSource;
+        }) => {
           const beforeOperation =
             operationHistoryStore.history[operationHistoryStore.history.length - 1]?.operation;
 
@@ -718,6 +733,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
       this.isWindowSelectorDialogOpened = false;
       this.isPaused = false;
       this.captureSession = null;
+      this.checkedTestHintIds = [];
     },
 
     takeNote(payload: { noteEditInfo: NoteEditInfo }) {

@@ -97,6 +97,7 @@ export class ProjectExportController extends Controller {
         requestBody.includeProject,
         requestBody.includeTestResults,
         requestBody.includeConfig,
+        requestBody.includeTestHints,
         {
           projectService,
           testResultService,

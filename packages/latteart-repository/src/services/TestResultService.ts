@@ -59,6 +59,8 @@ import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
 import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
 import { v4 as uuidv4 } from "uuid";
 import { VideoEntity } from "@/entities/VideoEntity";
+import { CommentEntity } from "@/entities/CommentEntity";
+import { MutationEntity } from "@/entities/MutationEntity";
 
 export type TestResultService = {
   getTestResultIdentifiers(): Promise<ListTestResultResponse[]>;
@@ -240,6 +242,12 @@ export class TestResultServiceImpl implements TestResultService {
         testResult: { id: testResultId },
       });
       await transactionalEntityManager.delete(TestPurposeEntity, {
+        testResult: { id: testResultId },
+      });
+      await transactionalEntityManager.delete(MutationEntity, {
+        testResult: { id: testResultId },
+      });
+      await transactionalEntityManager.delete(CommentEntity, {
         testResult: { id: testResultId },
       });
 
@@ -859,12 +867,20 @@ export class TestResultServiceImpl implements TestResultService {
         where: { testResult: { id: testResultId } },
       })
     ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
+    const mutationScreenshots = (
+      await this.dataSource.getRepository(MutationEntity).find({
+        relations: ["screenshot"],
+        where: { testResult: { id: testResultId } },
+      })
+    ).flatMap(({ screenshot }) => (screenshot ? [screenshot] : []));
 
-    const screenshots = [...testStepScreenshots, ...noteScreenshots].filter(
-      (screenshot, index, array) => {
-        return array.findIndex(({ id }) => id === screenshot.id) === index;
-      }
-    );
+    const screenshots = [
+      ...testStepScreenshots,
+      ...noteScreenshots,
+      ...mutationScreenshots,
+    ].filter((screenshot, index, array) => {
+      return array.findIndex(({ id }) => id === screenshot.id) === index;
+    });
 
     return screenshots.map(({ id, fileUrl }) => {
       return { id, fileUrl };

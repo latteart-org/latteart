@@ -20,7 +20,7 @@
       :disabled="isDisabled"
       color="blue"
       size="small"
-      class="mx-2"
+      class="mx-1"
       @click="registerDialogOpened = true"
       >{{ $t("app.register-operation") }}
     </v-btn>
@@ -65,7 +65,7 @@ export default defineComponent({
     const errorMessage = ref("");
 
     const targetOperations = computed((): OperationForGUI[] => {
-      return operationHistoryStore.checkedOperations.map((item) => {
+      return operationHistoryStore.checkedTestSteps.map((item) => {
         return item.operation;
       });
     });
@@ -79,7 +79,7 @@ export default defineComponent({
     });
 
     const clearCheckedOperations = () => {
-      operationHistoryStore.checkedOperations = [];
+      operationHistoryStore.checkedTestSteps = [];
       registerDialogOpened.value = false;
     };
 

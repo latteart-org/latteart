@@ -32,6 +32,7 @@
           :locale="locale"
           :change-window-title="changeWindowTitle"
           :raw-history="history"
+          :raw-comments="comments"
           :message="messageProvider"
           script-generation-enabled
           operation-context-enabled
@@ -85,6 +86,10 @@ export default defineComponent({
       return operationHistoryStore.history;
     });
 
+    const comments = computed(() => {
+      return operationHistoryStore.comments;
+    });
+
     const changeWindowTitle = (windowTitle: string) => {
       const windowTitlePrefix = rootStore.message(route.meta?.title ?? "");
       rootStore.changeWindowTitle({
@@ -101,6 +106,7 @@ export default defineComponent({
       screenDefinitionConfig,
       messageProvider,
       history,
+      comments,
       changeWindowTitle
     };
   }

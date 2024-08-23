@@ -40,6 +40,7 @@ export interface ProjectRepository {
     selectOption: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeTestHints: boolean;
       includeConfig: boolean;
     }
   ): Promise<RepositoryAccessResult<{ url: string }>>;
@@ -82,6 +83,7 @@ export class ProjectRESTRepository implements ProjectRepository {
     selectOption: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeTestHints: boolean;
       includeConfig: boolean;
     }
   ): Promise<RepositoryAccessResult<{ url: string }>> {

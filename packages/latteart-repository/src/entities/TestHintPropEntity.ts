@@ -13,20 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
-import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
+@Entity("TEST_HINT_PROPS")
+export class TestHintPropEntity {
+  @PrimaryGeneratedColumn("uuid", { name: "id" })
+  id!: string;
 
-const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
+  @Column({ name: "name" })
+  name!: string;
 
-export class ReadLocaleAction {
-  public async readLocale(): Promise<ActionResult<string>> {
-    const getLocaleResult = await new LocalStorageSettingRepository().getLocale();
+  @Column({ name: "type" })
+  type!: string;
 
-    if (getLocaleResult.isFailure()) {
-      return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
+  @Column({ name: "list_items" })
+  listItems!: string;
+
+  @Column({ name: "index" })
+  index!: number;
+
+  constructor(param?: {
+    id?: string;
+    name: string;
+    type: string;
+    listItems: string;
+    index: number;
+  }) {
+    if (param) {
+      Object.assign(this, param);
     }
-
-    return new ActionSuccess(getLocaleResult.data);
   }
 }

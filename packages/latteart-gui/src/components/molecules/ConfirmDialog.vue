@@ -18,7 +18,7 @@
   <execute-dialog
     :opened="opened"
     :title="title"
-    strong
+    :strong="strong"
     @accept="
       accept();
       close();
@@ -44,7 +44,8 @@ export default defineComponent({
     opened: { type: Boolean, default: false, required: true },
     title: { type: String, default: "", required: true },
     message: { type: String, default: "", required: true },
-    onAccept: { type: Function as PropType<() => void>, required: true }
+    onAccept: { type: Function as PropType<() => void>, required: true },
+    strong: { type: Boolean, default: true }
   },
   setup(props, context) {
     const accept = (): void => {

@@ -35,3 +35,7 @@ export * from "./testTargetGroupRepository";
 export * from "./viewPointRepository";
 export * from "./testResultComparisonRepository";
 export * from "./videoRepository";
+export * from "./mutationRepository";
+export * from "./commentRepository";
+export * from "./testHintRepository";
+export * from "./testHintPropRepository";

@@ -31,6 +31,7 @@ export class ImportProjectAction {
     selectOption: {
       includeProject: boolean;
       includeTestResults: boolean;
+      includeTestHints: boolean;
       includeConfig: boolean;
     }
   ): Promise<ActionResult<{ projectId: string; config?: ProjectSettings }>> {
@@ -53,6 +54,11 @@ export class ImportProjectAction {
       if (postProjectsResult.error?.code === "import_project_not_exist") {
         return new ActionFailure({
           messageKey: "error.import_export.import-project-not-exist"
+        });
+      }
+      if (postProjectsResult.error?.code === "import_test_hint_not_exist") {
+        return new ActionFailure({
+          messageKey: "error.import_export.import-test-hint-not-exist"
         });
       }
 

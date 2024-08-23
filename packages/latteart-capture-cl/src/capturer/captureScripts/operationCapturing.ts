@@ -18,9 +18,11 @@ import {
   BoundingRect,
   CapturedElementInfo,
   CapturedItem,
+  ElementMutationForScript,
   EventInfo,
   ExtendedDocument,
   Iframe,
+  ScreenMutationForScript,
   SuspendedCapturedItem,
 } from "./types";
 
@@ -50,6 +52,7 @@ function captureData({
 }): {
   capturedItems: SuspendedCapturedItem[];
   screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
+  mutatedItems: ScreenMutationForScript[];
 } {
   const getUrlAndTitle = () => {
     const extendedDocument: ExtendedDocument = document;
@@ -78,6 +81,227 @@ function captureData({
     if (extendedDocument.__completedInjectFunction == undefined) return false;
 
     return true;
+  };
+
+  const setFunctionToCollectMutations = (iframe?: Iframe) => {
+    const extendedDocument: ExtendedDocument = document;
+    extendedDocument.__sendMutatedDatas = [];
+
+    const body = document.getElementsByTagName("body")[0];
+    const config = {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeOldValue: true,
+    };
+    const getXPath = (element: HTMLElement): string => {
+      const path: string[] = [];
+      let currentElement: HTMLElement = element;
+      do {
+        const parentElement = currentElement.parentElement;
+        if (!parentElement) {
+          path.push(currentElement.tagName);
+          break;
+        }
+        let index = 0;
+        let cnt = 1;
+        parentElement.childNodes.forEach((el) => {
+          if (
+            currentElement.tagName === (el as HTMLElement).tagName &&
+            currentElement !== el
+          ) {
+            cnt++;
+          }
+          if (currentElement === el) {
+            index = cnt;
+          }
+        });
+        path.push(currentElement.tagName + (index > 1 ? `[${index}]` : ""));
+        currentElement = parentElement as HTMLElement;
+      } while (currentElement);
+      return `/${path.reverse().join("/")}`;
+    };
+    const getAttributes = (element: HTMLElement): { [key: string]: string } => {
+      const attributes: { [key: string]: string } = {};
+      for (const attribute of element.attributes) {
+        if (["value", "checked"].includes(attribute.name)) {
+          continue;
+        }
+        attributes[attribute.name] = attribute.value;
+      }
+      return attributes;
+    };
+    const mutationRecordToElementMutation = (
+      record: MutationRecord
+    ): ElementMutationForScript[] => {
+      const target = record.target as HTMLElement;
+      const targetValue = target.getAttribute("value");
+      const targetElement = {
+        tagname: target.tagName,
+        text: target.textContent ?? undefined,
+        value: targetValue === null ? "" : targetValue,
+        xpath: getXPath(target),
+        checked: Boolean(target.getAttribute("checked")) ?? undefined,
+        attributes: getAttributes(target),
+      };
+
+      const isIgnoreElement = (attribute: { id?: string; class?: string }) => {
+        return (
+          (attribute.id?.startsWith("__LATTEART_MARKED_RECT__") ?? false) ||
+          attribute.id === "__LATTEART_USER_OPERATION_SHIELD__" ||
+          attribute.id === "__latteart_init_guard__" ||
+          (attribute.class?.includes("__LATTEART_OPERATION_TARGET_ELEMENT__") ??
+            false)
+        );
+      };
+
+      const result: ElementMutationForScript[] = [];
+      if (record.type === "childList") {
+        if (record.addedNodes.length > 0) {
+          record.addedNodes.forEach((node) => {
+            if (node instanceof HTMLElement) {
+              const attributes = getAttributes(node);
+
+              if (isIgnoreElement(attributes)) {
+                return;
+              }
+
+              const value = node.getAttribute("value");
+              result.push({
+                type: "childElementAddition",
+                targetElement,
+                addedChildElement: {
+                  tagname: node.tagName,
+                  text: node.textContent ?? undefined,
+                  value: value === null ? "" : value,
+                  xpath: getXPath(node),
+                  checked: Boolean(node.getAttribute("checked")) ?? undefined,
+                  attributes,
+                },
+              });
+            } else if (node instanceof Text) {
+              result.push({
+                type: "textContentAddition",
+                targetElement,
+                addedTextContent: node.textContent ?? "",
+              });
+            }
+          });
+        } else if (record.removedNodes.length > 0) {
+          record.removedNodes.forEach((node) => {
+            if (node instanceof HTMLElement) {
+              const attributes = getAttributes(node);
+
+              if (isIgnoreElement(attributes)) {
+                return;
+              }
+
+              const value = node.getAttribute("value");
+              result.push({
+                type: "childElementRemoval",
+                targetElement,
+                removedChildElement: {
+                  tagname: node.tagName,
+                  text: node.textContent ?? undefined,
+                  value: value === null ? "" : value,
+                  xpath: getXPath(node),
+                  checked: Boolean(node.getAttribute("checked")) ?? undefined,
+                  attributes,
+                },
+              });
+            } else if (node instanceof Text) {
+              result.push({
+                type: "textContentRemoval",
+                targetElement,
+                removedTextContent: node.textContent ?? "",
+              });
+            }
+          });
+        }
+      } else if (record.type === "characterData") {
+        result.push({
+          type: "textContentChange",
+          targetElement,
+          oldValue: record.oldValue ?? "",
+        });
+      } else if (record.type === "attributes") {
+        if (record.target instanceof Element) {
+          const attributeName = record.attributeName ?? "";
+          const attributeExists = target.hasAttribute(attributeName);
+          const newValue = attributeExists
+            ? (target.getAttribute(attributeName) as string)
+            : "";
+          const oldValue = record.oldValue !== null ? record.oldValue : "";
+
+          if (
+            [
+              Object.fromEntries([[attributeName, oldValue]]),
+              Object.fromEntries([[attributeName, newValue]]),
+            ].some((attributes) => isIgnoreElement(attributes))
+          ) {
+            return [];
+          }
+
+          if (
+            (targetElement.tagname === "IFRAME" &&
+              attributeName === "cd_frame_id_") ||
+            (!oldValue && !newValue) ||
+            oldValue === newValue
+          ) {
+            return [];
+          }
+          if (attributeExists && !oldValue) {
+            result.push({
+              type: "attributeAddition",
+              targetElement,
+              attributeName,
+              newValue,
+            });
+          } else if (!attributeExists && oldValue) {
+            result.push({
+              type: "attributeRemoval",
+              targetElement,
+              attributeName,
+              oldValue,
+            });
+          } else if (attributeExists && oldValue) {
+            result.push({
+              type: "attributeChange",
+              targetElement,
+              attributeName,
+              newValue,
+              oldValue,
+            });
+          }
+        }
+      }
+      return result;
+    };
+    const observer = new MutationObserver((mutationList: MutationRecord[]) => {
+      const elementMutations: ElementMutationForScript[] = [];
+      mutationList.forEach((mutationRecord) => {
+        const result = mutationRecordToElementMutation(mutationRecord);
+        if (result.length > 0) {
+          elementMutations.push(...result);
+        }
+      });
+      if (elementMutations.length > 0) {
+        const mutatedData: ScreenMutationForScript = {
+          elementMutations,
+          timestamp: new Date().getTime(),
+          scrollPosition: {
+            x: window.scrollX,
+            y: window.scrollY,
+          },
+        };
+        if (iframe) {
+          mutatedData.iframe = iframe;
+        }
+        extendedDocument.__sendMutatedDatas?.push(mutatedData);
+      }
+    });
+    observer.observe(body, config);
   };
 
   const setFunctionToGetAttributesFromElement = () => {
@@ -233,13 +457,9 @@ function captureData({
         elementsWithTargetXPath.elements.push(newElement);
 
         if (
-          element.classList.contains(
-            "${CaptureScriptExecutor.TARGET_CLASS_NAME}"
-          )
+          element.classList.contains("__LATTEART_OPERATION_TARGET_ELEMENT__")
         ) {
-          element.classList.remove(
-            "${CaptureScriptExecutor.TARGET_CLASS_NAME}"
-          );
+          element.classList.remove("__LATTEART_OPERATION_TARGET_ELEMENT__");
           elementsWithTargetXPath.targetXPath = currentXPath;
         }
 
@@ -406,7 +626,7 @@ function captureData({
       }
 
       // Extract elements from the screen.
-      targetElement.classList.add("${CaptureScriptExecutor.TARGET_CLASS_NAME}");
+      targetElement.classList.add("__LATTEART_OPERATION_TARGET_ELEMENT__");
       const { targetXPath } = extendedDocument.extractElements(
         extendedDocument.body,
         "/HTML/BODY"
@@ -514,6 +734,23 @@ function captureData({
     return true;
   };
 
+  const pullMutatedItems = () => {
+    const extendedDocument: ExtendedDocument = document;
+
+    if (!extendedDocument || !extendedDocument.__sendMutatedDatas) {
+      return [];
+    }
+    const queueLength = extendedDocument.__sendMutatedDatas.length;
+    const result: ScreenMutationForScript[] = [];
+    for (let i = 0; i < queueLength; i++) {
+      const item = extendedDocument.__sendMutatedDatas.shift();
+      if (item) {
+        result.push(item);
+      }
+    }
+    return result;
+  };
+
   const pullCapturedItems = () => {
     const extendedDocument: ExtendedDocument = document;
 
@@ -544,6 +781,7 @@ function captureData({
   if (!isReady) {
     if (captureArch === "polling") {
       setFunctionToEnqueueEventForReFire();
+      setFunctionToCollectMutations(iframe);
     }
 
     setFunctionToGetAttributesFromElement() &&
@@ -570,6 +808,9 @@ function captureData({
         })()
       : [];
 
+  // pull mutation data
+  const mutatedItems = pullMutatedItems();
+
   // collect screen elements
   const screenElements: {
     iframeIndex?: number;
@@ -593,7 +834,7 @@ function captureData({
     screenElements.iframeIndex = iframe.index;
   }
 
-  return { capturedItems, screenElements };
+  return { capturedItems, screenElements, mutatedItems };
 }
 
 function collectScreenElements() {

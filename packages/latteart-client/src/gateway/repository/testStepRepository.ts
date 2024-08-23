@@ -97,8 +97,8 @@ export class TestStepRepositoryImpl implements TestStepRepository {
       const body = notices
         ? { notices }
         : bugs
-        ? { bugs }
-        : { intention: noteId };
+          ? { bugs }
+          : { intention: noteId };
       const response = await this.restClient.httpPatch(
         `api/v1/test-results/${testResultId}/test-steps/${testStepId}`,
         body
