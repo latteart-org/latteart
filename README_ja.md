@@ -26,8 +26,7 @@ LatteArt は大きく分けて 2 つ機能から構成されています。
 
 ## 拡張機能
 
-- [ext-speech-recognition](https://github.com/latteart-org/ext-speech-recognition)  
-  マイクから入力された音声を文字列に変換し、テスト中のコメントとして記録する LatteArt の拡張機能です。
+- [ext-speech-recognition](https://github.com/latteart-org/ext-speech-recognition) : マイクから入力された音声を文字列に変換し、テスト中のコメントとして記録する拡張機能
 
 # ドキュメント
 
