@@ -254,9 +254,7 @@ export default defineComponent({
         return;
       }
       const filteredComments = comments.value.filter(
-        (comment) =>
-          Number(history.value[history.value.length - 1].operation.timestamp) > comment.timestamp &&
-          comment.timestamp > borderTimeStampByLastTestStep.value
+        (comment) => comment.timestamp > borderTimeStampByLastTestStep.value
       );
 
       if (filteredComments.length > 0) {
