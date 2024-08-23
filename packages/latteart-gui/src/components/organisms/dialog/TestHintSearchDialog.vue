@@ -217,12 +217,6 @@ export default defineComponent({
       return testManagementStore.getCurrentStoryInfo(operationHistoryStore.testResultInfo.id);
     });
 
-    const borderTimestampByLastComment = computed((): number => {
-      return (
-        comments.value[comments.value.length - 1].timestamp - defaultSearchSeconds.value * 1000
-      );
-    });
-
     const borderTimeStampByLastTestStep = computed((): number => {
       return (
         Number(history.value[history.value.length - 1].operation.timestamp) -
@@ -260,7 +254,7 @@ export default defineComponent({
         return;
       }
       const filteredComments = comments.value.filter(
-        (comment) => comment.timestamp > borderTimestampByLastComment.value
+        (comment) => comment.timestamp > borderTimeStampByLastTestStep.value
       );
 
       if (filteredComments.length > 0) {
