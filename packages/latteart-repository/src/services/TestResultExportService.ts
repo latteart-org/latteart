@@ -18,6 +18,8 @@ import { TestResultService } from "./TestResultService";
 import { ExportFileRepositoryService } from "./ExportFileRepositoryService";
 import { serializeTestResult } from "./helper/testResultExportHelper";
 import { CommentsService } from "./CommentsService";
+import { MutationService } from "./MutationsService";
+import { convertMutationToExportData } from "./helper/mutationHelper";
 
 export interface TestResultExportService {
   export(testResultId: string): Promise<{ url: string }>;
@@ -28,6 +30,7 @@ export class TestResultExportServiceImpl implements TestResultExportService {
     private service: {
       testResult: TestResultService;
       comment: CommentsService;
+      mutation: MutationService;
       exportFileRepository: ExportFileRepositoryService;
     }
   ) {}
@@ -57,6 +60,12 @@ export class TestResultExportServiceImpl implements TestResultExportService {
       };
     });
 
+    const mutations = (
+      (await this.service.mutation.getMutationEntities(testResultId)) ?? []
+    ).map((mutation) => {
+      return convertMutationToExportData(testResultId, mutation);
+    });
+
     const url = await this.service.exportFileRepository.exportTestResult(
       {
         name: testResult.name,
@@ -66,6 +75,10 @@ export class TestResultExportServiceImpl implements TestResultExportService {
       {
         fileName: "comments.json",
         fileData: JSON.stringify(comments),
+      },
+      {
+        fileName: "mutations.json",
+        fileData: JSON.stringify(mutations),
       }
     );
 

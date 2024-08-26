@@ -31,6 +31,8 @@ import { TestResultImportServiceImpl } from "@/services/TestResultImportService"
 import { CreateTestResultImportDto } from "../interfaces/importFileRepository";
 import { createLogger } from "@/logger/logger";
 import { AppDataSource } from "@/data-source";
+import { MutationService } from "@/services/MutationsService";
+import { CommentsService } from "@/services/CommentsService";
 
 @Route("imports/test-results")
 @Tags("imports")
@@ -62,6 +64,8 @@ export class TestResultImportController extends Controller {
         screenshotFileRepository,
         videoFileRepository,
         timestamp: timestampService,
+        mutationService: new MutationService(AppDataSource),
+        commentsService: new CommentsService(AppDataSource),
       }).importTestResult(
         requestBody.source.testResultFile,
         requestBody.dest?.testResultId ?? null

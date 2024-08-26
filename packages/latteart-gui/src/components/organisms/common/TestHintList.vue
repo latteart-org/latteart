@@ -19,7 +19,9 @@
     <v-card flat height="100%">
       <v-card-text>
         <v-row align="center">
-          <slot name="actions"></slot>
+          <v-col cols="6" class="pa-0">
+            <slot name="actions"></slot>
+          </v-col>
           <v-spacer></v-spacer>
           <v-text-field
             v-model="search"
@@ -146,7 +148,8 @@ export default defineComponent({
       default: () => [],
       required: false
     },
-    pagingDisabled: { type: Boolean, default: false, required: false }
+    pagingDisabled: { type: Boolean, default: false, required: false },
+    showMatchCounts: { type: Boolean, default: false, required: false }
   },
   emits: [
     "click:edit-test-hint-button",
@@ -162,13 +165,6 @@ export default defineComponent({
     const errorDialogOpened = ref(false);
     const errorMessage = ref("");
 
-    const testHints: TestHint[] = [...props.testHints].sort((a, b) => {
-      return (
-        Number(props.checkedTestHintIds.includes(a.id)) -
-        Number(props.checkedTestHintIds.includes(b.id))
-      );
-    });
-
     const search = ref("");
     const page = ref<number>(1);
     const itemsPerPage = ref<number>(props.pagingDisabled ? -1 : 10);
@@ -177,8 +173,10 @@ export default defineComponent({
         readonly key: string;
         readonly order: "desc" | "asc";
       }[]
-    >([{ key: "matchCount", order: "desc" }]);
+    >([]);
     const selectedItemIds = ref<string[]>([...props.checkedTestHintIds]);
+
+    const checkedTestHintIds = props.checkedTestHintIds;
 
     const headers = computed(() => {
       const customColumns = props.testHintProps.map((customProp) => {
@@ -230,7 +228,7 @@ export default defineComponent({
           value: "viewPointName",
           width: "170",
           sortable: true
-        }
+        },
         // {
         //   title: rootStore.message("test-hint.common.comment-words"),
         //   value: "commentWords",
@@ -241,41 +239,49 @@ export default defineComponent({
         //   value: "operationElements",
         //   sortable: false
         // },
-        // {
-        //   title: rootStore.message("test-hint.common.match-count"),
-        //   value: "matchCount",
-        //   sortable: false
-        // }
+        ...(props.showMatchCounts
+          ? [
+              {
+                title: rootStore.message("test-hint.common.match-count"),
+                value: "matchCount",
+                width: "30",
+                sortable: false
+              }
+            ]
+          : [])
       ];
     });
 
     const items = computed(() => {
-      return testHints.map((testHint) => {
-        const { customs, ...other } = testHint;
-        return {
-          isChecked: props.checkedTestHintIds.includes(other.id),
-          matchCount:
-            props.testHintMatchCounts.find(({ id }) => id === testHint.id)?.matchCount ?? 0,
-          ...other,
-          commentWords: other.commentWords.join(" "),
-          operationElements: other.operationElements
-            .map(({ tagname, type, text }) => {
-              return `[${tagname}, ${type}, ${text}]`;
-            })
-            .join(" "),
-          ...Object.fromEntries(
-            customs.map((custom) => {
-              const customProp = props.testHintProps.find(({ id }) => id === custom.propId);
-              const value = customProp
-                ? customProp.type === "list"
-                  ? customProp.listItems?.find(({ key }) => key === custom.value)?.value ?? ""
-                  : custom.value
-                : "";
-              return [custom.propId, value];
-            })
-          )
-        };
-      });
+      return props.testHints
+        .map((testHint) => {
+          const { customs, ...other } = testHint;
+          return {
+            isChecked: checkedTestHintIds.includes(other.id),
+            matchCount:
+              props.testHintMatchCounts.find(({ id }) => id === testHint.id)?.matchCount ?? 0,
+            ...other,
+            commentWords: other.commentWords.join(" "),
+            operationElements: other.operationElements
+              .map(({ tagname, type, text }) => {
+                return `[${tagname}, ${type}, ${text}]`;
+              })
+              .join(" "),
+            ...Object.fromEntries(
+              customs.map((custom) => {
+                const customProp = props.testHintProps.find(({ id }) => id === custom.propId);
+                const value = customProp
+                  ? customProp.type === "list"
+                    ? customProp.listItems?.find(({ key }) => key === custom.value)?.value ?? ""
+                    : custom.value
+                  : "";
+                return [custom.propId, value];
+              })
+            )
+          };
+        })
+        .sort((a, b) => b.matchCount - a.matchCount)
+        .sort((a, b) => Number(a.isChecked) - Number(b.isChecked));
     });
 
     const getRowClass = ({ item }: { item: { id: string } }) => {

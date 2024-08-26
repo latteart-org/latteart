@@ -163,10 +163,7 @@ export default defineComponent({
       tempProps.value = tempProps.value.map((prop, pIndex) => {
         if (pIndex === propIndex) {
           prop.listItems = prop.listItems?.map((keyValue, lIndex) => {
-            if (lIndex === listIndex) {
-              keyValue.value = value;
-            }
-            return keyValue;
+            return lIndex === listIndex ? { ...keyValue, value } : keyValue;
           });
         }
         return prop;

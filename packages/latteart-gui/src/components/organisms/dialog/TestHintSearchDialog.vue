@@ -22,7 +22,7 @@
 
     <template #content>
       <v-container fluid class="pa-0">
-        <v-card flat height="100%">
+        <v-card flat>
           <v-card-text class="py-0">
             <v-row class="my-1 pb-2">
               <v-btn variant="elevated" @click="changeMatchingConditionsOpened">{{
@@ -31,52 +31,82 @@
                   : $t("test-hint.search-dialog.show")
               }}</v-btn>
             </v-row>
-            <v-row v-if="matchingConditionsOpened" class="pb-4 my-0">
-              <v-col>
-                <v-row class="align-center py-0">
-                  <v-checkbox
-                    v-model="isFilteringByElementsEnabled"
-                    density="comfortable"
-                    :label="$t('test-hint.common.screen-elements')"
-                    hide-details
-                  ></v-checkbox>
+          </v-card-text>
+        </v-card>
+
+        <v-card v-if="matchingConditionsOpened" flat height="100%">
+          <v-card-text class="py-0 pl-0">
+            <v-card>
+              <v-card-text class="py-1">
+                <v-row class="my-0">
+                  <v-col class="pa-1">
+                    <v-radio-group v-model="isMatchingEnabled" hide-details>
+                      <v-radio
+                        :label="$t('test-hint.search-dialog.display-all-test-hints')"
+                        :value="false"
+                      ></v-radio>
+                      <v-radio
+                        :label="$t('test-hint.search-dialog.display-matched-test-hints')"
+                        :value="true"
+                      ></v-radio>
+                    </v-radio-group>
+                    <v-card class="pl-8" flat :disabled="!isMatchingEnabled">
+                      <v-card-text class="pt-3">
+                        <v-row class="align-center py-0">
+                          <v-checkbox
+                            v-model="isFilteringByElementsEnabled"
+                            density="compact"
+                            :label="$t('test-hint.common.screen-elements')"
+                            hide-details
+                          ></v-checkbox>
+                        </v-row>
+                        <v-row class="align-center py-0">
+                          <v-checkbox
+                            v-model="isFilteringByCommentsEnabled"
+                            :label="$t('test-hint.search-dialog.comment-words')"
+                            class="mr-4"
+                            hide-details
+                            density="compact"
+                          ></v-checkbox>
+                          <v-text-field
+                            v-model="search"
+                            density="compact"
+                            hide-details
+                            :disabled="!isFilteringByCommentsEnabled"
+                            @update:model-value="filterTestHints"
+                          />
+                        </v-row>
+                        <v-row class="align-center py-0">
+                          <v-list-subheader class="pt-2 pr-3">{{
+                            $t("test-hint.search-dialog.matching-scope")
+                          }}</v-list-subheader>
+                          <v-text-field
+                            v-model="defaultSearchSeconds"
+                            density="compact"
+                            variant="underlined"
+                            hide-details
+                            type="number"
+                            min="0"
+                            :disabled="
+                              !isFilteringByElementsEnabled && !isFilteringByCommentsEnabled
+                            "
+                            style="max-width: 150px"
+                            :suffix="$t('config-page.test-hint.suffix')"
+                            @update:model-value="
+                              setSearchText();
+                              filterTestHints();
+                            "
+                            @change="(e: any) => updateDefaultSearchSeconds(e.target._value)"
+                          />
+                        </v-row>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
                 </v-row>
-                <v-row class="align-center py-0">
-                  <v-checkbox
-                    v-model="isFilteringByCommentsEnabled"
-                    :label="$t('test-hint.common.comment-words')"
-                    class="mr-4"
-                    hide-details
-                    density="comfortable"
-                  ></v-checkbox>
-                  <v-text-field
-                    v-model="search"
-                    density="comfortable"
-                    hide-details
-                    :disabled="!isFilteringByCommentsEnabled"
-                    @update:model-value="filterTestHints"
-                  />
-                </v-row>
-                <v-row class="align-center ml-n1 mr-0 py-0">
-                  <v-list-subheader class="pt-4 pr-3">{{
-                    $t("test-hint.search-dialog.matching-scope")
-                  }}</v-list-subheader>
-                  <v-text-field
-                    v-model="defaultSearchSeconds"
-                    variant="underlined"
-                    hide-details
-                    type="number"
-                    min="0"
-                    :disabled="!isFilteringByElementsEnabled && !isFilteringByCommentsEnabled"
-                    style="max-width: 150px"
-                    :suffix="$t('config-page.test-hint.suffix')"
-                    @update:model-value="
-                      setSearchText();
-                      filterTestHints();
-                    "
-                    @change="(e: any) => updateDefaultSearchSeconds(e.target._value)"
-                  />
-                </v-row>
+              </v-card-text>
+            </v-card>
+            <v-card class="pl-1">
+              <v-card-text class="pt-3">
                 <v-row class="align-center py-0">
                   <v-checkbox
                     v-model="isFilteringByStoryEnabled"
@@ -86,8 +116,8 @@
                     :disabled="currentStoryInfo ? false : true"
                   ></v-checkbox>
                 </v-row>
-              </v-col>
-            </v-row>
+              </v-card-text>
+            </v-card>
           </v-card-text>
         </v-card>
       </v-container>
@@ -96,19 +126,31 @@
 
       <test-hint-list
         :test-hint-props="testHintProps"
-        :test-hints="filteredTestHints"
-        :selectable="true"
+        :test-hints="filteredTestHints.length > 0 ? filteredTestHints : testHints"
+        selectable
         :checked-test-hint-ids="checkedTestHintIds"
         :test-hint-match-counts="testHintMatchCounts"
-        :paging-disabled="true"
+        paging-disabled
+        show-match-counts
         @change:test-hints-selection="changeSelectedTestHintIds"
       >
         <template #actions>
           <span class="text-subtitle-1 font-weight-bold">{{
             `${$t("test-hint.search-dialog.matching-result")} (${filteredTestHints.length}/${testHints.length})`
           }}</span>
-        </template></test-hint-list
-      >
+
+          <v-tooltip location="top">
+            <template #activator="{ props }">
+              <v-icon v-bind="props" class="icon-info mt-n1 pl-2">info</v-icon>
+            </template>
+            <span>{{ $t("test-hint.search-dialog.information") }}</span>
+          </v-tooltip>
+
+          <p v-if="filteredTestHints.length === 0" style="color: red">
+            {{ $t("test-hint.search-dialog.no-test-hint-matched") }}
+          </p>
+        </template>
+      </test-hint-list>
     </template>
     <template #footer>
       <v-spacer></v-spacer>
@@ -145,6 +187,7 @@ export default defineComponent({
 
     const matchingConditionsOpened = ref(false);
     const defaultSearchSeconds = ref(30);
+    const isMatchingEnabled = ref(true);
     const isFilteringByStoryEnabled = ref(false);
     const isFilteringByElementsEnabled = ref(true);
     const isFilteringByCommentsEnabled = ref(true);
@@ -172,12 +215,6 @@ export default defineComponent({
 
     const currentStoryInfo = computed(() => {
       return testManagementStore.getCurrentStoryInfo(operationHistoryStore.testResultInfo.id);
-    });
-
-    const borderTimestampByLastComment = computed((): number => {
-      return (
-        comments.value[comments.value.length - 1].timestamp - defaultSearchSeconds.value * 1000
-      );
     });
 
     const borderTimeStampByLastTestStep = computed((): number => {
@@ -217,7 +254,7 @@ export default defineComponent({
         return;
       }
       const filteredComments = comments.value.filter(
-        (comment) => comment.timestamp > borderTimestampByLastComment.value
+        (comment) => comment.timestamp > borderTimeStampByLastTestStep.value
       );
 
       if (filteredComments.length > 0) {
@@ -255,26 +292,33 @@ export default defineComponent({
     };
 
     const filterTestHints = () => {
-      const matchingCondition = {
-        comments:
-          isFilteringByCommentsEnabled.value && search.value ? search.value.split(/\s/) : [],
-        elements: isFilteringByElementsEnabled.value ? collectRecentOperatedElements() : [],
-        currentStoryInfo: isFilteringByStoryEnabled.value ? currentStoryInfo.value : undefined
-      };
-      const tempTestHints = isFilteringByStoryEnabled.value
-        ? testHints.value.filter(
-            (testHint) =>
-              testHint.testMatrixName === currentStoryInfo.value?.testMatrixName &&
-              testHint.groupName === currentStoryInfo.value?.groupName &&
-              testHint.testTargetName === currentStoryInfo.value?.testTargetName &&
-              testHint.viewPointName === currentStoryInfo.value?.viewPointName
-          )
-        : testHints.value;
+      const result = (() => {
+        const tempTestHints = isFilteringByStoryEnabled.value
+          ? testHints.value.filter(
+              (testHint) =>
+                testHint.testMatrixName === currentStoryInfo.value?.testMatrixName &&
+                testHint.groupName === currentStoryInfo.value?.groupName &&
+                testHint.testTargetName === currentStoryInfo.value?.testTargetName &&
+                testHint.viewPointName === currentStoryInfo.value?.viewPointName
+            )
+          : testHints.value;
 
-      const data = selectMatchedTestHints(tempTestHints, matchingCondition);
+        if (!isMatchingEnabled.value) {
+          return { testHints: tempTestHints, testHintMatchCounts: [] };
+        }
 
-      filteredTestHints.value = data.testHints;
-      testHintMatchCounts.value = data.testHintMatchCounts;
+        const matchingCondition = {
+          comments:
+            isFilteringByCommentsEnabled.value && search.value ? search.value.split(/\s/) : [],
+          elements: isFilteringByElementsEnabled.value ? collectRecentOperatedElements() : [],
+          currentStoryInfo: isFilteringByStoryEnabled.value ? currentStoryInfo.value : undefined
+        };
+
+        return selectMatchedTestHints(tempTestHints, matchingCondition);
+      })();
+
+      filteredTestHints.value = result.testHints;
+      testHintMatchCounts.value = result.testHintMatchCounts;
     };
 
     const changeSelectedTestHintIds = (selectedTestHintIds: string[]) => {
@@ -291,6 +335,7 @@ export default defineComponent({
 
     const { opened } = toRefs(props);
     watch(opened, initialize);
+    watch(isMatchingEnabled, filterTestHints);
     watch(isFilteringByCommentsEnabled, filterTestHints);
     watch(isFilteringByElementsEnabled, filterTestHints);
     watch(isFilteringByStoryEnabled, filterTestHints);
@@ -298,6 +343,7 @@ export default defineComponent({
     return {
       matchingConditionsOpened,
       defaultSearchSeconds,
+      isMatchingEnabled,
       isFilteringByStoryEnabled,
       isFilteringByElementsEnabled,
       isFilteringByCommentsEnabled,

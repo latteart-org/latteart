@@ -167,4 +167,38 @@ describe("CommentsService", () => {
       });
     });
   });
+
+  describe("importComments", () => {
+    describe("Commentsをimportする", () => {
+      it("1件登録", async () => {
+        const testResult = await TestDataSource.getRepository(
+          TestResultEntity
+        ).save(new TestResultEntity());
+
+        const comments = [
+          {
+            testResultId: testResult.id,
+            data: [
+              {
+                testResult: "testResultId",
+                value: "comment-data",
+                timestamp: 100,
+              },
+            ],
+          },
+        ];
+
+        await new CommentsService(TestDataSource).importComments(comments);
+        const result = await TestDataSource.getRepository(CommentEntity).find();
+
+        expect(result).toEqual([
+          {
+            id: expect.any(String),
+            timestamp: 100,
+            value: "comment-data",
+          },
+        ]);
+      });
+    });
+  });
 });

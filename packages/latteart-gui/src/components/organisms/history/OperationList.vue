@@ -48,6 +48,7 @@
           :items="displayedHistoryItems"
           :search="search"
           :items-per-page-options="itemsPerPageOptions"
+          class="operation-history"
           @click:row="(_: any, obj: any) => onSelectOperations(obj.item.index)"
           @contextmenu:row="
             (event: MouseEvent, item: any) => contextmenu(item.item.operation.sequence, event)
@@ -96,43 +97,49 @@
           </template>
 
           <template #[`item.operation.title`]="{ item }">
-            <td :title="item.operation.title" :class="{ ellipsis: true }">
-              {{ item.operation.title.substring(0, 60) }}
+            <td :title="item.operation.title" class="text-column-width text-truncate">
+              {{ item.operation.title }}
             </td>
           </template>
 
           <template #[`item.operation.elementInfo.tagname`]="{ item }">
-            <td :title="item.operation.elementInfo.tagname" :class="{ ellipsis: true }">
+            <td :title="item.operation.elementInfo.tagname" class="text-column-width text-truncate">
               {{ item.operation.elementInfo.tagname }}
             </td>
           </template>
 
           <template #[`item.operation.elementInfo.attributes.name`]="{ item }">
-            <td :title="item.operation.elementInfo.attributes.name" :class="{ ellipsis: true }">
+            <td
+              :title="item.operation.elementInfo.attributes.name"
+              class="text-column-width text-truncate"
+            >
               {{ item.operation.elementInfo.attributes.name }}
             </td>
           </template>
 
           <template #[`item.operation.elementInfo.text`]="{ item }">
-            <td :title="item.operation.elementInfo.text" :class="{ ellipsis: true }">
-              {{ item.operation.elementInfo.text.substring(0, 60) }}
+            <td :title="item.operation.elementInfo.text" class="text-column-width text-truncate">
+              {{ item.operation.elementInfo.text }}
             </td>
           </template>
 
           <template #[`item.operation.type`]="{ item }">
-            <td :title="item.operation.type" :class="{ ellipsis: true }">
+            <td :title="item.operation.type" class="text-column-width text-truncate">
               {{ item.operation.type }}
             </td>
           </template>
 
           <template #[`item.operation.inputValue`]="{ item }">
-            <td :title="item.operation.inputValue" :class="{ ellipsis: true }">
-              {{ item.operation.inputValue.substring(0, 60) }}
+            <td :title="item.operation.inputValue" class="text-column-width text-truncate">
+              {{ item.operation.inputValue }}
             </td>
           </template>
 
           <template #[`item.operation.timestamp`]="{ item }">
-            <td :title="formatTimestamp(item.operation.timestamp)" :class="{ ellipsis: true }">
+            <td
+              :title="formatTimestamp(item.operation.timestamp)"
+              class="text-column-width text-truncate"
+            >
               {{ formatTimestamp(item.operation.timestamp) }}
             </td>
           </template>
@@ -157,9 +164,13 @@
                 class="text-blue-grey-darken-1 bg-blue-grey-lighten-5"
                 style="height: 32px"
                 :colspan="!isViewerMode ? columns.length - 2 : columns.length - 1"
+                :title="comment.value"
               >
-                <v-icon class="mr-3">sms</v-icon>
-                {{ comment.value }}
+                <div class="text-truncate" style="max-width: 1250px">
+                  <v-icon class="mr-3">sms</v-icon>
+
+                  {{ comment.value }}
+                </div>
               </td>
               <td
                 class="text-blue-grey-darken-1 bg-blue-grey-lighten-5"
@@ -354,7 +365,7 @@ export default defineComponent({
       const start = (page.value - 1) * numberOfDisplayedItems.value;
       const _end = start + (numberOfDisplayedItems.value - 1);
       const end =
-        _end > displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
+        _end >= displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
       const items: number[] = [];
       const add = !checkboxStatus.value.allChecked;
       for (let i = start; i <= end; i++) {
@@ -378,7 +389,7 @@ export default defineComponent({
       const start = (page.value - 1) * numberOfDisplayedItems.value;
       const _end = start + (numberOfDisplayedItems.value - 1);
       const end =
-        _end > displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
+        _end >= displayedHistoryItems.value.length ? displayedHistoryItems.value.length - 1 : _end;
       let include = false;
       let notInclude = false;
       for (let i = start; i <= end; i++) {
@@ -740,12 +751,7 @@ export default defineComponent({
       duration: 100
     });
 
-    const scrollToTableRow = (itemIndex: number) => {
-      const perPage =
-        numberOfDisplayedItems.value > 0
-          ? numberOfDisplayedItems.value
-          : displayedHistoryItems.value.length;
-      const rowIndex = Math.floor(itemIndex % perPage);
+    const scrollToTableRow = (rowIndex: number) => {
       const rowHeight = 32;
       const rowTop = rowIndex * rowHeight;
       const rowBottom = rowTop + rowHeight;
@@ -813,16 +819,30 @@ export default defineComponent({
     });
 
     const resetPosition = () => {
-      const currentIndex = selectedOperationIndexes.value[0];
+      nextTick(() => {
+        const currentIndex = selectedOperationIndexes.value[0];
 
-      const itemIndex = displayedHistoryItems.value.findIndex(
-        ({ index }) => index === currentIndex
-      );
+        const itemIndex = displayedHistoryItems.value.findIndex(
+          ({ index }) => index === currentIndex
+        );
 
-      if (itemIndex !== -1) {
-        switchTablePage(itemIndex);
-        scrollToTableRow(itemIndex);
-      }
+        if (itemIndex !== -1) {
+          switchTablePage(itemIndex);
+
+          const perPage =
+            numberOfDisplayedItems.value > 0
+              ? numberOfDisplayedItems.value
+              : displayedHistoryItems.value.length;
+          const itemIndexPerPage = Math.floor(itemIndex % perPage);
+          const prevItemsCommentNumber = (() => {
+            const prevItems = displayedHistoryItems.value.filter(
+              ({ index }) => index >= currentIndex - itemIndexPerPage && index <= currentIndex
+            );
+            return prevItems.flatMap(({ comments }) => comments).length;
+          })();
+          scrollToTableRow(itemIndexPerPage + prevItemsCommentNumber);
+        }
+      });
     };
 
     const selectRange = (event: PointerEvent, index: number) => {
@@ -845,11 +865,14 @@ export default defineComponent({
       if (!ope) {
         return;
       }
+
+      const tempCheckedItems = [...checkedItems.value];
       for (let i = ope.start; i <= ope.end; i++) {
         if (!checkedItems.value.includes(i)) {
-          checkedItems.value.push(i);
+          tempCheckedItems.push(i);
         }
       }
+      checkedItems.value = [...tempCheckedItems];
     };
 
     onMounted((): void => {
@@ -857,15 +880,20 @@ export default defineComponent({
     });
 
     onBeforeUnmount((): void => {
+      operationHistoryStore.checkedTestSteps = [];
       document.removeEventListener("keydown", keyDown);
     });
 
-    const { selectedOperationInfo } = toRefs(props);
+    const { selectedOperationInfo, comments } = toRefs(props);
     watch(selectedOperationInfo, initializeSelectedSequences);
     watch(getCheckedItems, clearCheckedItems);
     watch(checkedItems, updateCheckedOperationList);
     watch(itemsPerPage, resetPosition);
     watch(displayedHistoryStr, resetPosition);
+    watch(comments, () => {
+      onSelectOperations(displayedHistoryItems.value.length - 1);
+      resetPosition();
+    });
 
     initializeSelectedSequences();
 
@@ -913,10 +941,7 @@ export default defineComponent({
   --v-selection-control-size: 26px !important
   margin-left: 7px
 
-.ellipsis
-  overflow: hidden
-  white-space: nowrap
-  text-overflow: ellipsis
+.text-column-width
   max-width: 250px
 
 #operation-list
@@ -937,6 +962,9 @@ export default defineComponent({
 
 .search-title
   color: rgba(0,0,0,0.54)
+
+.operation-history :deep(.v-data-table-footer__items-per-page .v-field__input)
+  padding-left: 8px
 </style>
 
 <style lang="sass">

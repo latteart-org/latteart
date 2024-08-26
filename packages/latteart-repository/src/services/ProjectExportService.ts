@@ -24,6 +24,7 @@ import { TestResultService } from "./TestResultService";
 import { DataSource } from "typeorm";
 import { TestHintPropEntity } from "@/entities/TestHintPropEntity";
 import { TestHintEntity } from "@/entities/TestHintEntity";
+import { convertMutationToExportData } from "./helper/mutationHelper";
 
 export class ProjectExportService {
   constructor(private dataSource: DataSource) {}
@@ -59,6 +60,10 @@ export class ProjectExportService {
       ? await this.extractCommentsExportData()
       : [];
 
+    const mutationsExportData = includeTestResults
+      ? await this.extractMutationsExportData()
+      : [];
+
     const testHintsExportData = includeTestHints
       ? await this.extractTestHintExportData()
       : null;
@@ -73,6 +78,7 @@ export class ProjectExportService {
       testResultsExportData,
       testHintsExportData,
       commentsExportData,
+      mutationsExportData,
       configExportData
     );
   }
@@ -107,6 +113,30 @@ export class ProjectExportService {
         };
       })
     );
+  }
+
+  private async extractMutationsExportData(): Promise<
+    {
+      testResultId: string;
+      fileName: string;
+      fileData: string;
+    }[]
+  > {
+    return (
+      await this.dataSource
+        .getRepository(TestResultEntity)
+        .find({ relations: ["mutations", "mutations.screenshot"] })
+    ).map((testResult) => {
+      return {
+        testResultId: testResult.id,
+        fileName: "mutations.json",
+        fileData: JSON.stringify(
+          (testResult.mutations ?? []).map((mutation) => {
+            return convertMutationToExportData(testResult.id, mutation);
+          })
+        ),
+      };
+    });
   }
 
   private async extractCommentsExportData(): Promise<
