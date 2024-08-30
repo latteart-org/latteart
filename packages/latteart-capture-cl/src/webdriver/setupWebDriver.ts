@@ -86,7 +86,7 @@ export async function setupWebDriverServer(
       return { server: new WebDriverServer(serverUrl) };
     }
 
-    const process = await startProcess(processCall.command, async () => {
+    const process = await startProcess(processCall, async () => {
       return isServerStarted(serverUrl);
     });
 
@@ -130,11 +130,11 @@ async function isServerStarted(serverUrl: string): Promise<boolean> {
 }
 
 async function startProcess(
-  command: string,
+  processCall: { command: string; port: number },
   isProcessStarted: (stdout: string) => Promise<boolean>
 ) {
   return new Promise<ChildProcessWithoutNullStreams>((resolve, reject) => {
-    const proc = spawn(command);
+    const proc = spawn(processCall.command, [`--port=${processCall.port}`]);
 
     proc.on("error", (error) => {
       proc.kill();
