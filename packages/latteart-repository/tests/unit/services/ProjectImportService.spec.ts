@@ -378,6 +378,7 @@ describe("ProjectImportService", () => {
             commentWords: [],
             createdAt: 10,
             operationElements: [],
+            issues: ["issue1"],
           },
         ],
       };

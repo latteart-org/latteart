@@ -52,9 +52,13 @@ export default defineComponent({
     const registerDialogOpened = ref(false);
 
     const checkedTestSteps = computed(
-      (): { operation: OperationForGUI; comments: { value: string; timestamp: string }[] }[] => {
+      (): {
+        operation: OperationForGUI;
+        comments: { value: string; timestamp: string }[];
+        issues: string[];
+      }[] => {
         return operationHistoryStore.checkedTestSteps.map((item) => {
-          return { operation: item.operation, comments: item.comments };
+          return { operation: item.operation, comments: item.comments, issues: item.issues };
         });
       }
     );

@@ -56,7 +56,11 @@ export default defineComponent({
     opened: { type: Boolean, default: false, required: true },
     relatedTestSteps: {
       type: Array as PropType<
-        { operation: OperationForGUI; comments: { value: string; timestamp: string }[] }[]
+        {
+          operation: OperationForGUI;
+          comments: { value: string; timestamp: string }[];
+          issues: string[];
+        }[]
       >,
       default: () => [],
       required: false
@@ -78,6 +82,7 @@ export default defineComponent({
     const customPropValues = ref<string[]>([]);
     const commentWords = ref("");
     const operatedElements = ref<{ tagname: string; type: string; text: string }[]>([]);
+    const issues = ref<string[]>([]);
 
     const isOkButtonDisabled = computed(() => {
       return !testHintValue.value ? true : false;
@@ -97,7 +102,8 @@ export default defineComponent({
           };
         }),
         commentWords: commentWords.value,
-        operatedElements: operatedElements.value
+        operatedElements: operatedElements.value,
+        issues: issues.value
       };
     });
 
@@ -111,6 +117,7 @@ export default defineComponent({
       customPropValues.value = [];
       commentWords.value = "";
       operatedElements.value = [];
+      issues.value = [];
     };
 
     const initialize = async () => {
@@ -143,6 +150,7 @@ export default defineComponent({
           rootStore.viewSettings.testHint.commentMatching
         ).join(" ");
         operatedElements.value = testHintResources.elements;
+        issues.value = testHintResources.issues;
       } finally {
         processing.value = false;
       }
@@ -157,6 +165,7 @@ export default defineComponent({
       customProps: { header: TestHintProp; value: string }[];
       commentWords: string;
       operatedElements: { tagname: string; type: string; text: string }[];
+      issues: string[];
     }) => {
       testHintValue.value = newValue.testHintValue;
       testMatrixName.value = newValue.testMatrixName;
@@ -167,6 +176,7 @@ export default defineComponent({
       customPropValues.value = newValue.customProps.map(({ value }) => value);
       commentWords.value = newValue.commentWords;
       operatedElements.value = newValue.operatedElements;
+      issues.value = newValue.issues;
     };
 
     const registerTestHint = async () => {
@@ -187,7 +197,8 @@ export default defineComponent({
           commentWords: commentWords.value.split(" "),
           operationElements: operatedElements.value.filter((element) => {
             return !(element.tagname === "" && element.type === "" && element.text === "");
-          })
+          }),
+          issues: issues.value.filter((issue) => issue !== "")
         });
       } catch (error) {
         processing.value = false;

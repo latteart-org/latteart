@@ -12,25 +12,29 @@ describe("extractTestHintResources", () => {
             operation: {
               elementInfo: null
             },
-            comments: [{ value: "word1 word2" }, { value: "word3" }]
+            comments: [{ value: "word1 word2" }, { value: "word3" }],
+            issues: []
           },
           {
             operation: {
               elementInfo: null
             },
-            comments: [{ value: "word4" }]
+            comments: [{ value: "word4" }],
+            issues: []
           },
           {
             operation: {
               elementInfo: null
             },
-            comments: [{ value: "" }]
+            comments: [{ value: "" }],
+            issues: []
           },
           {
             operation: {
               elementInfo: null
             },
-            comments: []
+            comments: [],
+            issues: []
           }
         ];
 
@@ -39,7 +43,8 @@ describe("extractTestHintResources", () => {
         expect(result).toEqual({
           commentWords: ["word1", "word2", "word3", "word4"],
           displayedWords: [],
-          elements: []
+          elements: [],
+          issues: []
         });
       });
 
@@ -49,13 +54,15 @@ describe("extractTestHintResources", () => {
             operation: {
               elementInfo: null
             },
-            comments: [{ value: "word1 word1" }, { value: "word1" }]
+            comments: [{ value: "word1 word1" }, { value: "word1" }],
+            issues: []
           },
           {
             operation: {
               elementInfo: null
             },
-            comments: [{ value: "word1" }]
+            comments: [{ value: "word1" }],
+            issues: []
           }
         ];
 
@@ -64,7 +71,8 @@ describe("extractTestHintResources", () => {
         expect(result).toEqual({
           commentWords: ["word1"],
           displayedWords: [],
-          elements: []
+          elements: [],
+          issues: []
         });
       });
     });
@@ -74,19 +82,23 @@ describe("extractTestHintResources", () => {
         const testSteps = [
           {
             operation: { elementInfo: null, keywordSet: new Set(["word1 word2", "word3"]) },
-            comments: []
+            comments: [],
+            issues: []
           },
           {
             operation: { elementInfo: null, keywordSet: new Set(["word4"]) },
-            comments: []
+            comments: [],
+            issues: []
           },
           {
             operation: { elementInfo: null, keywordSet: new Set([]) },
-            comments: []
+            comments: [],
+            issues: []
           },
           {
             operation: { elementInfo: null },
-            comments: []
+            comments: [],
+            issues: []
           }
         ];
 
@@ -95,7 +107,8 @@ describe("extractTestHintResources", () => {
         expect(result).toEqual({
           commentWords: [],
           displayedWords: ["word1", "word2", "word3", "word4"],
-          elements: []
+          elements: [],
+          issues: []
         });
       });
 
@@ -106,14 +119,16 @@ describe("extractTestHintResources", () => {
               elementInfo: null,
               keywordSet: new Set(["word1 word1", "word1"])
             },
-            comments: []
+            comments: [],
+            issues: []
           },
           {
             operation: {
               elementInfo: null,
               keywordSet: new Set(["word1"])
             },
-            comments: []
+            comments: [],
+            issues: []
           }
         ];
 
@@ -122,7 +137,8 @@ describe("extractTestHintResources", () => {
         expect(result).toEqual({
           commentWords: [],
           displayedWords: ["word1"],
-          elements: []
+          elements: [],
+          issues: []
         });
       });
     });
@@ -138,7 +154,8 @@ describe("extractTestHintResources", () => {
                 text: "text1"
               }
             },
-            comments: []
+            comments: [],
+            issues: []
           },
           {
             operation: {
@@ -148,7 +165,8 @@ describe("extractTestHintResources", () => {
                 text: "text2"
               }
             },
-            comments: []
+            comments: [],
+            issues: []
           }
         ];
 
@@ -160,7 +178,8 @@ describe("extractTestHintResources", () => {
           elements: [
             { tagname: "tagname1", type: "type1", text: "text1" },
             { tagname: "tagname2", type: "type2", text: "text2" }
-          ]
+          ],
+          issues: []
         });
       });
 
@@ -174,7 +193,8 @@ describe("extractTestHintResources", () => {
                 text: "text1"
               }
             },
-            comments: []
+            comments: [],
+            issues: []
           },
           {
             operation: {
@@ -184,7 +204,8 @@ describe("extractTestHintResources", () => {
                 text: "text1"
               }
             },
-            comments: []
+            comments: [],
+            issues: []
           }
         ];
 
@@ -193,7 +214,8 @@ describe("extractTestHintResources", () => {
         expect(result).toEqual({
           commentWords: [],
           displayedWords: [],
-          elements: [{ tagname: "tagname1", type: "type1", text: "text1" }]
+          elements: [{ tagname: "tagname1", type: "type1", text: "text1" }],
+          issues: []
         });
       });
     });

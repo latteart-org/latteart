@@ -70,9 +70,16 @@
               {{ item.value.length > 100 ? item.value.slice(0, 100) + "..." : item.value }}
             </div>
           </template>
+          <template #[`item.issues`]="{ item }">
+            <div :style="{ 'min-width': '170px' }" :title="item.issues">
+              <li v-for="(issue, index) in item.issues" :key="index">
+                {{ issue.length > 100 ? issue.slice(0, 100) + "..." : issue }}
+              </li>
+            </div>
+          </template>
           <template
             v-for="({ value }, index) in headers.filter(
-              (h) => h.value !== 'actions' && h.value !== 'value'
+              (h) => h.value !== 'actions' && h.value !== 'value' && h.value !== 'issues'
             )"
             #[`item.${value}`]="{ item }"
             :key="index"
@@ -204,6 +211,11 @@ export default defineComponent({
           value: "value",
           sortable: true
         },
+        {
+          title: rootStore.message("test-hint.common.issues"),
+          value: "issues",
+          sortable: false
+        },
         ...customColumns,
         {
           title: rootStore.message("test-hint.common.test-matrix"),
@@ -261,6 +273,7 @@ export default defineComponent({
             matchCount:
               props.testHintMatchCounts.find(({ id }) => id === testHint.id)?.matchCount ?? 0,
             ...other,
+            issues: other.issues,
             commentWords: other.commentWords.join(" "),
             operationElements: other.operationElements
               .map(({ tagname, type, text }) => {
