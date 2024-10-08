@@ -144,6 +144,7 @@ export type TestHintForRepository = {
   customs: { propId: string; value: string | string[] }[];
   commentWords: string[];
   operationElements: { tagname: string; type: string; text: string }[];
+  issues: string[];
 };
 
 export type CapturedOperationForRepository = {

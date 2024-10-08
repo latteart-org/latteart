@@ -47,6 +47,7 @@ const preparation = async () => {
     ]),
     commentWords: '["commentWords"]',
     operationElement: "",
+    issues: '["issue1"]',
   });
 
   return { testHintEntity, testHintPropEntity };
@@ -152,6 +153,7 @@ describe("TestHintsService", () => {
               ],
               commentWords: ["commentWords"],
               operationElements: [],
+              issues: ["issue1"],
               createdAt: expect.any(Number),
             },
           ],
@@ -179,6 +181,7 @@ describe("TestHintsService", () => {
             ],
             commentWords: ["commentWords"],
             operationElements: [],
+            issues: ["issue1"],
             createdAt: 100,
           },
         ],
@@ -216,7 +219,7 @@ describe("TestHintsService", () => {
             ],
             commentWords: ["commentWords"],
             operationElements: [],
-
+            issues: ["issue1"],
             createdAt: expect.any(Number),
           },
         ],
@@ -250,6 +253,7 @@ describe("TestHintsService", () => {
         ],
         commentWords: ["commentWords"],
         operationElements: [],
+        issues: ["issue1"],
       });
 
       expect(result).toEqual({
@@ -267,6 +271,7 @@ describe("TestHintsService", () => {
         ],
         commentWords: ["commentWords"],
         operationElements: [],
+        issues: ["issue1"],
         createdAt: expect.any(Number),
       });
     });
@@ -286,6 +291,7 @@ describe("TestHintsService", () => {
           customs: [],
           commentWords: ["up1", "up2"],
           operationElements: [],
+          issues: ["issue1"],
         }
       );
 
@@ -299,6 +305,7 @@ describe("TestHintsService", () => {
         customs: [],
         commentWords: ["up1", "up2"],
         operationElements: [],
+        issues: ["issue1"],
         createdAt: expect.any(Number),
       });
     });

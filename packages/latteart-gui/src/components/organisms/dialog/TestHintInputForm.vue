@@ -23,7 +23,15 @@
             :model-value="modelValue.testHintValue"
             variant="underlined"
             :label="$t('test-hint.common.hint-text')"
-            @update:model-value="(value) => emitTestHintUpdated({ testHintValue: value })"
+            @update:model-value="(value: string) => emitTestHintUpdated({ testHintValue: value })"
+          />
+        </div>
+
+        <div>
+          <p class="text-subtitle-1 text-medium-emphasis">{{ $t("test-hint.common.issues") }}</p>
+          <test-hint-issue-container
+            :model-value="modelValue.issues"
+            @update:model-value="(value) => emitTestHintUpdated({ issues: value })"
           />
         </div>
 
@@ -32,7 +40,7 @@
             :model-value="modelValue.testMatrixName"
             variant="underlined"
             :label="$t('test-hint.common.test-matrix')"
-            @update:model-value="(value) => emitTestHintUpdated({ testMatrixName: value })"
+            @update:model-value="(value: string) => emitTestHintUpdated({ testMatrixName: value })"
           />
         </div>
 
@@ -41,7 +49,7 @@
             :model-value="modelValue.groupName"
             variant="underlined"
             :label="$t('test-hint.common.group')"
-            @update:model-value="(value) => emitTestHintUpdated({ groupName: value })"
+            @update:model-value="(value: string) => emitTestHintUpdated({ groupName: value })"
           />
         </div>
 
@@ -50,7 +58,7 @@
             :model-value="modelValue.testTargetName"
             variant="underlined"
             :label="$t('test-hint.common.test-target')"
-            @update:model-value="(value) => emitTestHintUpdated({ testTargetName: value })"
+            @update:model-value="(value: string) => emitTestHintUpdated({ testTargetName: value })"
           />
         </div>
 
@@ -59,7 +67,7 @@
             :model-value="modelValue.viewPointName"
             variant="underlined"
             :label="$t('test-hint.common.view-point')"
-            @update:model-value="(value) => emitTestHintUpdated({ viewPointName: value })"
+            @update:model-value="(value: string) => emitTestHintUpdated({ viewPointName: value })"
           />
         </div>
 
@@ -70,7 +78,7 @@
               variant="underlined"
               :label="header.name"
               @update:model-value="
-                (value) =>
+                (value: string) =>
                   emitTestHintUpdated({
                     customProps: modelValue.customProps.map((prop, i) => {
                       return { header: prop.header, value: i === index ? value : prop.value };
@@ -88,7 +96,7 @@
               item-title="value"
               item-value="key"
               @update:model-value="
-                (value) =>
+                (value: string) =>
                   emitTestHintUpdated({
                     customProps: modelValue.customProps.map((prop, i) => {
                       return { header: prop.header, value: i === index ? value : prop.value };
@@ -104,7 +112,7 @@
             :model-value="modelValue.commentWords"
             variant="underlined"
             :label="$t('test-hint.common.comment-words')"
-            @update:model-value="(value) => emitTestHintUpdated({ commentWords: value })"
+            @update:model-value="(value: string) => emitTestHintUpdated({ commentWords: value })"
           />
         </div>
 
@@ -124,10 +132,12 @@ import { defineComponent } from "vue";
 import type { PropType } from "vue";
 import type { TestHintProp } from "@/lib/operationHistory/types";
 import ElementContainer from "./ElementContainer.vue";
+import TestHintIssueContainer from "./TestHintIssueContainer.vue";
 
 export default defineComponent({
   components: {
-    "element-container": ElementContainer
+    "element-container": ElementContainer,
+    "test-hint-issue-container": TestHintIssueContainer
   },
   props: {
     modelValue: {
@@ -140,6 +150,7 @@ export default defineComponent({
         customProps: { header: TestHintProp; value: string }[];
         commentWords: string;
         operatedElements: { tagname: string; type: string; text: string }[];
+        issues: string[];
       }>,
       required: true
     }
@@ -156,6 +167,7 @@ export default defineComponent({
         customProps: { header: TestHintProp; value: string }[];
         commentWords: string;
         operatedElements: { tagname: string; type: string; text: string }[];
+        issues: string[];
       }>
     ) => {
       context.emit("update:modelValue", { ...props.modelValue, ...newValue });

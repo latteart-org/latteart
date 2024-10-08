@@ -335,6 +335,7 @@ describe("ProjectExportService", () => {
         customs: [],
         commentWords: [],
         operationElements: [],
+        issues: [],
       });
       const testHint = await testHintService.getAllTestHints();
 

@@ -45,6 +45,7 @@ import { CommentEntity } from "./entities/CommentEntity";
 import { TestHintEntity } from "./entities/TestHintEntity";
 import { TestHintPropEntity } from "./entities/TestHintPropEntity";
 import { AddTestDesignSupport1721721469884 } from "./migrations/1721721469884-AddTestDesignSupport";
+import { UpdateTestHintEntity1728281012919 } from "./migrations/1728281012919-UpdateTestHintEntity";
 
 const extensionEntities = extensions.flatMap(({ entities }) => entities);
 const extensionMigrations = extensions.flatMap(({ migrations }) => migrations);
@@ -98,6 +99,7 @@ export const AppDataSource = new DataSource({
     LinkMultipleTestResultsToSession1694494561042,
     AddMutationEntity1720152936071,
     AddTestDesignSupport1721721469884,
+    UpdateTestHintEntity1728281012919,
     ...extensionMigrations,
   ],
 });

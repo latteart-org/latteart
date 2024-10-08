@@ -274,6 +274,7 @@ export type OperationHistoryState = {
     index: number;
     operation: OperationForGUI;
     comments: { value: string; timestamp: string }[];
+    issues: string[];
   }[];
 
   /**

@@ -28,6 +28,9 @@ export class TestHintEntity {
   @Column({ name: "value" })
   value!: string;
 
+  @Column({ name: "issues", default: "[]" })
+  issues!: string;
+
   @Column({ name: "test_matrix_name", default: "" })
   testMatrixName!: string;
 

@@ -99,6 +99,7 @@ export class TestHintsService {
           h.customs = JSON.stringify(customs);
           h.commentWords = JSON.stringify(hint.commentWords);
           h.operationElements = JSON.stringify(hint.operationElements);
+          h.issues = JSON.stringify(hint.issues);
           await transactionalEntityManager.save(h);
         })
       );
@@ -125,6 +126,7 @@ export class TestHintsService {
       customs: JSON.stringify(body.customs),
       commentWords: JSON.stringify(body.commentWords),
       operationElements: JSON.stringify(body.operationElements),
+      issues: JSON.stringify(body.issues),
     });
     return testHintEntityToResponse(result);
   }
@@ -148,6 +150,7 @@ export class TestHintsService {
     testHint.customs = JSON.stringify(body.customs);
     testHint.commentWords = JSON.stringify(body.commentWords);
     testHint.operationElements = JSON.stringify(body.operationElements);
+    testHint.issues = JSON.stringify(body.issues);
     const result = await testHintRepository.save(testHint);
 
     return testHintEntityToResponse(result);
