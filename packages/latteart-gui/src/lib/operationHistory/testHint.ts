@@ -72,7 +72,8 @@ export function selectMatchedTestHints(
           viewPointName: item.viewPointName,
           customs: item.customs,
           commentWords: item.commentWords,
-          operationElements: item.operationElements
+          operationElements: item.operationElements,
+          issues: item.issues
         };
         acc.testHints.push(testHint);
 

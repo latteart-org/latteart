@@ -124,7 +124,8 @@ export default defineComponent({
           viewPointName: "",
           customs: [],
           commentWords: [],
-          operationElements: []
+          operationElements: [],
+          issues: []
         }
       );
     });

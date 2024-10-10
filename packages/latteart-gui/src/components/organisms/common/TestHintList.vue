@@ -71,7 +71,7 @@
             </div>
           </template>
           <template #[`item.issues`]="{ item }">
-            <div :style="{ 'min-width': '170px' }" :title="item.issues">
+            <div :style="{ 'min-width': '170px' }" :title="item.issues.join(', ')">
               <li v-for="(issue, index) in item.issues" :key="index">
                 {{ issue.length > 100 ? issue.slice(0, 100) + "..." : issue }}
               </li>
@@ -312,7 +312,7 @@ export default defineComponent({
     };
 
     const getItemValue = (
-      itemEntries: [string, string | number | boolean][],
+      itemEntries: [string, string | number | boolean | string[]][],
       itemPropName: string
     ) => {
       const itemValue = itemEntries.find(([key]) => key === itemPropName)?.at(1);
