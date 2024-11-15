@@ -398,6 +398,7 @@
     "common": {
       "match-count": "Match count",
       "hint-text": "Hint text",
+      "issues": "Detected Issues",
       "test-matrix": "Test matrix",
       "group": "Group",
       "test-target": "Test target",
@@ -406,7 +407,8 @@
       "operation": "Operation",
       "screen-elements": "Screen elements",
       "add-element": "Add Element",
-      "search": "String search"
+      "search": "String search",
+      "add-issue": "Add"
     }
   },
   "optional-features": {

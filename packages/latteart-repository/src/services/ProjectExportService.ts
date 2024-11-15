@@ -187,6 +187,7 @@ export class ProjectExportService {
       return {
         id: hint.id,
         value: hint.value,
+        issues: JSON.parse(hint.issues),
         testMatrixName: hint.testMatrixName,
         groupName: hint.groupName,
         testTargetName: hint.testTargetName,

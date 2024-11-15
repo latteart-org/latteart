@@ -21,6 +21,7 @@ export function extractTestHintResources(
       keywordSet?: Set<string>;
     };
     comments: { value: string }[];
+    issues: string[];
   }[]
 ): {
   commentWords: string[];
@@ -30,8 +31,9 @@ export function extractTestHintResources(
     type: string;
     text: string;
   }[];
+  issues: string[];
 } {
-  const { commentWords, displayedWords, elements } = testSteps.reduce(
+  const { commentWords, displayedWords, elements, issues } = testSteps.reduce(
     (acc, testStep) => {
       const commentWords = testStep.comments
         .flatMap(({ value }) => value.split(" "))
@@ -54,12 +56,15 @@ export function extractTestHintResources(
         });
       }
 
+      acc.issues.push(...testStep.issues);
+
       return acc;
     },
     {
       commentWords: new Array<string>(),
       displayedWords: new Array<string>(),
-      elements: new Array<{ tagname: string; type: string; text: string }>()
+      elements: new Array<{ tagname: string; type: string; text: string }>(),
+      issues: new Array<string>()
     }
   );
 
@@ -72,7 +77,8 @@ export function extractTestHintResources(
           return `${e2.tagname}_${e2.type}_${e2.text}` === `${e1.tagname}_${e1.type}_${e1.text}`;
         }) === index
       );
-    })
+    }),
+    issues: issues.filter((issue, index, array) => array.indexOf(issue) === index)
   };
 }
 

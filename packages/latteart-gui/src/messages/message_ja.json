@@ -398,6 +398,7 @@
     "common": {
       "match-count": "マッチ数",
       "hint-text": "ヒント本文",
+      "issues": "摘出されたバグ",
       "test-matrix": "テストマトリクス",
       "group": "グループ",
       "test-target": "テスト対象",
@@ -406,7 +407,8 @@
       "operation": "操作",
       "screen-elements": "画面要素",
       "add-element": "要素の追加",
-      "search": "文字列検索"
+      "search": "文字列検索",
+      "add-issue": "追加"
     }
   },
   "optional-features": {

@@ -55,6 +55,7 @@ const preparation = async () => {
     ]),
     commentWords: '["commentWords"]',
     operationElement: "",
+    issues: '["issue1"]',
   });
 
   return { testHintEntity, testHintPropEntities };
@@ -182,6 +183,7 @@ describe("TestHintPropsService", () => {
         ],
         commentWords: ["commentWords"],
         operationElements: [],
+        issues: ["issue1"],
         createdAt: expect.any(Number),
       });
     });

@@ -51,6 +51,7 @@ export type TestHint = {
   commentWords: string[];
   createdAt: number;
   operationElements: OperationElement[];
+  issues: string[];
 };
 
 export interface PutTestHintPropDto {

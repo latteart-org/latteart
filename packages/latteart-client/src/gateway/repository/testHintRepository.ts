@@ -86,6 +86,7 @@ export class TestHintRepositoryImpl implements TestHintRepository {
         customs: testHint.customs,
         commentWords: testHint.commentWords,
         operationElements: testHint.operationElements,
+        issues: testHint.issues,
       });
       if (response.status !== 200) {
         return createRepositoryAccessFailure(response);
@@ -114,6 +115,7 @@ export class TestHintRepositoryImpl implements TestHintRepository {
           customs: testHint.customs,
           commentWords: testHint.commentWords,
           operationElements: testHint.operationElements,
+          issues: testHint.issues,
         }
       );
       if (response.status !== 200) {

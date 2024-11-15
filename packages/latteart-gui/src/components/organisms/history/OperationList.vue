@@ -685,7 +685,12 @@ export default defineComponent({
           return checkedItems.value.includes(index);
         })
         .map((v) => {
-          return { index: v.index, operation: v.operation, comments: v.comments };
+          return {
+            index: v.index,
+            operation: v.operation,
+            comments: v.comments,
+            issues: [...v.notes.bugs, ...v.notes.notices].map((note) => note.value)
+          };
         });
 
       operationHistoryStore.checkedTestSteps = checkedTestSteps;

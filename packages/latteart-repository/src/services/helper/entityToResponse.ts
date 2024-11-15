@@ -500,6 +500,7 @@ export const testHintEntityToResponse = (
     testHintEntity.operationElements === ""
       ? []
       : JSON.parse(testHintEntity.operationElements);
+  const issues = JSON.parse(testHintEntity.issues) as string[];
   return {
     id: testHintEntity.id,
     value: testHintEntity.value,
@@ -510,6 +511,7 @@ export const testHintEntityToResponse = (
     customs,
     commentWords,
     operationElements,
+    issues,
     createdAt: testHintEntity.createdAt.getTime(),
   };
 };
