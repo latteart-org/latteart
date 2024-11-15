@@ -1,6 +1,6 @@
 {
   "name": "latteart-repository",
-  "version": "2.15.1",
+  "version": "2.15.2",
   "private": true,
   "main": "dist/index.js",
   "scripts": {
