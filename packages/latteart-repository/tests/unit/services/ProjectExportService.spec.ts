@@ -358,6 +358,7 @@ describe("ProjectExportService", () => {
             {
               id: testHint.data[0].id,
               value: testHint.data[0].value,
+              issues: testHint.data[0].issues,
               testMatrixName: testHint.data[0].testMatrixName,
               groupName: testHint.data[0].groupName,
               testTargetName: testHint.data[0].testTargetName,
