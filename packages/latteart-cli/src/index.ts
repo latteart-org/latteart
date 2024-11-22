@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import packageJson from "../package.json";
 import express from "express";
 import history from "connect-history-api-fallback";
 import path from "path";
@@ -38,11 +39,16 @@ const v1RootPath = "/api/v1";
  * Get server name.
  */
 app.get(`${v1RootPath}/server-name`, (req, res) => {
-  console.info("Get server name.");
-
   res.json("latteart");
 });
 
 app.listen(port, () => {
+  const version = [`  ${packageJson.name} ${packageJson.version}`].join("\n");
+  console.info(`Start server.
+=======================================
+
+${version}
+
+=======================================`);
   console.info(`LatteArt: http://127.0.0.1:${port}`);
 });

@@ -20,6 +20,8 @@
  * Extension.
  */
 export type GuiExtension = {
+  name?: string;
+  version?: string;
   components: {
     contents?: { name: string }[];
     configs?: { name: string; title: string }[];

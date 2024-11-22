@@ -21,6 +21,8 @@ import { Router } from "express";
  * Extension.
  */
 export type RepositoryExtension = {
+  name?: string;
+  version?: string;
   // eslint-disable-next-line @typescript-eslint/ban-types
   entities: Function[];
   // eslint-disable-next-line @typescript-eslint/ban-types

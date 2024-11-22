@@ -15,6 +15,7 @@
  */
 import "reflect-metadata";
 
+import packageJson from "../package.json";
 import express, {
   Response as ExResponse,
   Request as ExRequest,
@@ -116,8 +117,6 @@ function runServer(port: number, timeout?: number) {
     res: ExResponse,
     next: NextFunction
   ): ExResponse | void {
-    console.log("errorHandler");
-
     if (err instanceof ValidateError) {
       logger.warn(
         `Caught Validation Error for ${req.path}: ${JSON.stringify(err.fields)}`
@@ -146,6 +145,18 @@ function runServer(port: number, timeout?: number) {
   });
 
   const server = app.listen(port, () => {
+    const version = [
+      `  ${packageJson.name} ${packageJson.version}`,
+      ...extensions.map(
+        ({ name, version }) => `    + ${name ?? "unknown"} ${version ?? ""}`
+      ),
+    ].join("\n");
+    logger.info(`Start server.
+=======================================
+
+${version}
+
+=======================================`);
     logger.info(`Listening on *:${port}`);
   });
 

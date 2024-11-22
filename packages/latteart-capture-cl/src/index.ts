@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import packageJson from "../package.json";
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -499,5 +500,12 @@ io.on("connection", (socket) => {
 const port = process.env.PORT || 3001;
 
 server.listen(port, () => {
+  const version = [`  ${packageJson.name} ${packageJson.version}`].join("\n");
+  LoggingService.info(`Start server.
+=======================================
+
+${version}
+
+=======================================`);
   LoggingService.info(`Listening on *:${port}`);
 });

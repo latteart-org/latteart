@@ -17,8 +17,14 @@
 <template>
   <v-app>
     <v-navigation-drawer :rail="mini" permanent @click="mini = false">
-      <v-list-item prepend-avatar="@/assets/logo.png" class="px-2">
+      <v-list-item prepend-avatar="@/assets/logo.png" class="pa-2">
         <v-list-item-title class="text-h6"> LatteArt </v-list-item-title>
+        <v-list-subtitle
+          class="text-caption font-weight-black text-medium-emphasis"
+          :title="fullVersion"
+        >
+          {{ version }}
+        </v-list-subtitle>
 
         <template #append>
           <v-btn variant="flat" icon="chevron_left" @click.stop="mini = !mini"></v-btn>
@@ -216,6 +222,8 @@
 </template>
 
 <script lang="ts">
+import packageJson from "../../../package.json";
+import { extensions } from "@/extensions";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ProgressDialog from "@/components/organisms/dialog/ProgressDialog.vue";
 import { type TestMatrix } from "@/lib/testManagement/types";
@@ -246,6 +254,12 @@ export default defineComponent({
     const displayedPage = ref(0);
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
+
+    const version = `v${packageJson.version}${extensions.length > 0 ? ` + ext` : ""}`;
+    const fullVersion = [
+      `${packageJson.name} ${packageJson.version}`,
+      ...extensions.map(({ name, version }) => `  + ${name ?? "unknown"} ${version ?? ""}`)
+    ].join("\n");
 
     onMounted(() => {
       (async () => {
@@ -377,7 +391,9 @@ export default defineComponent({
       isCapturing,
       isReplaying,
       hasTestMatrix,
-      hasSession
+      hasSession,
+      version,
+      fullVersion
     };
   }
 });
