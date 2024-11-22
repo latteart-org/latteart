@@ -21,6 +21,7 @@
         <v-checkbox
           :style="{ maxWidth: '40px' }"
           :model-value="conditionGroup.isEnabled"
+          hide-details
           class="default-flex"
           @update:model-value="
             (isEnabled) => updateConditionGroup({ isEnabled: isEnabled ?? false })
@@ -33,6 +34,7 @@
           variant="underlined"
           :label="$t('config-page.autoOperation.name')"
           :model-value="conditionGroup.settingName"
+          hide-details
           @change="(e: any) => updateConditionGroup({ settingName: e.target._value })"
         ></v-text-field>
       </v-col>
@@ -54,7 +56,6 @@
           hide-details
           :label="$t('config-page.autoOperation.details')"
           :model-value="conditionGroup.details"
-          class="px-1"
           @change="(e: any) => updateConditionGroup({ details: e.target._value })"
         ></v-textarea>
       </v-col>

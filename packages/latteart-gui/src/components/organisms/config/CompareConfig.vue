@@ -17,7 +17,7 @@
 <template>
   <v-container class="mt-0 pt-0">
     <v-row>
-      <v-col cols="12">
+      <v-col cols="12" class="py-1">
         <v-checkbox
           v-model="isExcludeItemsEnabled"
           density="comfortable"
@@ -26,7 +26,7 @@
         >
         </v-checkbox>
       </v-col>
-      <v-col cols="12" class="select-box">
+      <v-col cols="12" class="py-1 select-box">
         <v-select
           v-model="excludeItems"
           variant="underlined"
@@ -37,11 +37,11 @@
           :label="$t('config-page.comparison-exclude-items-value')"
           multiple
           :disabled="!isExcludeItemsEnabled"
-          class="px-1"
+          hide-details
           @update:model-value="changeExcludeItems"
         ></v-select>
       </v-col>
-      <v-col cols="12">
+      <v-col cols="12" class="py-1">
         <v-checkbox
           v-model="isExcludeElementsEnabled"
           density="comfortable"
@@ -50,7 +50,7 @@
         >
         </v-checkbox>
       </v-col>
-      <v-col cols="12" class="select-box">
+      <v-col cols="12" class="py-1 select-box">
         <v-select
           v-model="excludeElements"
           variant="underlined"
@@ -59,7 +59,7 @@
           :label="$t('config-page.comparison-exclude-elements-tagname')"
           multiple
           :disabled="!isExcludeElementsEnabled"
-          class="px-1"
+          hide-details
           @update:model-value="changeExcludeElements"
         ></v-select>
       </v-col>
