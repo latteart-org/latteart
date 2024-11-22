@@ -37,7 +37,7 @@
           :label="$t('config-page.comparison-exclude-items-value')"
           multiple
           :disabled="!isExcludeItemsEnabled"
-          class="px-1"
+          hide-details
           @update:model-value="changeExcludeItems"
         ></v-select>
       </v-col>
@@ -59,7 +59,7 @@
           :label="$t('config-page.comparison-exclude-elements-tagname')"
           multiple
           :disabled="!isExcludeElementsEnabled"
-          class="px-1"
+          hide-details
           @update:model-value="changeExcludeElements"
         ></v-select>
       </v-col>
