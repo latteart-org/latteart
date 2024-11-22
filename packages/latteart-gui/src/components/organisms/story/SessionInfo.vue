@@ -189,7 +189,7 @@
 
     <v-dialog v-model="attachedFileOpened">
       <v-card>
-        <v-img :src="attachedImageFileSource" />
+        <v-img :src="attachedImageFileSource" @click="attachedFileOpened = false" />
       </v-card>
     </v-dialog>
 
