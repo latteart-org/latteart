@@ -224,8 +224,11 @@ export default defineComponent({
       }
     });
 
-    watch(groups, () => {
-      if (selectedGroupId.value === "") {
+    watch(groups, (newGroups) => {
+      const enable = newGroups.find((group) => {
+        return selectedGroupId.value === group.id;
+      });
+      if (!enable) {
         selectedGroupId.value = "all";
       }
     });
