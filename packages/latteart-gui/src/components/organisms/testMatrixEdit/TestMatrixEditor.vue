@@ -39,16 +39,12 @@
             class="py-0 elevation-0"
             :value="index"
           >
-            <v-expansion-panel-title class="py-0">
+            <v-expansion-panel-title class="py-0" :title.attr="group.name">
+              <div v-if="expandedPanelIndex !== index" class="text-truncate">
+                {{ group.name }}
+              </div>
               <v-row>
                 <v-col cols="10">
-                  <div
-                    v-if="expandedPanelIndex !== index"
-                    :title="group.name"
-                    class="text-truncate"
-                  >
-                    {{ group.name }}
-                  </div>
                   <v-text-field
                     v-if="expandedPanelIndex === index"
                     :id="`groupNameTextField${index}`"

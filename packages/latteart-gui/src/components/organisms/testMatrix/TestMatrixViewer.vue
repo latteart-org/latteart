@@ -29,8 +29,8 @@
             class="py-0"
             :value="index"
           >
-            <v-expansion-panel-title>
-              <div :title="group.name" class="text-truncate">{{ group.name }}</div>
+            <v-expansion-panel-title :title.attr="group.name">
+              <div class="text-truncate">{{ group.name }}</div>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <group-viewer
