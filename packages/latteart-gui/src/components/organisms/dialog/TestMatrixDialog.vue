@@ -50,12 +50,12 @@
                 ></v-select>
               </v-row>
               <v-row>
-                <v-expansion-panels>
+                <v-expansion-panels v-model="openedPanelIndex" :readonly="true">
                   <v-expansion-panel
                     v-for="(tempViewPoint, index) in tempViewPoints"
                     :key="tempViewPoint.key + index"
                   >
-                    <v-expansion-panel-title>
+                    <v-expansion-panel-title @click.stop="() => togglePanel(index)">
                       <v-row>
                         <v-col cols="9">
                           <v-text-field
@@ -132,6 +132,8 @@ export default defineComponent({
   emits: ["closeDialog", "updateTestMatrix"],
   setup(props, context) {
     const rootStore = useRootStore();
+
+    const openedPanelIndex = ref<undefined | number>(undefined);
 
     const selectedViewPointsPresetId = ref("");
     const tempViewPoints = ref<
@@ -308,6 +310,10 @@ export default defineComponent({
       }
     };
 
+    const togglePanel = (index: number) => {
+      openedPanelIndex.value = openedPanelIndex.value === index ? undefined : index;
+    };
+
     const { testMatrixBeingEdited } = toRefs(props);
     watch(testMatrixBeingEdited, init);
     watch(viewPointsPresets, setSelectedViewPointsPresetId);
@@ -322,6 +328,8 @@ export default defineComponent({
       opened,
       isCreate,
       dialogTitle,
+      openedPanelIndex,
+      togglePanel,
       createTempViewPoint,
       changeSelectedViewPoints,
       deleteTempViewPoint,
