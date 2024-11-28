@@ -173,7 +173,7 @@ export default defineComponent({
       try {
         captureControlStore.replayOption = {
           testResultName: isResultSavingEnabled.value ? testResultName.value : "",
-          reproduceWaitTimeEnabled: isWaitTimeReproductionEnabled.value,
+          waitTimeReproductionEnabled: isWaitTimeReproductionEnabled.value,
           resultSavingEnabled: isResultSavingEnabled.value,
           comparisonEnabled: isResultSavingEnabled.value ? isComparisonEnabled.value : false
         };
