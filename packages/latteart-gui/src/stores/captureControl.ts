@@ -90,7 +90,7 @@ export type CaptureControlState = {
    */
   replayOption: {
     testResultName: string;
-    recreateWaitTimeEnabled: boolean;
+    reproduceWaitTimeEnabled: boolean;
     resultSavingEnabled: boolean;
     comparisonEnabled: boolean;
   };
@@ -152,7 +152,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
     },
     replayOption: {
       testResultName: "",
-      recreateWaitTimeEnabled: false,
+      reproduceWaitTimeEnabled: false,
       resultSavingEnabled: false,
       comparisonEnabled: false
     },
@@ -300,7 +300,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
           operationHistoryStore.selectedOperationInfo = { sequence: index + 1, doScroll: false };
         };
 
-        const interval = !replayOption.recreateWaitTimeEnabled ? 0 : undefined;
+        const interval = !replayOption.reproduceWaitTimeEnabled ? 0 : undefined;
 
         const runOperationsResult = await session
           .automate({ preScript, interval })
