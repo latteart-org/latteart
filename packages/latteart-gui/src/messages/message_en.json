@@ -287,6 +287,7 @@
   },
   "replay-option": {
     "start-replay": "Replay",
+    "wait-time": "Reproduce the waiting time when operating",
     "replay-capture": "Save replay result",
     "saving-replay-results-warning-message": "Saving replay results warning message.",
     "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",

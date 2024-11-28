@@ -287,6 +287,7 @@
   },
   "replay-option": {
     "start-replay": "テスト結果のリプレイ",
+    "wait-time": "操作時の待ち時間を再現する",
     "replay-capture": "リプレイ結果を保存する",
     "saving-replay-results-warning-message": "リプレイ時の動画は保存できません",
     "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
