@@ -20,7 +20,7 @@
       <template #title>{{ $t("replay-option.start-replay") }}</template>
       <template #content>
         <v-checkbox
-          v-model="isReproduceWaitTimeEnabled"
+          v-model="isWaitTimeReproductionEnabled"
           density="comfortable"
           hide-details
           :label="$t('replay-option.wait-time')"
@@ -116,7 +116,7 @@ export default defineComponent({
     const operationHistoryStore = useOperationHistoryStore();
 
     const testResultName = ref("");
-    const isReproduceWaitTimeEnabled = ref(false);
+    const isWaitTimeReproductionEnabled = ref(false);
     const isResultSavingEnabled = ref(false);
     const isComparisonEnabled = ref(false);
     const errorMessageDialogOpened = ref(false);
@@ -173,7 +173,7 @@ export default defineComponent({
       try {
         captureControlStore.replayOption = {
           testResultName: isResultSavingEnabled.value ? testResultName.value : "",
-          reproduceWaitTimeEnabled: isReproduceWaitTimeEnabled.value,
+          reproduceWaitTimeEnabled: isWaitTimeReproductionEnabled.value,
           resultSavingEnabled: isResultSavingEnabled.value,
           comparisonEnabled: isResultSavingEnabled.value ? isComparisonEnabled.value : false
         };
@@ -202,7 +202,7 @@ export default defineComponent({
 
     return {
       testResultName,
-      isReproduceWaitTimeEnabled,
+      isWaitTimeReproductionEnabled,
       isResultSavingEnabled,
       isComparisonEnabled,
       errorMessageDialogOpened,
