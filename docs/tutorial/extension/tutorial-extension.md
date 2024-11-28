@@ -8,7 +8,7 @@
   - [拡張機能用フォルダを作成する](#拡張機能用フォルダを作成する)
   - [コンポーネントを作成する](#コンポーネントを作成する)
   - [言語ファイルを作成する](#言語ファイルを作成する)
-  - [拡張機能用フォルダにindex.tsを作成する](#拡張機能用フォルダにindextsを作成する)
+  - [拡張機能用フォルダにsimple-history/index.tsを作成する](#拡張機能用フォルダにsimple-historyindextsを作成する)
   - [Latteartに拡張機能を登録する](#Latteartに拡張機能を登録する)
 - [開発した機能の動作確認](#開発した機能の動作確認)
 
@@ -40,9 +40,10 @@
 
 ダイアログ画面を表示するコンポーネントと、それを呼び出すボタンコンポーネントの２つを作成します。以下のコードを参考に、それぞれコンポーネントを作成してください。
 コンポーネントは先ほど作成した「simple-history」配下に配置してください。
+
 :bulb: ファイルの保存場所はプロジェクトルールに従って適宜決定してください。
 
-#### ダイアログのコンポーネント例 (`SimpleHistoryDialog.vue`)
+#### ダイアログのコンポーネント例 (`simple-history/SimpleHistoryDialog.vue`)
 
 ```vue
 <template>
@@ -92,7 +93,7 @@ export default defineComponent({
 </script>
 ```
 
-#### ボタンのコンポーネント例 (`OpenSimpleHistoryDialogButton.vue`)
+#### ボタンのコンポーネント例 (`simple-history/OpenSimpleHistoryDialogButton.vue`)
 
 ```vue
 <template>
@@ -137,7 +138,7 @@ export default defineComponent({
 現在は日本語と英語の２言語のみ対応しているため、本チュートリアルでは日本語用と英語用の言語ファイルを作成します。
 言語ファイルは先ほど作成した「simple-history」配下に配置してください。
 
-#### 日本語の言語ファイル(`message_ja.json`)
+#### 日本語の言語ファイル(`simple-history/message_ja.json`)
 
 ```json
 {
@@ -152,7 +153,7 @@ export default defineComponent({
 }
 ```
 
-#### 英語の言語ファイル(`message_en.json`)
+#### 英語の言語ファイル(`simple-history/message_en.json`)
 
 ```json
 {
@@ -167,7 +168,7 @@ export default defineComponent({
 }
 ```
 
-### 拡張機能用フォルダにindex.tsを作成する
+### 拡張機能用フォルダにsimple-history/index.tsを作成する
 
 拡張機能で使用するファイルは、すべて `index.ts` にまとめる必要があります。以下に `GuiExtention` 型の各項目の説明とサンプルコードを示します。
 
@@ -211,6 +212,12 @@ export const SimpleHistoryExtension: GuiExtension = {
   },
 };
 ```
+
+ここまでで作成した各ファイルを配置すると以下のようなフォルダ構成となります。
+
+<div>
+  <img src="./images/tree.png" width="400" />
+</div><br />
 
 ### Latteartに拡張機能を登録する
 
