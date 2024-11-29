@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-import Encoding from "encoding-japanese";
-
-export function bufferToString(buffer: Buffer): string {
-  return String.fromCharCode(...Encoding.convert(buffer, "UNICODE"));
-}
-
 export async function sleep(msec: number): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, msec));
 }

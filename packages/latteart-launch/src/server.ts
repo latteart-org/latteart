@@ -16,7 +16,6 @@
 
 import { spawn } from "child_process";
 import http from "http";
-import { bufferToString } from "./util";
 import open from "open";
 import { BrowserType } from "./setting";
 
@@ -27,11 +26,11 @@ export function launchServer(
   const serverProcess = spawn(serverBinaryFilePath, { env });
 
   serverProcess.stdout.on("data", (data: Buffer) => {
-    process.stdout.write(bufferToString(data));
+    process.stdout.write(data);
   });
 
   serverProcess.stderr.on("data", (data: Buffer) => {
-    process.stderr.write(bufferToString(data));
+    process.stderr.write(data);
   });
 }
 
