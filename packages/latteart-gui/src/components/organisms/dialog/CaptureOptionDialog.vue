@@ -42,6 +42,7 @@ export default defineComponent({
   props: {
     opened: { type: Boolean, default: false }
   },
+  emits: ["execute", "close"],
   setup(props, context) {
     const isOptionDisplayed = ref<boolean>(false);
     const captureOption = ref<CaptureOptionParams>({
@@ -62,7 +63,11 @@ export default defineComponent({
     };
 
     const isOkButtonDisabled = computed(() => {
-      return !captureOption.value.url || !isUrlValid.value;
+      return (
+        !captureOption.value.url ||
+        !isUrlValid.value ||
+        (captureOption.value.shouldRecordTestPurpose && captureOption.value.firstTestPurpose === "")
+      );
     });
 
     const isUrlValid = computed((): boolean => {
