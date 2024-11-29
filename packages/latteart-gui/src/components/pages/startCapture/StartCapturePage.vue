@@ -69,7 +69,11 @@ export default defineComponent({
     };
 
     const isExecuteButtonDisabled = computed(() => {
-      return !captureOption.value.url || !urlIsValid.value;
+      return (
+        !captureOption.value.url ||
+        !urlIsValid.value ||
+        (captureOption.value.shouldRecordTestPurpose && captureOption.value.firstTestPurpose === "")
+      );
     });
 
     const urlIsValid = computed((): boolean => {
