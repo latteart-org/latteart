@@ -5,7 +5,7 @@
 - [拡張機能の概要](#拡張機能の概要)
 - [開発前の準備作業](#開発前の準備作業)
 - [拡張機能の開発手順](#拡張機能の開発手順)
-  - [拡張機能用フォルダを作成する](#拡張機能用フォルダを作成する)
+  - [エントリーポイントを作成する](#エントリーポイントを作成する)
   - [コンポーネントを作成する](#コンポーネントを作成する)
   - [言語ファイルを作成する](#言語ファイルを作成する)
   - [拡張機能用フォルダにsimple-history/index.tsを作成する](#拡張機能用フォルダにsimple-historyindextsを作成する)
@@ -15,6 +15,8 @@
 ## 拡張機能の概要
 
 本チュートリアルで作成する拡張機能は、テスト結果画面のフッターに専用ボタンを追加し、クリックすることで簡易操作履歴を表示するダイアログを開きます。
+
+:bulb: 拡張機能は TypeScript + Vue3 + Vuetify3 を使用しています。
 
 <div>
   <img src="./images/dialog.png" width="800"/>
@@ -26,7 +28,7 @@
 
 ## 拡張機能の開発手順
 
-### 拡張機能用フォルダを作成する
+### エントリーポイントを作成する
 
 拡張機能に必要なファイルを管理するためのフォルダを作成します。本チュートリアルでは、追加する機能を「simple-history」とするため、フォルダ名も「simple-history」とします。
 
@@ -38,12 +40,17 @@
 
 ### コンポーネントを作成する
 
-ダイアログ画面を表示するコンポーネントと、それを呼び出すボタンコンポーネントの２つを作成します。以下のコードを参考に、それぞれコンポーネントを作成してください。
+以下2つのコンポーネントを作成します。
+
+- ダイアログのコンポーネント
+- ダイアログを開くボタンのコンポーネント
+
+後述のコードを参考に、それぞれコンポーネントを作成してください。
 コンポーネントは先ほど作成した「simple-history」配下に配置してください。
 
 :bulb: ファイルの保存場所はプロジェクトルールに従って適宜決定してください。
 
-#### ダイアログのコンポーネント例 (`simple-history/SimpleHistoryDialog.vue`)
+#### ダイアログのコンポーネント (`simple-history/SimpleHistoryDialog.vue`)
 
 ```vue
 <template>
@@ -93,7 +100,7 @@ export default defineComponent({
 </script>
 ```
 
-#### ボタンのコンポーネント例 (`simple-history/OpenSimpleHistoryDialogButton.vue`)
+#### ダイアログを開くボタンのコンポーネント (`simple-history/OpenSimpleHistoryDialogButton.vue`)
 
 ```vue
 <template>
@@ -135,7 +142,7 @@ export default defineComponent({
 
 ### 言語ファイルを作成する
 
-現在は日本語と英語の２言語のみ対応しているため、本チュートリアルでは日本語用と英語用の言語ファイルを作成します。
+現在は日本語と英語の2言語のみ対応しているため、本チュートリアルでは日本語用と英語用の言語ファイルを作成します。
 言語ファイルは先ほど作成した「simple-history」配下に配置してください。
 
 #### 日本語の言語ファイル(`simple-history/message_ja.json`)
@@ -221,7 +228,7 @@ export const SimpleHistoryExtension: GuiExtension = {
 
 ### Latteartに拡張機能を登録する
 
-拡張機能を、Latteart本体に認識させるために `/root/latteart-gui/src/extentions/index.ts` に登録する必要があります。このファイルは、アプリケーション内で使用するすべての拡張機能を一元管理します。
+拡張機能を、Latteart本体に認識させるためにvscodeのワークスペース上の `/root/latteart-gui/src/extentions/index.ts` に登録する必要があります。このファイルは、アプリケーション内で使用するすべての拡張機能を一元管理します。
 
 ```ts
 import { SimpleHistoryExtension } from "./simple-history"; // 今回追加する拡張機能
