@@ -81,13 +81,13 @@ export default defineComponent({
       return targetStories.filter(({ testMatrixId }) => testMatrixId === props.testMatrixId);
     });
 
-    const testMatrix = ref<TestMatrix | undefined>(targetTestMatrix.value);
+    const testMatrix = ref<TestMatrix | undefined>(undefined);
 
     const initializePanels = () => {
-      const index = getSavedExpandedPanelIndex();
-
       expandedPanelIndex.value = -1;
       testMatrix.value = targetTestMatrix.value;
+
+      const index = getSavedExpandedPanelIndex();
 
       setTimeout(() => {
         if ((testMatrix.value?.groups.length ?? 0) > (index ?? 0)) {
