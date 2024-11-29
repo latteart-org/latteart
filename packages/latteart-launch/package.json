@@ -26,12 +26,10 @@
     "version:minor": "npm version minor --no-git-tag-version"
   },
   "dependencies": {
-    "encoding-japanese": "^1.0.30",
     "fs-extra": "^11.1.0",
     "open": "^8.4.0"
   },
   "devDependencies": {
-    "@types/encoding-japanese": "^1.0.18",
     "@types/fs-extra": "^9.0.13"
   }
 }
