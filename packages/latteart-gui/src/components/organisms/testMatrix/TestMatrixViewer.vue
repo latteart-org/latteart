@@ -87,14 +87,10 @@ export default defineComponent({
       expandedPanelIndex.value = -1;
       testMatrix.value = targetTestMatrix.value;
 
-      const index = getSavedExpandedPanelIndex();
-
       setTimeout(() => {
-        if ((testMatrix.value?.groups.length ?? 0) > (index ?? 0)) {
-          expandedPanelIndex.value = index;
-        } else {
-          expandedPanelIndex.value = 0;
-        }
+        const savedIndex = getSavedExpandedPanelIndex();
+        expandedPanelIndex.value =
+          (testMatrix.value?.groups.length ?? 0) > savedIndex ? savedIndex : 0;
       }, 100);
 
       filterItems();
@@ -109,17 +105,9 @@ export default defineComponent({
       localStorage.setItem(expandedGroupPanelIndexKey.value, value.toString());
     };
 
-    const getSavedExpandedPanelIndex = (): number | undefined => {
+    const getSavedExpandedPanelIndex = (): number => {
       const item = localStorage.getItem(expandedGroupPanelIndexKey.value);
-
-      if (item === null) {
-        if (testMatrix.value?.groups.length ?? 0 > 0) {
-          return 0;
-        }
-        return undefined;
-      }
-
-      return parseInt(item, 10);
+      return item ? parseInt(item, 10) : 0;
     };
 
     const filterItems = () => {
