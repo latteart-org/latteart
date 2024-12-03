@@ -54,6 +54,7 @@ import {
   createReport,
   outputReport,
   extractOperation,
+  isNumberInputOperation,
 } from "./helper/testResultComparisonHelper";
 import { CompareTestResultsResponse } from "@/interfaces/TestResultComparison";
 import { generateGraphView } from "@/domain/testResultViewGeneration/graphView";
@@ -664,9 +665,23 @@ export class TestResultServiceImpl implements TestResultService {
     const actualOperations = actualTestStepEntities.map((entity) => {
       return extractOperation(entity, screenshotFileRepository);
     });
-    const expectedOperations = expectedTestStepEntities.map((entity) => {
-      return extractOperation(entity, screenshotFileRepository);
-    });
+    const expectedOperations = expectedTestStepEntities
+      .map((entity) => {
+        return extractOperation(entity, screenshotFileRepository);
+      })
+      .filter((target, index, array) => {
+        if (isNumberInputOperation(target, "click")) {
+          const preOperation = array.at(index - 1);
+          if (
+            preOperation &&
+            isNumberInputOperation(preOperation, "change") &&
+            target.elementInfo?.xpath === preOperation.elementInfo?.xpath
+          ) {
+            return false;
+          }
+        }
+        return true;
+      });
 
     const actualActions = createTestActions(...actualOperations);
     const expectedActions = createTestActions(...expectedOperations);
@@ -674,7 +689,10 @@ export class TestResultServiceImpl implements TestResultService {
     const assertionResults = await Promise.all(
       expectedActions.map((expected, index) => {
         return assertPageStateEqual(
-          { actual: actualActions[index].result, expected: expected.result },
+          {
+            actual: actualActions.at(index)?.result,
+            expected: expected.result,
+          },
           option
         );
       })
