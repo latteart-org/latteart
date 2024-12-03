@@ -651,7 +651,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
       const config: CaptureConfig = {
         ...rootStore.deviceSettings,
         captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
-        shouldTakeScreenshot: mediaType.includes("image")
+        shouldTakeScreenshot: mediaType === "image" || mediaType === "video_and_image"
       };
 
       const videoRecorder =

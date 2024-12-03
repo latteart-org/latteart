@@ -419,7 +419,7 @@ export default class WebBrowserWindow {
 
     await this.captureScreenTransition();
     const data = await this.captureOperations(result.capturedItems);
-    if (result.mutatedItems.length > 0 && this.shouldTakeScreenshot) {
+    if (result.mutatedItems.length > 0) {
       await this.registerMutatedItem(result.mutatedItems, data);
     }
 
