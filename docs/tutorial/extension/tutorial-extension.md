@@ -16,7 +16,7 @@
 
 本チュートリアルで作成する拡張機能は、テスト結果画面のフッターに専用ボタンを追加し、クリックすることで簡易操作履歴を表示するダイアログを開きます。
 
-:bulb: 拡張機能は TypeScript + Vue3 + Vuetify3 を使用しています。
+:bulb: この拡張機能はTypeScript、Vue3、Vuetify3、vue-i18nを使用しています。
 
 <div>
   <img src="./images/dialog.png" width="800"/>
@@ -52,6 +52,9 @@
 
 #### ダイアログのコンポーネント (`simple-history/SimpleHistoryDialog.vue`)
 
+- `$t(...)` は、i18nの機能を利用して、対応する言語リソースからテキストを取得するための関数です。言語リソースは後述する[言語ファイルを作成する](#言語ファイルを作成する)をご参照ください。
+- latteart-repository 経由でAPIサービスを利用しています。APIの詳細な仕様については[REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/)をご参照ください。
+
 ```vue
 <template>
   <v-dialog :model-value="opened" persistent width="800">
@@ -74,27 +77,68 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from "vue";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
+import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
+
+type SimpleHistoryItem = {
+  title: string;
+  tagname: string;
+  type: string;
+};
+
+type TestStep = {
+  operation: { title: string; elementInfo?: { tagname: string }; type: string };
+};
 
 export default defineComponent({
   props: {
     opened: { type: Boolean, default: false, required: true },
   },
   emits: ["close"],
-  setup() {
-    const store = useOperationHistoryStore();
-    const items = computed(() => {
-      return store.history.map((h) => {
-        return {
-          title: h.operation.title,
-          tagname: h.operation.elementInfo?.tagname,
-          type: h.operation.type,
-        };
-      });
+  setup(props) {
+    const items = ref<SimpleHistoryItem[]>([]);
+
+    // 読み込み対象のテスト結果ID
+    const targetTestResultId = computed(() => {
+      return useOperationHistoryStore().testResultInfo.id;
     });
 
-    return { items };
+    // latteart-repositoryのURL
+    const repositoryUrl = computed(() => {
+      return useRootStore().repositoryService?.serviceUrl ?? "";
+    });
+
+    // テスト結果をlatteart-repositoryから取得する
+    const loadTestResult = async () => {
+      // latteart-repository の API を呼び出す
+      const response = await fetch(
+        `${repositoryUrl.value}/api/v1/test-results/${targetTestResultId.value}`,
+        { method: "GET" }
+      );
+
+      // レスポンスを画面に表示する情報に変換する
+      if (response.ok) {
+        const testResult = await response.json();
+        items.value = testResult.testSteps.map((testStep: TestStep) => {
+          return {
+            title: testStep.operation.title,
+            tagname: testStep.operation.elementInfo?.tagname,
+            type: testStep.operation.type,
+          };
+        });
+      }
+    };
+
+    // ダイアログを開いた際にテスト結果をlatteart-repositoryから読み込む関数を呼び出す
+    const { opened } = toRefs(props);
+    watch(opened, async () => {
+      if (opened.value) {
+        await loadTestResult();
+      }
+    });
+
+    return { items, loadTestResult };
   },
 });
 </script>
@@ -145,7 +189,7 @@ export default defineComponent({
 現在は日本語と英語の2言語のみ対応しているため、本チュートリアルでは日本語用と英語用の言語ファイルを作成します。
 言語ファイルは先ほど作成した「simple-history」配下に配置してください。
 
-#### 日本語の言語ファイル(`simple-history/message_ja.json`)
+#### 日本語の言語ファイル (`simple-history/message_ja.json`)
 
 ```json
 {
@@ -160,7 +204,7 @@ export default defineComponent({
 }
 ```
 
-#### 英語の言語ファイル(`simple-history/message_en.json`)
+#### 英語の言語ファイル (`simple-history/message_en.json`)
 
 ```json
 {
@@ -187,6 +231,8 @@ export default defineComponent({
 - **plugin**: Vueのplugin機能（拡張機能で作成した全コンポーネントを登録します）
 - **messages**: 言語ファイル
 
+#### エントリーポイント (`simple-history/index.ts`)
+
 ```ts
 import type { GuiExtension } from "..";
 import messageJa from "./message_ja.json";
@@ -196,7 +242,7 @@ import SimpleHistoryDialog from "./SimpleHistoryDialog.vue";
 
 export const SimpleHistoryExtension: GuiExtension = {
   name: "SimpleHistory",
-  version: "1.0",
+  version: "1.0.0",
   components: {
     contents: [
       {
