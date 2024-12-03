@@ -130,7 +130,7 @@ export interface Coverage {
  * Capture media settings.
  */
 export interface CaptureMediaSetting {
-  mediaType: "image" | "video";
+  mediaType: "image" | "video" | "video_and_image";
   imageCompression: ImageCompression;
 }
 

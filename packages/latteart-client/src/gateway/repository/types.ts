@@ -275,7 +275,7 @@ export type SettingsForRepository = {
     };
     coverage: { include: { tags: string[] } };
     captureMediaSetting: {
-      mediaType: "image" | "video";
+      mediaType: "image" | "video" | "video_and_image";
       imageCompression: { format: "png" | "webp" };
     };
     testResultComparison: {

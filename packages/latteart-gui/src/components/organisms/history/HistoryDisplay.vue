@@ -242,7 +242,7 @@ export default defineComponent({
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
 
-    const mediaType = ref<"image" | "video">("image");
+    const mediaType = ref<"image" | "video" | "video_and_image">("image");
 
     const DIAGRAM_TYPE_SEQUENCE = ref<string>("sequence");
     const DIAGRAM_TYPE_SCREEN_TRANSITION = ref<string>("screenTransition");
@@ -455,8 +455,8 @@ export default defineComponent({
     });
 
     const displayedMediaType = computed({
-      get: (): "image" | "video" => mediaType.value,
-      set: (type: "image" | "video") => {
+      get: (): "image" | "video" | "video_and_image" => mediaType.value,
+      set: (type: "image" | "video" | "video_and_image") => {
         mediaType.value = type;
       }
     });
