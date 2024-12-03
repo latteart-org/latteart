@@ -291,6 +291,7 @@ export default class WebBrowser {
             this.client,
             windowHandle,
             this.config.captureArch,
+            this.config.shouldTakeScreenshot,
             this.option
           );
         })();

@@ -131,7 +131,7 @@ export default defineComponent({
     });
 
     const savingReplayResultsWarningMessage = computed((): string => {
-      return rootStore.projectSettings.config.captureMediaSetting.mediaType === "video"
+      return rootStore.projectSettings.config.captureMediaSetting.mediaType !== "image"
         ? rootStore.message("replay-option.saving-replay-results-warning-message")
         : "";
     });

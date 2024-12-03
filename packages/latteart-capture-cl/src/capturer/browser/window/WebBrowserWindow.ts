@@ -51,6 +51,7 @@ export default class WebBrowserWindow {
 
   private client: WebDriverClient;
   private captureArch: "polling" | "push";
+  private shouldTakeScreenshot = false;
   private _windowHandle: string;
   private onGetOperation: (operation: Operation) => void;
   private onGetMutation: (screenMutation: ScreenMutation[]) => void;
@@ -70,6 +71,7 @@ export default class WebBrowserWindow {
    * @param client The WebDriver client to access a window.
    * @param windowHandle Window handle.
    * @param captureArch Captureing architecture type.
+   * @param shouldTakeScreenshot Whether to take screenshots.
    * @param option.onGetOperation The callback when an operation is captured.
    * @param option.onGetScreenTransition The callback when a screen transition is captured.
    * @param option.onHistoryChanged The callback when opened windows are changed.
@@ -80,6 +82,7 @@ export default class WebBrowserWindow {
     client: WebDriverClient,
     windowHandle: string,
     captureArch: "polling" | "push",
+    shouldTakeScreenshot: boolean,
     option?: {
       onGetOperation?: (operation: Operation) => void;
       onGetMutation?: (screenMutation: ScreenMutation[]) => void;
@@ -94,6 +97,7 @@ export default class WebBrowserWindow {
     this.firstTitle = firstTitle;
     this.client = client;
     this.captureArch = captureArch;
+    this.shouldTakeScreenshot = shouldTakeScreenshot;
     this.onGetOperation =
       option?.onGetOperation ??
       (() => {
@@ -434,7 +438,9 @@ export default class WebBrowserWindow {
   ) {
     const imageData = data.imageData
       ? data.imageData
-      : await this.client.takeScreenshot();
+      : this.shouldTakeScreenshot
+        ? await this.client.takeScreenshot()
+        : "";
     const clientSize = data.clientSize
       ? data.clientSize
       : await this.client.getClientSize();
@@ -544,7 +550,10 @@ export default class WebBrowserWindow {
         break;
       }
 
-      const data = await this.registerCapturedItem(item, true);
+      const data = await this.registerCapturedItem(
+        item,
+        this.shouldTakeScreenshot
+      );
       if (data.imageData !== undefined) {
         imageData = data.imageData;
       }
@@ -609,7 +618,9 @@ export default class WebBrowserWindow {
       url,
       title,
       location,
-      screenshotBase64: await this.getScreenshot(),
+      screenshotBase64: this.shouldTakeScreenshot
+        ? await this.getScreenshot()
+        : "",
     };
   }
 

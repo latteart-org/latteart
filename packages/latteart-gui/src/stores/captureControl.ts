@@ -276,7 +276,8 @@ export const useCaptureControlStore = defineStore("captureControl", {
           testResult: destTestResult,
           config: {
             ...rootStore.deviceSettings,
-            captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch
+            captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
+            shouldTakeScreenshot: true
           },
           eventListeners: this.createCaptureEventListeners()
         });
@@ -642,18 +643,22 @@ export const useCaptureControlStore = defineStore("captureControl", {
 
       const operationHistoryStore = useOperationHistoryStore();
 
-      const config: CaptureConfig = {
-        ...rootStore.deviceSettings,
-        captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch
-      };
-
       const testResult = rootStore.repositoryService.createTestResultAccessor(
         operationHistoryStore.testResultInfo.id
       );
       const mediaType = rootStore.projectSettings.config.captureMediaSetting.mediaType;
 
+      const config: CaptureConfig = {
+        ...rootStore.deviceSettings,
+        captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
+        shouldTakeScreenshot: mediaType === "image" || mediaType === "video_and_image"
+      };
+
       const videoRecorder =
-        (mediaType === "video" || config.captureArch === "push") && config.platformName === "PC"
+        (mediaType === "video" ||
+          mediaType === "video_and_image" ||
+          config.captureArch === "push") &&
+        config.platformName === "PC"
           ? createVideoRecorder(testResult)
           : undefined;
 

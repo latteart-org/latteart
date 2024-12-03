@@ -96,6 +96,7 @@
       >
         <v-radio :label="$t('config-page.still-image')" value="image" />
         <v-radio :label="$t('config-page.video')" value="video" />
+        <v-radio :label="$t('config-page.video-and-image')" value="video_and_image" />
       </v-radio-group>
     </v-card-text>
 
