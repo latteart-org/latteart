@@ -1,4 +1,4 @@
-# Latteart チュートリアル（Extension開発）
+# LatteArt チュートリアル（Extension開発）
 
 ## チュートリアルの目次
 
@@ -9,7 +9,7 @@
   - [コンポーネントを作成する](#コンポーネントを作成する)
   - [言語ファイルを作成する](#言語ファイルを作成する)
   - [エントリーポイントを作成する](#エントリーポイントを作成する)
-  - [Latteartに拡張機能を登録する](#Latteartに拡張機能を登録する)
+  - [LatteArtに拡張機能を登録する](#LatteArtに拡張機能を登録する)
 - [開発した機能の動作確認](#開発した機能の動作確認)
 
 ## 拡張機能の概要
@@ -272,9 +272,9 @@ export const SimpleHistoryExtension: GuiExtension = {
   <img src="./images/tree.png" width="400" />
 </div><br />
 
-### Latteartに拡張機能を登録する
+### LatteArtに拡張機能を登録する
 
-拡張機能を、Latteart本体に認識させるためにvscodeのワークスペース上の `/root/latteart-gui/src/extentions/index.ts` に登録する必要があります。このファイルは、アプリケーション内で使用するすべての拡張機能を一元管理します。
+拡張機能を、LatteArt本体に認識させるためにvscodeのワークスペース上の `/root/latteart-gui/src/extentions/index.ts` に登録する必要があります。このファイルは、アプリケーション内で使用するすべての拡張機能を一元管理します。
 
 ```ts
 import { SimpleHistoryExtension } from "./simple-history"; // 今回追加する拡張機能
@@ -301,7 +301,7 @@ export const extensions: GuiExtension[] = [
 
 ## 開発した機能の動作確認
 
-Latteartを起動すると、画面の左上にバージョン情報が表示されます。この部分にカーソルを合わせると、Latteartのバージョンと現在インストールされている拡張機能のバージョンがポップアップで表示されます。
+LatteArtを起動すると、画面の左上にバージョン情報が表示されます。この部分にカーソルを合わせると、LatteArtのバージョンと現在インストールされている拡張機能のバージョンがポップアップで表示されます。
 
 <div>
   <img src="./images/version.png" width="800"/>
