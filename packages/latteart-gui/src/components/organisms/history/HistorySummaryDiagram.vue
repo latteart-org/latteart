@@ -60,5 +60,5 @@ export default defineComponent({
 </script>
 <style lang="sass" scoped>
 .diagram-container
-  align-items: start
+  align-items: start !important
 </style>
