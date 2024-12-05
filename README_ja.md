@@ -33,6 +33,7 @@ LatteArt は大きく分けて 2 つ機能から構成されています。
 - [LatteArt 導入手順書](./docs/startup/pc.md): LatteArt のインストール・起動方法
 - [LatteArt チュートリアル（操作記録編）](./docs/tutorial/capture/tutorial-capture.md) : LatteArt を用いたテストの記録方法
 - [LatteArt チュートリアル（テスト実践編）](./docs/tutorial/management/tutorial-management.md) : LatteArt を用いたテストの考え方、およびテストの実践
+- [LatteArt チュートリアル（Extension開発）](./docs/tutorial//extension/tutorial-extension.md) : LatteArt の拡張機能開発の実践
 - [テスト記録 操作説明書](./docs/manual/capture/manual-capture.md): テスト記録の各機能の詳細
 - [テスト設計支援 操作説明書](./docs/manual/test-design-support/manual-test-design-support.md): テスト設計支援の各機能の詳細
 - [テスト管理 操作説明書](./docs/manual/management/manual-management.md): テスト管理の各機能の詳細
