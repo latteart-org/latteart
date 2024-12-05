@@ -81,6 +81,7 @@ import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 
+// 型は適宜定義してください
 type SimpleHistoryItem = {
   title: string;
   tagname: string;
