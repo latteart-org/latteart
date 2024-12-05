@@ -324,17 +324,17 @@ export default defineComponent({
     };
 
     const openAttachedFile = (file: AttachedFile): boolean => {
-      const imageExtension = SessionInfoService.getImageExtensionFrom(file.name);
+      const extension = SessionInfoService.getImageExtensionFrom(file.name);
       if (!file.fileUrl && !file.fileData) {
         errorMessage.value = rootStore.message("session-info.file-open-read-error");
         errorMessageDialogOpened.value = true;
         return false;
       }
 
-      if (imageExtension !== "") {
+      if (extension !== "") {
         const source = file.fileUrl
           ? `${rootStore.repositoryService?.serviceUrl}/${file.fileUrl}`
-          : `data:image/${imageExtension};base64, ${file.fileData}`;
+          : `data:image/${extension};base64, ${file.fileData}`;
         if (source === "") {
           return false;
         }
@@ -343,14 +343,13 @@ export default defineComponent({
         return true;
       }
 
-      // no image extention
-      const textExtension = SessionInfoService.getTextExtensionFrom(file.name);
+      // no extention
       const a = document.createElement("a");
       (async () => {
         const fileData = await testManagementStore.getAttachedFile({ fileName: file.name });
         const decodedData = window.atob(fileData.replace(/^.*,/, ""));
         const buffer = new Uint8Array(decodedData.length).map((_, i) => decodedData.charCodeAt(i));
-        const blob = new Blob([buffer.buffer], { type: textExtension });
+        const blob = new Blob([buffer.buffer], { type: "application/octet-stream" });
         const blobUrl = window.URL.createObjectURL(blob);
         a.href = blobUrl;
         a.download = file.name;
