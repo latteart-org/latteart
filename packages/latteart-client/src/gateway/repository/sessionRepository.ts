@@ -41,6 +41,11 @@ export type SessionRepository = {
     projectId: string,
     sessionId: string
   ): Promise<RepositoryAccessResult<void>>;
+
+  getAttachedFile(
+    projectId: string,
+    fileName: string
+  ): Promise<RepositoryAccessResult<string>>;
 };
 
 export class SessionRepositoryImpl implements SessionRepository {
@@ -112,6 +117,27 @@ export class SessionRepositoryImpl implements SessionRepository {
 
       return createRepositoryAccessSuccess({
         data: response.data as void,
+      });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  public async getAttachedFile(
+    projectId: string,
+    fileName: string
+  ): Promise<RepositoryAccessResult<string>> {
+    try {
+      const response = await this.restClient.httpGet(
+        `api/v1/projects/${projectId}/sessions/${fileName}`
+      );
+
+      if (response.status !== 200) {
+        return createRepositoryAccessFailure(response);
+      }
+
+      return createRepositoryAccessSuccess({
+        data: response.data as string,
       });
     } catch (error) {
       return createConnectionRefusedFailure();

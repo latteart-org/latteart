@@ -27,6 +27,7 @@ import {
   Tags,
   Response,
   SuccessResponse,
+  Get,
 } from "tsoa";
 import {
   PatchSessionDto,
@@ -143,6 +144,41 @@ export class SessionsController extends Controller {
 
         throw new ServerError(500, {
           code: "delete_session_failed",
+        });
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Get attached file data.
+   * @param fileName File name.
+   * @returns File data.
+   */
+  @Response<ServerErrorData<"get_session_attached_file_failed">>(
+    500,
+    "Get attached file failed"
+  )
+  @SuccessResponse(200, "Success")
+  @Get("{fileName}")
+  public async getAttachedFile(
+    @Path() fileName: string
+  ): Promise<string | Buffer> {
+    const fileRepositoryManager = await createFileRepositoryManager();
+    const attachedFileRepository =
+      fileRepositoryManager.getRepository("attachedFile");
+
+    try {
+      return await new SessionsService(AppDataSource).getAttachedFile(
+        fileName,
+        { attachedFileRepository }
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        createLogger().error("Get attached file failed.", error);
+
+        throw new ServerError(500, {
+          code: "get_session_attached_file_failed",
         });
       }
       throw error;
