@@ -33,3 +33,15 @@ export function getImageExtensionFrom(filePath: string): "jpg" | "png" | "gif" |
   }
   return "";
 }
+
+export function getTextExtensionFrom(filePath: string) {
+  const filePathLowerCase = filePath.toLowerCase();
+  if (filePathLowerCase.endsWith(".json")) {
+    return "application/json";
+  } else if (filePathLowerCase.endsWith(".csv")) {
+    return "text/csv";
+  } else if (filePathLowerCase.endsWith(".zip")) {
+    return "application/zip";
+  }
+  return "text/plain";
+}

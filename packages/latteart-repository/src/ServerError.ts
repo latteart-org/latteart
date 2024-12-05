@@ -37,6 +37,7 @@ export type ServerErrorCode =
   | "post_session_failed"
   | "patch_session_failed"
   | "delete_session_failed"
+  | "get_session_attached_file_failed"
   | "get_servername_failed"
   | "export_test_result_failed"
   | "import_test_result_failed"
