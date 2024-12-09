@@ -422,7 +422,7 @@ io.on("connection", (socket) => {
             "This version of ChromeDriver only supports Chrome version"
           ) ||
             error.message.includes(
-              "This version of Microsoft Edge WebDriver only supports msedge version"
+              "This version of Microsoft Edge WebDriver only supports Microsoft Edge version"
             ))
         ) {
           LoggingService.error("WebDriver version mismatch.", error);
