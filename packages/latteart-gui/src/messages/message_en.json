@@ -290,9 +290,10 @@
     "start-replay": "Replay",
     "wait-time": "Reproduce the waiting time when operating",
     "replay-capture": "Save replay result",
-    "saving-replay-results-warning-message": "Saving replay results warning message.",
+    "saving-replay-results-warning-message": "*Saving replay results warning message.",
     "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
     "test-result-name": "Test result name",
+    "take-screenshots": "Take screenshots",
     "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."
   },
   "test-option": {
