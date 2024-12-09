@@ -290,9 +290,10 @@
     "start-replay": "テスト結果のリプレイ",
     "wait-time": "操作時の待ち時間を再現する",
     "replay-capture": "リプレイ結果を保存する",
-    "saving-replay-results-warning-message": "リプレイ時の動画は保存できません",
+    "saving-replay-results-warning-message": "※リプレイ時の動画は保存できません",
     "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
     "test-result-name": "テスト結果名",
+    "take-screenshots": "画面キャプチャを取得する",
     "ignored-operations-alert": "「記録の一時停止」、「テストの中断-再開」が含まれているため、リプレイが正常終了しない可能性があります。"
   },
   "test-option": {

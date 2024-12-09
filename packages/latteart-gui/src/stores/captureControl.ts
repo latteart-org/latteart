@@ -92,6 +92,7 @@ export type CaptureControlState = {
     testResultName: string;
     waitTimeReproductionEnabled: boolean;
     resultSavingEnabled: boolean;
+    screenshotSavingEnabled: boolean;
     comparisonEnabled: boolean;
   };
 
@@ -154,6 +155,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
       testResultName: "",
       waitTimeReproductionEnabled: false,
       resultSavingEnabled: false,
+      screenshotSavingEnabled: true,
       comparisonEnabled: false
     },
     autofillSelectDialogData: null,
@@ -277,7 +279,9 @@ export const useCaptureControlStore = defineStore("captureControl", {
           config: {
             ...rootStore.deviceSettings,
             captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
-            shouldTakeScreenshot: true
+            shouldTakeScreenshot: replayOption.resultSavingEnabled
+              ? replayOption.screenshotSavingEnabled
+              : true
           },
           eventListeners: this.createCaptureEventListeners()
         });

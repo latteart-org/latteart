@@ -30,23 +30,28 @@
           density="comfortable"
           hide-details
           :label="$t('replay-option.replay-capture')"
-        ></v-checkbox>
+        />
 
-        <v-card flat>
+        <v-card flat :disabled="!isResultSavingEnabled">
           <v-card-text>
             <v-text-field
               v-model="testResultName"
               variant="underlined"
-              :disabled="!isResultSavingEnabled"
               :label="$t('replay-option.test-result-name')"
               hide-details
-            ></v-text-field>
+            />
+            <v-checkbox
+              v-model="isScreenshotSavingEnabled"
+              class="ml-n2"
+              density="comfortable"
+              hide-details
+              :label="$t('replay-option.take-screenshots')"
+            />
+            <p v-if="savingReplayResultsWarningMessage !== ''" class="alert-message">
+              {{ savingReplayResultsWarningMessage }}
+            </p>
           </v-card-text>
         </v-card>
-
-        <p v-if="savingReplayResultsWarningMessage !== ''" class="alert-message">
-          {{ savingReplayResultsWarningMessage }}
-        </p>
 
         <v-checkbox
           v-model="isComparisonEnabled"
@@ -57,7 +62,7 @@
               sourceTestResultName
             })
           "
-        ></v-checkbox>
+        />
 
         <p class="alert-message">{{ alertMessage }}</p>
       </template>
@@ -118,6 +123,7 @@ export default defineComponent({
     const testResultName = ref("");
     const isWaitTimeReproductionEnabled = ref(false);
     const isResultSavingEnabled = ref(false);
+    const isScreenshotSavingEnabled = ref(true);
     const isComparisonEnabled = ref(false);
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
@@ -130,16 +136,21 @@ export default defineComponent({
       return false;
     });
 
+    const operations = computed((): OperationForGUI[] => {
+      return operationHistoryStore.getOperations();
+    });
+
     const savingReplayResultsWarningMessage = computed((): string => {
-      return rootStore.projectSettings.config.captureMediaSetting.mediaType !== "image"
+      const operationsWithVideo = operations.value.filter((item) => {
+        return item.videoFrame;
+      });
+      return operationsWithVideo.length > 0
         ? rootStore.message("replay-option.saving-replay-results-warning-message")
         : "";
     });
 
     const hasIgnoredOperations = computed((): boolean => {
-      const operations: OperationForGUI[] = operationHistoryStore.getOperations();
-
-      return operations.some(({ type }, index) => {
+      return operations.value.some(({ type }, index) => {
         if (index > 0 && type === "start_capturing") {
           return true;
         }
@@ -163,6 +174,7 @@ export default defineComponent({
 
       testResultName.value = `${sourceTestResultName.value}_re`;
       isResultSavingEnabled.value = false;
+      isScreenshotSavingEnabled.value = true;
       isComparisonEnabled.value = false;
       alertMessage.value = hasIgnoredOperations.value
         ? rootStore.message("replay-option.ignored-operations-alert")
@@ -175,6 +187,7 @@ export default defineComponent({
           testResultName: isResultSavingEnabled.value ? testResultName.value : "",
           waitTimeReproductionEnabled: isWaitTimeReproductionEnabled.value,
           resultSavingEnabled: isResultSavingEnabled.value,
+          screenshotSavingEnabled: isScreenshotSavingEnabled.value,
           comparisonEnabled: isResultSavingEnabled.value ? isComparisonEnabled.value : false
         };
 
@@ -204,6 +217,7 @@ export default defineComponent({
       testResultName,
       isWaitTimeReproductionEnabled,
       isResultSavingEnabled,
+      isScreenshotSavingEnabled,
       isComparisonEnabled,
       errorMessageDialogOpened,
       errorMessage,
