@@ -97,7 +97,7 @@ LatteArt を用いたテストの考え方、および実践については 「[
 
   ```jsonc
   {
-    "browser": "chrome"
+    "browser": "chrome",
     // ...
   }
   ```
@@ -117,12 +117,12 @@ LatteArt を用いたテストの考え方、および実践については 「[
         // ...
         "env": { "port": "13002" },
         "http": {
-          "url": "http://localhost:13002"
+          "url": "http://localhost:13002",
           // ...
-        }
-      }
+        },
+      },
       // ...
-    ]
+    ],
   }
   ```
 
