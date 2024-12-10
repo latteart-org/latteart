@@ -83,19 +83,22 @@ export class MutationService {
         }
         const newTestResult = await entityManager.save(testResultEntity);
 
-        const fileName = `mutation_${testResultId}_${screenMutation.timestamp}.png`;
-        await screenshotFileRepository.outputFile(
-          fileName,
-          screenMutation.imageData,
-          "base64"
-        );
-        const fileUrl = screenMutation.imageData
-          ? screenshotFileRepository.getFileUrl(fileName)
-          : "";
+        let screenshotEntity: ScreenshotEntity | undefined;
+        if (screenMutation.imageData) {
+          const fileName = `mutation_${testResultId}_${screenMutation.timestamp}.png`;
+          await screenshotFileRepository.outputFile(
+            fileName,
+            screenMutation.imageData,
+            "base64"
+          );
+          const fileUrl = screenMutation.imageData
+            ? screenshotFileRepository.getFileUrl(fileName)
+            : "";
 
-        const screenshotEntity = await entityManager.save(ScreenshotEntity, {
-          fileUrl,
-        });
+          screenshotEntity = await entityManager.save(ScreenshotEntity, {
+            fileUrl,
+          });
+        }
 
         const results = [];
         for (const mutation of requestBody) {
@@ -104,7 +107,9 @@ export class MutationService {
           mutationEntity.elementMutations = JSON.stringify(
             mutation.elementMutations
           );
-          mutationEntity.screenshot = screenshotEntity;
+          if (screenshotEntity) {
+            mutationEntity.screenshot = screenshotEntity;
+          }
           mutationEntity.timestamp = mutation.timestamp;
           mutationEntity.windowHandle = mutation.windowHandle;
           mutationEntity.scrollPositionX = mutation.scrollPosition.x;
@@ -123,7 +128,7 @@ export class MutationService {
             testResultEntity: testResultEntity.id,
             elementMutations: JSON.parse(result.elementMutations),
             timestamp: result.timestamp,
-            fileUrl: screenshotEntity.fileUrl,
+            fileUrl: screenshotEntity?.fileUrl ?? "",
             windowHandle: result.windowHandle,
             url: result.url,
             title: result.title,
