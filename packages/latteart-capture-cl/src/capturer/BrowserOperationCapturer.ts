@@ -564,6 +564,7 @@ export default class BrowserOperationCapturer {
                   : operation.input;
 
               await this.client.clearAndSendKeys(xpath, inputValue);
+              await this.client.focusout();
             }
             break;
 
