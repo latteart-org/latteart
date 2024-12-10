@@ -490,6 +490,15 @@ export class SeleniumWebDriverClient implements WebDriverClient {
   /**
    * @inheritdoc
    */
+  public async focusout(): Promise<void> {
+    LoggingService.debug(`focusout: Key down TAB key`);
+
+    await this.driver.actions().keyDown(Key.TAB).perform();
+  }
+
+  /**
+   * @inheritdoc
+   */
   public async acceptAlert(text = ""): Promise<void> {
     const alert = await this.getAlert();
 
