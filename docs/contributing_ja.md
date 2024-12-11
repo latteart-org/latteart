@@ -181,3 +181,9 @@ dist/
 ## コーディングスタイル
 
 - 静的解析によるチェックを通るようにコーディングしてください。
+
+## 拡張機能の開発
+
+拡張機能を作成することで、独自の機能を追加することができます。
+
+- [LatteArt チュートリアル（Extension開発）](./tutorial/extension/tutorial-extension.md) : LatteArt の拡張機能開発の実践
