@@ -73,7 +73,7 @@
             v-for="story in recentStories"
             :key="story.id"
             :to="story.path"
-            :title.attr="`${story.testTargetName} ${story.viewPointName}`"
+            :title.attr="`${story.testMatrixName} ${story.groupName} ${story.testTargetName} ${story.viewPointName}`"
             exact
             prepend-icon="assignment"
           >
@@ -148,9 +148,17 @@ export default defineComponent({
           return [];
         }
 
-        const testTarget = testMatrix.groups
-          .flatMap((group) => group.testTargets)
-          .find((testTarget) => story.testTargetId === testTarget.id);
+        const group = testMatrix.groups.find((group) =>
+          group.testTargets.some((testTarget) => story.testTargetId === testTarget.id)
+        );
+
+        if (!group) {
+          return [];
+        }
+
+        const testTarget = group.testTargets.find(
+          (testTarget) => story.testTargetId === testTarget.id
+        );
 
         if (!testTarget) {
           return [];
@@ -168,7 +176,9 @@ export default defineComponent({
           id: story.id,
           path: `/page/story/${story.id}`,
           testTargetName: testTarget.name,
-          viewPointName: viewPoint.name
+          viewPointName: viewPoint.name,
+          testMatrixName: testMatrix.name,
+          groupName: group.name
         };
       });
     });
