@@ -109,6 +109,7 @@
 </template>
 
 <script lang="ts">
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 import { type TestMatrix } from "@/lib/testManagement/types";
 import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, onMounted, ref } from "vue";
@@ -188,10 +189,7 @@ export default defineComponent({
     });
 
     const truncateName = (text: string) => {
-      if (text.length <= 100) {
-        return text;
-      }
-      return text.substring(0, 100) + "...";
+      return TextUtil.ellipsis(text, 100);
     };
 
     return {

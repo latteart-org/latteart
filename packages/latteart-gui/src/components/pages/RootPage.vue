@@ -234,6 +234,7 @@ import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useTestManagementStore } from "@/stores/testManagement";
 import ExtensionGlobalContents from "../organisms/extensions/ExtensionGlobalContents.vue";
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 
 export default defineComponent({
   components: {
@@ -385,10 +386,7 @@ export default defineComponent({
     };
 
     const truncateName = (text: string) => {
-      if (text.length <= 100) {
-        return text;
-      }
-      return text.substring(0, 100) + "...";
+      return TextUtil.ellipsis(text, 100);
     };
 
     watch(isWindowSelectorDialogOpened, toHistoryView);
