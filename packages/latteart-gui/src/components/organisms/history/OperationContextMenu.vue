@@ -43,6 +43,7 @@
 </template>
 
 <script lang="ts">
+import { truncateText } from "@/lib/common/util";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
@@ -158,7 +159,7 @@ export default defineComponent({
         });
       });
       (currentHistoryItem.value?.notices ?? []).forEach((notice: NoteForGUI, i: number) => {
-        const value = notice.value;
+        const value = truncateText(notice.value, 100);
         noticeItems.value.push({
           label: t("test-result-page.edit-notice", {
             value
