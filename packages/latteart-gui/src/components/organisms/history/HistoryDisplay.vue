@@ -192,7 +192,7 @@ import type { PropType } from "vue";
 import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import type { Comment } from "latteart-client";
-import { truncateText } from "@/lib/common/util";
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 
 export default defineComponent({
   components: {
@@ -293,7 +293,7 @@ export default defineComponent({
 
       contextMenuItems.value.push({
         label: rootStore.message("test-result-page.edit-notice", {
-          value: truncateText(note.value, 100)
+          value: TextUtil.ellipsis(note.value, 100)
         }),
         onClick: () => {
           if (operationHistoryStore.tmpNoteInfoForEdit) {
@@ -306,7 +306,7 @@ export default defineComponent({
       });
       contextMenuItems.value.push({
         label: rootStore.message("test-result-page.delete-notice", {
-          value: truncateText(note.value, 100)
+          value: TextUtil.ellipsis(note.value, 100)
         }),
         onClick: () => {
           if (operationHistoryStore.tmpNoteInfoForEdit) {
