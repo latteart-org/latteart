@@ -181,9 +181,7 @@ export class MutationService {
           (e) => e.id === mutationsData.testResultId
         );
         if (!testResult) {
-          throw new Error(
-            `testResult not found. ${mutationsData.testResultId}`
-          );
+          return;
         }
         await Promise.all(
           mutationsData.data.map(async (mutation) => {
@@ -193,25 +191,24 @@ export class MutationService {
               (file) => path.basename(file.filePath) === oldFileName
             );
 
-            const screenshotEntity = new ScreenshotEntity();
+            const mutationEntity = new MutationEntity();
             if (targetFile) {
               const fileName = `mutation_${testResult.id}_${mutation.timestamp}.png`;
               await screenshotFileRepository.outputFile(
                 fileName,
                 targetFile.data
               );
+
+              const screenshotEntity = new ScreenshotEntity();
               screenshotEntity.fileUrl =
                 screenshotFileRepository.getFileUrl(fileName);
-            } else {
-              screenshotEntity.fileUrl = "";
+              mutationEntity.screenshot =
+                await screenshotRepository.save(screenshotEntity);
             }
-            const savedScreenshotEntity =
-              await screenshotRepository.save(screenshotEntity);
-            const mutationEntity = new MutationEntity();
+
             mutationEntity.testResult = testResult;
             mutationEntity.elementMutations = mutation.elementMutations;
             mutationEntity.timestamp = mutation.timestamp;
-            mutationEntity.screenshot = savedScreenshotEntity;
             mutationEntity.windowHandle = mutation.windowHandle;
             mutationEntity.scrollPositionX = mutation.scrollPositionX;
             mutationEntity.scrollPositionY = mutation.scrollPositionY;
