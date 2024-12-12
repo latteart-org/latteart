@@ -191,6 +191,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useCaptureControlStore } from "@/stores/captureControl";
+import { useTestManagementStore } from "@/stores/testManagement";
 
 export default defineComponent({
   components: {
@@ -343,6 +344,16 @@ export default defineComponent({
           operationHistoryStore.clearInputValueTable();
           captureControlStore.resetTimer();
         }
+
+        if (
+          operationHistoryStore.storingTestResultInfos.some(({ id }) =>
+            targetTestResultIds.includes(id)
+          )
+        ) {
+          operationHistoryStore.storingTestResultInfos = [];
+          useTestManagementStore().recentReviewQuery = null;
+        }
+
         informationDialogOpened.value = true;
       } catch (error) {
         if (error instanceof Error) {
