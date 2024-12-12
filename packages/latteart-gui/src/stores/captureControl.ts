@@ -302,7 +302,10 @@ export const useCaptureControlStore = defineStore("captureControl", {
         this.captureSession = session;
 
         const preScript = async (_: unknown, index: number) => {
-          operationHistoryStore.selectedOperationInfo = { sequence: index + 1, doScroll: true };
+          operationHistoryStore.selectedOperationInfo = {
+            sequence: index + 1,
+            doScroll: !this.replayOption.resultSavingEnabled
+          };
         };
 
         const interval = !replayOption.waitTimeReproductionEnabled ? 0 : undefined;
