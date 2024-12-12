@@ -175,3 +175,7 @@ dist/
 ## Coding Style
 
 - Your code must pass the check by `eslint`.
+
+## Extension Development
+
+By creating an extension, you can add your own features.

@@ -163,7 +163,7 @@
             v-for="story in recentStories"
             :key="story.id"
             :to="story.path"
-            :title.attr="`${story.testMatrixName} ${story.groupName} ${story.testTargetName} ${story.viewPointName}`"
+            :title.attr="`${truncateName(story.testMatrixName)} ${truncateName(story.groupName)} ${truncateName(story.testTargetName)} ${truncateName(story.viewPointName)}`"
             exact
             prepend-icon="assignment"
           >
@@ -384,6 +384,13 @@ export default defineComponent({
       }
     };
 
+    const truncateName = (text: string) => {
+      if (text.length <= 100) {
+        return text;
+      }
+      return text.substring(0, 100) + "...";
+    };
+
     watch(isWindowSelectorDialogOpened, toHistoryView);
     watch(isAutofillRegisterDialogDataChange, toHistoryView);
     watch(isAutofillConditionGroupsChanged, toHistoryView);
@@ -402,7 +409,8 @@ export default defineComponent({
       hasTestMatrix,
       hasSession,
       version,
-      fullVersion
+      fullVersion,
+      truncateName
     };
   }
 });
