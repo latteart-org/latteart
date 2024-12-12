@@ -293,7 +293,7 @@
     "saving-replay-results-warning-message": "*Saving replay results warning message.",
     "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
     "test-result-name": "Test result name",
-    "take-screenshots": "Take a screen capture (still image)",
+    "take-screenshots": "Take screenshots",
     "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."
   },
   "test-option": {
