@@ -165,7 +165,8 @@ class IssueReport {
       .replace(/\*/g, "_")
       .replace(/\?/g, "_")
       .replace(/\\/g, "_")
-      .replace(/\//g, "_");
+      .replace(/\//g, "_")
+      .substring(0, 100);
   }
 
   get header(): IssueReportRow {

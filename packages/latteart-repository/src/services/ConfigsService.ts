@@ -19,6 +19,7 @@ import { ConfigEntity } from "../entities/ConfigEntity";
 import { SettingsUtility } from "../gateways/settings/SettingsUtility";
 import { parseProjectConfig } from "./helper/configHelper";
 import { DataSource } from "typeorm";
+import { createLogger } from "@/logger/logger";
 
 export class ConfigsService {
   constructor(private dataSource: DataSource) {}
@@ -48,7 +49,7 @@ export class ConfigsService {
     let config = await configRepository.find();
     if (!config[0]) {
       const settings = SettingsUtility.settingsProvider.settings;
-      console.log(settings);
+      createLogger().info("Initialize config.");
       const deviceSettings = {
         config: {
           platformName: "PC",

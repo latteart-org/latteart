@@ -22,11 +22,10 @@
     <template #content>
       <v-card v-for="(note, index) in noteWithTime" :key="index" flat class="pre-wrap break-word">
         <v-card-title primary-title class="pb-0 note-title">
-          <h3>
+          <h3 class="notelist-ellipsis notelist-child" :title="note.value">
             {{ note.value }}
           </h3>
-          <v-spacer></v-spacer>
-          <div>
+          <div class="text-right notelist-child">
             <span class="label">{{ `${message("test-result-page.test-result-name")}:` }}</span>
             <span class="value">{{ note.testResultName }}</span>
             <span class="label">{{ `${message("note-edit.target-sequence")}:` }}</span>
@@ -151,4 +150,11 @@ export default defineComponent({
   display: flex
   flex-wrap: wrap
   white-space: inherit
+.notelist-ellipsis
+  white-space: nowrap
+  overflow: hidden
+  text-overflow: ellipsis
+.notelist-child
+  flex: 1 1 auto
+  box-sizing: border-box
 </style>

@@ -76,6 +76,11 @@ export class CaptureConfig {
   public captureArch: "polling" | "push" = "polling";
 
   /**
+   * Indicates whether screenshot is enabled.
+   */
+  public shouldTakeScreenshot = true;
+
+  /**
    * Constructor.
    * @param init The information for initialization.
    */

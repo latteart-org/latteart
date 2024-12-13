@@ -17,8 +17,14 @@
 <template>
   <v-app>
     <v-navigation-drawer :rail="mini" permanent @click="mini = false">
-      <v-list-item prepend-avatar="@/assets/logo.png" class="px-2">
+      <v-list-item prepend-avatar="@/assets/logo.png" class="pa-2">
         <v-list-item-title class="text-h6"> LatteArt </v-list-item-title>
+        <v-list-subtitle
+          class="text-caption font-weight-black text-medium-emphasis"
+          :title="fullVersion"
+        >
+          {{ version }}
+        </v-list-subtitle>
 
         <template #append>
           <v-btn variant="flat" icon="chevron_left" @click.stop="mini = !mini"></v-btn>
@@ -157,7 +163,7 @@
             v-for="story in recentStories"
             :key="story.id"
             :to="story.path"
-            :title.attr="`${story.testTargetName} ${story.viewPointName}`"
+            :title.attr="`${truncateName(story.testMatrixName)} ${truncateName(story.groupName)} ${truncateName(story.testTargetName)} ${truncateName(story.viewPointName)}`"
             exact
             prepend-icon="assignment"
           >
@@ -166,15 +172,14 @@
           </v-list-item>
         </div>
 
-        <v-divider v-if="recentReviewQuery"></v-divider>
+        <v-divider v-if="currentTestResultName && recentReviewQuery"></v-divider>
 
-        <div v-if="recentReviewQuery">
+        <div v-if="currentTestResultName && recentReviewQuery">
           <v-list-subheader v-if="!mini">{{
             $t("navigation.group-label.current-review")
           }}</v-list-subheader>
 
           <v-list-item
-            v-if="currentTestResultName && recentReviewQuery"
             :to="{ path: '/review', query: recentReviewQuery }"
             :title.attr="currentTestResultName"
             exact
@@ -216,6 +221,8 @@
 </template>
 
 <script lang="ts">
+import packageJson from "../../../package.json";
+import { extensions } from "@/extensions";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import ProgressDialog from "@/components/organisms/dialog/ProgressDialog.vue";
 import { type TestMatrix } from "@/lib/testManagement/types";
@@ -227,6 +234,7 @@ import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useTestManagementStore } from "@/stores/testManagement";
 import ExtensionGlobalContents from "../organisms/extensions/ExtensionGlobalContents.vue";
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 
 export default defineComponent({
   components: {
@@ -246,6 +254,12 @@ export default defineComponent({
     const displayedPage = ref(0);
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
+
+    const version = `v${packageJson.version}${extensions.length > 0 ? ` + ext` : ""}`;
+    const fullVersion = [
+      `${packageJson.name} ${packageJson.version}`,
+      ...extensions.map(({ name, version }) => `  + ${name ?? "unknown"} ${version ?? ""}`)
+    ].join("\n");
 
     onMounted(() => {
       (async () => {
@@ -277,9 +291,17 @@ export default defineComponent({
           return [];
         }
 
-        const testTarget = testMatrix.groups
-          .flatMap((group) => group.testTargets)
-          .find((testTarget) => story.testTargetId === testTarget.id);
+        const group = testMatrix.groups.find((group) =>
+          group.testTargets.some((testTarget) => story.testTargetId === testTarget.id)
+        );
+
+        if (!group) {
+          return [];
+        }
+
+        const testTarget = group.testTargets.find(
+          (testTarget) => story.testTargetId === testTarget.id
+        );
 
         if (!testTarget) {
           return [];
@@ -297,7 +319,9 @@ export default defineComponent({
           id: story.id,
           path: `/page/story/${story.id}`,
           testTargetName: testTarget.name,
-          viewPointName: viewPoint.name
+          viewPointName: viewPoint.name,
+          testMatrixName: testMatrix.name,
+          groupName: group.name
         };
       });
     });
@@ -361,6 +385,10 @@ export default defineComponent({
       }
     };
 
+    const truncateName = (text: string) => {
+      return TextUtil.ellipsis(text, 100);
+    };
+
     watch(isWindowSelectorDialogOpened, toHistoryView);
     watch(isAutofillRegisterDialogDataChange, toHistoryView);
     watch(isAutofillConditionGroupsChanged, toHistoryView);
@@ -377,7 +405,10 @@ export default defineComponent({
       isCapturing,
       isReplaying,
       hasTestMatrix,
-      hasSession
+      hasSession,
+      version,
+      fullVersion,
+      truncateName
     };
   }
 });

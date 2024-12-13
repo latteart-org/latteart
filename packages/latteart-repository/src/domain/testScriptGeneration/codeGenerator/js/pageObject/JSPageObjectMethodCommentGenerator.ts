@@ -52,7 +52,10 @@ export class JSPageObjectMethodCommentGenerator
       return `<li>${operationStr}${targetStr}</li>`;
     });
 
-    const moveOperationLine = `<li>Move to [ <a href="${destPageObject.imageUrl}">${destPageObject.name}</a> ]</li>`;
+    const moveOperationLine =
+      destPageObject.imageUrl !== ""
+        ? `<li>Move to [ <a href="${destPageObject.imageUrl}">${destPageObject.name}</a> ]</li>`
+        : `<li>Move to [ ${destPageObject.name} ]</li>`;
 
     const paramsTextLines = [...operationLines, moveOperationLine];
 

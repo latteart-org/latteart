@@ -83,19 +83,22 @@ export class MutationService {
         }
         const newTestResult = await entityManager.save(testResultEntity);
 
-        const fileName = `mutation_${testResultId}_${screenMutation.timestamp}.png`;
-        await screenshotFileRepository.outputFile(
-          fileName,
-          screenMutation.imageData,
-          "base64"
-        );
-        const fileUrl = screenMutation.imageData
-          ? screenshotFileRepository.getFileUrl(fileName)
-          : "";
+        let screenshotEntity: ScreenshotEntity | undefined;
+        if (screenMutation.imageData) {
+          const fileName = `mutation_${testResultId}_${screenMutation.timestamp}.png`;
+          await screenshotFileRepository.outputFile(
+            fileName,
+            screenMutation.imageData,
+            "base64"
+          );
+          const fileUrl = screenMutation.imageData
+            ? screenshotFileRepository.getFileUrl(fileName)
+            : "";
 
-        const screenshotEntity = await entityManager.save(ScreenshotEntity, {
-          fileUrl,
-        });
+          screenshotEntity = await entityManager.save(ScreenshotEntity, {
+            fileUrl,
+          });
+        }
 
         const results = [];
         for (const mutation of requestBody) {
@@ -104,7 +107,9 @@ export class MutationService {
           mutationEntity.elementMutations = JSON.stringify(
             mutation.elementMutations
           );
-          mutationEntity.screenshot = screenshotEntity;
+          if (screenshotEntity) {
+            mutationEntity.screenshot = screenshotEntity;
+          }
           mutationEntity.timestamp = mutation.timestamp;
           mutationEntity.windowHandle = mutation.windowHandle;
           mutationEntity.scrollPositionX = mutation.scrollPosition.x;
@@ -123,7 +128,7 @@ export class MutationService {
             testResultEntity: testResultEntity.id,
             elementMutations: JSON.parse(result.elementMutations),
             timestamp: result.timestamp,
-            fileUrl: screenshotEntity.fileUrl,
+            fileUrl: screenshotEntity?.fileUrl ?? "",
             windowHandle: result.windowHandle,
             url: result.url,
             title: result.title,
@@ -176,9 +181,7 @@ export class MutationService {
           (e) => e.id === mutationsData.testResultId
         );
         if (!testResult) {
-          throw new Error(
-            `testResult not found. ${mutationsData.testResultId}`
-          );
+          return;
         }
         await Promise.all(
           mutationsData.data.map(async (mutation) => {
@@ -188,25 +191,24 @@ export class MutationService {
               (file) => path.basename(file.filePath) === oldFileName
             );
 
-            const screenshotEntity = new ScreenshotEntity();
+            const mutationEntity = new MutationEntity();
             if (targetFile) {
               const fileName = `mutation_${testResult.id}_${mutation.timestamp}.png`;
               await screenshotFileRepository.outputFile(
                 fileName,
                 targetFile.data
               );
+
+              const screenshotEntity = new ScreenshotEntity();
               screenshotEntity.fileUrl =
                 screenshotFileRepository.getFileUrl(fileName);
-            } else {
-              screenshotEntity.fileUrl = "";
+              mutationEntity.screenshot =
+                await screenshotRepository.save(screenshotEntity);
             }
-            const savedScreenshotEntity =
-              await screenshotRepository.save(screenshotEntity);
-            const mutationEntity = new MutationEntity();
+
             mutationEntity.testResult = testResult;
             mutationEntity.elementMutations = mutation.elementMutations;
             mutationEntity.timestamp = mutation.timestamp;
-            mutationEntity.screenshot = savedScreenshotEntity;
             mutationEntity.windowHandle = mutation.windowHandle;
             mutationEntity.scrollPositionX = mutation.scrollPositionX;
             mutationEntity.scrollPositionY = mutation.scrollPositionY;

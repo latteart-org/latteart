@@ -312,6 +312,7 @@ const models: TsoaRoute.Models = {
         subSchemas: [
           { dataType: "enum", enums: ["image"] },
           { dataType: "enum", enums: ["video"] },
+          { dataType: "enum", enums: ["video_and_image"] },
         ],
         required: true,
       },
@@ -1654,6 +1655,33 @@ const models: TsoaRoute.Models = {
         code: {
           dataType: "enum",
           enums: ["delete_session_failed"],
+          required: true,
+        },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ServerErrorData_get_session_attached_file_failed_: {
+    dataType: "refAlias",
+    type: {
+      dataType: "nestedObjectLiteral",
+      nestedProperties: {
+        details: {
+          dataType: "array",
+          array: {
+            dataType: "nestedObjectLiteral",
+            nestedProperties: {
+              target: { dataType: "string", required: true },
+              message: { dataType: "string", required: true },
+              code: { dataType: "string", required: true },
+            },
+          },
+        },
+        message: { dataType: "string" },
+        code: {
+          dataType: "enum",
+          enums: ["get_session_attached_file_failed"],
           required: true,
         },
       },
@@ -5061,6 +5089,46 @@ export function RegisterRoutes(app: Router) {
           validatedArgs as any,
         );
         promiseHandler(controller, promise, response, 204, next);
+      } catch (err) {
+        return next(err);
+      }
+    },
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  app.get(
+    "/api/v1/projects/:projectId/sessions/:fileName",
+    ...fetchMiddlewares<RequestHandler>(SessionsController),
+    ...fetchMiddlewares<RequestHandler>(
+      SessionsController.prototype.getAttachedFile,
+    ),
+
+    function SessionsController_getAttachedFile(
+      request: any,
+      response: any,
+      next: any,
+    ) {
+      const args = {
+        fileName: {
+          in: "path",
+          name: "fileName",
+          required: true,
+          dataType: "string",
+        },
+      };
+
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = getValidatedArgs(args, request, response);
+
+        const controller = new SessionsController();
+
+        const promise = controller.getAttachedFile.apply(
+          controller,
+          validatedArgs as any,
+        );
+        promiseHandler(controller, promise, response, 200, next);
       } catch (err) {
         return next(err);
       }

@@ -196,6 +196,7 @@ export type CaptureConfig = {
   platformVersion?: string;
   waitTimeForStartupReload: number;
   captureArch: "polling" | "push";
+  shouldTakeScreenshot: boolean;
 };
 
 export type VisualizeConfig = {

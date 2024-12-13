@@ -29,8 +29,8 @@
             class="py-0"
             :value="index"
           >
-            <v-expansion-panel-title>
-              <div :title="group.name" class="text-truncate">{{ group.name }}</div>
+            <v-expansion-panel-title :title.attr="group.name">
+              <div class="text-truncate">{{ group.name }}</div>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <group-viewer
@@ -68,6 +68,8 @@ export default defineComponent({
     const expandedPanelIndex = ref<number | undefined | null>(null);
     const displayedStories = ref<string[] | null>(null);
 
+    let isInitialized = false;
+
     const expandedGroupPanelIndexKey = computed((): string => {
       return `latteart-management-expandedGroupPanelIndex_${props.testMatrixId}`;
     });
@@ -81,26 +83,26 @@ export default defineComponent({
       return targetStories.filter(({ testMatrixId }) => testMatrixId === props.testMatrixId);
     });
 
-    const testMatrix = ref<TestMatrix | undefined>(targetTestMatrix.value);
+    const testMatrix = ref<TestMatrix | undefined>(undefined);
 
     const initializePanels = () => {
-      const index = getSavedExpandedPanelIndex();
-
       expandedPanelIndex.value = -1;
       testMatrix.value = targetTestMatrix.value;
 
       setTimeout(() => {
-        if ((testMatrix.value?.groups.length ?? 0) > (index ?? 0)) {
-          expandedPanelIndex.value = index;
-        } else {
-          expandedPanelIndex.value = 0;
-        }
+        const savedIndex = getSavedExpandedPanelIndex();
+        expandedPanelIndex.value =
+          (testMatrix.value?.groups.length ?? 0) > savedIndex ? savedIndex : 0;
+        isInitialized = true;
       }, 100);
 
       filterItems();
     };
 
     const saveExpandedPanelIndex = (value: number | null | undefined) => {
+      if (!isInitialized) {
+        return;
+      }
       if (value === null || value === undefined) {
         localStorage.removeItem(expandedGroupPanelIndexKey.value);
         return;
@@ -109,17 +111,9 @@ export default defineComponent({
       localStorage.setItem(expandedGroupPanelIndexKey.value, value.toString());
     };
 
-    const getSavedExpandedPanelIndex = (): number | undefined => {
+    const getSavedExpandedPanelIndex = (): number => {
       const item = localStorage.getItem(expandedGroupPanelIndexKey.value);
-
-      if (item === null) {
-        if (testMatrix.value?.groups.length ?? 0 > 0) {
-          return 0;
-        }
-        return undefined;
-      }
-
-      return parseInt(item, 10);
+      return item ? parseInt(item, 10) : 0;
     };
 
     const filterItems = () => {

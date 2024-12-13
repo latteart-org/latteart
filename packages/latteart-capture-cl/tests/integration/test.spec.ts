@@ -81,6 +81,7 @@ describe("動作確認用", () => {
     waitTimeForStartupReload: 0,
     isHeadlessMode: false,
     captureArch: "polling" as "polling" | "push",
+    shouldTakeScreenshot: true,
   };
 
   it("BrowserOperationCapturer", async () => {

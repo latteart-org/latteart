@@ -1,6 +1,6 @@
 {
   "name": "latteart",
   "bin": {
-    "latteart": "dist/index.js"
+    "latteart": "dist/src/index.js"
   }
 }

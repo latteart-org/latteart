@@ -1,12 +1,12 @@
 {
   "name": "latteart-cli",
-  "version": "2.15.2",
+  "version": "2.15.3",
   "private": true,
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "run": "node dist/index.js",
+    "run": "node dist/src/index.js",
     "package": "run-p package:win package:mac",
     "package:win": "pkg -t node18-win-x64 --out-path dist/package/win/latteart/latteart pkg.config.json",
     "package:mac": "pkg -t node18-macos-x64 --out-path dist/package/mac/latteart/latteart pkg.config.json",

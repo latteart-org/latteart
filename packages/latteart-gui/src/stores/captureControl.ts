@@ -90,7 +90,9 @@ export type CaptureControlState = {
    */
   replayOption: {
     testResultName: string;
+    waitTimeReproductionEnabled: boolean;
     resultSavingEnabled: boolean;
+    screenshotSavingEnabled: boolean;
     comparisonEnabled: boolean;
   };
 
@@ -151,7 +153,9 @@ export const useCaptureControlStore = defineStore("captureControl", {
     },
     replayOption: {
       testResultName: "",
+      waitTimeReproductionEnabled: false,
       resultSavingEnabled: false,
+      screenshotSavingEnabled: true,
       comparisonEnabled: false
     },
     autofillSelectDialogData: null,
@@ -274,7 +278,10 @@ export const useCaptureControlStore = defineStore("captureControl", {
           testResult: destTestResult,
           config: {
             ...rootStore.deviceSettings,
-            captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch
+            captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
+            shouldTakeScreenshot: replayOption.resultSavingEnabled
+              ? replayOption.screenshotSavingEnabled
+              : true
           },
           eventListeners: this.createCaptureEventListeners()
         });
@@ -295,11 +302,16 @@ export const useCaptureControlStore = defineStore("captureControl", {
         this.captureSession = session;
 
         const preScript = async (_: unknown, index: number) => {
-          operationHistoryStore.selectedOperationInfo = { sequence: index + 1, doScroll: false };
+          operationHistoryStore.selectedOperationInfo = {
+            sequence: index + 1,
+            doScroll: !this.replayOption.resultSavingEnabled
+          };
         };
 
+        const interval = !replayOption.waitTimeReproductionEnabled ? 0 : undefined;
+
         const runOperationsResult = await session
-          .automate({ preScript })
+          .automate({ preScript, interval })
           .runOperations(...operations);
 
         if (runOperationsResult.isFailure()) {
@@ -638,18 +650,22 @@ export const useCaptureControlStore = defineStore("captureControl", {
 
       const operationHistoryStore = useOperationHistoryStore();
 
-      const config: CaptureConfig = {
-        ...rootStore.deviceSettings,
-        captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch
-      };
-
       const testResult = rootStore.repositoryService.createTestResultAccessor(
         operationHistoryStore.testResultInfo.id
       );
       const mediaType = rootStore.projectSettings.config.captureMediaSetting.mediaType;
 
+      const config: CaptureConfig = {
+        ...rootStore.deviceSettings,
+        captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
+        shouldTakeScreenshot: mediaType === "image" || mediaType === "video_and_image"
+      };
+
       const videoRecorder =
-        (mediaType === "video" || config.captureArch === "push") && config.platformName === "PC"
+        (mediaType === "video" ||
+          mediaType === "video_and_image" ||
+          config.captureArch === "push") &&
+        config.platformName === "PC"
           ? createVideoRecorder(testResult)
           : undefined;
 

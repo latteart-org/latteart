@@ -57,7 +57,7 @@ export default defineComponent({
     message: { type: Function as PropType<MessageProvider> }
   },
   setup(props) {
-    const mediaType = ref<"image" | "video">("image");
+    const mediaType = ref<"image" | "video" | "video_and_image">("image");
 
     mediaType.value = props.imageFileUrl ? "image" : "video";
 

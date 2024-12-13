@@ -184,6 +184,15 @@ export class SessionsService {
     return testResultEntity.sessions?.map(({ id }) => id) ?? [];
   }
 
+  public async getAttachedFile(
+    fileName: string,
+    service: {
+      attachedFileRepository: FileRepository;
+    }
+  ): Promise<string | Buffer> {
+    return await service.attachedFileRepository.readFile(fileName, "base64");
+  }
+
   private async updateAttachedFiles(
     session: SessionEntity,
     requestAttachedFiles: PatchSessionDto["attachedFiles"],

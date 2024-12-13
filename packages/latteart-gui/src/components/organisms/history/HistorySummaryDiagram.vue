@@ -15,7 +15,7 @@
 -->
 
 <template>
-  <v-container fluid class="pa-0 ma-0 fill-height">
+  <v-container fluid class="pa-0 ma-0 mt-2 fill-height diagram-container">
     <sequence-diagram
       v-if="diagramType === DIAGRAM_TYPE_SEQUENCE"
       :message="message"
@@ -58,3 +58,7 @@ export default defineComponent({
   }
 });
 </script>
+<style lang="sass" scoped>
+.diagram-container
+  align-items: start !important
+</style>

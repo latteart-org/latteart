@@ -45,6 +45,7 @@ import type { Timestamp } from "@/lib/common/Timestamp";
 import { GenerateTestScriptsAction } from "@/lib/operationHistory/actions/GenerateTestScriptsAction";
 import { ImportProjectAction } from "@/lib/testManagement/actions/ImportProjectAction";
 import { ExportProjectAction } from "@/lib/testManagement/actions/ExportProjectAction";
+import { GetAttachedFileAction } from "@/lib/testManagement/actions/GetAttachedFileAction";
 
 /**
  * State for test management.
@@ -1025,6 +1026,28 @@ export const useTestManagementStore = defineStore("testManagement", {
           sessions: story.sessions.filter((session) => session.id !== payload.sessionId)
         };
       });
+    },
+
+    async getAttachedFile(payload: { fileName: string }): Promise<string> {
+      const rootStore = useRootStore();
+
+      if (!rootStore.repositoryService) {
+        throw new Error("repository service is not active.");
+      }
+
+      const result = await new GetAttachedFileAction().getAttachedFile(
+        {
+          projectId: this.projectId,
+          fileName: payload.fileName
+        },
+        rootStore.repositoryService
+      );
+
+      if (result.isFailure()) {
+        throw new Error(rootStore.message(result.error.messageKey, result.error.variables ?? {}));
+      }
+
+      return result.data;
     },
 
     async updateStory(payload: {

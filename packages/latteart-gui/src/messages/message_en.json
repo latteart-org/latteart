@@ -159,7 +159,8 @@
     "setting-inclusion-tags": "Web Element Coverage Settings",
     "media-type": "Media Type",
     "still-image": "Still Image",
-    "video": "Still Image + Video",
+    "video": "Video",
+    "video-and-image": "Still Image + Video",
     "capture-media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected.",
     "setting-image-compression": "Image Compression Settings",
     "png": "png",
@@ -287,10 +288,12 @@
   },
   "replay-option": {
     "start-replay": "Replay",
+    "wait-time": "Reproduce the waiting time when operating",
     "replay-capture": "Save replay result",
-    "saving-replay-results-warning-message": "Saving replay results warning message.",
+    "saving-replay-results-warning-message": "*Saving replay results warning message.",
     "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
     "test-result-name": "Test result name",
+    "take-screenshots": "Take screenshots",
     "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."
   },
   "test-option": {

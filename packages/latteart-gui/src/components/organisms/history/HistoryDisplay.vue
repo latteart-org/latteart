@@ -192,6 +192,7 @@ import type { PropType } from "vue";
 import { useRootStore } from "@/stores/root";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import type { Comment } from "latteart-client";
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 
 export default defineComponent({
   components: {
@@ -242,7 +243,7 @@ export default defineComponent({
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
 
-    const mediaType = ref<"image" | "video">("image");
+    const mediaType = ref<"image" | "video" | "video_and_image">("image");
 
     const DIAGRAM_TYPE_SEQUENCE = ref<string>("sequence");
     const DIAGRAM_TYPE_SCREEN_TRANSITION = ref<string>("screenTransition");
@@ -292,7 +293,7 @@ export default defineComponent({
 
       contextMenuItems.value.push({
         label: rootStore.message("test-result-page.edit-notice", {
-          value: note.value
+          value: TextUtil.ellipsis(note.value, 100)
         }),
         onClick: () => {
           if (operationHistoryStore.tmpNoteInfoForEdit) {
@@ -305,7 +306,7 @@ export default defineComponent({
       });
       contextMenuItems.value.push({
         label: rootStore.message("test-result-page.delete-notice", {
-          value: note.value
+          value: TextUtil.ellipsis(note.value, 100)
         }),
         onClick: () => {
           if (operationHistoryStore.tmpNoteInfoForEdit) {
@@ -455,8 +456,8 @@ export default defineComponent({
     });
 
     const displayedMediaType = computed({
-      get: (): "image" | "video" => mediaType.value,
-      set: (type: "image" | "video") => {
+      get: (): "image" | "video" | "video_and_image" => mediaType.value,
+      set: (type: "image" | "video" | "video_and_image") => {
         mediaType.value = type;
       }
     });
@@ -654,6 +655,6 @@ export default defineComponent({
   padding-right: 16px
   background-color: #f2f2f2
 
-  ::v-deep .splitpanes__splitter
+  :deep(.splitpanes__splitter)
     z-index: 5
 </style>

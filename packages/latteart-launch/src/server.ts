@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { exec, ExecOptions } from "child_process";
+import { spawn } from "child_process";
 import http from "http";
-import { bufferToString } from "./util";
 import open from "open";
 import { BrowserType } from "./setting";
 
@@ -24,17 +23,14 @@ export function launchServer(
   serverBinaryFilePath: string,
   env: NodeJS.ProcessEnv
 ): void {
-  const option: { encoding: "buffer" } & ExecOptions = {
-    encoding: "buffer",
-    env,
-  };
+  const serverProcess = spawn(serverBinaryFilePath, { env });
 
-  exec(serverBinaryFilePath, option, (err, stdout, stderr) => {
-    if (err) {
-      console.error(bufferToString(stderr));
-      return;
-    }
-    console.info(bufferToString(stdout));
+  serverProcess.stdout.on("data", (data: Buffer) => {
+    process.stdout.write(data);
+  });
+
+  serverProcess.stderr.on("data", (data: Buffer) => {
+    process.stderr.write(data);
   });
 }
 
