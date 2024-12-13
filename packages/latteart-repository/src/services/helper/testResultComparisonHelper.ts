@@ -87,17 +87,6 @@ export function extractOperation(
   };
 }
 
-export function isNumberInputOperation(
-  target: PageOperation & PageState,
-  type: "click" | "change"
-) {
-  return (
-    target.type === type &&
-    target.elementInfo?.tagname.toLowerCase() === "input" &&
-    target.elementInfo.attributes.type === "number"
-  );
-}
-
 export function createReport(
   targetNames: { actual: string; expected: string },
   assertionResults: PageAssertionResult[]
