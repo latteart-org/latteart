@@ -68,6 +68,8 @@ export default defineComponent({
     const expandedPanelIndex = ref<number | undefined | null>(null);
     const displayedStories = ref<string[] | null>(null);
 
+    let isInitialized = false;
+
     const expandedGroupPanelIndexKey = computed((): string => {
       return `latteart-management-expandedGroupPanelIndex_${props.testMatrixId}`;
     });
@@ -91,12 +93,16 @@ export default defineComponent({
         const savedIndex = getSavedExpandedPanelIndex();
         expandedPanelIndex.value =
           (testMatrix.value?.groups.length ?? 0) > savedIndex ? savedIndex : 0;
+        isInitialized = true;
       }, 100);
 
       filterItems();
     };
 
     const saveExpandedPanelIndex = (value: number | null | undefined) => {
+      if (!isInitialized) {
+        return;
+      }
       if (value === null || value === undefined) {
         localStorage.removeItem(expandedGroupPanelIndexKey.value);
         return;

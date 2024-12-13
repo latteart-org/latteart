@@ -895,10 +895,12 @@ export default defineComponent({
     watch(checkedItems, updateCheckedOperationList);
     watch(itemsPerPage, resetPosition);
     watch(displayedHistoryStr, resetPosition);
-    watch(comments, () => {
-      onSelectOperations(displayedHistoryItems.value.length - 1);
-      resetPosition();
-    });
+    if (!isViewerMode) {
+      watch(comments, () => {
+        onSelectOperations(displayedHistoryItems.value.length - 1);
+        resetPosition();
+      });
+    }
 
     initializeSelectedSequences();
 

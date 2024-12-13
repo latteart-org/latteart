@@ -73,7 +73,7 @@
             v-for="story in recentStories"
             :key="story.id"
             :to="story.path"
-            :title.attr="`${story.testTargetName} ${story.viewPointName}`"
+            :title.attr="`${truncateName(story.testMatrixName)} ${truncateName(story.groupName)} ${truncateName(story.testTargetName)} ${truncateName(story.viewPointName)}`"
             exact
             prepend-icon="assignment"
           >
@@ -109,6 +109,7 @@
 </template>
 
 <script lang="ts">
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 import { type TestMatrix } from "@/lib/testManagement/types";
 import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, onMounted, ref } from "vue";
@@ -148,9 +149,17 @@ export default defineComponent({
           return [];
         }
 
-        const testTarget = testMatrix.groups
-          .flatMap((group) => group.testTargets)
-          .find((testTarget) => story.testTargetId === testTarget.id);
+        const group = testMatrix.groups.find((group) =>
+          group.testTargets.some((testTarget) => story.testTargetId === testTarget.id)
+        );
+
+        if (!group) {
+          return [];
+        }
+
+        const testTarget = group.testTargets.find(
+          (testTarget) => story.testTargetId === testTarget.id
+        );
 
         if (!testTarget) {
           return [];
@@ -168,7 +177,9 @@ export default defineComponent({
           id: story.id,
           path: `/page/story/${story.id}`,
           testTargetName: testTarget.name,
-          viewPointName: viewPoint.name
+          viewPointName: viewPoint.name,
+          testMatrixName: testMatrix.name,
+          groupName: group.name
         };
       });
     });
@@ -177,13 +188,18 @@ export default defineComponent({
       return testManagementStore.recentReviewQuery;
     });
 
+    const truncateName = (text: string) => {
+      return TextUtil.ellipsis(text, 100);
+    };
+
     return {
       mini,
       displayedPage,
       hasTestMatrix,
       hasSession,
       recentStories,
-      recentReviewQuery
+      recentReviewQuery,
+      truncateName
     };
   }
 });

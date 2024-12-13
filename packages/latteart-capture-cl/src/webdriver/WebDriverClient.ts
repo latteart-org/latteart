@@ -149,6 +149,11 @@ export default interface WebDriverClient extends ScriptExecutor {
   sendKeys(xpath: string, value: string): Promise<void>;
 
   /**
+   * Key down TAB key.
+   */
+  focusout(): Promise<void>;
+
+  /**
    * Accept alert if alert is visible.
    * @param text Text for prompt.
    */

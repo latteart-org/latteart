@@ -163,7 +163,7 @@
             v-for="story in recentStories"
             :key="story.id"
             :to="story.path"
-            :title.attr="`${story.testMatrixName} ${story.groupName} ${story.testTargetName} ${story.viewPointName}`"
+            :title.attr="`${truncateName(story.testMatrixName)} ${truncateName(story.groupName)} ${truncateName(story.testTargetName)} ${truncateName(story.viewPointName)}`"
             exact
             prepend-icon="assignment"
           >
@@ -172,15 +172,14 @@
           </v-list-item>
         </div>
 
-        <v-divider v-if="recentReviewQuery"></v-divider>
+        <v-divider v-if="currentTestResultName && recentReviewQuery"></v-divider>
 
-        <div v-if="recentReviewQuery">
+        <div v-if="currentTestResultName && recentReviewQuery">
           <v-list-subheader v-if="!mini">{{
             $t("navigation.group-label.current-review")
           }}</v-list-subheader>
 
           <v-list-item
-            v-if="currentTestResultName && recentReviewQuery"
             :to="{ path: '/review', query: recentReviewQuery }"
             :title.attr="currentTestResultName"
             exact
@@ -235,6 +234,7 @@ import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useTestManagementStore } from "@/stores/testManagement";
 import ExtensionGlobalContents from "../organisms/extensions/ExtensionGlobalContents.vue";
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 
 export default defineComponent({
   components: {
@@ -385,6 +385,10 @@ export default defineComponent({
       }
     };
 
+    const truncateName = (text: string) => {
+      return TextUtil.ellipsis(text, 100);
+    };
+
     watch(isWindowSelectorDialogOpened, toHistoryView);
     watch(isAutofillRegisterDialogDataChange, toHistoryView);
     watch(isAutofillConditionGroupsChanged, toHistoryView);
@@ -403,7 +407,8 @@ export default defineComponent({
       hasTestMatrix,
       hasSession,
       version,
-      fullVersion
+      fullVersion,
+      truncateName
     };
   }
 });

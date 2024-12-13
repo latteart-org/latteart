@@ -32,7 +32,7 @@
       :opened="informationMessageDialogOpened"
       :title="$t('common.confirm')"
       :message="$t('test-result-page.delete-test-result-succeeded')"
-      @close="informationMessageDialogOpened = false"
+      @close="goToTestResultListPage"
     ></information-message-dialog>
 
     <error-message-dialog
@@ -51,6 +51,7 @@ import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useRootStore } from "@/stores/root";
 import { computed, defineComponent, ref } from "vue";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   components: {
@@ -62,6 +63,7 @@ export default defineComponent({
     const rootStore = useRootStore();
     const captureControlStore = useCaptureControlStore();
     const operationHistoryStore = useOperationHistoryStore();
+    const router = useRouter();
 
     const confirmDialogOpened = ref(false);
     const confirmMessage = ref("");
@@ -138,6 +140,12 @@ export default defineComponent({
       }
     };
 
+    const goToTestResultListPage = () => {
+      informationMessageDialogOpened.value = false;
+
+      router.push({ path: "/page/test-result-list" });
+    };
+
     return {
       confirmDialogOpened,
       confirmMessage,
@@ -146,7 +154,8 @@ export default defineComponent({
       errorMessage,
       isDisabled,
       openConfirmDialog,
-      deleteTestResult
+      deleteTestResult,
+      goToTestResultListPage
     };
   }
 });
