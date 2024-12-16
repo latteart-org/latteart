@@ -99,6 +99,19 @@
             <v-list-item-title>{{ $t("manager-history-view.review") }}</v-list-item-title>
           </v-list-item>
         </div>
+
+        <v-divider></v-divider>
+
+        <v-list-subheader v-if="!mini">{{ $t("navigation.group-label.other") }}</v-list-subheader>
+
+        <v-list-item
+          to="/page/config"
+          :title.attr="$t('manage-header.capture-config')"
+          exact
+          prepend-icon="settings"
+        >
+          <v-list-item-title>{{ $t("manage-header.capture-config") }}</v-list-item-title>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -111,6 +124,7 @@
 <script lang="ts">
 import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 import { type TestMatrix } from "@/lib/testManagement/types";
+import { useRootStore } from "@/stores/root";
 import { useTestManagementStore } from "@/stores/testManagement";
 import { computed, defineComponent, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
@@ -118,12 +132,14 @@ import { useRouter } from "vue-router";
 export default defineComponent({
   setup() {
     const testManagementStore = useTestManagementStore();
+    const rootStore = useRootStore();
     const router = useRouter();
 
     const mini = ref(false);
     const displayedPage = ref(0);
 
-    onMounted(() => {
+    onMounted(async () => {
+      await rootStore.readSettings();
       router.push({ name: "testMatrixPage" });
     });
 
