@@ -950,22 +950,28 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
         throw new Error(rootStore.message(messageKey));
       }
 
-      if (payload.noteEditInfo.oldSequence !== undefined) {
-        this.deleteNoticeFromTestStep({
-          sequence: payload.noteEditInfo.oldSequence,
-          index: payload.noteEditInfo.oldIndex ?? 0
-        });
-      }
       const sequence = !destTestStepId
         ? payload.noteEditInfo.oldSequence
         : payload.noteEditInfo.newSequence;
       const index = !destTestStepId
         ? payload.noteEditInfo.oldIndex
         : result.data.testStep.notices.length - 1;
+
+      if (
+        payload.noteEditInfo.oldSequence !== undefined &&
+        payload.noteEditInfo.oldSequence !== sequence
+      ) {
+        this.deleteNoticeFromTestStep({
+          sequence: payload.noteEditInfo.oldSequence,
+          index: payload.noteEditInfo.oldIndex ?? 0
+        });
+      }
+
       this.setNotice({
         notice: convertNote(result.data.note, sequence),
         index: index ?? 0
       });
+
       this.canUpdateModels = true;
     },
 
