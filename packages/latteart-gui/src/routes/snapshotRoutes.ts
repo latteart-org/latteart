@@ -16,6 +16,7 @@
 
 import PageFrame from "@/components/pages/PageFrame.vue";
 import ViewerRootPage from "@/components/pages/ViewerRootPage.vue";
+import SnapshotConfigPage from "@/components/pages/config/SnapshotConfigPage.vue";
 import ProgressManagementPage from "@/components/pages/progressManagement/ProgressManagementPage.vue";
 import QualityManagementPage from "@/components/pages/qualityManagement/QualityManagementPage.vue";
 import SnapshotReviewPage from "@/components/pages/review/SnapshotReviewPage.vue";
@@ -79,6 +80,11 @@ const snapshotRoutes = [
             name: "storyPage",
             component: StoryPage,
             meta: { title: "story-page.title" }
+          },
+          {
+            path: "config",
+            component: SnapshotConfigPage,
+            meta: { title: "manage-header.capture-config" }
           }
         ]
       }
