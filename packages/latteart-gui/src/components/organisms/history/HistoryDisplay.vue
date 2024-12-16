@@ -292,7 +292,7 @@ export default defineComponent({
       contextMenuItems.value = [];
 
       contextMenuItems.value.push({
-        label: rootStore.message("test-result-page.edit-notice", {
+        label: rootStore.message("test-result-page.edit-note", {
           value: TextUtil.ellipsis(note.value, 100)
         }),
         onClick: () => {
@@ -305,7 +305,7 @@ export default defineComponent({
         }
       });
       contextMenuItems.value.push({
-        label: rootStore.message("test-result-page.delete-notice", {
+        label: rootStore.message("test-result-page.delete-note", {
           value: TextUtil.ellipsis(note.value, 100)
         }),
         onClick: () => {
@@ -372,8 +372,8 @@ export default defineComponent({
           { value: title }
         );
       } else {
-        confirmDialogTitle.value = rootStore.message("test-result-page.delete-notice-title");
-        confirmDialogMessage.value = rootStore.message("test-result-page.delete-notice-message", {
+        confirmDialogTitle.value = rootStore.message("test-result-page.delete-note-title");
+        confirmDialogMessage.value = rootStore.message("test-result-page.delete-note-message", {
           value: title
         });
       }
