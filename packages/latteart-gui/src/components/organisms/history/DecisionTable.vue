@@ -219,8 +219,6 @@ export default defineComponent({
       return new Array(inputValueTable.value.columnSize);
     });
 
-    const truncateText = TextUtil.truncate;
-
     const headers = computed(() => {
       return [
         {
@@ -414,7 +412,7 @@ export default defineComponent({
       elementTypeIsHidden,
       hasInputElements,
       registerAutofillSetting,
-      truncateText
+      truncateText: TextUtil.truncate
     };
   }
 });
