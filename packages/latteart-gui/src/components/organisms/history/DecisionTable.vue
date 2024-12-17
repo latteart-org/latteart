@@ -135,7 +135,9 @@
               v-for="(_, index) in screenTransitions"
               :key="index"
               class="text-center"
+              :title="props.item[`set${index}`].value ?? ''"
               :style="{
+                wordBreak: 'break-all',
                 backgroundColor:
                   shouldGrayOutNotInputValueCell &&
                   (props.item[`set${index}`] ? props.item[`set${index}`].isDefaultValue : true)
@@ -143,7 +145,7 @@
                     : 'rgba(0,0,0,0)'
               }"
             >
-              {{ props.item[`set${index}`] ? props.item[`set${index}`].value : "" }}
+              {{ truncateText(props.item[`set${index}`]?.value ?? "", 100) }}
             </td>
           </tr>
         </template>
@@ -166,6 +168,7 @@ import { computed, defineComponent, ref, inject, type PropType } from "vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useRootStore } from "@/stores/root";
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 
 type InputValue = {
   [key: string]:
@@ -408,7 +411,8 @@ export default defineComponent({
       selectRow,
       elementTypeIsHidden,
       hasInputElements,
-      registerAutofillSetting
+      registerAutofillSetting,
+      truncateText: TextUtil.truncate
     };
   }
 });

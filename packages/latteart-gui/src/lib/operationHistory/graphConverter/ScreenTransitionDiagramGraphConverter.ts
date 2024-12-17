@@ -97,7 +97,7 @@ export async function convertToScreenTransitionDiagramGraph(
   const screenTexts = graphModel.screens.map(({ id, name }) => {
     const lineLength = 30;
     return `${id}["${TextUtil.escapeSpecialCharacters(
-      TextUtil.ellipsis(TextUtil.toSingleLine(name), lineLength - 3)
+      TextUtil.truncate(TextUtil.toSingleLine(name), lineLength - 3)
     )}"];`;
   });
   const graphTextLines = createGraphTextLines(edges);
@@ -357,7 +357,7 @@ function createGraphTextLines(edges: Edge[]) {
 
       const operationType = trigger.type;
       const targetElement = TextUtil.escapeSpecialCharacters(
-        TextUtil.ellipsis(TextUtil.toSingleLine(trigger.target?.text ?? ""), 20)
+        TextUtil.truncate(TextUtil.toSingleLine(trigger.target?.text ?? ""), 20)
       );
 
       return `${operationType}: ${targetElement}`;

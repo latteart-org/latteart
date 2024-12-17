@@ -293,7 +293,7 @@ export default defineComponent({
 
       contextMenuItems.value.push({
         label: rootStore.message("test-result-page.edit-note", {
-          value: TextUtil.ellipsis(note.value, 100)
+          value: TextUtil.truncate(note.value, 100)
         }),
         onClick: () => {
           if (operationHistoryStore.tmpNoteInfoForEdit) {
@@ -306,7 +306,7 @@ export default defineComponent({
       });
       contextMenuItems.value.push({
         label: rootStore.message("test-result-page.delete-note", {
-          value: TextUtil.ellipsis(note.value, 100)
+          value: TextUtil.truncate(note.value, 100)
         }),
         onClick: () => {
           if (operationHistoryStore.tmpNoteInfoForEdit) {
