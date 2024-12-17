@@ -135,7 +135,9 @@
               v-for="(_, index) in screenTransitions"
               :key="index"
               class="text-center"
+              :title="props.item[`set${index}`].value ?? ''"
               :style="{
+                wordBreak: 'break-all',
                 backgroundColor:
                   shouldGrayOutNotInputValueCell &&
                   (props.item[`set${index}`] ? props.item[`set${index}`].isDefaultValue : true)
@@ -143,7 +145,7 @@
                     : 'rgba(0,0,0,0)'
               }"
             >
-              {{ props.item[`set${index}`] ? props.item[`set${index}`].value : "" }}
+              {{ truncateText(props.item[`set${index}`]?.value) }}
             </td>
           </tr>
         </template>
@@ -215,6 +217,13 @@ export default defineComponent({
     const screenTransitions = computed(() => {
       return new Array(inputValueTable.value.columnSize);
     });
+
+    const truncateText = (text?: string) => {
+      if (!text) {
+        return "";
+      }
+      return text.length > 100 ? text.slice(0, 100) + "..." : text;
+    };
 
     const headers = computed(() => {
       return [
@@ -408,7 +417,8 @@ export default defineComponent({
       selectRow,
       elementTypeIsHidden,
       hasInputElements,
-      registerAutofillSetting
+      registerAutofillSetting,
+      truncateText
     };
   }
 });
