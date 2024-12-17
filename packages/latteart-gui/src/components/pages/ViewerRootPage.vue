@@ -205,7 +205,7 @@ export default defineComponent({
     });
 
     const truncateName = (text: string) => {
-      return TextUtil.ellipsis(text, 100);
+      return TextUtil.truncate(text, 100);
     };
 
     return {

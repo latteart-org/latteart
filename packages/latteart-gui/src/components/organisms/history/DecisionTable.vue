@@ -145,7 +145,7 @@
                     : 'rgba(0,0,0,0)'
               }"
             >
-              {{ truncateText(props.item[`set${index}`]?.value) }}
+              {{ truncateText(props.item[`set${index}`]?.value ?? "", 100) }}
             </td>
           </tr>
         </template>
@@ -168,6 +168,7 @@ import { computed, defineComponent, ref, inject, type PropType } from "vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useRootStore } from "@/stores/root";
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 
 type InputValue = {
   [key: string]:
@@ -218,12 +219,7 @@ export default defineComponent({
       return new Array(inputValueTable.value.columnSize);
     });
 
-    const truncateText = (text?: string) => {
-      if (!text) {
-        return "";
-      }
-      return text.length > 100 ? text.slice(0, 100) + "..." : text;
-    };
+    const truncateText = TextUtil.truncate;
 
     const headers = computed(() => {
       return [
