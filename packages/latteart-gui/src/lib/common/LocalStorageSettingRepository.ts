@@ -20,7 +20,11 @@ import {
   createRepositoryAccessSuccess,
   type TestScriptOption
 } from "latteart-client";
-import { type DeviceSettings, type ViewSettings } from "./settings/Settings";
+import {
+  type CaptureMediaSetting,
+  type DeviceSettings,
+  type ViewSettings
+} from "./settings/Settings";
 
 export class LocalStorageSettingRepository {
   /**
@@ -220,5 +224,33 @@ export class LocalStorageSettingRepository {
     return createRepositoryAccessSuccess({
       data: viewSettings as ViewSettings
     });
+  }
+
+  /**
+   * Save capture media settings information.
+   * @param captureMediaSetting Capture media settings information.
+   */
+  public putCaptureMediaSetting(captureMediaSetting: CaptureMediaSetting) {
+    localStorage.setItem(
+      "latteart-config-captureMediaSetting",
+      JSON.stringify(captureMediaSetting)
+    );
+  }
+
+  /**
+   * Get capture media settings information.
+   * @returns Capture media settings information.
+   */
+  public getCaptureMediaSetting(): CaptureMediaSetting {
+    const setting = localStorage.getItem("latteart-config-captureMediaSetting");
+    if (setting === null) {
+      return {
+        mediaType: "image",
+        imageCompression: {
+          format: "png"
+        }
+      };
+    }
+    return JSON.parse(setting);
   }
 }

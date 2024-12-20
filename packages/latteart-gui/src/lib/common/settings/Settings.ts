@@ -22,8 +22,6 @@ export type ScreenDefinitionSetting = ProjectSettings["config"]["screenDefinitio
 
 export type CoverageSetting = ProjectSettings["config"]["coverage"];
 
-export type CaptureMediaSetting = ProjectSettings["config"]["captureMediaSetting"];
-
 export type DeviceSettings = {
   platformName: "PC" | "Android" | "iOS";
   browser: "Chrome" | "Edge" | "Safari";
@@ -60,3 +58,10 @@ export type TestHintSetting = {
 };
 
 export type ExperimentalFeatureSetting = ProjectSettings["config"]["experimentalFeatureSetting"];
+
+export type CaptureMediaSetting = {
+  mediaType: "image" | "video" | "video_and_image";
+  imageCompression: {
+    format: "png" | "webp";
+  };
+};

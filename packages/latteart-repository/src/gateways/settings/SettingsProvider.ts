@@ -218,13 +218,6 @@ export class SettingsProvider {
       }
     }
 
-    if (source.config && source.config.captureMediaSetting) {
-      Object.assign(
-        target.config.captureMediaSetting,
-        source.config.captureMediaSetting
-      );
-    }
-
     if (source.captureSettings && source.captureSettings.ignoreTags) {
       target.captureSettings.ignoreTags = source.captureSettings.ignoreTags;
     }

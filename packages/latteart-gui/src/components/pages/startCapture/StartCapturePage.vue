@@ -85,10 +85,6 @@ export default defineComponent({
       }
     });
 
-    const config = computed(() => {
-      return rootStore.projectSettings.config;
-    });
-
     const execute = async (onStart: () => Promise<void>) => {
       captureControlStore.url = captureOption.value.url;
       captureControlStore.testResultName = captureOption.value.testResultName;
@@ -100,13 +96,9 @@ export default defineComponent({
           waitTimeForStartupReload: captureOption.value.waitTimeForStartupReload
         }
       });
-      await rootStore.writeConfig({
-        config: {
-          ...config.value,
-          captureMediaSetting: {
-            ...config.value.captureMediaSetting,
-            mediaType: captureOption.value.mediaType
-          }
+      rootStore.writeCaptureMediaSettings({
+        captureMediaSetting: {
+          mediaType: captureOption.value.mediaType
         }
       });
       captureControlStore.testOption = {

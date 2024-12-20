@@ -861,7 +861,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
           screenshot: payload.noteEditInfo.shouldTakeScreenshot,
           compressScreenshot:
             payload.noteEditInfo.shouldTakeScreenshot &&
-            rootStore.projectSettings.config.captureMediaSetting.imageCompression.format === "webp"
+            rootStore.captureMediaSettings.imageCompression.format === "webp"
         };
 
         const testResult = rootStore.repositoryService.createTestResultAccessor(

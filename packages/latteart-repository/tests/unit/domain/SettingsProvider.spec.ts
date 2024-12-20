@@ -46,10 +46,6 @@ describe("SettingsProvider", () => {
             tags: [],
           },
         },
-        captureMediaSetting: {
-          mediaType: "image",
-          imageCompression: { format: "png" },
-        },
         experimentalFeatureSetting: { captureArch: "polling" },
       },
       captureSettings: {
@@ -258,10 +254,7 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          captureMediaSetting: {
-            mediaType: "image",
-            imageCompression: { format: "png" },
-          },
+
           experimentalFeatureSetting: { captureArch: "polling" },
         },
         captureSettings: {
@@ -341,31 +334,11 @@ describe("SettingsProvider", () => {
               tags: [],
             },
           },
-          captureMediaSetting: {
-            mediaType: "image",
-            imageCompression: { format: "png" },
-          },
           experimentalFeatureSetting: { captureArch: "polling" },
         },
         captureSettings: {
           ignoreTags: [],
         },
-      });
-    });
-    it("If there is no imageCompression setting, the default value will be applied", () => {
-      const filePath = path.resolve(
-        resourceDirPath,
-        "latteart.config_ImageCompressionNone.json"
-      );
-
-      settingsProvider.loadFile(filePath);
-
-      expect(
-        settingsProvider.getSetting(
-          "config.captureMediaSetting.imageCompression"
-        )
-      ).toEqual({
-        format: "png",
       });
     });
   });
