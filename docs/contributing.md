@@ -71,10 +71,10 @@ flowchart LR
 Please refer to the following Web API when communicating with `latteart-capture-cl` and `latteart-repository`:
 
 - `latteart-capture-cl`
-  - [REST API Reference](https://latteart-org.github.io/latteart/docs/api/latteart-capture-cl/rest/)
+  - [REST API Reference](https://latteart-org.github.io/latteart/docs/api/latteart-capture-cl/rest/main/)
   - [WebSocket API Reference](../packages/latteart-capture-cl/docs/api/websocket.md)
 - `latteart-repository`
-  - [REST API Reference](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/)
+  - [REST API Reference](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/main/)
 
 ### Development Environment Setup
 

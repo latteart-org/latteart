@@ -24,4 +24,4 @@ $ npm run generate:migration src/migrations/<migrationファイル名>
 
 ## Web API
 
-- [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/)
+- [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/main/)
