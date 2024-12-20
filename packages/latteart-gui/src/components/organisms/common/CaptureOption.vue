@@ -170,7 +170,7 @@ export default defineComponent({
       return rootStore.projectSettings;
     });
 
-    const mediaType = ref<"image" | "video" | "video_and_image">(
+    const mediaType = ref<CaptureMediaSetting["mediaType"]>(
       rootStore.captureMediaSettings.mediaType
     );
     const deviceSettings = computed((): DeviceSettings | undefined => {
