@@ -170,6 +170,9 @@ export default defineComponent({
       return rootStore.projectSettings;
     });
 
+    const mediaType = ref<"image" | "video" | "video_and_image">(
+      rootStore.captureMediaSettings.mediaType
+    );
     const deviceSettings = computed((): DeviceSettings | undefined => {
       return rootStore.deviceSettings;
     });
@@ -185,7 +188,7 @@ export default defineComponent({
       },
       waitTimeForStartupReload: 0,
       browser: deviceSettings.value?.browser ?? "Chrome",
-      mediaType: projectSettings.value?.config.captureMediaSetting.mediaType ?? "image",
+      mediaType: mediaType.value ?? "image",
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
       firstTestPurposeDetails: ""

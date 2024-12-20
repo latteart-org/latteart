@@ -17,17 +17,24 @@
 import { RepositoryDataLoader, type DataLoader } from "@/lib/common/dataLoader";
 import type { I18nProvider } from "@/lib/common/internationalization";
 import {
+  readCaptureMediaSettings,
   readDeviceSettings,
   readLocale,
   readTestScriptOption,
   readViewSettings,
+  saveCaptureMediaSettings,
   saveDeviceSettings,
   saveLocale,
   saveTestScriptOption,
   saveViewSettings
 } from "@/lib/common/settings/userSettings";
 import { saveProjectSettings } from "@/lib/common/settings/projectSettings";
-import type { DeviceSettings, ProjectSettings, ViewSettings } from "@/lib/common/settings/Settings";
+import type {
+  CaptureMediaSetting,
+  DeviceSettings,
+  ProjectSettings,
+  ViewSettings
+} from "@/lib/common/settings/Settings";
 import { ExportConfigAction } from "@/lib/operationHistory/actions/ExportConfigAction";
 import {
   RESTClientImpl,
@@ -38,6 +45,7 @@ import {
   type TestScriptOption
 } from "latteart-client";
 import { defineStore } from "pinia";
+import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
 
 /**
  * Common state.
@@ -54,6 +62,11 @@ type RootState = {
    * GUI Settings.
    */
   viewSettings: ViewSettings;
+
+  /**
+   * Capture Media Settings
+   */
+  captureMediaSettings: CaptureMediaSetting;
 
   /**
    * Capture config.
@@ -96,10 +109,6 @@ export const useRootStore = defineStore("root", {
             tags: []
           }
         },
-        captureMediaSetting: {
-          mediaType: "image",
-          imageCompression: { format: "png" }
-        },
         testResultComparison: {
           excludeItems: {
             isEnabled: false,
@@ -113,6 +122,7 @@ export const useRootStore = defineStore("root", {
         experimentalFeatureSetting: { captureArch: "polling" }
       }
     },
+    captureMediaSettings: new LocalStorageSettingRepository().getCaptureMediaSetting(),
     viewSettings: {
       autofill: {
         autoPopupRegistrationDialog: false,
@@ -384,8 +394,6 @@ export const useRootStore = defineStore("root", {
           screenDefinition:
             payload.config.screenDefinition ?? this.projectSettings.config.screenDefinition,
           coverage: payload.config.coverage ?? this.projectSettings.config.coverage,
-          captureMediaSetting:
-            payload.config.captureMediaSetting ?? this.projectSettings.config.captureMediaSetting,
           testResultComparison:
             payload.config.testResultComparison ?? this.projectSettings.config.testResultComparison,
           experimentalFeatureSetting:
@@ -495,6 +503,26 @@ export const useRootStore = defineStore("root", {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
       }
 
+      return result.data;
+    },
+    writeCaptureMediaSettings(payload: { captureMediaSetting: Partial<CaptureMediaSetting> }) {
+      const result = readCaptureMediaSettings();
+      if (result.isFailure()) {
+        throw new Error(result.error.messageKey);
+      }
+      const settings = {
+        ...this.captureMediaSettings,
+        ...payload.captureMediaSetting
+      };
+      this.captureMediaSettings = settings;
+      saveCaptureMediaSettings(settings);
+    },
+
+    readCaptureMediaSettings(): CaptureMediaSetting {
+      const result = readCaptureMediaSettings();
+      if (result.isFailure()) {
+        throw new Error(result.error.messageKey);
+      }
       return result.data;
     }
   }

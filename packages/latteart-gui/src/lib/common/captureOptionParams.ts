@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import { type SettingsForRepository } from "latteart-client";
 import { type DeviceSettings } from "./settings/Settings";
 
 export type CaptureOptionParams = {
@@ -24,7 +23,7 @@ export type CaptureOptionParams = {
   device: { deviceName: string; modelNumber: string; osVersion: string };
   waitTimeForStartupReload: number;
   browser: DeviceSettings["browser"];
-  mediaType: SettingsForRepository["config"]["captureMediaSetting"]["mediaType"];
+  mediaType: "image" | "video" | "video_and_image";
   shouldRecordTestPurpose: boolean;
   firstTestPurpose: string;
   firstTestPurposeDetails: string;

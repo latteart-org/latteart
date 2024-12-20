@@ -492,14 +492,9 @@ export default defineComponent({
           waitTimeForStartupReload: option.waitTimeForStartupReload
         }
       });
-      const config = rootStore.projectSettings.config;
-      await rootStore.writeConfig({
-        config: {
-          ...config,
-          captureMediaSetting: {
-            ...config.captureMediaSetting,
-            mediaType: option.mediaType
-          }
+      rootStore.writeCaptureMediaSettings({
+        captureMediaSetting: {
+          mediaType: option.mediaType
         }
       });
       captureControlStore.testOption = {

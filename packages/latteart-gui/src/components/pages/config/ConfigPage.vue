@@ -246,7 +246,7 @@ export default defineComponent({
 
     const captureMediaSetting = computed((): CaptureMediaSetting => {
       return (
-        config.value?.captureMediaSetting ?? {
+        captureMediaSettings.value ?? {
           mediaType: "image",
           imageCompression: { format: "png" }
         }
@@ -322,6 +322,10 @@ export default defineComponent({
 
     const config = computed(() => {
       return projectSettings.value?.config;
+    });
+
+    const captureMediaSettings = computed(() => {
+      return rootStore.captureMediaSettings;
     });
 
     const captureMediaSettingOpened = computed(() => {

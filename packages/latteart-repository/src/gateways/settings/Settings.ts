@@ -42,7 +42,6 @@ export default class Settings {
     autoOperationSetting: AutoOperationSetting;
     screenDefinition: ScreenDefinition;
     coverage: Coverage;
-    captureMediaSetting: CaptureMediaSetting;
     experimentalFeatureSetting: ExperimentalFeatureSetting;
   };
   public captureSettings: {
@@ -83,10 +82,6 @@ export default class Settings {
           tags: [],
         },
       },
-      captureMediaSetting: {
-        mediaType: "image",
-        imageCompression: { format: "png" },
-      },
       experimentalFeatureSetting: { captureArch: "polling" },
     };
     this.captureSettings = {
@@ -124,21 +119,6 @@ export interface Coverage {
   include: {
     tags: string[];
   };
-}
-
-/**
- * Capture media settings.
- */
-export interface CaptureMediaSetting {
-  mediaType: "image" | "video" | "video_and_image";
-  imageCompression: ImageCompression;
-}
-
-/**
- * Image compression settings.
- */
-export interface ImageCompression {
-  format: "png" | "webp";
 }
 
 /**
