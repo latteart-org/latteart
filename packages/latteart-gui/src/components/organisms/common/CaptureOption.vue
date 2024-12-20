@@ -143,7 +143,7 @@
 <script lang="ts">
 import NumberField from "@/components/molecules/NumberField.vue";
 import { type SettingsForRepository } from "latteart-client";
-import { type DeviceSettings } from "@/lib/common/settings/Settings";
+import { type CaptureMediaSetting, type DeviceSettings } from "@/lib/common/settings/Settings";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { type CaptureOptionParams } from "@/lib/common/captureOptionParams";
 import { computed, defineComponent, ref, watch } from "vue";
