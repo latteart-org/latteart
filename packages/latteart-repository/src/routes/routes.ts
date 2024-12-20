@@ -289,38 +289,6 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ImageCompression: {
-    dataType: "refObject",
-    properties: {
-      format: {
-        dataType: "union",
-        subSchemas: [
-          { dataType: "enum", enums: ["png"] },
-          { dataType: "enum", enums: ["webp"] },
-        ],
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  CaptureMediaSetting: {
-    dataType: "refObject",
-    properties: {
-      mediaType: {
-        dataType: "union",
-        subSchemas: [
-          { dataType: "enum", enums: ["image"] },
-          { dataType: "enum", enums: ["video"] },
-          { dataType: "enum", enums: ["video_and_image"] },
-        ],
-        required: true,
-      },
-      imageCompression: { ref: "ImageCompression", required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ExperimentalFeatureSetting: {
     dataType: "refObject",
     properties: {
@@ -391,7 +359,6 @@ const models: TsoaRoute.Models = {
               },
               required: true,
             },
-            captureMediaSetting: { ref: "CaptureMediaSetting", required: true },
             coverage: { ref: "Coverage", required: true },
             screenDefinition: { ref: "ScreenDefinitionConfig", required: true },
             autoOperationSetting: {

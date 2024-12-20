@@ -889,17 +889,6 @@ function collectRunTargets(...operations: RunnableOperation[]) {
     );
   };
 
-  const isNumberInputOperation = (
-    target: Pick<Operation, "type" | "elementInfo">,
-    type: "click" | "change"
-  ) => {
-    return (
-      target.type === type &&
-      target.elementInfo?.tagname.toLowerCase() === "input" &&
-      target.elementInfo.attributes.type === "number"
-    );
-  };
-
   return operations
     .map((operation, index) => {
       return { operation, index };
@@ -930,21 +919,6 @@ function collectRunTargets(...operations: RunnableOperation[]) {
           isDateInputOperation(nextOperation, "change") &&
           runTarget.operation.elementInfo?.xpath ===
             nextOperation.elementInfo?.xpath
-        ) {
-          return false;
-        }
-      }
-
-      if (isNumberInputOperation(runTarget.operation, "click")) {
-        const preOperation:
-          | Pick<Operation, "type" | "input" | "elementInfo">
-          | undefined = array.at(index - 1)?.operation;
-
-        if (
-          preOperation &&
-          isNumberInputOperation(preOperation, "change") &&
-          runTarget.operation.elementInfo?.xpath ===
-            preOperation.elementInfo?.xpath
         ) {
           return false;
         }

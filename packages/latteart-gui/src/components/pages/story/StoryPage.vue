@@ -20,14 +20,14 @@
       <v-row v-if="story">
         <v-col cols="3">
           <v-text-field
-            variant="underlined"
+            :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
             :label="$t('story-page.test-matrix')"
             :model-value="testMatrixName"
           ></v-text-field>
           <v-text-field
-            variant="underlined"
+            :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
             :label="$t('story-page.group')"
@@ -36,21 +36,21 @@
         </v-col>
         <v-col cols="3">
           <v-text-field
-            variant="underlined"
+            :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
             :label="$t('story-page.test-target')"
             :model-value="testTargetName"
           ></v-text-field>
           <v-text-field
-            variant="underlined"
+            :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
             :label="$t('story-page.viewPoint')"
             :model-value="viewPointName"
           ></v-text-field>
           <v-select
-            variant="underlined"
+            :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             :items="statuses"
             item-title="text"
@@ -58,12 +58,14 @@
             :model-value="story.status"
             :label="$t('story-page.status')"
             :readonly="isViewerMode"
+            :menu-icon="isViewerMode ? '' : '$dropdown'"
             @update:model-value="updateStatus"
-          ></v-select>
+          >
+          </v-select>
         </v-col>
         <v-col cols="3">
           <v-text-field
-            variant="underlined"
+            :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
             :label="$t('story-page.planned-session')"
@@ -71,14 +73,14 @@
           ></v-text-field>
           <v-text-field
             v-model="doneSessionNum"
-            variant="underlined"
+            :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
             :label="$t('story-page.completed-session')"
           ></v-text-field>
           <v-text-field
             v-model="extractionBugNum"
-            variant="underlined"
+            :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
             :label="$t('story-page.bug-count')"
@@ -125,6 +127,7 @@
                         :model-value="session.isDone"
                         :label="$t('session-list.complete')"
                         :readonly="isViewerMode"
+                        :ripple="!isViewerMode"
                         hide-details
                         @update:model-value="
                           (value) => changeSessionStatus(session.id, value ?? false)

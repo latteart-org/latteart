@@ -29,17 +29,6 @@ export function parseProjectConfig(configText: string): ProjectConfig {
       autoOperationSetting: config.config.autoOperationSetting,
       screenDefinition: config.config.screenDefinition,
       coverage: config.config.coverage,
-      captureMediaSetting:
-        "captureMediaSetting" in config.config
-          ? config.config.captureMediaSetting
-          : {
-              mediaType: "image",
-              imageCompression: {
-                format: config.config.imageCompression.isEnabled
-                  ? "webp"
-                  : "png",
-              },
-            },
       testResultComparison: config.config.testResultComparison,
       experimentalFeatureSetting:
         "experimentalFeatureSetting" in config.config

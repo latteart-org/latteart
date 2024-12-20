@@ -420,7 +420,8 @@ export default defineComponent({
           {
             title: props.message("operation.sequence"),
             value: "operation.sequence",
-            width: "70"
+            width: "90",
+            sortable: true
           },
           {
             title: "",

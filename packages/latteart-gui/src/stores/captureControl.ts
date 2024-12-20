@@ -288,9 +288,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
 
         const session = await (async () => {
           const startCaptureResult = await client.startCapture(payload.initialUrl, {
-            compressScreenshots:
-              rootStore.projectSettings.config.captureMediaSetting.imageCompression.format ===
-              "webp"
+            compressScreenshots: rootStore.captureMediaSettings.imageCompression.format === "webp"
           });
           if (startCaptureResult.isFailure()) {
             const errorMessage = rootStore.message(`error.capture_control.run_operations_failed`);
@@ -653,7 +651,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
       const testResult = rootStore.repositoryService.createTestResultAccessor(
         operationHistoryStore.testResultInfo.id
       );
-      const mediaType = rootStore.projectSettings.config.captureMediaSetting.mediaType;
+      const mediaType = rootStore.captureMediaSettings.mediaType;
 
       const config: CaptureConfig = {
         ...rootStore.deviceSettings,
@@ -688,8 +686,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         : undefined;
 
       const result = await client.startCapture(payload.url, {
-        compressScreenshots:
-          rootStore.projectSettings.config.captureMediaSetting.imageCompression.format === "webp",
+        compressScreenshots: rootStore.captureMediaSettings.imageCompression.format === "webp",
         firstTestPurpose
       });
 
@@ -765,7 +762,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         screenshot: payload.noteEditInfo.shouldTakeScreenshot,
         compressScreenshot:
           payload.noteEditInfo.shouldTakeScreenshot &&
-          rootStore.projectSettings.config.captureMediaSetting.imageCompression.format === "webp"
+          rootStore.captureMediaSettings.imageCompression.format === "webp"
       };
 
       this.captureSession?.takeNote(note, option);

@@ -21,7 +21,7 @@
 
       <v-card-text class="pt-0">
         <v-text-field
-          variant="underlined"
+          :variant="isViewerMode ? 'solo' : 'underlined'"
           class="pt-0"
           :label="$t('session-info.tester-name')"
           :model-value="session.testerName"
@@ -29,7 +29,7 @@
           @change="(e: any) => updateSession({ testerName: e.target._value })"
         ></v-text-field>
         <v-textarea
-          variant="underlined"
+          :variant="isViewerMode ? 'solo' : 'underlined'"
           class="pt-0"
           :label="$t('session-info.memo')"
           :model-value="memo"
@@ -492,14 +492,9 @@ export default defineComponent({
           waitTimeForStartupReload: option.waitTimeForStartupReload
         }
       });
-      const config = rootStore.projectSettings.config;
-      await rootStore.writeConfig({
-        config: {
-          ...config,
-          captureMediaSetting: {
-            ...config.captureMediaSetting,
-            mediaType: option.mediaType
-          }
+      rootStore.writeCaptureMediaSettings({
+        captureMediaSetting: {
+          mediaType: option.mediaType
         }
       });
       captureControlStore.testOption = {

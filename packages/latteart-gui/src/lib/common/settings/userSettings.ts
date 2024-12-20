@@ -16,7 +16,7 @@
 
 import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
-import { type DeviceSettings } from "@/lib/common/settings/Settings";
+import { type CaptureMediaSetting, type DeviceSettings } from "@/lib/common/settings/Settings";
 import { type ViewSettings } from "@/lib/common/settings/Settings";
 import { type TestScriptOption } from "latteart-client";
 
@@ -119,4 +119,16 @@ export async function saveTestScriptOption(
   }
 
   return new ActionSuccess(putTestScriptOptionResult.data);
+}
+
+export function saveCaptureMediaSettings(
+  captureMediaSetting: CaptureMediaSetting
+): ActionResult<void> {
+  return new ActionSuccess(
+    new LocalStorageSettingRepository().putCaptureMediaSetting(captureMediaSetting)
+  );
+}
+
+export function readCaptureMediaSettings(): ActionResult<CaptureMediaSetting> {
+  return new ActionSuccess(new LocalStorageSettingRepository().getCaptureMediaSetting());
 }
