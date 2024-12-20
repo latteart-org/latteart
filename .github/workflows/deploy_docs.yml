@@ -19,6 +19,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
 
     strategy:
@@ -53,16 +54,22 @@ jobs:
 
       - name: Build API documents
         run: |
-          npm run generate:apidoc -w latteart-repository
           wget https://github.com/swagger-api/swagger-ui/archive/refs/tags/v4.15.5.tar.gz
           tar -xvf v4.15.5.tar.gz swagger-ui-4.15.5/dist
           sed -i "s#https://petstore\.swagger\.io/v2/swagger\.json#api\.yaml#g" ./swagger-ui-4.15.5/dist/swagger-initializer.js
-          mkdir -p ./artifact/docs/api/latteart-repository/rest
-          cp swagger-ui-4.15.5/dist/* ./artifact/docs/api/latteart-repository/rest
-          cp packages/latteart-repository/docs/api/api.yaml ./artifact/docs/api/latteart-repository/rest
-          mkdir -p ./artifact/docs/api/latteart-capture-cl/rest
-          cp swagger-ui-4.15.5/dist/* ./artifact/docs/api/latteart-capture-cl/rest
-          cp packages/latteart-capture-cl/docs/api/api.yaml ./artifact/docs/api/latteart-capture-cl/rest
+          git fetch --tags
+          tags=$(git ls-remote --sort=-v:refname --tags https://github.com/${{ github.repository_owner }}/latteart.git | cut -f 2 | head -n -13 | sed 's|refs/tags/||')
+          tags="main $tags"
+          for tag in $tags; do
+            git checkout "$tag"
+            npm run generate:apidoc -w latteart-repository
+            mkdir -p ./artifact/docs/api/latteart-repository/rest/$tag
+            cp swagger-ui-4.15.5/dist/* ./artifact/docs/api/latteart-repository/rest/$tag
+            cp packages/latteart-repository/docs/api/api.yaml ./artifact/docs/api/latteart-repository/rest/$tag
+            mkdir -p ./artifact/docs/api/latteart-capture-cl/rest/$tag
+            cp swagger-ui-4.15.5/dist/* ./artifact/docs/api/latteart-capture-cl/rest/$tag
+            cp packages/latteart-capture-cl/docs/api/api.yaml ./artifact/docs/api/latteart-capture-cl/rest/$tag
+          done
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1

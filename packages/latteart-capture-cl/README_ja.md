@@ -18,5 +18,5 @@ $ npm run run
 
 ## Web API
 
-- [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-capture-cl/rest/)
+- [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-capture-cl/rest/main/)
 - [WebSocket API リファレンス](./docs/api/websocket.md)
