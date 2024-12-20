@@ -53,7 +53,7 @@
 #### ダイアログのコンポーネント (`simple-history/SimpleHistoryDialog.vue`)
 
 - `$t(...)` は、i18nの機能を利用して、対応する言語リソースからテキストを取得するための関数です。言語リソースは後述する[言語ファイルを作成する](#言語ファイルを作成する)をご参照ください。
-- latteart-repository の API を利用しています。APIの詳細な仕様については[REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/)をご参照ください。
+- latteart-repository の API を利用しています。APIの詳細な仕様については[REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/main/)をご参照ください。
 
 ```vue
 <template>

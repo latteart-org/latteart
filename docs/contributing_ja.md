@@ -69,10 +69,10 @@ flowchart LR
 `latteart-capture-cl`、`latteart-repository`との通信で使用する Web API は以下を参照してください。
 
 - latteart-capture-cl
-  - [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-capture-cl/rest/)
+  - [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-capture-cl/rest/main/)
   - [WebSocket API リファレンス](../packages/latteart-capture-cl/docs/api/websocket.md)
 - latteart-repository
-  - [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/)
+  - [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/main/)
 
 ### 開発環境のセットアップ
 
