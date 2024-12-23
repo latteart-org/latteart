@@ -16,8 +16,6 @@
     "resume-capturing": "記録の再開",
     "replay": "テスト結果のリプレイ",
     "stop-replay": "リプレイの中止",
-    "history": "テスト履歴",
-    "target": "テスト対象設定",
     "record-intention": "テストの目的の記録",
     "record-notice": "テスト中の気づき",
     "record-note": "メモを残す",
@@ -29,14 +27,12 @@
     "notice": "気づき",
     "register-operation": "操作の登録",
     "register-test-hint": "テストヒントの登録",
-    "select-operation": "操作の選択",
     "auto-operation": "自動操作",
     "autofill": "自動入力"
   },
   "replay": {
     "done-title": "テスト結果のリプレイ終了",
-    "done-run-operations": "リプレイが終了しました。",
-    "run-operations-canceled": "リプレイを中止しました。"
+    "done-run-operations": "リプレイが終了しました。"
   },
   "auto-operation": {
     "done-title": "自動操作終了",
@@ -64,8 +60,6 @@
     "default-button-tags": "デフォルト定義: {value}",
     "testdata": "テストデータ",
     "max-generation": "最大数",
-    "template-only": "雛形のみ",
-    "method": "方式",
     "method-data-driven": "データ駆動方式を使用する",
     "use-multi-locator1": "",
     "use-multi-locator2": "を利用した頑健なテストスクリプトを生成（実験的）",
@@ -112,8 +106,7 @@
     "delete-test-results": "テスト結果の削除",
     "delete-test-result-message": "選択したテスト結果を削除しますか？",
     "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
-    "deleting-test-results": "テスト結果削除中",
-    "load": "読み込み中"
+    "deleting-test-results": "テスト結果削除中"
   },
   "test-result-list": {
     "name": "テスト結果名",
@@ -151,7 +144,6 @@
     "select-device": "デバイス選択",
     "update-device": "デバイス情報更新",
     "no-device": "認識できたデバイスがありません",
-    "device-name": "デバイス名",
     "os-version": "OSバージョン",
     "setting-inclusion-tags": "画面要素カバレッジの設定",
     "media-type": "メディアタイプ",
@@ -175,12 +167,6 @@
     "screen-def": {
       "judgement-url": "URLで画面遷移を判断する",
       "judgement-title": "タイトルで画面遷移を判断する",
-      "judgement-keyword": "キーワードで画面遷移を判断する",
-      "screen-list-definition-label": "URL / タイトル / キーワード",
-      "screen-list-definition-placeholder": "例：/search",
-      "screen-list-alias-label": "別名",
-      "screen-list-alias-placeholder": "例：検索画面",
-      "screen-list-regex-error": "[エラー] URL / タイトル / キーワード に使用している正規表現が不正です。",
       "advanced-add": "追加",
       "advanced-delete": "削除",
       "default-screen-definition": "デフォルト画面定義",
@@ -303,7 +289,6 @@
     "times": "回目",
     "element-id": "要素ID",
     "element-name": "要素名",
-    "element-value": "入力値",
     "gray-out-not-input-value-cell": "明示的に入力された値以外のセルをグレーアウトする",
     "hide-hidden-elements": "hidden要素は表示しない",
     "autofill-dialog-message": "入力値セット名を入力してください。",
@@ -317,7 +302,6 @@
   "operation": {
     "search": "検索",
     "query": "文字列",
-    "reset": "フィルタリセット",
     "purpose": "目的",
     "notice": "気づき",
     "sequence": "通番",
@@ -381,8 +365,6 @@
     },
     "search-dialog": {
       "title": "テストヒント:検索",
-      "filter-test-hints": "テストヒントのマッチング",
-      "matching-words": "マッチングワード",
       "matching-result": "現在のテストに関連するヒント",
       "matching-scope": "対象範囲:",
       "show": "マッチング条件表示",
@@ -404,7 +386,6 @@
       "test-target": "テスト対象",
       "view-point": "観点",
       "comment-words": "キーワード",
-      "operation": "操作",
       "screen-elements": "画面要素",
       "add-element": "要素の追加",
       "search": "文字列検索",
@@ -432,8 +413,6 @@
   },
   "manage": {
     "print-html-succeeded": "スナップショット出力が完了しました。",
-    "output-html-running": "スナップショット出力中",
-    "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
     "loading-project": "プロジェクトデータ読込中"
   },
   "manage-header": {
@@ -443,7 +422,6 @@
     "top": "テストマトリクス確認",
     "generate-script": "テストスクリプト生成",
     "generating-test-script": "テストスクリプト生成中",
-    "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
     "locale": "言語"
   },
   "test-matrix-page": {
@@ -473,7 +451,6 @@
     "preset": "使用するプリセット名",
     "create-test-matrix": "テストマトリクス作成",
     "edit-test-matrix": "テストマトリクスの設定",
-    "delete-viewPoint-confirm": "テスト観点を削除してよろしいですか？",
     "unselected": "プリセットなし"
   },
   "progress-management": {
@@ -515,21 +492,17 @@
   },
   "group-edit-info": {
     "target": "テスト対象",
-    "delete-target-title": "テスト対象の削除",
     "delete-target-confirm": "テスト対象を削除してもよろしいですか？",
-    "delete": "削除",
     "add": "追加"
   },
   "group-edit-list": {
     "name": "グループ名",
-    "delete-group-title": "グループの削除",
     "delete-group-confirm": "グループを削除してもよろしいですか？",
     "delete": "削除",
     "add": "グループを追加"
   },
   "session-info": {
     "charter": "チャーター部",
-    "test-item": "テストアイテム",
     "tester-name": "テスター名",
     "memo": "メモ",
     "report": "レポート部",
@@ -624,14 +597,12 @@
     "common": {
       "fatal": "不明なエラーが発生しました。",
       "get_settings_failed": "設定の取得に失敗しました。",
-      "save_settings_failed": "設定の保存に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。",
-      "change_locale_failed": "ロケールの変更に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。"
+      "save_settings_failed": "設定の保存に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。"
     },
     "capture_control": {
       "unknown_error": "'latteart-capture-cl'で不明なエラーが発生しました。",
       "client_side_capture_service_not_found": "'latteart-capture-cl'サーバに接続できません。'latteart-capture-cl'サーバが起動しているかご確認ください。",
       "capture_socket_disconnected": "記録中に'latteart-capture-cl'サーバとのコネクションが切断されました。「テスト開始」ボタンを押して記録を再開してください。",
-      "run_operations_socket_disconnected": "操作のリプレイ中に'latteart-capture-cl'サーバとのコネクションが切断されました。「テスト結果のリプレイ」ボタンを押して再度リプレイを実施してください。",
       "get_device_settings_failed": "デバイス設定の取得に失敗しました。",
       "save_device_settings_failed": "デバイス設定の保存に失敗しました。",
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
@@ -652,7 +623,6 @@
     },
     "operation_history": {
       "load_history_failed": "テスト結果の読み込みに失敗しました。",
-      "illegal_test_result": "テスト結果のフォーマットが不正です。",
       "save_test_scripts_failed": "テストスクリプトの生成に失敗しました。",
       "save_test_scripts_no_section_error": "テストスクリプトの生成を中止しました。画面遷移のあるセッションがありません。",
       "save_test_scripts_no_operation_error": "テストスクリプトの生成を中止しました。ユーザによる操作が記録されていません",
@@ -661,11 +631,8 @@
       "add_note_failed": "気づきの追加に失敗しました。",
       "delete_note_failed": "気づきの削除に失敗しました。",
       "edit_note_failed": "気づきの編集に失敗しました。",
-      "move_note_failed": "気づきの移動に失敗しました。",
       "import_test_result_failed": "テスト結果のインポートに失敗しました。",
       "delete_test_purpose_failed": "テスト目的の削除に失敗しました。",
-      "move_test_purpose_failed": "テスト目的の移動に失敗しました。",
-      "record_test_purpose_failed": "テスト目的の記録に失敗しました。",
       "create_test_result_failed": "テスト結果の作成に失敗しました。",
       "get_test_result_list_failed": "テスト結果一覧の取得に失敗しました。",
       "get_session_ids_failed": "セッションIDの取得に失敗しました。",
@@ -681,8 +648,7 @@
       "update_session_failed": "セッションの更新に失敗しました。",
       "save_project_failed": "プロジェクト情報の保存に失敗しました。",
       "write_snapshot_failed": "スナップショットの出力に失敗しました。",
-      "collect_progress_datas_failed": "進捗情報の取得に失敗しました。",
-      "review_data_not_exist": "レビューするテスト結果が存在しません。"
+      "collect_progress_datas_failed": "進捗情報の取得に失敗しました。"
     },
     "import_export": {
       "import-data-error": "データインポートに失敗しました。",
