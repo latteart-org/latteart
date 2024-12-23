@@ -16,8 +16,6 @@
     "resume-capturing": "Resume Capture",
     "replay": "Replay Test Result",
     "stop-replay": "Stop Replay",
-    "history": "Test History",
-    "target": "Test Target",
     "record-intention": "Record Test Purpose",
     "record-notice": "Record Finding",
     "record-note": "Make Note",
@@ -29,14 +27,12 @@
     "notice": "Finding",
     "register-operation": "Operation Registration",
     "register-test-hint": "Test Hint Registration",
-    "select-operation": "Operation Selection",
     "auto-operation": "Auto Operation",
     "autofill": "Autofill"
   },
   "replay": {
     "done-title": "Replay is done",
-    "done-run-operations": "Replay is finished.",
-    "run-operations-canceled": "Replay is canceled."
+    "done-run-operations": "Replay is finished."
   },
   "auto-operation": {
     "done-title": "Auto operation is done",
@@ -64,8 +60,6 @@
     "default-button-tags": "Default definition: {value}",
     "testdata": "Test Data",
     "max-generation": "Maximum Number of Test Data",
-    "template-only": "Template Only",
-    "method": "Method",
     "method-data-driven": "Use Data Driven Testing",
     "use-multi-locator1": "Generate robust test script using ",
     "use-multi-locator2": " (experimental)",
@@ -112,8 +106,7 @@
     "delete-test-results": "Delete Test Result",
     "delete-test-result-message": "Delete selected test results?",
     "delete-test-result-succeeded": "Test Result deletion has finished.",
-    "deleting-test-results": "Deleting test results.",
-    "load": "Loading"
+    "deleting-test-results": "Deleting test results."
   },
   "test-result-list": {
     "name": "Test Result Name",
@@ -151,7 +144,6 @@
     "select-device": "Select Device",
     "update-device": "Update Device Info",
     "no-device": "No Devices Recognized",
-    "device-name": "Device Name",
     "os-version": "OS Version",
     "setting-inclusion-tags": "Web Element Coverage Settings",
     "media-type": "Media Type",
@@ -175,12 +167,6 @@
     "screen-def": {
       "judgement-url": "Determined by URL",
       "judgement-title": "Determined by Page Title",
-      "judgement-keyword": "Determined by Keyword",
-      "screen-list-definition-label": "URL/Title/Keyword",
-      "screen-list-definition-placeholder": "ex) /search",
-      "screen-list-alias-label": "Alias",
-      "screen-list-alias-placeholder": "ex) SearchScreen",
-      "screen-list-regex-error": "[Error]Invalid RegExp used in URL/Title/Keyword.",
       "advanced-add": "Add",
       "advanced-delete": "Delete",
       "default-screen-definition": "Default Screen Definition",
@@ -303,7 +289,6 @@
     "times": " times",
     "element-id": "ID",
     "element-name": "Name",
-    "element-value": "Value",
     "gray-out-not-input-value-cell": "Gray out Pre-entered Values",
     "hide-hidden-elements": "Don't Display Hidden Elements",
     "autofill-dialog-message": "Please select an input value set name.",
@@ -317,7 +302,6 @@
   "operation": {
     "search": "Search",
     "query": "Text",
-    "reset": "Reset Filter",
     "purpose": "Purpose",
     "notice": "Finding",
     "sequence": "No.",
@@ -381,8 +365,6 @@
     },
     "search-dialog": {
       "title": "Test Hint: Search",
-      "filter-test-hints": "Filter test hints",
-      "matching-words": "Matching words",
       "matching-result": "Hints related to current test",
       "matching-scope": "Matching scope:",
       "show": "Show matching conditions",
@@ -404,7 +386,6 @@
       "test-target": "Test target",
       "view-point": "View point",
       "comment-words": "Keywords",
-      "operation": "Operation",
       "screen-elements": "Screen elements",
       "add-element": "Add Element",
       "search": "String search",
@@ -432,8 +413,6 @@
   },
   "manage": {
     "print-html-succeeded": "Snapshot output has finished.",
-    "output-html-running": "Snapshot output is running.",
-    "datafile-load-error": "An error occurred when load data file.\n[Error]\n {error}",
     "loading-project": "Loading Project data."
   },
   "manage-header": {
@@ -443,7 +422,6 @@
     "top": "Browse Test Matrices",
     "generate-script": "Generate Test Script",
     "generating-test-script": "Generating test script.",
-    "generate-script-succeeded": "Test script generation has finished.",
     "locale": "locale"
   },
   "test-matrix-page": {
@@ -473,7 +451,6 @@
     "preset": "Preset to Use",
     "create-test-matrix": "Create Test Matrix",
     "edit-test-matrix": "Edit Test Matrix",
-    "delete-viewPoint-confirm": "Are you sure you want to delete this view point?",
     "unselected": "No Preset"
   },
   "progress-management": {
@@ -515,21 +492,17 @@
   },
   "group-edit-info": {
     "target": "Target Feature",
-    "delete-target-title": "Delete Target Feature",
     "delete-target-confirm": "Are you sure you want to delete this test target feature?",
-    "delete": "Delete",
     "add": "Add"
   },
   "group-edit-list": {
     "name": "Group Name",
-    "delete-group-title": "Delete Group",
     "delete-group-confirm": "Are you sure you want to delete this group?",
     "delete": "Delete",
     "add": "Add Group"
   },
   "session-info": {
     "charter": "Charter",
-    "test-item": "Test Items",
     "tester-name": "Tester Name",
     "memo": "Memo",
     "report": "Report",
@@ -624,14 +597,12 @@
     "common": {
       "fatal": "An unknown error occurred.",
       "get_settings_failed": "Failed to get settings.",
-      "save_settings_failed": "Failed to save settings. Please check permissions of the config file or disk capacity.",
-      "change_locale_failed": "Failed to change locale. Please check permissions of the config file or disk capacity."
+      "save_settings_failed": "Failed to save settings. Please check permissions of the config file or disk capacity."
     },
     "capture_control": {
       "unknown_error": "An unknown error occurred on 'latteart-capture-cl'",
       "client_side_capture_service_not_found": "Failed to connect 'latteart-capture-cl' server. Please check if 'latteart-capture-cl' server is running.",
       "capture_socket_disconnected": "Disconnected from 'latteart-capture-cl' server during capturing operations. Please click 'Start' button to resume capture.",
-      "run_operations_socket_disconnected": "Disconnected from 'latteart-capture-cl' server during replaying operations. Please click 'Replay Test Result' button to replay operations again.",
       "get_device_settings_failed": "Failed to get device settings",
       "save_device_settings_failed": "Failed to save device settings",
       "run_operations_failed": "An error has occurred during replaying operations.",
@@ -652,7 +623,6 @@
     },
     "operation_history": {
       "load_history_failed": "Failed to load a test result.",
-      "illegal_test_result": "Illegal format of test result.",
       "save_test_scripts_failed": "Test script generation failed.",
       "save_test_scripts_no_section_error": "Aborted test script generation. There is no session including screen transitions.",
       "save_test_scripts_no_operation_error": "Aborted test script generation. There is no recorded operation.",
@@ -661,11 +631,8 @@
       "add_note_failed": "Failed to add note.",
       "delete_note_failed": "Failed to delete note.",
       "edit_note_failed": "Failed to update note.",
-      "move_note_failed": "Failed to move note.",
       "import_test_result_failed": "Failed to import test result.",
       "delete_test_purpose_failed": "Failed to delete test purpose.",
-      "move_test_purpose_failed": "Failed to move test purpose.",
-      "record_test_purpose_failed": "Failed to record test purpose.",
       "create_test_result_failed": "Failed to create test result.",
       "get_test_result_list_failed": "Failed to get test result list.",
       "get_session_ids_failed": "Failed to get session ids.",
@@ -681,8 +648,7 @@
       "update_session_failed": "Failed to update session.",
       "save_project_failed": "Failed to save project data.",
       "write_snapshot_failed": "Failed to write snapshot.",
-      "collect_progress_datas_failed": "Failed to collect progress datas.",
-      "review_data_not_exist": "There are no test results to review."
+      "collect_progress_datas_failed": "Failed to collect progress datas."
     },
     "import_export": {
       "import-data-error": "Data import failed.",
