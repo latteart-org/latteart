@@ -38,13 +38,7 @@ export async function saveProjectSettings(
   repositoryService: Pick<RepositoryService, "settingRepository">
 ): Promise<ActionResult<ProjectSettings>> {
   const putSettingsRequest = {
-    ...settings,
-    config: {
-      ...settings.config,
-      autofillSetting: {
-        conditionGroups: settings.config.autofillSetting.conditionGroups
-      }
-    }
+    ...settings
   };
   const putSettingsResult =
     await repositoryService.settingRepository.putSettings(putSettingsRequest);
@@ -54,13 +48,7 @@ export async function saveProjectSettings(
   }
 
   const savedSettings = {
-    ...putSettingsResult.data,
-    config: {
-      ...putSettingsResult.data.config,
-      autofillSetting: {
-        ...putSettingsResult.data.config.autofillSetting
-      }
-    }
+    ...putSettingsResult.data
   };
 
   return new ActionSuccess(savedSettings);

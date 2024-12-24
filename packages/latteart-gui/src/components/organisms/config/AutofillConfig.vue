@@ -56,10 +56,10 @@
 
 <script lang="ts">
 import type {
-  AutofillSetting as AutofillSettingConfig,
   AutofillCondition,
-  AutofillConditionGroup
-} from "@/lib/operationHistory/types";
+  AutofillConditionGroup,
+  AutofillSetting
+} from "@/lib/common/settings/Settings";
 import AutofillInputValueContainer from "./AutofillInputValueContainer.vue";
 import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
@@ -70,14 +70,14 @@ export default defineComponent({
   props: {
     opened: { type: Boolean, required: true },
     autofillSetting: {
-      type: Object as PropType<AutofillSettingConfig>,
+      type: Object as PropType<AutofillSetting>,
       default: null,
       required: true
     }
   },
   emits: ["save-config"],
   setup(props, context) {
-    const tempConfig = ref<AutofillSettingConfig>({ ...props.autofillSetting });
+    const tempConfig = ref<AutofillSetting>({ ...props.autofillSetting });
 
     const updateTempConfig = (): void => {
       if (!props.opened) {

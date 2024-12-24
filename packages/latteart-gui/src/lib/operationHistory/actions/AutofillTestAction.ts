@@ -15,7 +15,7 @@
  */
 
 import { type ActionResult, ActionSuccess } from "@/lib/common/ActionResult";
-import { type AutofillConditionGroup } from "../types";
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 
 export class AutofillTestAction {
   public extractMatchingAutofillConditionGroup(

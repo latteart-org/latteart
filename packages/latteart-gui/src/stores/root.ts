@@ -17,23 +17,27 @@
 import { RepositoryDataLoader, type DataLoader } from "@/lib/common/dataLoader";
 import type { I18nProvider } from "@/lib/common/internationalization";
 import {
+  readAutofillSetting,
+  readAutoOperationSetting,
   readCaptureMediaSettings,
   readDeviceSettings,
   readLocale,
+  readTestHintSetting,
   readTestScriptOption,
-  readViewSettings,
+  saveAutofillSetting,
+  saveAutoOperationSetting,
   saveCaptureMediaSettings,
   saveDeviceSettings,
   saveLocale,
-  saveTestScriptOption,
-  saveViewSettings
+  saveTestHintSetting,
+  saveTestScriptOption
 } from "@/lib/common/settings/userSettings";
 import { saveProjectSettings } from "@/lib/common/settings/projectSettings";
 import type {
   CaptureMediaSetting,
   DeviceSettings,
   ProjectSettings,
-  ViewSettings
+  UserSettings
 } from "@/lib/common/settings/Settings";
 import { ExportConfigAction } from "@/lib/operationHistory/actions/ExportConfigAction";
 import {
@@ -59,14 +63,9 @@ type RootState = {
   projectSettings: ProjectSettings;
 
   /**
-   * GUI Settings.
+   * User settings.
    */
-  viewSettings: ViewSettings;
-
-  /**
-   * Capture Media Settings
-   */
-  captureMediaSettings: CaptureMediaSetting;
+  userSettings: UserSettings;
 
   /**
    * Capture config.
@@ -94,12 +93,6 @@ export const useRootStore = defineStore("root", {
       viewPointsPreset: [],
       defaultTagList: [],
       config: {
-        autofillSetting: {
-          conditionGroups: []
-        },
-        autoOperationSetting: {
-          conditionGroups: []
-        },
         screenDefinition: {
           screenDefType: "title",
           conditionGroups: []
@@ -122,20 +115,11 @@ export const useRootStore = defineStore("root", {
         experimentalFeatureSetting: { captureArch: "polling" }
       }
     },
-    captureMediaSettings: new LocalStorageSettingRepository().getCaptureMediaSetting(),
-    viewSettings: {
-      autofill: {
-        autoPopupRegistrationDialog: false,
-        autoPopupSelectionDialog: false
-      },
-      testHint: {
-        commentMatching: {
-          target: "all",
-          extraWords: [],
-          excludedWords: []
-        },
-        defaultSearchSeconds: 30
-      }
+    userSettings: {
+      autofillSetting: new LocalStorageSettingRepository().getAutofillSetting(),
+      autoOperationSetting: new LocalStorageSettingRepository().getAutoOperationSetting(),
+      captureMediaSetting: new LocalStorageSettingRepository().getCaptureMediaSetting(),
+      testHintSetting: new LocalStorageSettingRepository().getTestHintSetting()
     },
     deviceSettings: {
       platformName: "PC",
@@ -387,10 +371,6 @@ export const useRootStore = defineStore("root", {
     async writeConfig(payload: { config: Partial<ProjectSettings["config"]> }) {
       const settings: Partial<ProjectSettings> = {
         config: {
-          autofillSetting:
-            payload.config.autofillSetting ?? this.projectSettings.config.autofillSetting,
-          autoOperationSetting:
-            payload.config.autoOperationSetting ?? this.projectSettings.config.autoOperationSetting,
           screenDefinition:
             payload.config.screenDefinition ?? this.projectSettings.config.screenDefinition,
           coverage: payload.config.coverage ?? this.projectSettings.config.coverage,
@@ -405,29 +385,92 @@ export const useRootStore = defineStore("root", {
       await this.writeProjectSettings({ settings });
     },
 
-    async readViewSettings() {
-      const result = await readViewSettings();
-
-      if (result.isFailure()) {
-        throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+    writeUserSettings(payload: { userSettings: Partial<UserSettings> }) {
+      if (payload.userSettings.autoOperationSetting) {
+        const result = saveAutoOperationSetting(payload.userSettings.autoOperationSetting);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.userSettings.autoOperationSetting = {
+          ...payload.userSettings.autoOperationSetting
+        };
       }
-
-      this.viewSettings = result.data;
+      if (payload.userSettings.autofillSetting) {
+        const result = saveAutofillSetting(payload.userSettings.autofillSetting);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.userSettings.autofillSetting = {
+          ...payload.userSettings.autofillSetting
+        };
+      }
+      if (payload.userSettings.captureMediaSetting) {
+        const result = saveCaptureMediaSettings(payload.userSettings.captureMediaSetting);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.userSettings.captureMediaSetting = {
+          ...payload.userSettings.captureMediaSetting
+        };
+      }
+      if (payload.userSettings.testHintSetting) {
+        const result = saveTestHintSetting(payload.userSettings.testHintSetting);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.userSettings.testHintSetting = {
+          ...payload.userSettings.testHintSetting
+        };
+      }
+      return;
     },
 
-    async writeViewSettings(payload: { viewSettings: Partial<ViewSettings> }) {
-      const settings: ViewSettings = {
-        autofill: payload.viewSettings.autofill ?? this.viewSettings.autofill,
-        testHint: payload.viewSettings.testHint ?? this.viewSettings.testHint
-      };
-
-      const result = await saveViewSettings(settings);
-
-      if (result.isFailure()) {
-        throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+    readUserSettings() {
+      const readAutofillSettingResult = readAutofillSetting();
+      if (readAutofillSettingResult.isFailure()) {
+        throw new Error(
+          this.message(
+            readAutofillSettingResult.error.messageKey,
+            readAutofillSettingResult.error.variables ?? {}
+          )
+        );
       }
 
-      this.viewSettings = result.data;
+      const readAutoOperationSettingResult = readAutoOperationSetting();
+      if (readAutoOperationSettingResult.isFailure()) {
+        throw new Error(
+          this.message(
+            readAutoOperationSettingResult.error.messageKey,
+            readAutoOperationSettingResult.error.variables ?? {}
+          )
+        );
+      }
+
+      const captureMediaSettingResult = readCaptureMediaSettings();
+      if (captureMediaSettingResult.isFailure()) {
+        throw new Error(
+          this.message(
+            captureMediaSettingResult.error.messageKey,
+            captureMediaSettingResult.error.variables ?? {}
+          )
+        );
+      }
+
+      const testHintSettingResult = readTestHintSetting();
+      if (testHintSettingResult.isFailure()) {
+        throw new Error(
+          this.message(
+            testHintSettingResult.error.messageKey,
+            testHintSettingResult.error.variables ?? {}
+          )
+        );
+      }
+      this.userSettings = {
+        autofillSetting: readAutofillSettingResult.data,
+        autoOperationSetting: readAutoOperationSettingResult.data,
+        captureMediaSetting: captureMediaSettingResult.data,
+        testHintSetting: testHintSettingResult.data
+      };
     },
 
     async readTestScriptOption() {
@@ -511,10 +554,10 @@ export const useRootStore = defineStore("root", {
         throw new Error(result.error.messageKey);
       }
       const settings = {
-        ...this.captureMediaSettings,
+        ...this.userSettings.captureMediaSetting,
         ...payload.captureMediaSetting
       };
-      this.captureMediaSettings = settings;
+      this.userSettings.captureMediaSetting = settings;
       saveCaptureMediaSettings(settings);
     },
 

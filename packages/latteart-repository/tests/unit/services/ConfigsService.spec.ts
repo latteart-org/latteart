@@ -51,8 +51,6 @@ describe("ConfigsService", () => {
         viewPointsPreset: [],
         defaultTagList: [],
         config: {
-          autofillSetting: { conditionGroups: [] },
-          autoOperationSetting: { conditionGroups: [] },
           screenDefinition: { screenDefType: "title", conditionGroups: [] },
           coverage: {
             include: {

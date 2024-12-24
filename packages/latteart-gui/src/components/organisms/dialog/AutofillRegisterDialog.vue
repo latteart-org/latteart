@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { type AutofillConditionGroup } from "@/lib/operationHistory/types";
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { computed, defineComponent, ref, nextTick, watch } from "vue";

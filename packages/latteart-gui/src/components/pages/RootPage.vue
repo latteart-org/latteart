@@ -266,7 +266,7 @@ export default defineComponent({
         try {
           await rootStore.loadLocaleFromSettings();
           await rootStore.readSettings();
-          await rootStore.readViewSettings();
+          rootStore.readUserSettings();
           await rootStore.readDeviceSettings();
         } catch (error) {
           if (error instanceof Error) {

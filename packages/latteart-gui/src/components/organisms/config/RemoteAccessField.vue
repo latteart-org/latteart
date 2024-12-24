@@ -125,7 +125,7 @@ export default defineComponent({
     const initialize = async (): Promise<void> => {
       await rootStore.loadLocaleFromSettings();
       await rootStore.readSettings();
-      await rootStore.readViewSettings();
+      rootStore.readUserSettings();
       operationHistoryStore.clearTestResult();
       operationHistoryStore.storingTestResultInfos = [];
       operationHistoryStore.clearScreenTransitionDiagramGraph();

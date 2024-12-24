@@ -30,8 +30,8 @@
 </template>
 
 <script lang="ts">
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
-import { type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useRootStore } from "@/stores/root";
@@ -58,7 +58,7 @@ export default defineComponent({
       }
       const lastOperation = history[history.length - 1].operation;
       const matchGroup = new AutofillTestAction().extractMatchingAutofillConditionGroup(
-        rootStore.projectSettings.config.autofillSetting.conditionGroups,
+        rootStore.userSettings.autofillSetting.conditionGroups,
         lastOperation.title,
         lastOperation.url
       );

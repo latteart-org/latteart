@@ -47,7 +47,7 @@
                     :capture-media-setting="captureMediaSetting"
                     :opened="captureMediaSettingOpened"
                     :is-capturing="isCapturing"
-                    @save-config="saveConfig"
+                    @save-config="saveUserSetting"
                   >
                   </capture-media-config>
                 </v-expansion-panel-text>
@@ -90,7 +90,7 @@
                   <autofill-setting
                     :opened="autofillSettingOpened"
                     :autofill-setting="autofillSetting"
-                    @save-config="saveConfig"
+                    @save-config="saveUserSetting"
                   >
                   </autofill-setting>
                 </v-expansion-panel-text>
@@ -104,7 +104,7 @@
                   <auto-operation-setting
                     :opened="autoOperationSettingOpened"
                     :auto-operation-setting="autoOperationSetting"
-                    @save-config="saveConfig"
+                    @save-config="saveUserSetting"
                   >
                   </auto-operation-setting>
                 </v-expansion-panel-text>
@@ -132,7 +132,7 @@
                   <test-hint-config
                     :test-hint-setting="testHintSetting"
                     :opened="testHintSettingOpened"
-                    @save-view-config="saveViewConfig"
+                    @save-view-config="saveUserSetting"
                   >
                   </test-hint-config>
                 </v-expansion-panel-text>
@@ -171,15 +171,15 @@ import {
   type CoverageSetting,
   type ScreenDefinitionSetting,
   type ProjectSettings,
-  type ViewSettings,
   type TestResultComparisonSetting,
   type CaptureMediaSetting,
-  type LocalAutofillSetting,
   type TestHintSetting,
-  type ExperimentalFeatureSetting
+  type ExperimentalFeatureSetting,
+  type UserSettings,
+  type AutofillSetting,
+  type AutoOperationSetting
 } from "@/lib/common/settings/Settings";
 import { default as AutofillSettingComponent } from "@/components/organisms/config/AutofillConfig.vue";
-import type { AutofillSetting, AutoOperationSetting } from "@/lib/operationHistory/types";
 import { default as AutoOperationSettingComponent } from "@/components/organisms/config/AutoOperationConfig.vue";
 import CompareConfig from "@/components/organisms/config/CompareConfig.vue";
 import ExperimentalFeatureConfig from "@/components/organisms/config/ExperimentalFeatureConfig.vue";
@@ -228,8 +228,8 @@ export default defineComponent({
       return rootStore.projectSettings;
     });
 
-    const viewSettings = computed((): ViewSettings | undefined => {
-      return rootStore.viewSettings;
+    const userSettings = computed((): UserSettings | undefined => {
+      return rootStore.userSettings;
     });
 
     const isCapturing = computed((): boolean => {
@@ -271,22 +271,21 @@ export default defineComponent({
     });
 
     const autofillSetting = computed((): AutofillSetting => {
-      if (!config.value?.autofillSetting || !viewSettings.value?.autofill) {
+      if (!userSettings.value?.autofillSetting) {
         return {
-          autoPopupRegistrationDialog: false,
-          autoPopupSelectionDialog: false,
+          autoPopupRegistrationDialog: true,
+          autoPopupSelectionDialog: true,
           conditionGroups: []
         };
       }
 
       return {
-        ...config.value.autofillSetting,
-        ...viewSettings.value.autofill
+        ...userSettings.value.autofillSetting
       };
     });
 
     const autoOperationSetting = computed((): AutoOperationSetting => {
-      return config.value?.autoOperationSetting ?? { conditionGroups: [] };
+      return userSettings.value?.autoOperationSetting ?? { conditionGroups: [] };
     });
 
     const testResultComparisonSetting = computed((): TestResultComparisonSetting => {
@@ -294,7 +293,7 @@ export default defineComponent({
     });
 
     const testHintSetting = computed((): TestHintSetting => {
-      if (!viewSettings.value?.testHint) {
+      if (!userSettings.value?.testHintSetting) {
         return {
           commentMatching: {
             target: "all",
@@ -306,7 +305,7 @@ export default defineComponent({
       }
 
       return {
-        ...viewSettings.value.testHint
+        ...userSettings.value.testHintSetting
       };
     });
 
@@ -325,7 +324,7 @@ export default defineComponent({
     });
 
     const captureMediaSettings = computed(() => {
-      return rootStore.captureMediaSettings;
+      return rootStore.userSettings.captureMediaSetting;
     });
 
     const captureMediaSettingOpened = computed(() => {
@@ -356,9 +355,16 @@ export default defineComponent({
       return panels.value.includes(8);
     });
 
-    const saveConfig = (config: {
+    const saveUserSetting = (userSettings: {
       autofillSetting?: AutofillSetting;
       autoOperationSetting?: AutoOperationSetting;
+      captureMediaSetting?: CaptureMediaSetting;
+      testHintSetting?: TestHintSetting;
+    }) => {
+      rootStore.writeUserSettings({ userSettings });
+    };
+
+    const saveConfig = (config: {
       screenDefinition?: ScreenDefinitionSetting;
       coverage?: CoverageSetting;
       captureMediaSetting?: CaptureMediaSetting;
@@ -366,35 +372,13 @@ export default defineComponent({
       experimentalFeatureSetting?: ExperimentalFeatureSetting;
     }) => {
       const projectConfig = {
-        ...config,
-        autofillSetting: config.autofillSetting
-          ? { conditionGroups: config.autofillSetting.conditionGroups }
-          : undefined
+        ...config
       };
       rootStore.writeConfig({ config: projectConfig });
-
-      if (config.autofillSetting) {
-        rootStore.writeViewSettings({
-          viewSettings: {
-            ...viewSettings.value,
-            autofill: {
-              autoPopupRegistrationDialog: config.autofillSetting.autoPopupRegistrationDialog,
-              autoPopupSelectionDialog: config.autofillSetting.autoPopupSelectionDialog
-            }
-          }
-        });
-      }
 
       if (config.screenDefinition || config.coverage) {
         operationHistoryStore.canUpdateModels = true;
       }
-    };
-
-    const saveViewConfig = (viewSettings: {
-      autofill?: LocalAutofillSetting;
-      testHint?: TestHintSetting;
-    }) => {
-      rootStore.writeViewSettings({ viewSettings });
     };
 
     watch(locale, updateWindowTitle);
@@ -403,7 +387,6 @@ export default defineComponent({
       updateWindowTitle();
 
       await rootStore.readSettings();
-      await rootStore.readViewSettings();
     })();
 
     return {
@@ -430,7 +413,7 @@ export default defineComponent({
       testHintSettingOpened,
       experimentalFeatureSettingOpened,
       saveConfig,
-      saveViewConfig
+      saveUserSetting
     };
   }
 });

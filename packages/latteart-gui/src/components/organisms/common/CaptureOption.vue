@@ -171,7 +171,7 @@ export default defineComponent({
     });
 
     const mediaType = ref<CaptureMediaSetting["mediaType"]>(
-      rootStore.captureMediaSettings.mediaType
+      rootStore.userSettings.captureMediaSetting.mediaType
     );
     const deviceSettings = computed((): DeviceSettings | undefined => {
       return rootStore.deviceSettings;

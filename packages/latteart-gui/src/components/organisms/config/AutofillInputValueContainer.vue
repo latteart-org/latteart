@@ -142,8 +142,8 @@
 </template>
 
 <script lang="ts">
-import { type AutofillCondition, type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import NumberField from "@/components/molecules/NumberField.vue";
+import type { AutofillCondition, AutofillConditionGroup } from "@/lib/common/settings/Settings";
 import { computed, defineComponent, type PropType } from "vue";
 
 export default defineComponent({

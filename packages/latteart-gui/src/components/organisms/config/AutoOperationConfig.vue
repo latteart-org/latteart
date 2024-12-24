@@ -36,10 +36,10 @@
 </template>
 
 <script lang="ts">
-import {
-  type AutoOperationSetting as AutoOperationSettingConfig,
-  type AutoOperationConditionGroup
-} from "@/lib/operationHistory/types";
+import type {
+  AutoOperationConditionGroup,
+  AutoOperationSetting
+} from "@/lib/common/settings/Settings";
 import AutoOperationContainer from "./AutoOperationContainer.vue";
 import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
@@ -50,14 +50,14 @@ export default defineComponent({
   props: {
     opened: { type: Boolean, required: true },
     autoOperationSetting: {
-      type: Object as PropType<AutoOperationSettingConfig>,
+      type: Object as PropType<AutoOperationSetting>,
       default: null,
       required: true
     }
   },
   emits: ["save-config"],
   setup(props, context) {
-    const tempConfig = ref<AutoOperationSettingConfig>({
+    const tempConfig = ref<AutoOperationSetting>({
       ...props.autoOperationSetting
     });
 

@@ -39,11 +39,11 @@
 </template>
 
 <script lang="ts">
-import { type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref } from "vue";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { watch } from "vue";
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 
 export default defineComponent({
   components: {

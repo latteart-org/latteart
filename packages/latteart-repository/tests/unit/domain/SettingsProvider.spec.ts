@@ -31,12 +31,6 @@ describe("SettingsProvider", () => {
       defaultTestHintProps: [],
       viewPointsPreset: [],
       config: {
-        autofillSetting: {
-          conditionGroups: [],
-        },
-        autoOperationSetting: {
-          conditionGroups: [],
-        },
         screenDefinition: {
           screenDefType: "title",
           conditionGroups: [],
@@ -239,12 +233,6 @@ describe("SettingsProvider", () => {
           },
         ],
         config: {
-          autofillSetting: {
-            conditionGroups: [],
-          },
-          autoOperationSetting: {
-            conditionGroups: [],
-          },
           screenDefinition: {
             screenDefType: "title",
             conditionGroups: [],
@@ -319,12 +307,6 @@ describe("SettingsProvider", () => {
         defaultTestHintProps: [],
         viewPointsPreset: [],
         config: {
-          autofillSetting: {
-            conditionGroups: [],
-          },
-          autoOperationSetting: {
-            conditionGroups: [],
-          },
           screenDefinition: {
             screenDefType: "title",
             conditionGroups: [],
