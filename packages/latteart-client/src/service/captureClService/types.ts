@@ -150,7 +150,7 @@ export type CaptureSession = {
     enterValues(
       ...targetAndValues: {
         target: {
-          locatorType: "id" | "xpath";
+          locatorType: string;
           locator: string;
           locatorMatchType: "equals" | "regex";
           iframeIndex?: number;

@@ -71,7 +71,7 @@
 </template>
 
 <script lang="ts">
-import { type AutoOperationConditionGroup } from "@/lib/operationHistory/types";
+import type { AutoOperationConditionGroup } from "@/lib/common/settings/Settings";
 import AutoOperationDialog from "../dialog/AutoOperationDialog.vue";
 import { defineComponent, ref, type PropType } from "vue";
 

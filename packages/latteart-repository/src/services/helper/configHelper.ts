@@ -25,8 +25,6 @@ export function parseProjectConfig(configText: string): ProjectConfig {
     viewPointsPreset: config.viewPointsPreset,
     defaultTagList: config.defaultTagList,
     config: {
-      autofillSetting: config.config.autofillSetting,
-      autoOperationSetting: config.config.autoOperationSetting,
       screenDefinition: config.config.screenDefinition,
       coverage: config.config.coverage,
       testResultComparison: config.config.testResultComparison,

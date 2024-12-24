@@ -18,6 +18,13 @@ import { type SettingsForRepository, type SnapshotConfigForRepository } from "la
 
 export type ProjectSettings = SettingsForRepository;
 
+export type UserSettings = {
+  captureMediaSetting: CaptureMediaSetting;
+  autofillSetting: AutofillSetting;
+  autoOperationSetting: AutoOperationSetting;
+  testHintSetting: TestHintSetting;
+};
+
 export type ScreenDefinitionSetting = ProjectSettings["config"]["screenDefinition"];
 
 export type CoverageSetting = ProjectSettings["config"]["coverage"];
@@ -32,16 +39,6 @@ export type DeviceSettings = {
   };
   platformVersion?: string;
   waitTimeForStartupReload: number;
-};
-
-export type ViewSettings = {
-  autofill: LocalAutofillSetting;
-  testHint: TestHintSetting;
-};
-
-export type LocalAutofillSetting = {
-  autoPopupRegistrationDialog: boolean;
-  autoPopupSelectionDialog: boolean;
 };
 
 export type SnapshotConfig = SnapshotConfigForRepository;
@@ -64,4 +61,54 @@ export type CaptureMediaSetting = {
   imageCompression: {
     format: "png" | "webp";
   };
+};
+
+/**
+ * Autofill setting.
+ */
+export type AutofillSetting = {
+  autoPopupRegistrationDialog: boolean;
+  autoPopupSelectionDialog: boolean;
+  conditionGroups: AutofillConditionGroup[];
+};
+
+/**
+ * Autofill condition group.
+ */
+export type AutofillConditionGroup = {
+  isEnabled: boolean;
+  settingName: string;
+  url: string;
+  title: string;
+  inputValueConditions: Array<AutofillCondition>;
+};
+
+/**
+ * Autofill condition.
+ */
+export type LocatorMatchType = "equals" | "regex";
+export type AutofillCondition = {
+  isEnabled: boolean;
+  locatorType: "id" | "xpath";
+  locator: string;
+  locatorMatchType: LocatorMatchType;
+  inputValue: string;
+  iframeIndex?: number;
+};
+
+/**
+ * Auto operation setting.
+ */
+export type AutoOperationSetting = {
+  conditionGroups: AutoOperationConditionGroup[];
+};
+
+/**
+ * Auto operation condition group.
+ */
+export type AutoOperationConditionGroup = {
+  isEnabled: boolean;
+  settingName: string;
+  details?: string;
+  autoOperations: any[];
 };

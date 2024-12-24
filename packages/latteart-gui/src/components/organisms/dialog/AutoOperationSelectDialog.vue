@@ -47,8 +47,8 @@
 </template>
 
 <script lang="ts">
-import { type AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import type { AutoOperationConditionGroup } from "@/lib/common/settings/Settings";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
 

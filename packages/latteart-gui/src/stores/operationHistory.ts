@@ -21,7 +21,6 @@ import type { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import type {
   AutoOperation,
-  AutofillConditionGroup,
   OperationHistory,
   OperationWithNotes,
   ScreenImage,
@@ -61,6 +60,7 @@ import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResu
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import * as Coverage from "@/lib/operationHistory/Coverage";
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 
 /**
  * State for operation history.
@@ -861,7 +861,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
           screenshot: payload.noteEditInfo.shouldTakeScreenshot,
           compressScreenshot:
             payload.noteEditInfo.shouldTakeScreenshot &&
-            rootStore.captureMediaSettings.imageCompression.format === "webp"
+            rootStore.userSettings.captureMediaSetting.imageCompression.format === "webp"
         };
 
         const testResult = rootStore.repositoryService.createTestResultAccessor(
@@ -1709,7 +1709,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       const rootStore = useRootStore();
 
       const autofillSetting = {
-        ...rootStore.projectSettings.config.autofillSetting
+        ...rootStore.userSettings.autofillSetting
       };
       autofillSetting.conditionGroups =
         payload.index < 0
@@ -1724,11 +1724,11 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
                 ...payload.conditionGroup
               }
             ]
-          : rootStore.projectSettings.config.autofillSetting.conditionGroups.map((group, index) => {
+          : rootStore.userSettings.autofillSetting.conditionGroups.map((group, index) => {
               return index !== payload.index ? group : { ...group, ...payload.conditionGroup };
             });
-      await rootStore.writeConfig({
-        config: {
+      await rootStore.writeUserSettings({
+        userSettings: {
           autofillSetting
         }
       });
@@ -1748,12 +1748,12 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
         autoOperations: payload.operations
       };
       const autoOperationSetting = {
-        ...rootStore.projectSettings.config.autoOperationSetting
+        ...rootStore.userSettings.autoOperationSetting
       };
       autoOperationSetting.conditionGroups.push(conditionGroup);
 
-      await rootStore.writeConfig({
-        config: {
+      rootStore.writeUserSettings({
+        userSettings: {
           autoOperationSetting
         }
       });

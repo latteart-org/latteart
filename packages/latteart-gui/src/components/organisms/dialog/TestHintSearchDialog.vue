@@ -210,7 +210,7 @@ export default defineComponent({
     });
 
     const testHintSetting = computed(() => {
-      return rootStore.viewSettings.testHint;
+      return rootStore.userSettings.testHintSetting;
     });
 
     const currentStoryInfo = computed(() => {

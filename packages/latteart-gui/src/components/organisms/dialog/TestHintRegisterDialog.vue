@@ -147,7 +147,7 @@ export default defineComponent({
         customPropHeaders.value = testHints?.props ?? [];
         commentWords.value = buildCommentMatchingWords(
           testHintResources,
-          rootStore.viewSettings.testHint.commentMatching
+          rootStore.userSettings.testHintSetting.commentMatching
         ).join(" ");
         operatedElements.value = testHintResources.elements;
         issues.value = testHintResources.issues;

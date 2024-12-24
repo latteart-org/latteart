@@ -38,8 +38,6 @@ export default class Settings {
   public defaultTagList: string[];
   public defaultTestHintProps: TestHintPropSetting[];
   public config: {
-    autofillSetting: AutofillSetting;
-    autoOperationSetting: AutoOperationSetting;
     screenDefinition: ScreenDefinition;
     coverage: Coverage;
     experimentalFeatureSetting: ExperimentalFeatureSetting;
@@ -67,12 +65,6 @@ export default class Settings {
     this.defaultTagList = [];
     this.defaultTestHintProps = [];
     this.config = {
-      autofillSetting: {
-        conditionGroups: [],
-      },
-      autoOperationSetting: {
-        conditionGroups: [],
-      },
       screenDefinition: {
         screenDefType: ScreenDefType.Title,
         conditionGroups: [],
@@ -91,20 +83,6 @@ export default class Settings {
 }
 
 /**
- * Autofill setting.
- */
-export interface AutofillSetting {
-  conditionGroups: AutofillConditionGroup[];
-}
-
-/**
- * Auto operation setting.
- */
-export interface AutoOperationSetting {
-  conditionGroups: AutoOperationConditionGroup[];
-}
-
-/**
  * Screen definition settings.
  */
 export interface ScreenDefinition {
@@ -119,39 +97,6 @@ export interface Coverage {
   include: {
     tags: string[];
   };
-}
-
-/**
- * Autofill condition group.
- */
-export interface AutofillConditionGroup {
-  isEnabled: boolean;
-  settingName: string;
-  url: string;
-  title: string;
-  inputValueConditions: Array<AutofillCondition>;
-}
-
-/**
- * Autofill condition.
- */
-export type AutofillCondition = {
-  isEnabled: boolean;
-  locatorType: string;
-  locator: string;
-  locatorMatchType: "equals" | "contains";
-  inputValue: string;
-  iframeIndex?: number;
-};
-
-/**
- * Auto operation condition group.
- */
-export interface AutoOperationConditionGroup {
-  isEnabled: boolean;
-  settingName: string;
-  details?: string;
-  autoOperations: any[];
 }
 
 /**

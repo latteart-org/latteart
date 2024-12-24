@@ -18,7 +18,7 @@ import Timer from "@/lib/common/Timer";
 import { convertInputValue } from "@/lib/common/util";
 import type { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
-import type { AutoOperation, AutofillConditionGroup } from "@/lib/operationHistory/types";
+import type { AutoOperation } from "@/lib/operationHistory/types";
 import type {
   CaptureConfig,
   CaptureEventListeners,
@@ -36,6 +36,7 @@ import { convertNote, convertTestStepOperation } from "@/lib/common/replyDataCon
 import type { NoteEditInfo } from "@/lib/captureControl/types";
 import { useOperationHistoryStore } from "./operationHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 
 /**
  * Store for capture control.
@@ -288,7 +289,8 @@ export const useCaptureControlStore = defineStore("captureControl", {
 
         const session = await (async () => {
           const startCaptureResult = await client.startCapture(payload.initialUrl, {
-            compressScreenshots: rootStore.captureMediaSettings.imageCompression.format === "webp"
+            compressScreenshots:
+              rootStore.userSettings.captureMediaSetting.imageCompression.format === "webp"
           });
           if (startCaptureResult.isFailure()) {
             const errorMessage = rootStore.message(`error.capture_control.run_operations_failed`);
@@ -464,12 +466,12 @@ export const useCaptureControlStore = defineStore("captureControl", {
 
       const openAutofillSelectDialogCallBack = () => {
         if (
-          rootStore.projectSettings.config.autofillSetting &&
-          rootStore.viewSettings.autofill.autoPopupSelectionDialog &&
-          rootStore.projectSettings.config.autofillSetting.conditionGroups.length > 0
+          rootStore.userSettings.autofillSetting &&
+          rootStore.userSettings.autofillSetting.autoPopupSelectionDialog &&
+          rootStore.userSettings.autofillSetting.conditionGroups.length > 0
         ) {
           const matchGroup = new AutofillTestAction().extractMatchingAutofillConditionGroup(
-            rootStore.projectSettings.config.autofillSetting.conditionGroups,
+            rootStore.userSettings.autofillSetting.conditionGroups,
             payload.targetPage.title,
             payload.targetPage.url
           );
@@ -488,7 +490,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
       };
 
       if (
-        rootStore.viewSettings.autofill.autoPopupRegistrationDialog &&
+        rootStore.userSettings.autofillSetting.autoPopupRegistrationDialog &&
         payload.beforeOperation &&
         (payload.beforeOperation?.inputElements ?? []).length > 0
       ) {
@@ -651,7 +653,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
       const testResult = rootStore.repositoryService.createTestResultAccessor(
         operationHistoryStore.testResultInfo.id
       );
-      const mediaType = rootStore.captureMediaSettings.mediaType;
+      const mediaType = rootStore.userSettings.captureMediaSetting.mediaType;
 
       const config: CaptureConfig = {
         ...rootStore.deviceSettings,
@@ -686,7 +688,8 @@ export const useCaptureControlStore = defineStore("captureControl", {
         : undefined;
 
       const result = await client.startCapture(payload.url, {
-        compressScreenshots: rootStore.captureMediaSettings.imageCompression.format === "webp",
+        compressScreenshots:
+          rootStore.userSettings.captureMediaSetting.imageCompression.format === "webp",
         firstTestPurpose
       });
 
@@ -762,7 +765,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         screenshot: payload.noteEditInfo.shouldTakeScreenshot,
         compressScreenshot:
           payload.noteEditInfo.shouldTakeScreenshot &&
-          rootStore.captureMediaSettings.imageCompression.format === "webp"
+          rootStore.userSettings.captureMediaSetting.imageCompression.format === "webp"
       };
 
       this.captureSession?.takeNote(note, option);

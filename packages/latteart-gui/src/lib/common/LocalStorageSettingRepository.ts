@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-import { type AutoPopupSettings } from "@/lib/operationHistory/types";
 import {
   type RepositoryAccessResult,
   createRepositoryAccessSuccess,
   type TestScriptOption
 } from "latteart-client";
 import {
+  type AutofillSetting,
+  type AutoOperationSetting,
   type CaptureMediaSetting,
   type DeviceSettings,
-  type ViewSettings
+  type TestHintSetting
 } from "./settings/Settings";
 
 export class LocalStorageSettingRepository {
@@ -100,45 +101,6 @@ export class LocalStorageSettingRepository {
   }
 
   /**
-   * Get autoPopup settings information.
-   * @returns autoPopup settings information
-   */
-  public async getAutoPopupSettings(): Promise<RepositoryAccessResult<AutoPopupSettings>> {
-    const tmpAutoPopupSettings = localStorage.getItem("latteart-config-autoPopupSettings");
-
-    const autoPopupSettings = tmpAutoPopupSettings
-      ? JSON.parse(tmpAutoPopupSettings)
-      : {
-          autoPopupRegistrationDialog: false,
-          autoPopupSelectionDialog: false
-        };
-
-    return createRepositoryAccessSuccess({
-      data: autoPopupSettings as AutoPopupSettings
-    });
-  }
-
-  /**
-   * Save autoPopup settings information.
-   * @param autoPopupSettings  AutoPopup settings information.
-   * @returns  Saved autoPopup settings information.
-   */
-  public async putAutoPopupSettings(
-    autoPopupSettings: AutoPopupSettings
-  ): Promise<RepositoryAccessResult<AutoPopupSettings>> {
-    const tmpAutoPopupSettings = {
-      autoPopupRegistrationDialog: autoPopupSettings.autoPopupRegistrationDialog,
-      autoPopupSelectionDialog: autoPopupSettings.autoPopupSelectionDialog
-    };
-
-    localStorage.setItem("latteart-config-autoPopupSettings", JSON.stringify(tmpAutoPopupSettings));
-
-    return createRepositoryAccessSuccess({
-      data: autoPopupSettings as AutoPopupSettings
-    });
-  }
-
-  /**
    * Get test script option.
    * @returns Test script option.
    */
@@ -171,59 +133,25 @@ export class LocalStorageSettingRepository {
   }
 
   /**
-   * Get view settings information.
-   * @returns View settings information.
+   * Save test hint settings information.
+   * @param testHintSetting Test hint settings information.
    */
-  public async getViewSettings(): Promise<RepositoryAccessResult<ViewSettings>> {
-    const tmpAutofillSettings = localStorage.getItem("latteart-config-autoPopupSettings");
-    const tmpTestHintSettings = localStorage.getItem("latteart-config-testHintSettings");
-
-    const viewSettings = {
-      autofill: tmpAutofillSettings
-        ? JSON.parse(tmpAutofillSettings)
-        : { autoPopupRegistrationDialog: false, autoPopupSelectionDialog: false },
-      testHint: tmpTestHintSettings
-        ? JSON.parse(tmpTestHintSettings)
-        : {
-            commentMatching: { target: "all", extraWords: [], excludedWords: [] },
-            defaultSearchSeconds: 30
-          }
-    };
-
-    return createRepositoryAccessSuccess({
-      data: viewSettings as ViewSettings
-    });
+  putTestHintSetting(testHintSetting: TestHintSetting): void {
+    localStorage.setItem("latteart-config-testHintSettings", JSON.stringify(testHintSetting));
   }
 
   /**
-   * Save view settings information.
-   * @param viewSettings  View settings information.
-   * @returns  Saved view settings information.
+   * Get test hint settings information.
+   * @returns Test hint settings.
    */
-  public async putViewSettings(
-    viewSettings: ViewSettings
-  ): Promise<RepositoryAccessResult<ViewSettings>> {
-    const tmpAutoPopupSettings = {
-      autoPopupRegistrationDialog: viewSettings.autofill.autoPopupRegistrationDialog,
-      autoPopupSelectionDialog: viewSettings.autofill.autoPopupSelectionDialog
-    };
-
-    localStorage.setItem("latteart-config-autoPopupSettings", JSON.stringify(tmpAutoPopupSettings));
-
-    const tmpTestHintSettings = {
-      commentMatching: {
-        target: viewSettings.testHint.commentMatching.target,
-        extraWords: viewSettings.testHint.commentMatching.extraWords,
-        excludedWords: viewSettings.testHint.commentMatching.excludedWords
-      },
-      defaultSearchSeconds: viewSettings.testHint.defaultSearchSeconds
-    };
-
-    localStorage.setItem("latteart-config-testHintSettings", JSON.stringify(tmpTestHintSettings));
-
-    return createRepositoryAccessSuccess({
-      data: viewSettings as ViewSettings
-    });
+  getTestHintSetting(): TestHintSetting {
+    const data = localStorage.getItem("latteart-config-testHintSettings");
+    return data
+      ? JSON.parse(data)
+      : {
+          commentMatching: { target: "all", extraWords: [], excludedWords: [] },
+          defaultSearchSeconds: 30
+        };
   }
 
   /**
@@ -249,6 +177,55 @@ export class LocalStorageSettingRepository {
         imageCompression: {
           format: "png"
         }
+      };
+    }
+    return JSON.parse(setting);
+  }
+
+  /**
+   * Save auto fill settings information.
+   * @param autofillSetting  Auto fill settings information.
+   */
+  public putAutofillSetting(autofillSetting: AutofillSetting): void {
+    localStorage.setItem("latteart-config-autofillSetting", JSON.stringify(autofillSetting));
+  }
+
+  /**
+   * Get auto fill settings information.
+   * @returns Auto fill settings information.
+   */
+  public getAutofillSetting(): AutofillSetting {
+    const setting = localStorage.getItem("latteart-config-autofillSetting");
+    if (setting === null) {
+      return {
+        autoPopupRegistrationDialog: true,
+        autoPopupSelectionDialog: true,
+        conditionGroups: []
+      };
+    }
+    return JSON.parse(setting);
+  }
+
+  /**
+   * Save auto operation settings information.
+   * @param autoOperationSetting  Auto operation settings information.
+   */
+  public putAutoOperationSetting(autoOperationSetting: AutoOperationSetting): void {
+    localStorage.setItem(
+      "latteart-config-autoOperationSetting",
+      JSON.stringify(autoOperationSetting)
+    );
+  }
+
+  /**
+   * Get auto operation settings information.
+   * @returns Auto operation settings information.
+   */
+  public getAutoOperationSetting(): AutoOperationSetting {
+    const setting = localStorage.getItem("latteart-config-autoOperationSetting");
+    if (setting === null) {
+      return {
+        conditionGroups: []
       };
     }
     return JSON.parse(setting);

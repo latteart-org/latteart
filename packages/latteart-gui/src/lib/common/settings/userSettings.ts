@@ -16,8 +16,13 @@
 
 import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
 import { LocalStorageSettingRepository } from "@/lib/common/LocalStorageSettingRepository";
-import { type CaptureMediaSetting, type DeviceSettings } from "@/lib/common/settings/Settings";
-import { type ViewSettings } from "@/lib/common/settings/Settings";
+import {
+  type AutofillSetting,
+  type AutoOperationSetting,
+  type CaptureMediaSetting,
+  type DeviceSettings,
+  type TestHintSetting
+} from "@/lib/common/settings/Settings";
 import { type TestScriptOption } from "latteart-client";
 
 const READ_SETTING_FAILED_MESSAGE_KEY = "error.common.get_settings_failed";
@@ -73,28 +78,6 @@ export async function saveDeviceSettings(deviceSettings: {
   return new ActionSuccess(putDeviceSettingsResult.data);
 }
 
-export async function readViewSettings(): Promise<ActionResult<ViewSettings>> {
-  const result = await new LocalStorageSettingRepository().getViewSettings();
-
-  if (result.isFailure()) {
-    return new ActionFailure({ messageKey: READ_SETTING_FAILED_MESSAGE_KEY });
-  }
-
-  return new ActionSuccess(result.data);
-}
-
-export async function saveViewSettings(
-  settings: ViewSettings
-): Promise<ActionResult<ViewSettings>> {
-  const result = await new LocalStorageSettingRepository().putViewSettings(settings);
-
-  if (result.isFailure()) {
-    return new ActionFailure({ messageKey: SAVE_SETTING_FAILED_MESSAGE_KEY });
-  }
-
-  return new ActionSuccess(result.data);
-}
-
 export async function readTestScriptOption(): Promise<
   ActionResult<Pick<TestScriptOption, "buttonDefinitions">>
 > {
@@ -131,4 +114,32 @@ export function saveCaptureMediaSettings(
 
 export function readCaptureMediaSettings(): ActionResult<CaptureMediaSetting> {
   return new ActionSuccess(new LocalStorageSettingRepository().getCaptureMediaSetting());
+}
+
+export function saveAutofillSetting(autofillSetting: AutofillSetting): ActionResult<void> {
+  return new ActionSuccess(new LocalStorageSettingRepository().putAutofillSetting(autofillSetting));
+}
+
+export function readAutofillSetting(): ActionResult<AutofillSetting> {
+  return new ActionSuccess(new LocalStorageSettingRepository().getAutofillSetting());
+}
+
+export function saveAutoOperationSetting(
+  autoOperationSetting: AutoOperationSetting
+): ActionResult<void> {
+  return new ActionSuccess(
+    new LocalStorageSettingRepository().putAutoOperationSetting(autoOperationSetting)
+  );
+}
+
+export function readAutoOperationSetting(): ActionResult<AutoOperationSetting> {
+  return new ActionSuccess(new LocalStorageSettingRepository().getAutoOperationSetting());
+}
+
+export function readTestHintSetting(): ActionResult<TestHintSetting> {
+  return new ActionSuccess(new LocalStorageSettingRepository().getTestHintSetting());
+}
+
+export function saveTestHintSetting(testHintSetting: TestHintSetting): ActionResult<void> {
+  return new ActionSuccess(new LocalStorageSettingRepository().putTestHintSetting(testHintSetting));
 }

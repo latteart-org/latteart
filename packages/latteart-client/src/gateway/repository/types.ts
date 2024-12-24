@@ -229,37 +229,6 @@ export type SettingsForRepository = {
   }[];
   defaultTagList: string[];
   config: {
-    autofillSetting: {
-      conditionGroups: {
-        isEnabled: boolean;
-        settingName: string;
-        url: string;
-        title: string;
-        inputValueConditions: {
-          isEnabled: boolean;
-          locatorType: "id" | "xpath";
-          locator: string;
-          locatorMatchType: "equals" | "regex";
-          inputValue: string;
-        }[];
-      }[];
-    };
-    autoOperationSetting: {
-      conditionGroups: {
-        isEnabled: boolean;
-        settingName: string;
-        details?: string;
-        autoOperations: {
-          input: string;
-          type: string;
-          elementInfo: ElementInfoForRepository | null;
-          title: string;
-          url: string;
-          timestamp: string;
-          iframeIndex?: number;
-        }[];
-      }[];
-    };
     screenDefinition: {
       screenDefType: "title" | "url";
       conditionGroups: {

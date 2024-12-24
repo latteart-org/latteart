@@ -138,84 +138,6 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  AutofillCondition: {
-    dataType: "refAlias",
-    type: {
-      dataType: "nestedObjectLiteral",
-      nestedProperties: {
-        iframeIndex: { dataType: "double" },
-        inputValue: { dataType: "string", required: true },
-        locatorMatchType: {
-          dataType: "union",
-          subSchemas: [
-            { dataType: "enum", enums: ["equals"] },
-            { dataType: "enum", enums: ["contains"] },
-          ],
-          required: true,
-        },
-        locator: { dataType: "string", required: true },
-        locatorType: { dataType: "string", required: true },
-        isEnabled: { dataType: "boolean", required: true },
-      },
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  AutofillConditionGroup: {
-    dataType: "refObject",
-    properties: {
-      isEnabled: { dataType: "boolean", required: true },
-      settingName: { dataType: "string", required: true },
-      url: { dataType: "string", required: true },
-      title: { dataType: "string", required: true },
-      inputValueConditions: {
-        dataType: "array",
-        array: { dataType: "refAlias", ref: "AutofillCondition" },
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  AutofillSetting: {
-    dataType: "refObject",
-    properties: {
-      conditionGroups: {
-        dataType: "array",
-        array: { dataType: "refObject", ref: "AutofillConditionGroup" },
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  AutoOperationConditionGroup: {
-    dataType: "refObject",
-    properties: {
-      isEnabled: { dataType: "boolean", required: true },
-      settingName: { dataType: "string", required: true },
-      details: { dataType: "string" },
-      autoOperations: {
-        dataType: "array",
-        array: { dataType: "any" },
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  AutoOperationSetting: {
-    dataType: "refObject",
-    properties: {
-      conditionGroups: {
-        dataType: "array",
-        array: { dataType: "refObject", ref: "AutoOperationConditionGroup" },
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ScreenDefinitionConfig: {
     dataType: "refObject",
     properties: {
@@ -361,11 +283,6 @@ const models: TsoaRoute.Models = {
             },
             coverage: { ref: "Coverage", required: true },
             screenDefinition: { ref: "ScreenDefinitionConfig", required: true },
-            autoOperationSetting: {
-              ref: "AutoOperationSetting",
-              required: true,
-            },
-            autofillSetting: { ref: "AutofillSetting", required: true },
           },
           required: true,
         },
