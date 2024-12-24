@@ -103,7 +103,7 @@ export default defineComponent({
 
       try {
         rootStore.openProgressDialog({
-          message: rootStore.message("test-result-page.loading-test-results")
+          message: rootStore.message("test-result-load-trigger.loading-test-results")
         });
 
         await loadTestResults(...props.testResultIds);

@@ -42,7 +42,7 @@ const defaultRoutes = [
         path: "test-result",
         name: "testResultPage",
         component: TestResultPage,
-        meta: { title: "test-result-page.window-title" },
+        meta: { title: "default-routes.test-result-window-title" },
         beforeEnter: (
           to: RouteLocationNormalized,
           from: RouteLocationNormalized,
@@ -60,7 +60,7 @@ const defaultRoutes = [
         path: "review",
         name: "reviewPage",
         component: ReviewPage,
-        meta: { title: "manager-history-view.review" },
+        meta: { title: "common.review-window-title" },
         beforeEnter: (
           to: RouteLocationNormalized,
           from: RouteLocationNormalized,
@@ -85,63 +85,63 @@ const defaultRoutes = [
           {
             path: "start",
             component: StartCapturePage,
-            meta: { title: "start-capture-page.title" }
+            meta: { title: "common.start-capture-window-title" }
           },
           {
             path: "test-result-list",
             component: TestResultListPage,
-            meta: { title: "test-result-navigation-drawer.title" }
+            meta: { title: "common.test-result-list-window-title" }
           },
           {
             path: "test-hint-list",
             component: TestHintListPage,
-            meta: { title: "test-hint.list-page.title" }
+            meta: { title: "common.test-hint-list-window-title" }
           },
           {
             path: "test-matrix",
             name: "testMatrixPage",
             component: TestMatrixPage,
-            meta: { title: "manage-header.top" }
+            meta: { title: "common.test-matrix-window-title" }
           },
           {
             path: "test-matrix-edit",
             name: "testMatrixEditPage",
             component: TestMatrixEditPage,
-            meta: { title: "test-matrix-edit-page.title" }
+            meta: { title: "common.test-matrix-edit-window-title" }
           },
           {
             path: "stories-review",
             name: "storiesReviewPage",
             component: StoriesReviewPage,
-            meta: { title: "stories-review-page.title" }
+            meta: { title: "common.stories-review-window-title" }
           },
           {
             path: "progress-management",
             name: "progressManagementPage",
             component: ProgressManagementPage,
-            meta: { title: "progress-management.title" }
+            meta: { title: "common.progress-management-window-title" }
           },
           {
             path: "quality-management",
             name: "qualityManagementPage",
             component: QualityManagementPage,
-            meta: { title: "quality-management.title" }
+            meta: { title: "common.quality-management-window-title" }
           },
           {
             path: "optional-features",
             component: OptionalFeaturesPage,
-            meta: { title: "optional-features.title" }
+            meta: { title: "common.optional-features-window-title" }
           },
           {
             path: "story/:id",
             name: "storyPage",
             component: StoryPage,
-            meta: { title: "story-page.title" }
+            meta: { title: "common.story-window-title" }
           },
           {
             path: "config",
             component: ConfigPage,
-            meta: { title: "manage-header.capture-config" }
+            meta: { title: "common.config-window-title" }
           }
         ]
       }

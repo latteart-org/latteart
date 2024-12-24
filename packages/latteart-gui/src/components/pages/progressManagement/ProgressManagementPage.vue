@@ -18,12 +18,12 @@
   <v-container fluid class="pa-8">
     <v-row>
       <v-col cols="12">
-        {{ $t("progress-management.display-settings-section") }}
+        {{ $t("progress-management-page.display-settings-section") }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
       <v-col align-self="center" cols="1" class="pt-0 ml-4">
-        {{ $t("progress-management.period") }}
+        {{ $t("progress-management-page.period") }}
       </v-col>
       <v-col align-self="center" class="pt-0">
         <v-menu
@@ -51,7 +51,7 @@
         </v-menu>
       </v-col>
       <v-col align-self="center" cols="1" class="pt-0">
-        {{ $t("progress-management.period-symbol") }}
+        {{ $t("progress-management-page.period-symbol") }}
       </v-col>
       <v-col align-self="center" class="pt-0">
         <v-menu
@@ -82,7 +82,7 @@
 
     <v-row>
       <v-col cols="12">
-        {{ $t("progress-management.filter-section") }}
+        {{ $t("common.filter-section") }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
@@ -94,7 +94,7 @@
           item-title="name"
           item-value="id"
           class="mx-3 text-truncate"
-          :label="$t('progress-management.test-matrix')"
+          :label="$t('common.test-matrix')"
         ></v-select>
       </v-col>
 
@@ -106,7 +106,7 @@
           item-title="name"
           item-value="id"
           class="mx-3 text-truncate"
-          :label="$t('progress-management.group')"
+          :label="$t('common.group')"
         ></v-select>
       </v-col>
 
@@ -118,7 +118,7 @@
           item-title="name"
           item-value="id"
           class="mx-3 text-truncate"
-          :label="$t('progress-management.test-target')"
+          :label="$t('common.test-target')"
         ></v-select>
       </v-col>
     </v-row>
@@ -164,7 +164,7 @@ export default defineComponent({
     const unselectedItem = computed((): { id: string; name: string } => {
       return {
         id: "all",
-        name: rootStore.message("progress-management.all")
+        name: rootStore.message("common.all")
       };
     });
 

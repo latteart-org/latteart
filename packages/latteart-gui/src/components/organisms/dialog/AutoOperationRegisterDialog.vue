@@ -31,12 +31,12 @@
     <v-text-field
       v-model="settingName"
       variant="underlined"
-      :label="$t('auto-operation-register-dialog.name')"
+      :label="$t('common.operation-set-name')"
     ></v-text-field>
     <v-textarea
       v-model="settingDetails"
       variant="underlined"
-      :label="$t('auto-operation-register-dialog.details')"
+      :label="$t('common.non-required-details')"
     ></v-textarea>
   </execute-dialog>
 </template>

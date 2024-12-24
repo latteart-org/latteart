@@ -35,7 +35,7 @@ const snapshotRoutes = [
         path: "review",
         name: "reviewPage",
         component: SnapshotReviewPage,
-        meta: { title: "manager-history-view.review" },
+        meta: { title: "common.review-window-title" },
         beforeEnter: (
           to: RouteLocationNormalized,
           from: RouteLocationNormalized,
@@ -61,30 +61,30 @@ const snapshotRoutes = [
             path: "test-matrix",
             name: "testMatrixPage",
             component: TestMatrixPage,
-            meta: { title: "manage-header.top" }
+            meta: { title: "common.test-matrix-window-title" }
           },
           {
             path: "progress-management",
             name: "progressManagementPage",
             component: ProgressManagementPage,
-            meta: { title: "progress-management.title" }
+            meta: { title: "common.progress-management-window-title" }
           },
           {
             path: "quality-management",
             name: "qualityManagementPage",
             component: QualityManagementPage,
-            meta: { title: "quality-management.title" }
+            meta: { title: "common.quality-management-window-title" }
           },
           {
             path: "story/:id",
             name: "storyPage",
             component: StoryPage,
-            meta: { title: "story-page.title" }
+            meta: { title: "common.story-window-title" }
           },
           {
             path: "config",
             component: SnapshotConfigPage,
-            meta: { title: "manage-header.capture-config" }
+            meta: { title: "common.config-window-title" }
           }
         ]
       }

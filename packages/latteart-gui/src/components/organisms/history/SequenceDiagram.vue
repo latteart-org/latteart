@@ -21,7 +21,7 @@
         <v-select
           variant="underlined"
           class="mr-3"
-          :label="message('test-result-page.test-result-name')"
+          :label="message('common.test-result-name')"
           :items="testResults"
           item-title="name"
           item-value="id"
@@ -35,7 +35,7 @@
           v-model="selectedTestPurposeIndex"
           variant="underlined"
           class="mr-3"
-          :label="message('test-result-page.test-purpose')"
+          :label="message('common.test-purpose')"
           :items="testPurposes"
           item-title="text"
           item-value="value"
@@ -44,7 +44,7 @@
       /></v-col>
       <v-col v-if="!isViewerMode" cols="auto">
         <v-btn class="mr-1" :disabled="!graph" @click="editTestPurpose">{{
-          message("test-result-page.edit-test-purpose")
+          message("sequence-diagram.edit-test-purpose")
         }}</v-btn></v-col
       >
     </v-row>
@@ -106,7 +106,7 @@ export default defineComponent({
     const testPurposes = computed(() => {
       return operationHistoryStore.sequenceDiagramGraphs.map(({ testPurpose }, index) => {
         return {
-          text: testPurpose?.value ?? props.message("test-result-page.no-test-purpose"),
+          text: testPurpose?.value ?? props.message("common.no-test-purpose"),
           value: index
         };
       });

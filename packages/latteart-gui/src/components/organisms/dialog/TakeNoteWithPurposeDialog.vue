@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$t('app.record-note')"
+      :title="$t('common.record-note')"
       :accept-button-disabled="!canSave"
       :max-width="800"
       @accept="
@@ -31,33 +31,36 @@
       "
     >
       <h3 class="text-h6 mb-0">
-        {{ $t("note-edit.note-for-current-purpose") }}
+        {{ $t("take-note-with-purpose-dialog.note-for-current-test-purpose") }}
       </h3>
 
       <v-card flat>
         <v-card-text>
           <v-radio-group v-model="shouldRecordAsIssue">
-            <v-radio :label="$t('note-edit.no-problem')" :value="false"></v-radio>
-            <v-radio :label="$t('note-edit.problem-occured')" :value="true"></v-radio>
+            <v-radio
+              :label="$t('take-note-with-purpose-dialog.no-problem')"
+              :value="false"
+            ></v-radio>
+            <v-radio
+              :label="$t('take-note-with-purpose-dialog.problem-occured')"
+              :value="true"
+            ></v-radio>
           </v-radio-group>
           <div v-if="shouldRecordAsIssue">
             <v-text-field
               v-model="newNote"
               variant="underlined"
-              :label="$t('note-edit.summary')"
+              :label="$t('common.summary')"
             ></v-text-field>
             <v-textarea
               v-model="newNoteDetails"
               variant="underlined"
-              :label="$t('note-edit.details')"
+              :label="$t('common.non-required-details')"
             ></v-textarea>
 
-            <note-tag-select-box
-              v-model="newTags"
-              :label="$t('note-edit.tags')"
-            ></note-tag-select-box>
+            <note-tag-select-box v-model="newTags" :label="$t('common.tags')"></note-tag-select-box>
 
-            <h4>{{ $t("note-edit.take-screenshot") }}</h4>
+            <h4>{{ $t("common.take-screenshot") }}</h4>
             <v-radio-group
               v-model="shouldTakeScreenshot"
               inline
@@ -65,17 +68,17 @@
               class="mt-2"
               :disabled="!screenshot && !video"
             >
-              <v-radio :label="$t('note-edit.previous-screen')" :value="false"></v-radio>
-              <v-radio :label="$t('note-edit.current-screen')" :value="true"></v-radio>
+              <v-radio :label="$t('common.previous-screen')" :value="false"></v-radio>
+              <v-radio :label="$t('common.current-screen')" :value="true"></v-radio>
             </v-radio-group>
 
             <div v-if="!shouldTakeScreenshot">
               <v-btn class="mx-2 my-3" :disabled="!screenshot" @click="showStillImage">{{
-                $t("note-edit.check-still-Image")
+                $t("common.check-still-image")
               }}</v-btn>
 
               <v-btn class="mx-2 my-3" :disabled="!video" @click="showVideo">{{
-                $t("note-edit.check-video")
+                $t("common.check-video")
               }}</v-btn>
 
               <popup-image v-if="isImageVisible" :image-file-url="screenshot" />
@@ -87,7 +90,7 @@
       </v-card>
 
       <h3 class="text-h6 mb-0">
-        {{ $t("note-edit.next-purpose") }}
+        {{ $t("take-note-with-purpose-dialog.next-test-purpose") }}
       </h3>
 
       <v-card flat>
@@ -96,18 +99,18 @@
             v-model="newTestPurpose"
             variant="underlined"
             :disabled="shouldContinueSameTestPurpose"
-            :label="$t('note-edit.summary')"
+            :label="$t('common.summary')"
           ></v-text-field>
           <v-textarea
             v-model="newTestPurposeDetails"
             variant="underlined"
             :disabled="shouldContinueSameTestPurpose"
-            :label="$t('note-edit.details')"
+            :label="$t('common.non-required-details')"
           ></v-textarea>
 
           <v-checkbox
             v-model="shouldContinueSameTestPurpose"
-            :label="$t('note-edit.continue-same-purpose')"
+            :label="$t('take-note-with-purpose-dialog.continue-same-test-purpose')"
           ></v-checkbox>
         </v-card-text>
       </v-card>

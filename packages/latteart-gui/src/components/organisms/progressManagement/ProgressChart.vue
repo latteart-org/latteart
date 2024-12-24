@@ -58,19 +58,19 @@ export default defineComponent({
           },
           [
             {
-              label: rootStore.message("progress-management.planned-sessions"),
+              label: rootStore.message("common.planned-sessions"),
               borderColor: "#0077ff",
               backgroundColor: "#0077ff80",
               data: [] as number[]
             },
             {
-              label: rootStore.message("progress-management.completed-sessions"),
+              label: rootStore.message("common.completed-sessions"),
               borderColor: "#00ff77",
               backgroundColor: "#00ff7780",
               data: [] as number[]
             },
             {
-              label: rootStore.message("progress-management.incompleted-sessions"),
+              label: rootStore.message("progress-chart.incompleted-sessions"),
               borderColor: "#ff5555",
               backgroundColor: "#ff555580",
               data: [] as number[]

@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$t('test-hint-register-dialog.title')"
+    :title="$t('common.register-test-hint')"
     :accept-button-disabled="isOkButtonDisabled"
     @accept="
       registerTestHint();

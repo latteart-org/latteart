@@ -18,7 +18,7 @@
     <v-container id="import-option" fluid>
       <v-row>
         <v-col cols="12">
-          {{ $t("import-export-dialog.select-project-file-label") }}
+          {{ $t("import-option.select-project-file-label") }}
         </v-col>
 
         <v-col cols="12" class="pl-2 pr-2 pt-2">
@@ -27,7 +27,7 @@
             :details-message="option.targetFile ? option.targetFile.name : ''"
             @select="selectImportFile"
           >
-            {{ $t("import-export-dialog.select-project-file-button") }}
+            {{ $t("common.select-file-button") }}
           </select-file-button>
         </v-col>
 
@@ -36,25 +36,25 @@
             v-model="option.selectedOptionProject"
             density="comfortable"
             hide-details
-            :label="$t('import-export-dialog.project-data')"
+            :label="$t('common.project-data')"
           />
           <v-checkbox
             v-model="option.selectedOptionTestresult"
             density="comfortable"
             hide-details
-            :label="$t('import-export-dialog.testresult-data')"
+            :label="$t('common.test-result-data')"
           />
           <v-checkbox
             v-model="option.selectedOptionTestHint"
             density="comfortable"
             hide-details
-            :label="$t('import-export-dialog.test-hint')"
+            :label="$t('common.test-hint-data')"
           />
           <v-checkbox
             v-model="option.selectedOptionConfig"
             density="comfortable"
             hide-details
-            :label="$t('import-export-dialog.config-data')"
+            :label="$t('common.config-data')"
           />
         </v-col>
       </v-row>

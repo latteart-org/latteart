@@ -53,7 +53,9 @@ export default defineComponent({
       if (!isCapturing.value) {
         return "";
       }
-      return rootStore.message(isPaused.value ? "app.resume-capturing" : "app.pause-capturing");
+      return rootStore.message(
+        isPaused.value ? "pause-button.resume-capturing" : "pause-button.pause-capturing"
+      );
     });
 
     const pauseButtonColor = computed(() => {

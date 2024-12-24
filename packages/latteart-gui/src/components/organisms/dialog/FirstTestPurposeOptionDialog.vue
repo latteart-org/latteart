@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$t('test-option.start-testing')"
+      :title="$t('first-test-purpose-option-dialog.start-testing')"
       :accept-button-disabled="okButtonIsDisabled"
       @accept="
         ok();
@@ -31,7 +31,7 @@
     >
       <v-checkbox
         v-model="shouldRecordTestPurpose"
-        :label="$t('test-option.use-test-purpose')"
+        :label="$t('common.use-test-purpose')"
       ></v-checkbox>
 
       <v-card flat>
@@ -43,20 +43,20 @@
               'text--disabled': !shouldRecordTestPurpose
             }"
           >
-            {{ $t("test-option.first-test-purpose") }}
+            {{ $t("common.first-test-purpose") }}
           </h3>
 
           <v-text-field
             v-model="firstTestPurpose"
             variant="underlined"
             :disabled="!shouldRecordTestPurpose"
-            :label="$t('note-edit.summary')"
+            :label="$t('common.summary')"
           ></v-text-field>
           <v-textarea
             v-model="firstTestPurposeDetails"
             variant="underlined"
             :disabled="!shouldRecordTestPurpose"
-            :label="$t('note-edit.details')"
+            :label="$t('common.non-required-details')"
           ></v-textarea>
         </v-card-text>
       </v-card>

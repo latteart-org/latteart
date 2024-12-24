@@ -26,9 +26,9 @@
             {{ note.value }}
           </h3>
           <div class="text-right notelist-child">
-            <span class="label">{{ `${message("test-result-page.test-result-name")}:` }}</span>
+            <span class="label">{{ `${message("common.test-result-name")}:` }}</span>
             <span class="value">{{ note.testResultName }}</span>
-            <span class="label">{{ `${message("note-edit.target-sequence")}:` }}</span>
+            <span class="label">{{ `${message("common.target-sequence")}:` }}</span>
             <span class="label">{{ note.sequence }}</span>
           </div>
         </v-card-title>
@@ -38,7 +38,7 @@
             v-if="note.details"
             variant="solo"
             :model-value="note.details"
-            :label="message('note-list-dialog.details')"
+            :label="message('common.details')"
             readonly
           >
           </v-textarea>

@@ -22,7 +22,7 @@
       size="small"
       class="mx-1"
       @click="registerDialogOpened = true"
-      >{{ $t("app.register-test-hint") }}
+      >{{ $t("test-hint-register-button.register-test-hint") }}
     </v-btn>
 
     <test-hint-register-dialog

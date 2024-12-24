@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$t('app.target-tab-window')"
+    :title="$t('common.target-tab-window')"
     @accept="onAcceptWindowSelector()"
     @cancel="onCancelWindowSelector()"
   >

@@ -58,7 +58,7 @@
                   <v-list-item-action>
                     <v-btn
                       @click.stop="openTestPurposeDetails(testPurpose.value, testPurpose.details)"
-                      >{{ $t("test-purpose-note-list.details") }}</v-btn
+                      >{{ $t("common.details") }}</v-btn
                     >
                   </v-list-item-action>
                 </template>
@@ -91,7 +91,7 @@
                         note.tags
                       )
                     "
-                    >{{ $t("test-purpose-note-list.details") }}</v-btn
+                    >{{ $t("common.details") }}</v-btn
                   >
                 </v-list-item-action>
               </template>
@@ -116,17 +116,17 @@
     />
 
     <scrollable-dialog :opened="testPurposeOpened">
-      <template #title>{{ $t("note-details-dialog.details") }}</template>
+      <template #title>{{ $t("common.details") }}</template>
 
       <template #content>
         <v-list class="note-details-dialog">
           <v-list-item>
-            <v-list-item-title>{{ $t("note-details-dialog.summary") }}</v-list-item-title>
+            <v-list-item-title>{{ $t("common.summary") }}</v-list-item-title>
             <p class="break-all">{{ summary }}</p>
           </v-list-item>
 
           <v-list-item>
-            <v-list-item-title>{{ $t("note-details-dialog.details") }}</v-list-item-title>
+            <v-list-item-title>{{ $t("common.details") }}</v-list-item-title>
             <p class="break-all pre-wrap">{{ details }}</p>
           </v-list-item>
         </v-list>
@@ -271,7 +271,7 @@ export default defineComponent({
           const value =
             testPurpose.value !== ""
               ? testPurpose.value
-              : (rootStore.message("test-purpose-note-list.no-test-purpose") as string);
+              : (rootStore.message("common.no-test-purpose") as string);
           const notes = testPurpose.notes.map((note) => {
             const { id, type, value, details, tags, imageFileUrl } = note;
 

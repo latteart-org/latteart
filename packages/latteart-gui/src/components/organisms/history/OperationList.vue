@@ -84,12 +84,15 @@
 
           <template #[`item.notes`]="{ item }">
             <td>
-              <v-icon v-if="item.notes.intention" :title="message('app.intention')" color="blue"
+              <v-icon
+                v-if="item.notes.intention"
+                :title="message('common.purpose-of-the-test')"
+                color="blue"
                 >event_note</v-icon
               >
               <v-icon
                 v-if="item.notes.notices.length + item.notes.bugs.length > 0"
-                :title="message('app.note')"
+                :title="message('common.note')"
                 color="purple-lighten-3"
                 >announcement</v-icon
               >
@@ -192,23 +195,23 @@
       @keydown="cancelKeydown"
     >
       <span class="search-title pt-5 pl-4"
-        ><v-icon>search</v-icon>{{ message("operation.search") }}</span
+        ><v-icon>search</v-icon>{{ message("operation-list.search") }}</span
       >
       <v-checkbox
         v-model="isPurposeFilterEnabled"
         class="search-checkbox pl-4"
-        :label="message('operation.purpose')"
+        :label="message('operation-list.test-purpose')"
       ></v-checkbox>
       <v-checkbox
         v-model="isNoteFilterEnabled"
         class="search-checkbox"
-        :label="message('operation.notice')"
+        :label="message('common.notice')"
       ></v-checkbox>
       <v-text-field
         v-model="search"
         variant="underlined"
         class="pl-4"
-        :label="message('operation.query')"
+        :label="message('common.query')"
       ></v-text-field>
     </v-row>
 
@@ -418,7 +421,7 @@ export default defineComponent({
       }[] => {
         return [
           {
-            title: props.message("operation.sequence"),
+            title: props.message("common.sequence"),
             value: "operation.sequence",
             width: "90",
             sortable: true
@@ -429,30 +432,30 @@ export default defineComponent({
             width: "90",
             sortable: false
           },
-          { title: props.message("operation.title"), value: "operation.title", sortable: true },
+          { title: props.message("common.page-title"), value: "operation.title", sortable: true },
           {
-            title: props.message("operation.tagname"),
+            title: props.message("common.tagname"),
             value: "operation.elementInfo.tagname",
             sortable: true
           },
           {
-            title: props.message("operation.name"),
+            title: props.message("common.element-name"),
             value: "operation.elementInfo.attributes.name",
             sortable: true
           },
           {
-            title: props.message("operation.text"),
+            title: props.message("common.text"),
             value: "operation.elementInfo.text",
             sortable: true
           },
-          { title: props.message("operation.type"), value: "operation.type", sortable: true },
+          { title: props.message("common.type"), value: "operation.type", sortable: true },
           {
-            title: props.message("operation.input"),
+            title: props.message("common.input-value"),
             value: "operation.inputValue",
             sortable: true
           },
           {
-            title: props.message("operation.timestamp"),
+            title: props.message("operation-list.timestamp"),
             value: "operation.timestamp",
             sortable: true
           }

@@ -17,12 +17,14 @@
 <template>
   <div>
     <v-list-item :disabled="isDisabled" @click="openConfirmDialog">
-      <v-list-item-title>{{ $t("test-result-page.delete-test-result") }}</v-list-item-title>
+      <v-list-item-title>{{
+        $t("delete-test-result-button.delete-test-result")
+      }}</v-list-item-title>
     </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
-      :title="$t('test-result-page.delete-test-result-title')"
+      :title="$t('delete-test-result-button.delete-test-result')"
       :message="confirmMessage"
       :on-accept="deleteTestResult"
       @close="confirmDialogOpened = false"
@@ -31,7 +33,7 @@
     <information-message-dialog
       :opened="informationMessageDialogOpened"
       :title="$t('common.confirm')"
-      :message="$t('test-result-page.delete-test-result-succeeded')"
+      :message="$t('common.delete-test-result-succeeded')"
       @close="goToTestResultListPage"
     ></information-message-dialog>
 
@@ -100,10 +102,13 @@ export default defineComponent({
 
       confirmMessage.value =
         sessions.length > 0
-          ? rootStore.message("test-result-page.delete-test-result-associated-session-message", {
-              value: testResultInfo.value.name
-            })
-          : rootStore.message("test-result-page.delete-test-result-message", {
+          ? rootStore.message(
+              "delete-test-result-button.delete-test-result-associated-session-message",
+              {
+                value: testResultInfo.value.name
+              }
+            )
+          : rootStore.message("delete-test-result-button.delete-test-result-message", {
               value: testResultInfo.value.name
             });
       confirmDialogOpened.value = true;
@@ -111,7 +116,7 @@ export default defineComponent({
 
     const deleteTestResult = async (): Promise<void> => {
       rootStore.openProgressDialog({
-        message: rootStore.message("remote-access.delete-testresults")
+        message: rootStore.message("common.deleting-test-results")
       });
 
       try {

@@ -16,14 +16,14 @@
 
 <template>
   <v-card flat class="pa-2">
-    <v-card-title>{{ $t("optional-features.test-script-generation.title") }}</v-card-title>
+    <v-card-title>{{ $t("common.generate-test-script") }}</v-card-title>
 
     <v-card-text>
       <script-generation-option @update="updateOption" />
     </v-card-text>
     <v-card-actions>
       <v-btn variant="elevated" :disabled="disabled" color="primary" @click="generateTestScript">{{
-        $t("optional-features.test-script-generation.execute-button")
+        $t("test-script-generation-launcher.execute-button")
       }}</v-btn>
     </v-card-actions>
 
@@ -110,7 +110,7 @@ export default defineComponent({
       (async () => {
         try {
           rootStore.openProgressDialog({
-            message: rootStore.message("manage-header.generating-test-script")
+            message: rootStore.message("common.generating-test-script")
           });
           const testScriptInfo = await testManagementStore.generateAllSessionTestScripts({
             option: option.value
@@ -118,12 +118,10 @@ export default defineComponent({
           rootStore.closeProgressDialog();
           downloadLinkDialogTitle.value = rootStore.message("common.confirm");
           downloadLinkDialogMessage.value = rootStore.message(
-            "test-result-page.generate-testscript-succeeded"
+            "common.generate-test-script-succeeded"
           );
           if (testScriptInfo.invalidOperationTypeExists) {
-            downloadLinkDialogAlertMessage.value = rootStore.message(
-              "test-result-page.generate-alert-info"
-            );
+            downloadLinkDialogAlertMessage.value = rootStore.message("common.generate-alert-info");
           } else {
             downloadLinkDialogAlertMessage.value = "";
           }

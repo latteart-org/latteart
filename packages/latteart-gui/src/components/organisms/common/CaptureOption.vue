@@ -16,43 +16,49 @@
 <template>
   <v-card flat class="pa-0">
     <v-card-text>
-      <v-text-field v-model="captureOption.url" variant="underlined" :label="$t('app.url')" />
+      <v-text-field
+        v-model="captureOption.url"
+        variant="underlined"
+        :label="$t('capture-option.url')"
+      />
       <v-text-field
         v-model="captureOption.testResultName"
         variant="underlined"
-        :label="$t('app.test-result-name')"
+        :label="$t('common.test-result-name')"
       ></v-text-field>
     </v-card-text>
 
     <v-card-subtitle>
-      {{ $t("config-page.device") }}
+      {{ $t("capture-option.device") }}
     </v-card-subtitle>
 
     <v-card-text>
       <v-select
         v-model="captureOption.platform"
         variant="underlined"
-        :label="$t('config-page.platform')"
+        :label="$t('capture-option.platform')"
         :items="platforms"
       ></v-select>
 
       <v-card v-show="isMobileSelected" class="pa-2 mb-4" variant="outlined">
         <v-card-text>
-          <v-btn class="mb-3" @click="updateDevices">{{ $t("config-page.update-device") }}</v-btn>
+          <v-btn class="mb-3" @click="updateDevices">{{
+            $t("capture-option.update-device")
+          }}</v-btn>
           <v-select
             v-model="captureOption.device"
             variant="underlined"
-            :label="$t('config-page.select-device')"
+            :label="$t('capture-option.select-device')"
             :items="devices"
             item-title="modelNumber"
             item-value="deviceName"
-            :no-data-text="$t('config-page.no-device')"
+            :no-data-text="$t('capture-option.no-device')"
             return-object
           ></v-select>
           <v-text-field
             v-model="captureOption.device.osVersion"
             variant="underlined"
-            :label="$t('config-page.os-version')"
+            :label="$t('capture-option.os-version')"
             readonly
           ></v-text-field>
         </v-card-text>
@@ -61,7 +67,7 @@
       <v-select
         v-model="captureOption.browser"
         variant="underlined"
-        :label="$t('config-page.browser')"
+        :label="$t('capture-option.browser')"
         :items="browsers"
       ></v-select>
 
@@ -71,8 +77,8 @@
         :value="captureOption.waitTimeForStartupReload"
         :max-value="60"
         :min-value="0"
-        :label="$t('config-page.reload-setting')"
-        :suffix="$t('config-page.reload-suffix')"
+        :label="$t('capture-option.reload-setting')"
+        :suffix="$t('capture-option.reload-suffix')"
         @update-number-field-value="
           ({ value }) => {
             captureOption.waitTimeForStartupReload = value;
@@ -82,7 +88,7 @@
     </v-card-text>
 
     <v-card-subtitle>
-      {{ $t("config-page.media-type") }}
+      {{ $t("capture-option.media-type") }}
     </v-card-subtitle>
 
     <v-card-text class="mb-3">
@@ -91,42 +97,42 @@
         :disabled="isMediaTypeDisabled"
         class="py-0 my-0"
         inline
-        :hint="$t('config-page.capture-media-config-hint')"
+        :hint="$t('capture-option.media-config-hint')"
         persistent-hint
       >
-        <v-radio :label="$t('config-page.still-image')" value="image" />
-        <v-radio :label="$t('config-page.video')" value="video" />
-        <v-radio :label="$t('config-page.video-and-image')" value="video_and_image" />
+        <v-radio :label="$t('common.image')" value="image" />
+        <v-radio :label="$t('common.video')" value="video" />
+        <v-radio :label="$t('capture-option.video-and-image')" value="video_and_image" />
       </v-radio-group>
     </v-card-text>
 
     <v-card-subtitle>
-      {{ $t("test-option.title") }}
+      {{ $t("common.test-purpose") }}
     </v-card-subtitle>
 
     <v-card-text>
       <v-checkbox
         v-model="captureOption.shouldRecordTestPurpose"
         class="mt-0"
-        :label="$t('test-option.use-test-purpose')"
+        :label="$t('common.use-test-purpose')"
         hide-details
       ></v-checkbox>
 
       <v-card v-show="captureOption.shouldRecordTestPurpose" class="pa-2 mb-4" variant="outlined">
         <v-card-subtitle>
-          {{ $t("test-option.first-test-purpose") }}
+          {{ $t("common.first-test-purpose") }}
         </v-card-subtitle>
 
         <v-card-text>
           <v-text-field
             v-model="captureOption.firstTestPurpose"
             variant="underlined"
-            :label="$t('note-edit.summary')"
+            :label="$t('common.summary')"
           ></v-text-field>
           <v-textarea
             v-model="captureOption.firstTestPurposeDetails"
             variant="underlined"
-            :label="$t('note-edit.details')"
+            :label="$t('common.non-required-details')"
           ></v-textarea>
         </v-card-text>
       </v-card>

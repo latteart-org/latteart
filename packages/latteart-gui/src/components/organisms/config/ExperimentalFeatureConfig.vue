@@ -17,7 +17,7 @@
       <v-col class="pt-0">
         <span style="display: inline-flex; align-items: center"
           ><v-icon color="yellow-darken-3" start>warning</v-icon
-          >{{ $t("config-page.experimental-warning") }}</span
+          >{{ $t("experimental-feature-config.experimental-warning") }}</span
         >
       </v-col>
     </v-row>
@@ -25,12 +25,12 @@
     <v-row>
       <v-col class="pt-0">
         <h4>
-          {{ $t("config-page.recording-method") }}
+          {{ $t("experimental-feature-config.recording-method") }}
         </h4>
         <v-checkbox
           v-model="captureArch"
           density="comfortable"
-          :label="$t('config-page.capture-arch')"
+          :label="$t('experimental-feature-config.capture-arch')"
           :disabled="isCapturing || isReplaying"
           hide-details
           class="py-0 my-0"
@@ -38,9 +38,9 @@
           false-value="polling"
         >
         </v-checkbox>
-        <span class="pl-8">{{ $t("config-page.attention") }}</span>
+        <span class="pl-8">{{ $t("experimental-feature-config.attention") }}</span>
         <p class="pl-8">
-          {{ $t("config-page.attention-video") }}
+          {{ $t("experimental-feature-config.attention-video") }}
         </p>
       </v-col>
     </v-row>

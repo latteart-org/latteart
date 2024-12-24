@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$t('app.record-notice')"
+      :title="$t('note-common-dialog.record-notice')"
       :accept-button-disabled="!canSave"
       :max-width="800"
       @accept="execute"
@@ -28,7 +28,7 @@
       "
     >
       <number-field
-        :label="$t('note-edit.target-sequence')"
+        :label="$t('common.target-sequence')"
         :value="newTargetSequence ?? undefined"
         :min-value="1"
         :max-value="maxSequence ?? undefined"
@@ -38,18 +38,18 @@
       <v-text-field
         v-model="newNote"
         variant="underlined"
-        :label="$t('note-edit.summary')"
+        :label="$t('common.summary')"
       ></v-text-field>
       <v-textarea
         v-model="newNoteDetails"
         variant="underlined"
-        :label="$t('note-edit.details')"
+        :label="$t('common.non-required-details')"
       ></v-textarea>
 
-      <note-tag-select-box v-model="newTags" :label="$t('note-edit.tags')"></note-tag-select-box>
+      <note-tag-select-box v-model="newTags" :label="$t('common.tags')"></note-tag-select-box>
 
       <h4 v-if="isCapturing && oldIndex === null">
-        {{ $t("note-edit.take-screenshot") }}
+        {{ $t("common.take-screenshot") }}
       </h4>
       <v-radio-group
         v-if="isCapturing && oldIndex === null"
@@ -60,17 +60,17 @@
         :disabled="isAlertVisible || (!screenshot && !video)"
         :error-messages="takeScreenshotErrorMessage"
       >
-        <v-radio :label="$t('note-edit.previous-screen')" :value="false"></v-radio>
-        <v-radio :label="$t('note-edit.current-screen')" :value="true"></v-radio>
+        <v-radio :label="$t('common.previous-screen')" :value="false"></v-radio>
+        <v-radio :label="$t('common.current-screen')" :value="true"></v-radio>
       </v-radio-group>
 
       <div v-if="!shouldTakeScreenshot">
         <v-btn class="mx-2 my-3" :disabled="!screenshot" @click="showStillImage">{{
-          $t("note-edit.check-still-Image")
+          $t("common.check-still-image")
         }}</v-btn>
 
         <v-btn class="mx-2 my-3" :disabled="!video" @click="showVideo">{{
-          $t("note-edit.check-video")
+          $t("common.check-video")
         }}</v-btn>
 
         <popup-image v-if="isImageVisible" :image-file-url="screenshot" />
@@ -164,7 +164,7 @@ export default defineComponent({
 
     const takeScreenshotErrorMessage = computed((): string => {
       return isAlertVisible.value
-        ? rootStore.message("note-edit.error-cannot-take-screenshots")
+        ? rootStore.message("note-common-dialog.take-screenshots-warning")
         : "";
     });
 

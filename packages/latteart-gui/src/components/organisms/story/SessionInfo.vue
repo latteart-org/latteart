@@ -326,7 +326,7 @@ export default defineComponent({
     const openAttachedFile = (file: AttachedFile): boolean => {
       const extension = SessionInfoService.getImageExtensionFrom(file.name);
       if (!file.fileUrl && !file.fileData) {
-        errorMessage.value = rootStore.message("session-info.file-open-read-error");
+        errorMessage.value = rootStore.message("error.management.file_open_read_failed");
         errorMessageDialogOpened.value = true;
         return false;
       }

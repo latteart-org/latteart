@@ -32,16 +32,14 @@
       <v-col cols="8">
         <v-text-field
           variant="underlined"
-          :label="$t('config-page.autoOperation.name')"
+          :label="$t('common.operation-set-name')"
           :model-value="conditionGroup.settingName"
           hide-details
           @change="(e: any) => updateConditionGroup({ settingName: e.target._value })"
         ></v-text-field>
       </v-col>
       <v-col cols="3" class="d-flex align-center pt-0">
-        <v-btn @click="dialogOpened = true">{{
-          $t("config-page.autoOperation.details-list")
-        }}</v-btn>
+        <v-btn @click="dialogOpened = true">{{ $t("common.details") }}</v-btn>
         <v-btn color="red" class="ml-4" @click="deleteConditionGroup">{{
           $t("common.delete")
         }}</v-btn>
@@ -54,7 +52,7 @@
         <v-textarea
           variant="underlined"
           hide-details
-          :label="$t('config-page.autoOperation.details')"
+          :label="$t('common.operation-set-details')"
           :model-value="conditionGroup.details"
           @change="(e: any) => updateConditionGroup({ details: e.target._value })"
         ></v-textarea>

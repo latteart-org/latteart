@@ -24,7 +24,7 @@
       close-on-content-click
     >
       <v-list>
-        <v-list-subheader>{{ $t("app.intention") }}</v-list-subheader>
+        <v-list-subheader>{{ $t("common.purpose-of-the-test") }}</v-list-subheader>
         <v-list-item
           v-for="intention in intentionItems"
           :key="intention.label"
@@ -62,10 +62,10 @@
           slim
           @click="editIntention"
         >
-          <v-list-item-title>{{ $t("test-result-page.add-note") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("common.add") }}</v-list-item-title>
         </v-list-item>
 
-        <v-list-subheader>{{ $t("app.notice") }}</v-list-subheader>
+        <v-list-subheader>{{ $t("common.notice") }}</v-list-subheader>
         <v-list-item
           v-for="notice in noticeItems"
           :key="notice.label"
@@ -97,7 +97,7 @@
           </v-menu>
         </v-list-item>
         <v-list-item prepend-icon="add" slim @click="addNote">
-          <v-list-item-title>{{ $t("test-result-page.add-note") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("common.add") }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -169,8 +169,8 @@ export default defineComponent({
             label: currentHistoryItem.value?.intention?.value ?? "",
             onClick: editIntention,
             subItems: [
-              { label: t("test-result-page.edit-note"), icon: "edit", onClick: editIntention },
-              { label: t("test-result-page.delete-note"), icon: "delete", onClick: deleteIntention }
+              { label: t("common.details"), icon: "edit", onClick: editIntention },
+              { label: t("common.delete"), icon: "delete", onClick: deleteIntention }
             ]
           }
         ];
@@ -200,8 +200,8 @@ export default defineComponent({
             label: notice.value,
             onClick: editNote,
             subItems: [
-              { label: t("test-result-page.edit-note"), icon: "edit", onClick: editNote },
-              { label: t("test-result-page.delete-note"), icon: "delete", onClick: deleteNote }
+              { label: t("common.details"), icon: "edit", onClick: editNote },
+              { label: t("common.delete"), icon: "delete", onClick: deleteNote }
             ]
           };
         });

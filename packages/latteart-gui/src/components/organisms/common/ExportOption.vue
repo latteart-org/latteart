@@ -20,25 +20,25 @@
         v-model="option.selectedOptionProject"
         density="comfortable"
         hide-details
-        :label="$t('import-export-dialog.project-data')"
+        :label="$t('common.project-data')"
       />
       <v-checkbox
         v-model="option.selectedOptionTestresult"
         density="comfortable"
         hide-details
-        :label="$t('import-export-dialog.testresult-data')"
+        :label="$t('common.test-result-data')"
       />
       <v-checkbox
         v-model="option.selectedOptionTestHint"
         density="comfortable"
         hide-details
-        :label="$t('import-export-dialog.test-hint')"
+        :label="$t('common.test-hint-data')"
       />
       <v-checkbox
         v-model="option.selectedOptionConfig"
         density="comfortable"
         hide-details
-        :label="$t('import-export-dialog.config-data')"
+        :label="$t('common.config-data')"
       />
     </v-container>
   </v-card>

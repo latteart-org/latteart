@@ -50,7 +50,7 @@
                   'align-items': 'center',
                   cursor: 'pointer'
                 }"
-                :title="$t('test-result-list.load')"
+                :title="$t('common.load')"
               >
                 <div :class="{ ellipsis: true }" :style="{ 'max-width': '100%' }">
                   {{ item.name }}
@@ -76,14 +76,14 @@
                     <v-btn
                       v-if="!isEditing"
                       icon
-                      :title="$t('test-result-list.edit')"
+                      :title="$t('common.test-result-name-edit')"
                       @click.stop="editTestResultName(item.id, item.name)"
                       ><v-icon>edit</v-icon></v-btn
                     >
                     <v-btn
                       v-else
                       icon
-                      :title="$t('test-result-list.edit')"
+                      :title="$t('common.test-result-name-edit')"
                       @click.stop="editTestResultName(item.id, newTestResultName)"
                       ><v-icon color="red">edit</v-icon></v-btn
                     >
@@ -95,21 +95,21 @@
 
               <v-list>
                 <v-list-item>
-                  <v-list-item-title>{{ $t("test-result-list.url") }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("common.target-url") }}</v-list-item-title>
                   <v-list-item-subtitle :title="item.initialUrl">
                     {{ item.initialUrl }}
                   </v-list-item-subtitle>
                 </v-list-item>
 
                 <v-list-item>
-                  <v-list-item-title>{{ $t("test-result-list.testing-time") }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("common.testing-time") }}</v-list-item-title>
                   <v-list-item-subtitle>
                     {{ millisecondsToHHmmss(item.testingTime) }}
                   </v-list-item-subtitle>
                 </v-list-item>
 
                 <v-list-item v-if="item.testPurposes.length > 0">
-                  <v-list-item-title>{{ $t("test-result-list.test-purpose") }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("common.test-purpose") }}</v-list-item-title>
                   <v-list-item-subtitle
                     v-for="(testPurpose, i) in item.testPurposes.slice(0, 5)"
                     :key="i"
@@ -124,9 +124,7 @@
                 </v-list-item>
 
                 <v-list-item v-if="item.creationTimestamp > 0">
-                  <v-list-item-title>{{
-                    $t("test-result-list.creation-timestamp")
-                  }}</v-list-item-title>
+                  <v-list-item-title>{{ $t("common.creation-timestamp") }}</v-list-item-title>
                   <v-list-item-subtitle>
                     {{ millisecondsToDateFormat(item.creationTimestamp) }}
                   </v-list-item-subtitle>
@@ -173,7 +171,7 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          title: rootStore.message("test-result-list.name"),
+          title: rootStore.message("common.test-result-name"),
           value: "name"
         }
       ];

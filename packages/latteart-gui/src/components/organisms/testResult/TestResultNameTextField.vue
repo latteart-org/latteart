@@ -21,7 +21,7 @@
     variant="underlined"
     :single-line="singleLine"
     :hide-details="hideDetails"
-    :label="$t('app.test-result-name')"
+    :label="$t('common.test-result-name')"
     prepend-icon="save_alt"
     :disabled="isDisabled"
     @change="changeCurrentTestResultName"

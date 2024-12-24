@@ -99,8 +99,8 @@ export default defineComponent({
 
     const title = computed(() => {
       return isReplaying.value
-        ? rootStore.message("app.stop-replay")
-        : rootStore.message("app.replay");
+        ? rootStore.message("replay-history-button.stop-replay")
+        : rootStore.message("common.replay");
     });
 
     const replayOption = computed(
@@ -137,8 +137,8 @@ export default defineComponent({
             await compareHistory();
           } else {
             captureControlStore.completionDialogData = {
-              title: rootStore.message("replay.done-title"),
-              message: rootStore.message("replay.done-run-operations")
+              title: rootStore.message("replay-history-button.done-title"),
+              message: rootStore.message("replay-history-button.done-run-operations")
             };
           }
         } catch (error) {
@@ -154,19 +154,23 @@ export default defineComponent({
 
     const compareHistory = async () => {
       rootStore.openProgressDialog({
-        message: rootStore.message("test-result-page.comparing-test-result")
+        message: rootStore.message("common.comparing-test-result")
       });
 
       try {
         const testResults: TestResultSummary[] = await operationHistoryStore.getTestResults();
         if (testResults.length === 0) {
-          throw new Error(rootStore.message("test-result-page.compare-test-result-not-exist"));
+          throw new Error(
+            rootStore.message("error.operation_history.compare_test_result_not_exist")
+          );
         }
 
         const { actualTestResultId, expectedTestResultId } = findCompareTargets(testResults);
 
         if (!expectedTestResultId) {
-          throw new Error(rootStore.message("test-result-page.compare-test-result-not-exist"));
+          throw new Error(
+            rootStore.message("error.operation_history.compare_test_result_not_exist")
+          );
         }
 
         comparisonResult.value = await operationHistoryStore.compareTestResults({

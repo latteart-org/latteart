@@ -311,7 +311,7 @@ export const useRootStore = defineStore("root", {
       if (serverName !== "latteart-repository") {
         console.error(`'${serverUrl}' is not latteart-repository.`);
 
-        throw new Error(this.message("remote-access.connect-remote-url-error"));
+        throw new Error(this.message("error.common.connect_remote_url_failed"));
       }
 
       this.setRepositoryServiceUrl({ url: serverUrl });

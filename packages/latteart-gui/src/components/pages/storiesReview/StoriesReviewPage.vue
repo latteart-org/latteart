@@ -31,7 +31,7 @@
               <v-card class="mb-4 pa-4" variant="outlined">
                 <v-container fluid>
                   <span style="color: rgba(0, 0, 0, 0.6)"
-                    ><v-icon>filter_list_alt</v-icon>{{ $t("stories-review-page.filter") }}</span
+                    ><v-icon>filter_list_alt</v-icon>{{ $t("common.story-filter") }}</span
                   >
                   <v-btn class="ml-4" @click="filterClear">{{
                     $t("stories-review-page.clear")
@@ -43,7 +43,7 @@
                           v-model="testMatrixFilterValue"
                           variant="underlined"
                           type="text"
-                          :label="$t('stories-review-page.test-matrix')"
+                          :label="$t('common.test-matrix')"
                           hide-details
                         >
                         </v-text-field>
@@ -56,7 +56,7 @@
                           v-model="groupFilterValue"
                           variant="underlined"
                           type="text"
-                          :label="$t('stories-review-page.group')"
+                          :label="$t('common.group')"
                           hide-details
                         >
                         </v-text-field>
@@ -69,7 +69,7 @@
                           v-model="testTargetFilterValue"
                           variant="underlined"
                           type="text"
-                          :label="$t('stories-review-page.test-target')"
+                          :label="$t('common.test-target')"
                           hide-details
                         >
                         </v-text-field>
@@ -82,7 +82,7 @@
                           v-model="viewPointFilterValue"
                           variant="underlined"
                           type="text"
-                          :label="$t('stories-review-page.view-point')"
+                          :label="$t('common.viewpoint')"
                           hide-details
                         >
                         </v-text-field>
@@ -125,7 +125,7 @@
                 color="primary"
                 class="ma-1"
                 @click="review(on)"
-                >{{ $t("stories-review-page.do-review") }}</v-btn
+                >{{ $t("common.do-review") }}</v-btn
               >
             </template>
           </test-result-load-trigger>
@@ -176,19 +176,19 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          title: rootStore.message("stories-review-page.test-matrix"),
+          title: rootStore.message("common.test-matrix"),
           value: "testMatrix.name"
         },
         {
-          title: rootStore.message("stories-review-page.group"),
+          title: rootStore.message("common.group"),
           value: "group.name"
         },
         {
-          title: rootStore.message("stories-review-page.test-target"),
+          title: rootStore.message("common.test-target"),
           value: "testTarget.name"
         },
         {
-          title: rootStore.message("stories-review-page.view-point"),
+          title: rootStore.message("common.viewpoint"),
           value: "viewPoint.name"
         }
       ];

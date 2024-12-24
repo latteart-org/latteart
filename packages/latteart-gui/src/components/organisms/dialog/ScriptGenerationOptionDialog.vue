@@ -16,7 +16,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$t('test-result-page.generate-testscript-title')"
+    :title="$t('common.generate-test-script')"
     @accept="
       execute();
       close();

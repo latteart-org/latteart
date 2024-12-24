@@ -81,7 +81,7 @@ describe("ImportProjectAction", () => {
           throw new Error("failed");
         } else {
           expect(result.error).toEqual({
-            messageKey: "error.import_export.import-data-error"
+            messageKey: "error.common.import_data_failed"
           });
         }
       });

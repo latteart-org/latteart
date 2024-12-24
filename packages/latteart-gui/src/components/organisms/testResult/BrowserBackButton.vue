@@ -20,7 +20,7 @@
       icon="arrow_back"
       size="small"
       :disabled="isDisabled"
-      :title="$t('navigate.back')"
+      :title="$t('browser-back-button.back')"
       class="mx-2"
       @click="browserBack"
     >

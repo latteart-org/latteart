@@ -18,7 +18,7 @@
   <v-app>
     <v-container fluid class="fill-height pa-0">
       <v-app-bar color="#424242" absolute flat>
-        <v-toolbar-title>{{ $t("manager-history-view.review") }}</v-toolbar-title>
+        <v-toolbar-title>{{ $t("common.review-window-title") }}</v-toolbar-title>
       </v-app-bar>
       <error-handler>
         <v-container fluid class="pa-0" style="height: calc(100vh); padding-top: 64px !important">
