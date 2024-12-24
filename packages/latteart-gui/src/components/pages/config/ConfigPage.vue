@@ -179,10 +179,7 @@ import {
   type AutofillSetting,
   type AutoOperationSetting
 } from "@/lib/common/settings/Settings";
-import {
-  default as AutofillSettingComponent,
-  type AutofillSetting as AutofillSettingForConfig
-} from "@/components/organisms/config/AutofillConfig.vue";
+import { default as AutofillSettingComponent } from "@/components/organisms/config/AutofillConfig.vue";
 import { default as AutoOperationSettingComponent } from "@/components/organisms/config/AutoOperationConfig.vue";
 import CompareConfig from "@/components/organisms/config/CompareConfig.vue";
 import ExperimentalFeatureConfig from "@/components/organisms/config/ExperimentalFeatureConfig.vue";
@@ -359,7 +356,7 @@ export default defineComponent({
     });
 
     const saveUserSetting = (userSettings: {
-      autofillSetting?: AutofillSettingForConfig;
+      autofillSetting?: AutofillSetting;
       autoOperationSetting?: AutoOperationSetting;
       captureMediaSetting?: CaptureMediaSetting;
       testHintSetting?: TestHintSetting;

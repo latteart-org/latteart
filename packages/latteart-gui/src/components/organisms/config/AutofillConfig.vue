@@ -55,15 +55,14 @@
 </template>
 
 <script lang="ts">
-import type { AutofillCondition, AutofillConditionGroup } from "@/lib/common/settings/Settings";
+import type {
+  AutofillCondition,
+  AutofillConditionGroup,
+  AutofillSetting
+} from "@/lib/common/settings/Settings";
 import AutofillInputValueContainer from "./AutofillInputValueContainer.vue";
 import { computed, defineComponent, ref, toRefs, watch, type PropType } from "vue";
 
-export type AutofillSetting = {
-  autoPopupRegistrationDialog: boolean;
-  autoPopupSelectionDialog: boolean;
-  conditionGroups: AutofillConditionGroup[];
-};
 export default defineComponent({
   components: {
     "autofill-input-value-container": AutofillInputValueContainer
