@@ -25,3 +25,4 @@ $ npm run generate:migration src/migrations/<migrationファイル名>
 ## Web API
 
 - [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/main/)
+  - :bulb: 上記は最新バージョンの API リファレンスのリンクです。URL の末尾`main`をリリースバージョン(例: `v2.15.2`)に変更することで過去のバージョンの API リファレンスを参照することができます。

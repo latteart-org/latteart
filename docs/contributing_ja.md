@@ -68,11 +68,16 @@ flowchart LR
 
 `latteart-capture-cl`、`latteart-repository`との通信で使用する Web API は以下を参照してください。
 
-- latteart-capture-cl
-  - [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-capture-cl/rest/main/)
-  - [WebSocket API リファレンス](../packages/latteart-capture-cl/docs/api/websocket.md)
-- latteart-repository
-  - [REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/main/)
+#### REST API リファレンス
+
+- [latteart-capture-cl (latest)](https://latteart-org.github.io/latteart/docs/api/latteart-capture-cl/rest/main/)
+- [latteart-repository (latest)](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/main/)
+
+:bulb: 上記は最新バージョンの API リファレンスのリンクです。URL の末尾`main`をリリースバージョン(例: `v2.15.2`)に変更することで過去のバージョンの API リファレンスを参照することができます。
+
+#### WebSocket API リファレンス
+
+- [latteart-capture-cl](../packages/latteart-capture-cl/docs/api/websocket.md)
 
 ### 開発環境のセットアップ
 
