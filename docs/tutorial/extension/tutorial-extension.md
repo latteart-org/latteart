@@ -54,6 +54,7 @@
 
 - `$t(...)` は、i18nの機能を利用して、対応する言語リソースからテキストを取得するための関数です。言語リソースは後述する[言語ファイルを作成する](#言語ファイルを作成する)をご参照ください。
 - latteart-repository の API を利用しています。APIの詳細な仕様については[REST API リファレンス](https://latteart-org.github.io/latteart/docs/api/latteart-repository/rest/main/)をご参照ください。
+  - :bulb: 上記は最新バージョンの API リファレンスのリンクです。URL の末尾`main`をリリースバージョン(例: `v2.15.2`)に変更することで過去のバージョンの API リファレンスを参照することができます。
 
 ```vue
 <template>
