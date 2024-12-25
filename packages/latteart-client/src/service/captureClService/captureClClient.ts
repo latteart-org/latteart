@@ -632,7 +632,9 @@ class CaptureSessionImpl implements CaptureSession {
   }
 
   setNextTestPurpose(testPurpose: { value: string; details?: string }) {
-    this.pendingTestPurposes.push({ ...testPurpose });
+    this.pendingTestPurposes.splice(0, this.pendingTestPurposes.length, {
+      ...testPurpose,
+    });
   }
 
   async runOperation(operation: RunnableOperation) {
