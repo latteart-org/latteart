@@ -463,6 +463,10 @@
     "execute-button": "Export"
   },
   "config-page": {
+    "user-settings": "User Settings",
+    "project-settings": "Project Settings",
+    "user-settings-notice": "User-specific settings, not shared with others.",
+    "base-settings": "Base Settings",
     "locale": "locale",
     "setting-image-compression": "Image Compression Settings",
     "setting-autofill": "Autofill Setting",

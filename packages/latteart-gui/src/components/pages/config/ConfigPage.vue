@@ -20,24 +20,36 @@
       <v-col>
         <v-row>
           <v-col cols="12">
-            <v-card class="pa-6">
-              <v-card-text>
-                <v-select
-                  variant="underlined"
-                  :label="$t('config-page.locale')"
-                  :items="locales"
-                  :model-value="initLocale"
-                  @update:model-value="changeLocale"
-                ></v-select>
+            <h2 class="pb-2">
+              {{ $t("config-page.user-settings")
+              }}<v-icon
+                :title="$t('config-page.user-settings-notice')"
+                class="ml-2"
+                icon="info"
+                size="x-small"
+                style="font-size: 18px"
+              />
+            </h2>
+            <v-expansion-panels v-model="userSettingPanels" multiple class="py-0">
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.base-settings") }}
+                </v-expansion-panel-title>
 
-                <remote-access-field color="primary" hide-details></remote-access-field>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12">
-            <v-expansion-panels v-model="panels" multiple class="py-0">
+                <v-expansion-panel-text>
+                  <v-container class="mt-0 pt-0">
+                    <v-select
+                      variant="underlined"
+                      :label="$t('config-page.locale')"
+                      :items="locales"
+                      :model-value="initLocale"
+                      @update:model-value="changeLocale"
+                    ></v-select>
+
+                    <remote-access-field color="primary" hide-details></remote-access-field>
+                  </v-container>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
               <v-expansion-panel>
                 <v-expansion-panel-title>
                   {{ $t("config-page.setting-image-compression") }}
@@ -52,7 +64,49 @@
                   </capture-media-config>
                 </v-expansion-panel-text>
               </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-autofill") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <autofill-setting
+                    :opened="autofillSettingOpened"
+                    :autofill-setting="autofillSetting"
+                    @save-config="saveUserSetting"
+                  >
+                  </autofill-setting>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
 
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-auto-operation") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <auto-operation-setting
+                    :opened="autoOperationSettingOpened"
+                    :auto-operation-setting="autoOperationSetting"
+                    @save-config="saveUserSetting"
+                  >
+                  </auto-operation-setting>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+              <v-expansion-panel>
+                <v-expansion-panel-title>
+                  {{ $t("config-page.setting-test-hint") }}
+                </v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <test-hint-config
+                    :test-hint-setting="testHintSetting"
+                    :opened="testHintSettingOpened"
+                    @save-view-config="saveUserSetting"
+                  >
+                  </test-hint-config>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+            <h2 class="pt-8 pb-2">{{ $t("config-page.project-settings") }}</h2>
+            <v-expansion-panels v-model="projectSettingPanels" multiple class="py-0">
               <v-expansion-panel>
                 <v-expansion-panel-title>
                   {{ $t("common.config-coverage-title") }}
@@ -84,34 +138,6 @@
 
               <v-expansion-panel>
                 <v-expansion-panel-title>
-                  {{ $t("config-page.setting-autofill") }}
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <autofill-setting
-                    :opened="autofillSettingOpened"
-                    :autofill-setting="autofillSetting"
-                    @save-config="saveUserSetting"
-                  >
-                  </autofill-setting>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  {{ $t("config-page.setting-auto-operation") }}
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <auto-operation-setting
-                    :opened="autoOperationSettingOpened"
-                    :auto-operation-setting="autoOperationSetting"
-                    @save-config="saveUserSetting"
-                  >
-                  </auto-operation-setting>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
                   {{ $t("config-page.setting-test-result-comparison") }}
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
@@ -121,20 +147,6 @@
                     @save-config="saveConfig"
                   >
                   </compare-config>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-
-              <v-expansion-panel>
-                <v-expansion-panel-title>
-                  {{ $t("config-page.setting-test-hint") }}
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <test-hint-config
-                    :test-hint-setting="testHintSetting"
-                    :opened="testHintSettingOpened"
-                    @save-view-config="saveUserSetting"
-                  >
-                  </test-hint-config>
                 </v-expansion-panel-text>
               </v-expansion-panel>
 
@@ -212,8 +224,8 @@ export default defineComponent({
 
     const route = useRoute();
 
-    const panels = ref<number[]>([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-
+    const userSettingPanels = ref<number[]>([0, 1, 2, 3, 4]);
+    const projectSettingPanels = ref<number[]>([0, 1, 2, 3, 4]);
     const locales = ref<string[]>(["ja", "en"]);
 
     const initLocale = computed((): string => {
@@ -328,31 +340,31 @@ export default defineComponent({
     });
 
     const captureMediaSettingOpened = computed(() => {
-      return panels.value.includes(1);
-    });
-
-    const coverageOpened = computed(() => {
-      return panels.value.includes(2);
-    });
-
-    const screenDefinitionSettingOpened = computed(() => {
-      return panels.value.includes(3);
+      return userSettingPanels.value.includes(1);
     });
 
     const autofillSettingOpened = computed(() => {
-      return panels.value.includes(4);
+      return userSettingPanels.value.includes(2);
     });
 
     const autoOperationSettingOpened = computed(() => {
-      return panels.value.includes(5);
+      return userSettingPanels.value.includes(3);
     });
 
     const testHintSettingOpened = computed(() => {
-      return panels.value.includes(7);
+      return userSettingPanels.value.includes(4);
+    });
+
+    const coverageOpened = computed(() => {
+      return projectSettingPanels.value.includes(0);
+    });
+
+    const screenDefinitionSettingOpened = computed(() => {
+      return projectSettingPanels.value.includes(1);
     });
 
     const experimentalFeatureSettingOpened = computed(() => {
-      return panels.value.includes(8);
+      return projectSettingPanels.value.includes(3);
     });
 
     const saveUserSetting = (userSettings: {
@@ -390,7 +402,8 @@ export default defineComponent({
     })();
 
     return {
-      panels,
+      userSettingPanels,
+      projectSettingPanels,
       locales,
       initLocale,
       changeLocale,
