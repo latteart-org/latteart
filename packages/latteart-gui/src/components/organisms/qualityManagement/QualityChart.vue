@@ -55,7 +55,7 @@ export default defineComponent({
             ticks: { stepSize: props.totalBugNum > 10 ? 5 : 1 },
             title: {
               display: true,
-              text: rootStore.message("quality-chart.bug-report-number")
+              text: rootStore.message("common.bug-count")
             }
           },
           x: {

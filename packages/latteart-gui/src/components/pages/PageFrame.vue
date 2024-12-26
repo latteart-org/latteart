@@ -68,7 +68,7 @@ export default defineComponent({
     (async () => {
       try {
         rootStore.openProgressDialog({
-          message: rootStore.message("manage.loading-project")
+          message: rootStore.message("page-frame.loading-project")
         });
         await testManagementStore.initialize();
       } catch (error) {

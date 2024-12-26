@@ -21,7 +21,7 @@
         <v-checkbox
           v-model="isExcludeItemsEnabled"
           density="comfortable"
-          :label="$t('config-page.comparison-exclude-items-enabled')"
+          :label="$t('compare-config.comparison-exclude-items-enabled')"
           hide-details
         >
         </v-checkbox>
@@ -34,7 +34,7 @@
           item-title="text"
           item-value="value"
           :menu-props="{ maxHeight: '400' }"
-          :label="$t('config-page.comparison-exclude-items-value')"
+          :label="$t('compare-config.comparison-exclude-items-value')"
           multiple
           :disabled="!isExcludeItemsEnabled"
           hide-details
@@ -45,7 +45,7 @@
         <v-checkbox
           v-model="isExcludeElementsEnabled"
           density="comfortable"
-          :label="$t('config-page.comparison-exclude-elements-enabled')"
+          :label="$t('compare-config.comparison-exclude-elements-enabled')"
           hide-details
         >
         </v-checkbox>
@@ -56,7 +56,7 @@
           variant="underlined"
           :items="tempTags"
           :menu-props="{ maxHeight: '400' }"
-          :label="$t('config-page.comparison-exclude-elements-tagname')"
+          :label="$t('compare-config.comparison-exclude-elements-tagname')"
           multiple
           :disabled="!isExcludeElementsEnabled"
           hide-details
@@ -109,19 +109,19 @@ export default defineComponent({
     const tempExcludeItems = computed((): { text: string; value: string }[] => {
       return [
         {
-          text: `${t("test-result-comparison-items.title")}`,
+          text: `${t("common.page-title")}`,
           value: "title"
         },
         {
-          text: `${t("test-result-comparison-items.url")}`,
+          text: `${t("common.page-url")}`,
           value: "url"
         },
         {
-          text: `${t("test-result-comparison-items.elementTexts")}`,
+          text: `${t("common.element-texts")}`,
           value: "elementTexts"
         },
         {
-          text: `${t("test-result-comparison-items.screenshot")}`,
+          text: `${t("common.screenshot")}`,
           value: "screenshot"
         }
       ];

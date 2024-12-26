@@ -16,7 +16,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$t('start-capture-page.title')"
+    :title="$t('common.start-capture-window-title')"
     :accept-button-disabled="isOkButtonDisabled"
     @accept="
       execute();

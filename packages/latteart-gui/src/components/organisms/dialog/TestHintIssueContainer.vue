@@ -17,9 +17,7 @@
 <template>
   <v-container class="elevation-1 wrapper">
     <v-row>
-      <v-btn size="small" class="ma-1" @click="addIssue">{{
-        $t("test-hint.common.add-issue")
-      }}</v-btn>
+      <v-btn size="small" class="ma-1" @click="addIssue">{{ $t("common.add") }}</v-btn>
     </v-row>
     <v-row v-if="modelValue.length === 0" style="text-align: center">
       <v-col cols="12">no data</v-col>

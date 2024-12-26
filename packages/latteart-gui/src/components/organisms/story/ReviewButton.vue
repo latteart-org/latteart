@@ -23,7 +23,7 @@
           :disabled="disabled"
           color="info"
           @click="toReviewPage(on)"
-          >{{ $t("story-page.do-review") }}</v-btn
+          >{{ $t("common.do-review") }}</v-btn
         >
       </template>
     </test-result-load-trigger>

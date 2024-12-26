@@ -18,7 +18,7 @@
   <v-container class="elevation-1 wrapper">
     <v-row>
       <v-btn size="small" class="ma-1" @click="addElement">{{
-        $t("test-hint.common.add-element")
+        $t("element-container.add-element")
       }}</v-btn>
     </v-row>
     <v-row class="header">

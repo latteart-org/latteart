@@ -23,14 +23,14 @@
             :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
-            :label="$t('story-page.test-matrix')"
+            :label="$t('common.test-matrix')"
             :model-value="testMatrixName"
           ></v-text-field>
           <v-text-field
             :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
-            :label="$t('story-page.group')"
+            :label="$t('common.group')"
             :model-value="groupName"
           ></v-text-field>
         </v-col>
@@ -39,14 +39,14 @@
             :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
-            :label="$t('story-page.test-target')"
+            :label="$t('common.test-target')"
             :model-value="testTargetName"
           ></v-text-field>
           <v-text-field
             :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
-            :label="$t('story-page.viewPoint')"
+            :label="$t('common.viewpoint')"
             :model-value="viewPointName"
           ></v-text-field>
           <v-select
@@ -68,7 +68,7 @@
             :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
-            :label="$t('story-page.planned-session')"
+            :label="$t('common.planned-sessions')"
             :model-value="countPlannedSessions()"
           ></v-text-field>
           <v-text-field
@@ -76,14 +76,14 @@
             :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
-            :label="$t('story-page.completed-session')"
+            :label="$t('common.completed-sessions')"
           ></v-text-field>
           <v-text-field
             v-model="extractionBugNum"
             :variant="isViewerMode ? 'solo' : 'underlined'"
             class="pt-0"
             readonly
-            :label="$t('story-page.bug-count')"
+            :label="$t('common.bug-count')"
           ></v-text-field>
         </v-col>
         <v-col cols="3">
@@ -117,7 +117,7 @@
                 <v-row>
                   <v-col class="d-flex align-center">
                     <div>
-                      {{ `${$t("session-list.session-name-base")} ${index + 1}` }}
+                      {{ `${$t("story-page.session")} ${index + 1}` }}
                     </div>
                   </v-col>
                   <v-col class="d-flex align-center">
@@ -125,7 +125,7 @@
                       <v-checkbox
                         :id="`completedSessionCheckBox${index}`"
                         :model-value="session.isDone"
-                        :label="$t('session-list.complete')"
+                        :label="$t('story-page.session-complete')"
                         :readonly="isViewerMode"
                         :ripple="!isViewerMode"
                         hide-details
@@ -145,7 +145,7 @@
                         $event.stopPropagation();
                         openConfirmDialogToDeleteSession(session.id);
                       "
-                      >{{ $t("session-list.delete") }}</v-btn
+                      >{{ $t("common.delete") }}</v-btn
                     >
                   </v-col>
                 </v-row>
@@ -288,23 +288,23 @@ export default defineComponent({
     const statuses = computed(() => {
       return [
         {
-          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.OUT_OF_SCOPE.id}`),
+          text: rootStore.message(`common.status-${CHARTER_STATUS.OUT_OF_SCOPE.id}`),
           value: CHARTER_STATUS.OUT_OF_SCOPE.id
         },
         {
-          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.OK.id}`),
+          text: rootStore.message(`common.status-${CHARTER_STATUS.OK.id}`),
           value: CHARTER_STATUS.OK.id
         },
         {
-          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.NG.id}`),
+          text: rootStore.message(`common.status-${CHARTER_STATUS.NG.id}`),
           value: CHARTER_STATUS.NG.id
         },
         {
-          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.ONGOING.id}`),
+          text: rootStore.message(`common.status-${CHARTER_STATUS.ONGOING.id}`),
           value: CHARTER_STATUS.ONGOING.id
         },
         {
-          text: rootStore.message(`viewPoint-status.${CHARTER_STATUS.PENDING.id}`),
+          text: rootStore.message(`common.status-${CHARTER_STATUS.PENDING.id}`),
           value: CHARTER_STATUS.PENDING.id
         }
       ];
@@ -421,7 +421,7 @@ export default defineComponent({
     };
 
     const openConfirmDialogToDeleteSession = (sessionId: string) => {
-      confirmDialogTitle.value = rootStore.message("session-list.delete-session");
+      confirmDialogTitle.value = rootStore.message("story-page.delete-session");
       confirmDialogMessage.value = rootStore.message("common.delete-warning");
       confirmDialogAccept.value = () => {
         testManagementStore.deleteSession({

@@ -109,7 +109,7 @@ export default defineComponent({
       headers.push({
         value: "name",
         sortable: false,
-        title: rootStore.message("group-info.target"),
+        title: rootStore.message("common.test-target"),
         align: "center" as const,
         width: "200"
       });

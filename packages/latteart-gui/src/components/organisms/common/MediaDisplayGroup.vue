@@ -24,12 +24,12 @@
       class="mt-0 mb-3"
     >
       <v-radio
-        :label="message ? message('media-display-group.image') : $t('media-display-group.image')"
+        :label="message ? message('common.image') : $t('common.image')"
         value="image"
         :disabled="!imageFileUrl"
       ></v-radio>
       <v-radio
-        :label="message ? message('media-display-group.video') : $t('media-display-group.video')"
+        :label="message ? message('common.video') : $t('common.video')"
         value="video"
         :disabled="!videoUrl"
       ></v-radio>

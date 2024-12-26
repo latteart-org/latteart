@@ -18,13 +18,13 @@
   <v-container fluid class="pa-8">
     <v-row>
       <v-col cols="12">
-        {{ $t("quality-management.attention") }}
+        {{ $t("quality-management-page.attention") }}
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12">
-        {{ $t("quality-management.filter-section") }}
+        {{ $t("common.filter-section") }}
       </v-col>
     </v-row>
     <v-row class="mt-0">
@@ -36,7 +36,7 @@
           item-title="text"
           item-value="id"
           class="mx-3 text-truncate"
-          :label="$t('quality-management.test-matrix')"
+          :label="$t('common.test-matrix')"
         ></v-select>
       </v-col>
 
@@ -48,7 +48,7 @@
           item-title="text"
           item-value="id"
           class="mx-3 text-truncate"
-          :label="$t('quality-management.group')"
+          :label="$t('common.group')"
         ></v-select>
       </v-col>
 
@@ -60,14 +60,14 @@
           item-title="text"
           item-value="id"
           class="mx-3 text-truncate"
-          :label="$t('quality-management.test-target')"
+          :label="$t('common.test-target')"
         ></v-select>
       </v-col>
     </v-row>
 
     <v-row>
       <v-col cols="12">
-        {{ $t("quality-management.pb-curve") }}
+        {{ $t("quality-management-page.pb-curve") }}
       </v-col>
     </v-row>
     <v-row>
@@ -77,18 +77,18 @@
     </v-row>
     <v-row>
       <v-col cols="12">
-        {{ $t("quality-management.bug-report") }}
+        {{ $t("quality-management-page.bug-report") }}
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12" class="pt-0">
         <v-radio-group v-model="displayMode" inline>
           <v-radio
-            :label="$t('quality-management.total-number')"
+            :label="$t('quality-management-page.total-number')"
             :value="DISPLAYMODE_TOTAL"
           ></v-radio>
           <v-radio
-            :label="$t('quality-management.times-per-session')"
+            :label="$t('quality-management-page.times-per-session')"
             :value="DISPLAYMODE_TIMES_PER_SESSION"
           ></v-radio>
         </v-radio-group>
@@ -98,8 +98,8 @@
       <v-col cols="12">
         {{
           displayMode === DISPLAYMODE_TOTAL
-            ? $t("quality-management.unit-description-total")
-            : $t("quality-management.unit-description")
+            ? $t("quality-management-page.unit-description-total")
+            : $t("quality-management-page.unit-description")
         }}
       </v-col>
     </v-row>
@@ -159,7 +159,7 @@ export default defineComponent({
     const testMatrixSelectItems = computed(() => {
       const _testMatrices = [
         {
-          text: rootStore.message("quality-management.all"),
+          text: rootStore.message("common.all"),
           id: "all"
         }
       ];
@@ -176,7 +176,7 @@ export default defineComponent({
     const groups = computed(() => {
       const _groups = [
         {
-          text: rootStore.message("quality-management.all"),
+          text: rootStore.message("common.all"),
           id: "all"
         }
       ];
@@ -196,7 +196,7 @@ export default defineComponent({
     const testTargets = computed(() => {
       const _testTargets = [
         {
-          text: rootStore.message("quality-management.all"),
+          text: rootStore.message("common.all"),
           id: "all"
         }
       ];
@@ -250,7 +250,7 @@ export default defineComponent({
 
       return createQualityTableBuilder({
         totalRowId: TOTAL.value,
-        totalRowName: rootStore.message("quality-management.total"),
+        totalRowName: rootStore.message("quality-management-page.total"),
         informationColumnIds: {
           testMatrix: "testMatrix",
           group: "group",
@@ -266,7 +266,7 @@ export default defineComponent({
       const _headers = headerColumns.map(({ colName, text }) => {
         if (colName === "testMatrix") {
           return {
-            title: rootStore.message("quality-management.test-matrix"),
+            title: rootStore.message("common.test-matrix"),
             align: "center" as const,
             sortable: false,
             value: "testMatrix",
@@ -276,7 +276,7 @@ export default defineComponent({
 
         if (colName === "group") {
           return {
-            title: rootStore.message("quality-management.group"),
+            title: rootStore.message("common.group"),
             align: "center" as const,
             sortable: false,
             value: "group",
@@ -286,7 +286,7 @@ export default defineComponent({
 
         if (colName === "testTarget") {
           return {
-            title: rootStore.message("quality-management.test-target"),
+            title: rootStore.message("common.test-target"),
             align: "center" as const,
             sortable: false,
             value: "testTarget",
@@ -296,7 +296,7 @@ export default defineComponent({
 
         if (colName === TOTAL.value) {
           return {
-            title: rootStore.message("quality-management.total"),
+            title: rootStore.message("quality-management-page.total"),
             align: "center" as const,
             sortable: false,
             value: TOTAL.value
@@ -440,7 +440,7 @@ export default defineComponent({
       }
       if (selectedGroupId.value === "all" && selectedTestTargetId.value === "all") {
         datasets.push({
-          label: rootStore.message("quality-management.total"),
+          label: rootStore.message("quality-management-page.total"),
           data: totalLine
         });
       }

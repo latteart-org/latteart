@@ -23,7 +23,7 @@
             <v-expansion-panels v-model="panels" multiple class="py-0">
               <v-expansion-panel>
                 <v-expansion-panel-title>
-                  {{ $t("config-page.setting-inclusion-tags") }}
+                  {{ $t("common.config-coverage-title") }}
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
                   <coverage-config
@@ -37,7 +37,7 @@
 
               <v-expansion-panel>
                 <v-expansion-panel-title>
-                  {{ $t("config-page.setting-screen") }}
+                  {{ $t("common.config-screen-def-title") }}
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
                   <screen-definition-config

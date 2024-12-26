@@ -16,7 +16,7 @@
 
 <template>
   <v-container class="mt-4 pt-0">
-    <v-btn @click="addConditionGroup">{{ $t("config-page.screen-def.advanced-add") }}</v-btn>
+    <v-btn @click="addConditionGroup">{{ $t("common.add") }}</v-btn>
     <draggable
       v-model="conditionGroups"
       @start="dragging = true"

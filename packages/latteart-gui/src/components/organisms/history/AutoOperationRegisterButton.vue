@@ -22,7 +22,7 @@
       size="small"
       class="mx-1"
       @click="registerDialogOpened = true"
-      >{{ $t("app.register-operation") }}
+      >{{ $t("auto-operation-register-button.register-operation") }}
     </v-btn>
 
     <auto-operation-register-dialog

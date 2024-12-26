@@ -106,7 +106,7 @@
           :id="`newTestTargetNameTextField${group?.id}`"
           v-model="newTestTargetName"
           variant="underlined"
-          :label="$t('group-edit-info.target')"
+          :label="$t('common.test-target')"
         ></v-text-field
       ></v-col>
       <v-col cols="2" class="d-flex align-center"
@@ -115,7 +115,7 @@
           size="small"
           :disabled="newTestTargetName === ''"
           @click="addNewTestTarget"
-          >{{ $t("group-edit-info.add") }}</v-btn
+          >{{ $t("common.add") }}</v-btn
         ></v-col
       >
     </v-row>
@@ -192,7 +192,7 @@ export default defineComponent({
         value: "name",
         align: "center" as const,
         sortable: false,
-        title: rootStore.message("group-edit-info.target"),
+        title: rootStore.message("common.test-target"),
         headerProps: { class: "text-xs-center py-1" },
         width: "250"
       });
@@ -233,7 +233,7 @@ export default defineComponent({
     });
 
     const openConfirmDialogToDeleteTestTarget = (testTargetId: string): void => {
-      confirmDialogTitle.value = rootStore.message("group-edit-info.delete-target-confirm");
+      confirmDialogTitle.value = rootStore.message("group-editor.delete-target-confirm");
       confirmDialogMessage.value = rootStore.message("common.delete-warning");
       confirmDialogAccept.value = () => {
         testManagementStore.deleteTestTarget({

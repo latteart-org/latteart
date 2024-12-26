@@ -90,7 +90,7 @@ export default defineComponent({
 
       try {
         rootStore.openProgressDialog({
-          message: rootStore.message("start-capture-page.starting-capture")
+          message: rootStore.message("record-start-trigger.starting-capture")
         });
 
         if (props.initial) {

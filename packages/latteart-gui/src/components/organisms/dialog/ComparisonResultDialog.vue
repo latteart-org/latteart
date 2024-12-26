@@ -25,7 +25,7 @@
       }}</span>
       <br />
       <span class="pre-wrap break-word">{{
-        $t("test-result-page.compare-test-result-download")
+        $t("comparison-result-dialog.compare-test-result-download")
       }}</span>
       <a :href="downloadLinkUrl" class="px-2" download>{{ $t("common.download-link") }}</a>
 
@@ -87,17 +87,17 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          text: `${rootStore.message("test-result-page.compare-diffs-sequence")}`,
+          text: `${rootStore.message("comparison-result-dialog.compare-diffs-sequence")}`,
           value: "sequence",
           sortable: false
         },
         {
-          text: `${rootStore.message("test-result-page.compare-diffs-items")}`,
+          text: `${rootStore.message("comparison-result-dialog.compare-diffs-items")}`,
           value: "ngItemNames",
           sortable: false
         },
         {
-          text: `${rootStore.message("test-result-page.compare-diffs-remarks")}`,
+          text: `${rootStore.message("comparison-result-dialog.compare-diffs-remarks")}`,
           value: "remarks",
           sortable: false
         }
@@ -114,12 +114,12 @@ export default defineComponent({
 
       return [
         rootStore.message(
-          "test-result-page.compare-test-result-completed",
+          "comparison-result-dialog.compare-test-result-completed",
           props.comparisonResult.targetNames
         ),
         isSame
-          ? rootStore.message("test-result-page.compare-test-result-is-same")
-          : rootStore.message("test-result-page.compare-test-result-is-different", {
+          ? rootStore.message("comparison-result-dialog.compare-test-result-is-same")
+          : rootStore.message("comparison-result-dialog.compare-test-result-is-different", {
               diffCount: diffCount.toString()
             })
       ];
@@ -142,16 +142,16 @@ export default defineComponent({
           .filter(([_, value]) => !value.isOk)
           .flatMap(([name]) => {
             if (name === "title") {
-              return [rootStore.message("test-result-comparison-items.title")];
+              return [rootStore.message("common.page-title")];
             }
             if (name === "url") {
-              return [rootStore.message("test-result-comparison-items.url")];
+              return [rootStore.message("common.page-url")];
             }
             if (name === "elementTexts") {
-              return [rootStore.message("test-result-comparison-items.elementTexts")];
+              return [rootStore.message("common.element-texts")];
             }
             if (name === "screenshot") {
-              return [rootStore.message("test-result-comparison-items.screenshot")];
+              return [rootStore.message("common.screenshot")];
             }
             return [];
           })
@@ -160,12 +160,10 @@ export default defineComponent({
         const remarks = (
           step.errors?.flatMap((error) => {
             if (error === "invalid_screenshot") {
-              return [rootStore.message("test-result-page.compare-remarks-invalid-screenshot")];
+              return [rootStore.message("error.operation_history.invalid_screenshot")];
             }
             if (error === "image_sizes_do_not_match") {
-              return [
-                rootStore.message("test-result-page.compare-remarks-image-sizes-do-not-match")
-              ];
+              return [rootStore.message("error.operation_history.image_sizes_do_not_match")];
             }
 
             return [];

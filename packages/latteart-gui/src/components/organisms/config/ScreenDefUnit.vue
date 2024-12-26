@@ -33,20 +33,20 @@
                 </v-checkbox>
                 <v-text-field
                   variant="underlined"
-                  :label="$t('config-page.screen-def.screen-name')"
+                  :label="$t('screen-def-unit.screen-name')"
                   :model-value="conditionGroup.screenName"
                   @change="(e: any) => updateConditionGroup({ screenName: e.target._value })"
                 ></v-text-field>
                 <v-btn color="red" @click="deleteConditionGroup"
-                  >{{ $t("config-page.screen-def.delete-definition") }}
+                  >{{ $t("screen-def-unit.delete-definition") }}
                 </v-btn>
               </v-row>
 
               <v-row class="mb-2">
                 <v-btn size="small" class="mt-3" @click="addCondition">{{
-                  $t("config-page.screen-def.add-condition")
+                  $t("screen-def-unit.add-condition")
                 }}</v-btn
-                ><span class="description">{{ $t("config-page.screen-def.description") }}</span>
+                ><span class="description">{{ $t("screen-def-unit.description") }}</span>
               </v-row>
 
               <v-row
@@ -56,7 +56,7 @@
                 align="center"
               >
                 <v-col cols="1" style="text-align: right">
-                  <span v-if="i > 0">{{ $t("config-page.screen-def.and") }}</span>
+                  <span v-if="i > 0">{{ $t("screen-def-unit.and") }}</span>
                   <span v-else> </span>
                 </v-col>
 
@@ -189,15 +189,15 @@ export default defineComponent({
       return [
         {
           value: "url",
-          label: t("config-page.screen-def.url")
+          label: t("common.url")
         },
         {
           value: "title",
-          label: t("config-page.screen-def.title")
+          label: t("common.page-title")
         },
         {
           value: "keyword",
-          label: t("config-page.screen-def.keyword")
+          label: t("screen-def-unit.keyword")
         }
       ];
     });
@@ -206,15 +206,15 @@ export default defineComponent({
       return [
         {
           value: "contains",
-          label: t("config-page.screen-def.contains")
+          label: t("screen-def-unit.contains")
         },
         {
           value: "equals",
-          label: t("config-page.screen-def.equals")
+          label: t("screen-def-unit.equals")
         },
         {
           value: "regex",
-          label: t("config-page.screen-def.regex")
+          label: t("screen-def-unit.regex")
         }
       ];
     });

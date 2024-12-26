@@ -29,7 +29,7 @@
     </div>
     <v-select
       variant="underlined"
-      :label="$t('autofill-select-dialog.form-label')"
+      :label="$t('common.input-value-set-name')"
       :items="selectList"
       item-title="settingName"
       item-value="index"

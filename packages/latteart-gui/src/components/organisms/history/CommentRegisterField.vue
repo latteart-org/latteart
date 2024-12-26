@@ -17,7 +17,7 @@
 <template>
   <v-text-field
     v-model="comment"
-    :label="$t('test-result-page.comment-register-field-label')"
+    :label="$t('comment-register-field.label')"
     variant="outlined"
     density="compact"
     hide-details

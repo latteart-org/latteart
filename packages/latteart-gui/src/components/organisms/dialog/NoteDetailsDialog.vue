@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$t('note-details-dialog.details')"
+    :title="$t('common.details')"
     :accept-button-disabled="isViewerMode"
     @accept="
       execute();
@@ -27,17 +27,17 @@
   >
     <v-list class="note-details-dialog">
       <v-list-item>
-        <v-list-item-title>{{ $t("note-details-dialog.summary") }}</v-list-item-title>
+        <v-list-item-title>{{ $t("common.summary") }}</v-list-item-title>
         <p class="break-all">{{ summary }}</p>
       </v-list-item>
 
       <v-list-item>
-        <v-list-item-title>{{ $t("note-details-dialog.details") }}</v-list-item-title>
+        <v-list-item-title>{{ $t("common.details") }}</v-list-item-title>
         <p class="break-all pre-wrap">{{ details }}</p>
       </v-list-item>
 
       <v-list-item class="mb-2">
-        <v-list-item-title>{{ $t("note-details-dialog.tags") }}</v-list-item-title>
+        <v-list-item-title>{{ $t("common.tags") }}</v-list-item-title>
         <note-tag-select-box v-model="newTags" :readonly="isViewerMode" />
       </v-list-item>
 

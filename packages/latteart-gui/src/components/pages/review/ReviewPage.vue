@@ -17,7 +17,7 @@
 <template>
   <v-container fluid class="fill-height pa-0">
     <v-app-bar color="#424242" absolute flat>
-      <v-toolbar-title>{{ $t("manager-history-view.review") }}</v-toolbar-title>
+      <v-toolbar-title>{{ $t("common.review-window-title") }}</v-toolbar-title>
       <v-spacer></v-spacer>
 
       <screenshots-download-button v-slot="slotProps">
@@ -28,7 +28,7 @@
           class="ma-2"
           @click="slotProps.obj.execute"
         >
-          {{ $t("test-result-page.export-screenshots") }}
+          {{ $t("common.export-screenshots") }}
         </v-btn>
       </screenshots-download-button>
       <v-btn
@@ -37,7 +37,7 @@
         variant="elevated"
         class="ma-2"
         @click="scriptGenerationOptionDialogIsOpened = true"
-        >{{ $t("manage-header.generate-script") }}</v-btn
+        >{{ $t("common.generate-test-script") }}</v-btn
       >
     </v-app-bar>
 
@@ -144,7 +144,7 @@ export default defineComponent({
       (async () => {
         isGeneratingTestScripts.value = true;
         rootStore.openProgressDialog({
-          message: rootStore.message("manage-header.generating-test-script")
+          message: rootStore.message("common.generating-test-script")
         });
 
         try {
@@ -153,12 +153,10 @@ export default defineComponent({
           });
           downloadLinkDialogTitle.value = rootStore.message("common.confirm");
           downloadLinkDialogMessage.value = rootStore.message(
-            "test-result-page.generate-testscript-succeeded"
+            "common.generate-test-script-succeeded"
           );
           if (testScriptInfo.invalidOperationTypeExists) {
-            downloadLinkDialogAlertMessage.value = rootStore.message(
-              "test-result-page.generate-alert-info"
-            );
+            downloadLinkDialogAlertMessage.value = rootStore.message("common.generate-alert-info");
           }
 
           downloadLinkDialogLinkUrl.value = rootStore.repositoryService

@@ -480,7 +480,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
           }
           this.autofillSelectDialogData = {
             autofillConditionGroups: matchGroup.data,
-            message: rootStore.message("autofill-select-dialog.message")
+            message: rootStore.message("capture-control.select-message")
           };
         } else {
           this.autofillSelectDialogData = {
@@ -497,7 +497,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         this.autofillRegisterDialogData = {
           title: payload.beforeOperation.title,
           url: payload.beforeOperation.url,
-          message: rootStore.message("autofill-register-dialog.message"),
+          message: rootStore.message("capture-control.register-message"),
           inputElements:
             payload.beforeOperation.inputElements?.map((element) => {
               return {

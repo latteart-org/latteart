@@ -25,10 +25,10 @@
     >
       <template #actions>
         <v-btn class="ml-3" @click="isTestHintPropsEditDialogOpened = true">{{
-          $t("test-hint.edit-props-dialog.title")
+          $t("common.edit-props")
         }}</v-btn>
         <v-btn class="ml-3" @click="isTestHintRegisterDialogOpened = true">{{
-          $t("test-hint-register-dialog.title")
+          $t("common.register-test-hint")
         }}</v-btn>
       </template>
     </test-hint-list>
@@ -136,7 +136,7 @@ export default defineComponent({
     };
 
     const openTestHintDeleteDialog = (testHintId: string) => {
-      confirmDialogTitle.value = rootStore.message("test-hint.delete-dialog.title");
+      confirmDialogTitle.value = rootStore.message("test-hint-list-page.delete-message");
       confirmDialogMessage.value = rootStore.message("common.delete-warning", {
         value: testHintId
       });

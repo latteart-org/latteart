@@ -21,7 +21,7 @@
       color="blue"
       icon="video_library"
       size="small"
-      :title="$t('app.auto-operation')"
+      :title="$t('run-auto-operation-button.auto-operation')"
       class="mx-2"
       @click="autoOperationSelectDialogOpened = true"
     >
@@ -94,8 +94,8 @@ export default defineComponent({
           operations: tempOperations
         });
         captureControlStore.completionDialogData = {
-          title: rootStore.message("auto-operation.done-title"),
-          message: rootStore.message("auto-operation.done-auto-operations")
+          title: rootStore.message("run-auto-operation-button.done-title"),
+          message: rootStore.message("run-auto-operation-button.done-auto-operations")
         };
       } catch (error) {
         if (error instanceof Error) {

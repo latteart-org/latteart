@@ -24,7 +24,7 @@
         variant="underlined"
         :hide-details="hideDetails"
         :items="urls"
-        :label="$t('remote-access.remote-connection-url')"
+        :label="$t('remote-access-field.remote-connection-url')"
         :disabled="isCapturing || isReplaying"
         :style="{ 'padding-top': '10px' }"
       ></v-combobox>
@@ -36,7 +36,7 @@
         :disabled="isCapturing || isReplaying || targetUrl === url"
         class="ma-2"
         @click="connect()"
-        >{{ $t("remote-access.connect") }}</v-btn
+        >{{ $t("remote-access-field.connect") }}</v-btn
       >
     </v-col>
     <information-message-dialog
@@ -138,7 +138,7 @@ export default defineComponent({
     const startRemoteConnection = (targetUrl: string) => {
       (async () => {
         rootStore.openProgressDialog({
-          message: rootStore.message("remote-access.connecting-remote-url")
+          message: rootStore.message("remote-access-field.connecting-remote-url")
         });
 
         try {
@@ -151,7 +151,7 @@ export default defineComponent({
           informationMessageDialogOpened.value = true;
           informationTitle.value = rootStore.message("common.confirm");
           informationMessage.value = rootStore.message(
-            "remote-access.connect-remote-url-succeeded",
+            "remote-access-field.connect-remote-url-succeeded",
             {
               url
             }

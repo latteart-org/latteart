@@ -30,7 +30,7 @@
     <v-text-field
       v-model="settingName"
       variant="underlined"
-      :label="$t('autofill-register-dialog.form-label')"
+      :label="$t('common.input-value-set-name')"
     ></v-text-field>
   </execute-dialog>
 </template>

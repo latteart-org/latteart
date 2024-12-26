@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$t('test-hint.edit-props-dialog.title')"
+    :title="$t('common.edit-props')"
     @accept="
       update();
       close();
@@ -34,7 +34,7 @@
                   <v-text-field
                     v-model="prop.name"
                     variant="underlined"
-                    :placeholder="$t('test-hint.edit-props-dialog.name')"
+                    :placeholder="$t('test-hint-props-edit-dialog.name')"
                     @click="(e: any) => e.stopPropagation()"
                   ></v-text-field>
                 </v-col>
@@ -59,7 +59,7 @@
                 <v-select v-model="prop.type" variant="underlined" :items="['string', 'list']" />
                 <div v-if="prop.type === 'list'" class="pt-2">
                   <v-btn size="small" @click="addList(prop)">{{
-                    $t("test-hint.edit-props-dialog.add-option")
+                    $t("test-hint-props-edit-dialog.add-option")
                   }}</v-btn>
                   <div v-for="(keyValue, listIndex) in prop.listItems" :key="listIndex">
                     <v-container>
@@ -92,7 +92,7 @@
       </v-row>
       <v-row>
         <v-btn size="small" class="mt-4" @click="addProp">
-          {{ $t("test-hint.edit-props-dialog.add") }}
+          {{ $t("test-hint-props-edit-dialog.add") }}
         </v-btn>
       </v-row>
     </v-container>
@@ -213,7 +213,7 @@ export default defineComponent({
       tempProps.value = [
         ...tempProps.value,
         {
-          name: `${rootStore.message("test-hint.edit-props-dialog.name")}`,
+          name: `${rootStore.message("test-hint-props-edit-dialog.name")}`,
           type: "string"
         }
       ];

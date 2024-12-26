@@ -24,7 +24,7 @@
               <v-card-text>
                 <v-select
                   variant="underlined"
-                  :label="$t('manage-header.locale')"
+                  :label="$t('config-page.locale')"
                   :items="locales"
                   :model-value="initLocale"
                   @update:model-value="changeLocale"
@@ -55,7 +55,7 @@
 
               <v-expansion-panel>
                 <v-expansion-panel-title>
-                  {{ $t("config-page.setting-inclusion-tags") }}
+                  {{ $t("common.config-coverage-title") }}
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
                   <coverage-config
@@ -70,7 +70,7 @@
 
               <v-expansion-panel>
                 <v-expansion-panel-title>
-                  {{ $t("config-page.setting-screen") }}
+                  {{ $t("common.config-screen-def-title") }}
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
                   <screen-definition-config

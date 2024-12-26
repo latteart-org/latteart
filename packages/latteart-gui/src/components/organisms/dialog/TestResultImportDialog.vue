@@ -16,7 +16,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$t('import-export-dialog.test-result-import-title')"
+    :title="$t('common.import-test-result')"
     :accept-button-disabled="okButtonIsDisabled"
     @accept="
       execute();
@@ -27,7 +27,7 @@
     <v-container id="import-option-dialog">
       <v-row>
         <v-col cols="12">
-          {{ $t("import-export-dialog.select-test-result-file-label") }}
+          {{ $t("test-result-import-dialog.select-test-result-file-label") }}
         </v-col>
 
         <v-col cols="12" class="pl-2 pr-2 pt-2">
@@ -36,7 +36,7 @@
             :details-message="targetFile ? targetFile.name : ''"
             @select="selectImportFile"
           >
-            {{ $t("import-export-dialog.select-test-result-file-button") }}
+            {{ $t("common.select-file-button") }}
           </select-file-button>
         </v-col>
       </v-row>

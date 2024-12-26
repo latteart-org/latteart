@@ -21,7 +21,7 @@
       color="blue"
       icon="edit"
       size="small"
-      :title="$t('app.autofill')"
+      :title="$t('autofill-button.autofill')"
       class="mx-2"
       @click="openDialog"
     >

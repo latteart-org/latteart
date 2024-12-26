@@ -22,13 +22,13 @@
           <v-textarea
             :model-value="modelValue.testHintValue"
             variant="underlined"
-            :label="$t('test-hint.common.hint-text')"
+            :label="$t('common.hint-text')"
             @update:model-value="(value: string) => emitTestHintUpdated({ testHintValue: value })"
           />
         </div>
 
         <div>
-          <p class="text-subtitle-1 text-medium-emphasis">{{ $t("test-hint.common.issues") }}</p>
+          <p class="text-subtitle-1 text-medium-emphasis">{{ $t("common.issues") }}</p>
           <test-hint-issue-container
             :model-value="modelValue.issues"
             @update:model-value="(value) => emitTestHintUpdated({ issues: value })"
@@ -39,7 +39,7 @@
           <v-text-field
             :model-value="modelValue.testMatrixName"
             variant="underlined"
-            :label="$t('test-hint.common.test-matrix')"
+            :label="$t('common.test-matrix')"
             @update:model-value="(value: string) => emitTestHintUpdated({ testMatrixName: value })"
           />
         </div>
@@ -48,7 +48,7 @@
           <v-text-field
             :model-value="modelValue.groupName"
             variant="underlined"
-            :label="$t('test-hint.common.group')"
+            :label="$t('common.group')"
             @update:model-value="(value: string) => emitTestHintUpdated({ groupName: value })"
           />
         </div>
@@ -57,7 +57,7 @@
           <v-text-field
             :model-value="modelValue.testTargetName"
             variant="underlined"
-            :label="$t('test-hint.common.test-target')"
+            :label="$t('common.test-target')"
             @update:model-value="(value: string) => emitTestHintUpdated({ testTargetName: value })"
           />
         </div>
@@ -66,7 +66,7 @@
           <v-text-field
             :model-value="modelValue.viewPointName"
             variant="underlined"
-            :label="$t('test-hint.common.view-point')"
+            :label="$t('common.test-hint-viewpoint')"
             @update:model-value="(value: string) => emitTestHintUpdated({ viewPointName: value })"
           />
         </div>
@@ -111,7 +111,7 @@
           <v-textarea
             :model-value="modelValue.commentWords"
             variant="underlined"
-            :label="$t('test-hint.common.comment-words')"
+            :label="$t('common.comment-words')"
             @update:model-value="(value: string) => emitTestHintUpdated({ commentWords: value })"
           />
         </div>

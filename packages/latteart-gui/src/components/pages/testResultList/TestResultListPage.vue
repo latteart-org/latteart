@@ -22,7 +22,7 @@
           <test-result-import-trigger @update="loadTestResultSummaries">
             <template #activator="{ on, isDisabled }">
               <v-btn :disabled="isDisabled" @click="on">{{
-                $t("import-export-dialog.test-result-import-title")
+                $t("common.import-test-result")
               }}</v-btn>
             </template>
           </test-result-import-trigger>
@@ -56,7 +56,7 @@
                       color="primary"
                       variant="text"
                       :disabled="disabled"
-                      :title="$t('test-result-list.load')"
+                      :title="$t('common.load')"
                       @click="goToHistoryView(on)"
                     >
                       <v-icon>open_in_browser</v-icon>
@@ -75,7 +75,7 @@
                       color="primary"
                       variant="text"
                       :disabled="disabled"
-                      :title="$t('test-result-list.edit')"
+                      :title="$t('common.test-result-name-edit')"
                       @click="on"
                     >
                       <v-icon>edit</v-icon>
@@ -148,7 +148,7 @@
             variant="elevated"
             color="red"
             @click="confirmDialogOpened = true"
-            >{{ $t("test-result-navigation-drawer.delete-test-results") }}</v-btn
+            >{{ $t("test-result-list-page.delete-test-results") }}</v-btn
           >
         </v-card-actions>
       </v-card>
@@ -156,8 +156,8 @@
 
     <confirm-dialog
       :opened="confirmDialogOpened"
-      :title="$t('test-result-navigation-drawer.delete-test-results')"
-      :message="$t('test-result-navigation-drawer.delete-test-result-message')"
+      :title="$t('test-result-list-page.delete-test-results')"
+      :message="$t('test-result-list-page.delete-test-result-message')"
       :on-accept="deleteTestResults"
       @close="confirmDialogOpened = false"
     />
@@ -165,7 +165,7 @@
     <information-message-dialog
       :opened="informationDialogOpened"
       :title="$t('common.confirm')"
-      :message="$t('test-result-navigation-drawer.delete-test-result-succeeded')"
+      :message="$t('common.delete-test-result-succeeded')"
       @close="informationDialogOpened = false"
     />
 
@@ -227,31 +227,31 @@ export default defineComponent({
           sortable: false
         },
         {
-          title: rootStore.message("test-result-list.name"),
+          title: rootStore.message("common.test-result-name"),
           value: "name",
           minWidth: "120px",
           sortable: true
         },
         {
-          title: rootStore.message("test-result-list.url"),
+          title: rootStore.message("common.target-url"),
           value: "initialUrl",
           minWidth: "120px",
           sortable: true
         },
         {
-          title: rootStore.message("test-result-list.testing-time"),
+          title: rootStore.message("common.testing-time"),
           value: "testingTime",
           minWidth: "120px",
           sortable: true
         },
         {
-          title: rootStore.message("test-result-list.creation-timestamp"),
+          title: rootStore.message("common.creation-timestamp"),
           value: "creationTimestamp",
           minWidth: "170px",
           sortable: true
         },
         {
-          title: rootStore.message("test-result-list.test-purpose"),
+          title: rootStore.message("common.test-purpose"),
           value: "testPurposes",
           minWidth: "120px",
           sortable: true
@@ -314,7 +314,7 @@ export default defineComponent({
 
     const deleteTestResults = async () => {
       rootStore.openProgressDialog({
-        message: rootStore.message("test-result-navigation-drawer.deleting-test-results")
+        message: rootStore.message("common.deleting-test-results")
       });
       try {
         const targetTestResultIds = selectedTestResults.value;

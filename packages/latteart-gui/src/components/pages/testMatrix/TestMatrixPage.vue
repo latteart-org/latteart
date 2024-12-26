@@ -27,7 +27,7 @@
           <v-row>
             <v-col cols="auto" style="align-self: center">
               <span style="color: rgba(0, 0, 0, 0.6)"
-                ><v-icon>filter_list_alt</v-icon>{{ $t("test-matrix-page.search") }}</span
+                ><v-icon>filter_list_alt</v-icon>{{ $t("common.story-filter") }}</span
               ></v-col
             >
             <v-col>

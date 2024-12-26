@@ -28,46 +28,42 @@
       <v-divider></v-divider>
 
       <v-list density="compact" nav>
-        <v-list-subheader v-if="!mini">{{
-          $t("navigation.group-label.management")
-        }}</v-list-subheader>
+        <v-list-subheader v-if="!mini">{{ $t("common.management") }}</v-list-subheader>
 
         <v-list-item
           :disabled="!hasTestMatrix"
           to="/page/test-matrix"
-          :title.attr="$t('manage-header.top')"
+          :title.attr="$t('common.test-matrix-window-title')"
           exact
           prepend-icon="calendar_today"
         >
-          <v-list-item-title>{{ $t("manage-header.top") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("common.test-matrix-window-title") }}</v-list-item-title>
         </v-list-item>
 
         <v-list-item
           :disabled="!hasSession"
           to="/page/progress-management"
-          :title.attr="$t('progress-management.title')"
+          :title.attr="$t('common.progress-management-window-title')"
           exact
           prepend-icon="waterfall_chart"
         >
-          <v-list-item-title>{{ $t("progress-management.title") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("common.progress-management-window-title") }}</v-list-item-title>
         </v-list-item>
 
         <v-list-item
           :disabled="!hasSession"
           to="/page/quality-management"
-          :title.attr="$t('quality-management.title')"
+          :title.attr="$t('common.quality-management-window-title')"
           exact
           prepend-icon="show_chart"
         >
-          <v-list-item-title>{{ $t("quality-management.title") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("common.quality-management-window-title") }}</v-list-item-title>
         </v-list-item>
 
         <v-divider v-if="recentStories.length > 0"></v-divider>
 
         <div v-if="recentStories.length > 0">
-          <v-list-subheader v-if="!mini">{{
-            $t("navigation.group-label.recent-stories")
-          }}</v-list-subheader>
+          <v-list-subheader v-if="!mini">{{ $t("common.recent-stories") }}</v-list-subheader>
 
           <v-list-item
             v-for="story in recentStories"
@@ -85,32 +81,30 @@
         <v-divider v-if="recentReviewQuery"></v-divider>
 
         <div v-if="recentReviewQuery">
-          <v-list-subheader v-if="!mini">{{
-            $t("navigation.group-label.current-review")
-          }}</v-list-subheader>
+          <v-list-subheader v-if="!mini">{{ $t("common.current-review") }}</v-list-subheader>
 
           <v-list-item
             v-if="recentReviewQuery"
             :to="{ path: '/review', query: recentReviewQuery }"
-            :title.attr="$t('manager-history-view.review')"
+            :title.attr="$t('common.review-window-title')"
             exact
             prepend-icon="pageview"
           >
-            <v-list-item-title>{{ $t("manager-history-view.review") }}</v-list-item-title>
+            <v-list-item-title>{{ $t("common.review-window-title") }}</v-list-item-title>
           </v-list-item>
         </div>
 
         <v-divider></v-divider>
 
-        <v-list-subheader v-if="!mini">{{ $t("navigation.group-label.other") }}</v-list-subheader>
+        <v-list-subheader v-if="!mini">{{ $t("common.other") }}</v-list-subheader>
 
         <v-list-item
           to="/page/config"
-          :title.attr="$t('manage-header.capture-config')"
+          :title.attr="$t('common.config-window-title')"
           exact
           prepend-icon="settings"
         >
-          <v-list-item-title>{{ $t("manage-header.capture-config") }}</v-list-item-title>
+          <v-list-item-title>{{ $t("common.config-window-title") }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>

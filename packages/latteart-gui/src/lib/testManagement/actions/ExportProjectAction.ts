@@ -34,7 +34,7 @@ export class ExportProjectAction {
 
     if (postProjectForExportResult.isFailure()) {
       return new ActionFailure({
-        messageKey: "error.import_export.create-export-data-error"
+        messageKey: "error.common.create_export_data_failed"
       });
     }
 

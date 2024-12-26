@@ -21,7 +21,7 @@
       color="green"
       icon="live_help"
       size="small"
-      :title="$t('test-result-page.search-test-hints')"
+      :title="$t('test-hint-search-button.search-test-hints')"
       class="mx-2"
       @click="open"
     >

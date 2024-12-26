@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$t('test-result-list.edit')"
+      :title="$t('common.test-result-name-edit')"
       :accept-button-disabled="okButtonIsDisabled"
       @accept="
         execute();

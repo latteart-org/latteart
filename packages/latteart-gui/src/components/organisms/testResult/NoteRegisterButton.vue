@@ -21,7 +21,7 @@
       color="green"
       icon="add_comment"
       size="small"
-      :title="$t('app.record-note')"
+      :title="$t('common.record-note')"
       class="mx-2"
       @click="open"
     >

@@ -34,7 +34,7 @@
       <v-row>
         <v-card class="w-100">
           <v-card-title>
-            {{ $t("test-matrix-dialog.setting-viewPoint") }}
+            {{ $t("test-matrix-dialog.setting-viewpoint") }}
           </v-card-title>
           <v-card-text>
             <v-container>
@@ -61,7 +61,7 @@
                           <v-text-field
                             v-model="tempViewPoint.name"
                             variant="underlined"
-                            :placeholder="$t('test-matrix-dialog.viewPoint-name')"
+                            :placeholder="$t('test-matrix-dialog.viewpoint-name')"
                             class="view-point-name"
                             @click="(e: any) => e.stopPropagation()"
                           ></v-text-field>
@@ -88,7 +88,7 @@
                           v-model="tempViewPoint.description"
                           variant="outlined"
                           rows="3"
-                          :placeholder="$t('test-matrix-dialog.view-point-description')"
+                          :placeholder="$t('test-matrix-dialog.viewpoint-description')"
                         ></v-textarea>
                       </div>
                     </v-expansion-panel-text>
@@ -97,7 +97,7 @@
               </v-row>
               <v-row>
                 <v-btn size="small" class="mt-4" @click="createTempViewPoint">{{
-                  $t("test-matrix-dialog.new-viewPoint")
+                  $t("test-matrix-dialog.add-viewpoint")
                 }}</v-btn>
               </v-row>
             </v-container>

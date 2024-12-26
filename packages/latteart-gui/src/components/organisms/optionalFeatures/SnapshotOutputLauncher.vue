@@ -16,11 +16,11 @@
 
 <template>
   <v-card flat class="pa-2">
-    <v-card-title>{{ $t("optional-features.snapshot-output.title") }}</v-card-title>
+    <v-card-title>{{ $t("common.snapshot") }}</v-card-title>
 
     <v-card-actions>
       <v-btn variant="elevated" :disabled="disabled" color="primary" @click="outputSnapshot">{{
-        $t("optional-features.snapshot-output.execute-button")
+        $t("snapshot-output-launcher.execute-button")
       }}</v-btn>
     </v-card-actions>
 
@@ -83,15 +83,17 @@ export default defineComponent({
     const outputSnapshot = () => {
       (async () => {
         rootStore.openProgressDialog({
-          message: rootStore.message("manage-header.creating-snapshot")
+          message: rootStore.message("snapshot-output-launcher.creating-snapshot")
         });
 
         try {
           const snapshotUrl = await testManagementStore.writeSnapshot();
 
           downloadLinkDialogOpened.value = true;
-          downloadLinkDialogTitle.value = rootStore.message("manage-header.output-html");
-          downloadLinkDialogMessage.value = rootStore.message("manage.print-html-succeeded");
+          downloadLinkDialogTitle.value = rootStore.message("common.snapshot");
+          downloadLinkDialogMessage.value = rootStore.message(
+            "snapshot-output-launcher.snapshot-output-succeeded"
+          );
           downloadLinkDialogAlertMessage.value = "";
           downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${snapshotUrl}`;
         } catch (error) {

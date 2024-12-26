@@ -21,8 +21,8 @@
           :disabled="captureArch === 'push'"
           @update:model-value="changeCaptureFormat"
         >
-          <v-radio :label="$t('config-page.png')" value="png"></v-radio>
-          <v-radio :label="$t('config-page.webp')" value="webp"></v-radio>
+          <v-radio :label="$t('capture-media-config.png')" value="png"></v-radio>
+          <v-radio :label="$t('capture-media-config.webp')" value="webp"></v-radio>
         </v-radio-group>
       </v-col>
     </v-row>
