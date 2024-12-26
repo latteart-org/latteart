@@ -20,8 +20,15 @@
       <v-col>
         <v-row>
           <v-col cols="12">
-            <h2 class="pb-2" :title="$t('config-page.user-settings-notice')">
-              {{ $t("config-page.user-settings") }}
+            <h2 class="pb-2">
+              {{ $t("config-page.user-settings")
+              }}<v-icon
+                :title="$t('config-page.user-settings-notice')"
+                class="ml-2"
+                icon="info"
+                size="x-small"
+                style="font-size: 18px"
+              />
             </h2>
             <v-expansion-panels v-model="userSettingPanels" multiple class="py-0">
               <v-expansion-panel>
@@ -30,19 +37,17 @@
                 </v-expansion-panel-title>
 
                 <v-expansion-panel-text>
-                  <v-card class="pa-6">
-                    <v-card-text>
-                      <v-select
-                        variant="underlined"
-                        :label="$t('config-page.locale')"
-                        :items="locales"
-                        :model-value="initLocale"
-                        @update:model-value="changeLocale"
-                      ></v-select>
+                  <v-container class="mt-0 pt-0">
+                    <v-select
+                      variant="underlined"
+                      :label="$t('config-page.locale')"
+                      :items="locales"
+                      :model-value="initLocale"
+                      @update:model-value="changeLocale"
+                    ></v-select>
 
-                      <remote-access-field color="primary" hide-details></remote-access-field>
-                    </v-card-text>
-                  </v-card>
+                    <remote-access-field color="primary" hide-details></remote-access-field>
+                  </v-container>
                 </v-expansion-panel-text>
               </v-expansion-panel>
               <v-expansion-panel>
