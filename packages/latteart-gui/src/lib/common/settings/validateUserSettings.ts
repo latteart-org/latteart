@@ -84,6 +84,6 @@ export const validateTestHintSetting = (testHintSetting: any) => {
     testHintSetting.commentMatching.extraWords.every((word: any) => typeof word === "string") &&
     Array.isArray(testHintSetting.commentMatching.excludedWords) &&
     testHintSetting.commentMatching.excludedWords.every((word: any) => typeof word === "string") &&
-    typeof testHintSetting.defaultSearchSeconds === "string"
+    typeof testHintSetting.defaultSearchSeconds === "number"
   );
 };
