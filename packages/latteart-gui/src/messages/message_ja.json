@@ -463,6 +463,10 @@
     "execute-button": "エクスポートを実行する"
   },
   "config-page": {
+    "user-settings": "ユーザー設定",
+    "project-settings": "プロジェクト設定",
+    "user-settings-notice": "ユーザ固有の設定のため、他者と共有されません",
+    "base-settings": "基本設定",
     "locale": "言語",
     "setting-image-compression": "画像圧縮設定",
     "setting-autofill": "自動入力設定",
