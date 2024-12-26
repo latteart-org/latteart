@@ -546,6 +546,17 @@
     "attention-video": "*Capture media settings are ignored and only video is recorded if 'Platform' is 'PC'.",
     "experimental-warning": "These are experimental features and may cause instability when enabled."
   },
+  "user-settings-import-launcher": {
+    "title": "Import User settings",
+    "select-button": "Select setting file",
+    "import": "Import",
+    "succeeded": "User setting import is complete",
+    "invalid-file-format": "The format of the import file is invalid."
+  },
+  "user-settings-export-launcher": {
+    "title": "Export User settings",
+    "export": "Export"
+  },
   "error": {
     "common": {
       "fatal": "An unknown error occurred.",

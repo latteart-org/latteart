@@ -44,6 +44,20 @@
         </v-card>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col cols="12">
+        <v-card class="pa-0">
+          <usersettings-import-launcher />
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="12">
+        <v-card class="pa-0">
+          <usersettings-export-launcher />
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -52,6 +66,8 @@ import ProjectExportLauncher from "@/components/organisms/optionalFeatures/Proje
 import ProjectImportLauncher from "@/components/organisms/optionalFeatures/ProjectImportLauncher.vue";
 import SnapshotOutputLauncher from "@/components/organisms/optionalFeatures/SnapshotOutputLauncher.vue";
 import TestScriptGenerationlauncher from "@/components/organisms/optionalFeatures/TestScriptGenerationLauncher.vue";
+import UserSettingsExportLauncher from "@/components/organisms/optionalFeatures/UserSettingsExportLauncher.vue";
+import UserSettingsImportLauncher from "@/components/organisms/optionalFeatures/UserSettingsImportLauncher.vue";
 import { useRootStore } from "@/stores/root";
 import { defineComponent } from "vue";
 import { useRoute } from "vue-router";
@@ -61,7 +77,9 @@ export default defineComponent({
     "snapshot-output-launcher": SnapshotOutputLauncher,
     "test-script-generation-launcher": TestScriptGenerationlauncher,
     "project-import-launcher": ProjectImportLauncher,
-    "project-export-launcher": ProjectExportLauncher
+    "project-export-launcher": ProjectExportLauncher,
+    "usersettings-import-launcher": UserSettingsImportLauncher,
+    "usersettings-export-launcher": UserSettingsExportLauncher
   },
   setup() {
     const rootStore = useRootStore();
