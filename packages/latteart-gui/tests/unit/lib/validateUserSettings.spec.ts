@@ -114,21 +114,45 @@ describe("validateButtonDefinitions", () => {
       const testData: any = {
         ...userSettings.testScriptOption
       };
-      testData.buttonDefinitions[0].tagname = 1;
+      testData.buttonDefinitions = [
+        {
+          tagname: 1,
+          attribute: {
+            name: "class",
+            value: "html-class"
+          }
+        }
+      ];
       expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(false);
     });
     it("attribute.nameの値が不正", () => {
       const testData: any = {
         ...userSettings.testScriptOption
       };
-      testData.buttonDefinitions[0].attribute.name = 1;
+      testData.buttonDefinitions = [
+        {
+          tagname: "html",
+          attribute: {
+            name: 1,
+            value: "html-class"
+          }
+        }
+      ];
       expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(false);
     });
     it("attribute.valueの値が不正", () => {
       const testData: any = {
         ...userSettings.testScriptOption
       };
-      testData.buttonDefinitions[0].attribute.value = 1;
+      testData.buttonDefinitions = [
+        {
+          tagname: "html",
+          attribute: {
+            name: "class",
+            value: 1
+          }
+        }
+      ];
       expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(false);
     });
   });
