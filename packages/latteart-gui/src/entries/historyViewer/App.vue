@@ -66,6 +66,8 @@ export default defineComponent({
     });
 
     (async () => {
+      await rootStore.readSettings();
+
       const testResultInfos = (await rootStore.dataLoader?.loadTestResultSummaries()) ?? [];
       const firstTestResultId = testResultInfos.at(0)?.id ?? "";
       const firstTestResultName = testResultInfos.at(0)?.name ?? "";
