@@ -20,7 +20,7 @@
 
     <v-card-actions>
       <v-btn variant="elevated" color="primary" @click="exportFile">{{
-        $t("user-settings-export-launcher.export")
+        $t("common.export-button")
       }}</v-btn>
     </v-card-actions>
   </v-card>

@@ -24,7 +24,7 @@
 
     <v-card-actions>
       <v-btn variant="elevated" :disabled="disabled" color="primary" @click="exportData">{{
-        $t("project-export-launcher.execute-button")
+        $t("common.export-button")
       }}</v-btn>
     </v-card-actions>
 

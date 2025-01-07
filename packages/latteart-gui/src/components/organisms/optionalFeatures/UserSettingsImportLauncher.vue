@@ -34,7 +34,7 @@
         color="primary"
         class="d-flex align-center my-4"
         @click="importFile"
-        >{{ $t("user-settings-import-launcher.import") }}</v-btn
+        >{{ $t("common.import-button") }}</v-btn
       >
     </v-card-actions>
     <information-message-dialog
