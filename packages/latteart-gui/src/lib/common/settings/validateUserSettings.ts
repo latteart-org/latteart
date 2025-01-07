@@ -61,7 +61,6 @@ export const validateButtonDefinitions = (buttonDefinitions?: unknown) => {
     buttonDefinitions
       ? Array.isArray(buttonDefinitions) &&
         buttonDefinitions.every((definition) => {
-          console.log(definition);
           return (
             typeof definition.tagname === "string" &&
             (definition.attribute
