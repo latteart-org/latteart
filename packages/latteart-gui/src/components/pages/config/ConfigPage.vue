@@ -285,8 +285,8 @@ export default defineComponent({
     const autofillSetting = computed((): AutofillSetting => {
       if (!userSettings.value?.autofillSetting) {
         return {
-          autoPopupRegistrationDialog: true,
-          autoPopupSelectionDialog: true,
+          autoPopupRegistrationDialog: false,
+          autoPopupSelectionDialog: false,
           conditionGroups: []
         };
       }

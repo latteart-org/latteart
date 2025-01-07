@@ -198,8 +198,8 @@ export class LocalStorageSettingRepository {
     const setting = localStorage.getItem("latteart-config-autofillSetting");
     if (setting === null) {
       return {
-        autoPopupRegistrationDialog: true,
-        autoPopupSelectionDialog: true,
+        autoPopupRegistrationDialog: false,
+        autoPopupSelectionDialog: false,
         conditionGroups: []
       };
     }
