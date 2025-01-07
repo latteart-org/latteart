@@ -67,17 +67,10 @@ type RootState = {
    */
   userSettings: UserSettings;
 
-  /**
-   * Capture config.
-   */
-  deviceSettings: DeviceSettings;
-
   progressDialog: {
     opened: boolean;
     message?: string;
   };
-
-  repositoryUrls: string[];
 
   captureClService: CaptureClService;
 
@@ -119,18 +112,15 @@ export const useRootStore = defineStore("root", {
       autofillSetting: new LocalStorageSettingRepository().getAutofillSetting(),
       autoOperationSetting: new LocalStorageSettingRepository().getAutoOperationSetting(),
       captureMediaSetting: new LocalStorageSettingRepository().getCaptureMediaSetting(),
-      testHintSetting: new LocalStorageSettingRepository().getTestHintSetting()
-    },
-    deviceSettings: {
-      platformName: "PC",
-      browser: "Chrome",
-      waitTimeForStartupReload: 0
+      testHintSetting: new LocalStorageSettingRepository().getTestHintSetting(),
+      deviceSettings: new LocalStorageSettingRepository().getDeviceSettings(),
+      testScriptOption: new LocalStorageSettingRepository().getTestScriptOption(),
+      repositoryUrls: getRepositoryUrlsFromLocalStorage()
     },
     progressDialog: {
       opened: false,
       message: ""
     },
-    repositoryUrls: getRepositoryUrlsFromLocalStorage(),
     captureClService: createCaptureClService("http://127.0.0.1:3001"),
     repositoryService: null,
     dataLoader: null
@@ -166,13 +156,13 @@ export const useRootStore = defineStore("root", {
     },
 
     registerRepositoryServiceUrl(payload: { url: string }) {
-      const oldUrls = this.repositoryUrls;
+      const oldUrls = this.userSettings.repositoryUrls;
 
       if (!oldUrls.includes(payload.url)) {
         const newUrls = [...oldUrls, payload.url];
         setRepositoryUrlsToLocalStorage(newUrls);
 
-        this.repositoryUrls = [...newUrls];
+        this.userSettings.repositoryUrls = [...newUrls];
       }
     },
 
@@ -385,7 +375,7 @@ export const useRootStore = defineStore("root", {
       await this.writeProjectSettings({ settings });
     },
 
-    writeUserSettings(payload: { userSettings: Partial<UserSettings> }) {
+    writeUserSettings(payload: { userSettings: Partial<UserSettings & { locale?: "ja" | "en" }> }) {
       if (payload.userSettings.autoOperationSetting) {
         const result = saveAutoOperationSetting(payload.userSettings.autoOperationSetting);
         if (result.isFailure()) {
@@ -421,6 +411,39 @@ export const useRootStore = defineStore("root", {
         this.userSettings.testHintSetting = {
           ...payload.userSettings.testHintSetting
         };
+      }
+
+      if (payload.userSettings.deviceSettings) {
+        const result = saveDeviceSettings(payload.userSettings.deviceSettings);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.userSettings.deviceSettings = {
+          ...payload.userSettings.deviceSettings
+        };
+      }
+
+      if (payload.userSettings.testScriptOption) {
+        const result = saveTestScriptOption(payload.userSettings.testScriptOption);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.userSettings.testScriptOption = {
+          ...payload.userSettings.testScriptOption
+        };
+      }
+
+      if (payload.userSettings.repositoryUrls) {
+        setRepositoryUrlsToLocalStorage(payload.userSettings.repositoryUrls);
+        this.userSettings.repositoryUrls = [...payload.userSettings.repositoryUrls];
+      }
+
+      if (payload.userSettings.locale) {
+        const result = saveLocale(payload.userSettings.locale);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.i18nProvider?.setLocale(payload.userSettings.locale);
       }
       return;
     },
@@ -465,16 +488,47 @@ export const useRootStore = defineStore("root", {
           )
         );
       }
+
+      const deviceSettingResult = readDeviceSettings();
+      if (deviceSettingResult.isFailure()) {
+        throw new Error(
+          this.message(
+            deviceSettingResult.error.messageKey,
+            deviceSettingResult.error.variables ?? {}
+          )
+        );
+      }
+
+      const testScriptOptionResult = readTestScriptOption();
+      if (testScriptOptionResult.isFailure()) {
+        throw new Error(
+          this.message(
+            testScriptOptionResult.error.messageKey,
+            testScriptOptionResult.error.variables ?? {}
+          )
+        );
+      }
+
+      const localeResult = readLocale();
+      if (localeResult.isFailure()) {
+        throw new Error(
+          this.message(localeResult.error.messageKey, localeResult.error.variables ?? {})
+        );
+      }
+
       this.userSettings = {
         autofillSetting: readAutofillSettingResult.data,
         autoOperationSetting: readAutoOperationSettingResult.data,
         captureMediaSetting: captureMediaSettingResult.data,
-        testHintSetting: testHintSettingResult.data
+        testHintSetting: testHintSettingResult.data,
+        deviceSettings: deviceSettingResult.data,
+        testScriptOption: testScriptOptionResult.data,
+        repositoryUrls: getRepositoryUrlsFromLocalStorage()
       };
     },
 
-    async readTestScriptOption() {
-      const result = await readTestScriptOption();
+    readTestScriptOption() {
+      const result = readTestScriptOption();
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -484,7 +538,7 @@ export const useRootStore = defineStore("root", {
     },
 
     async writeTestScriptOption(payload: { option: Pick<TestScriptOption, "buttonDefinitions"> }) {
-      const result = await saveTestScriptOption(payload.option);
+      const result = saveTestScriptOption(payload.option);
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
@@ -495,14 +549,14 @@ export const useRootStore = defineStore("root", {
      * Load Device Settings.
      * @param context Action context.
      */
-    async readDeviceSettings() {
-      const result = await readDeviceSettings();
+    readDeviceSettings() {
+      const result = readDeviceSettings();
 
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
       }
 
-      this.deviceSettings = result.data.config;
+      this.userSettings.deviceSettings = result.data;
     },
 
     /**
@@ -510,16 +564,17 @@ export const useRootStore = defineStore("root", {
      * @param context Action context.
      * @param payload.config Capture config.
      */
-    async writeDeviceSettings(payload: { config: Partial<DeviceSettings> }) {
-      const deviceSettings: { config: DeviceSettings } = {
-        config: {
-          platformName: payload.config.platformName ?? this.deviceSettings.platformName,
-          browser: payload.config.browser ?? this.deviceSettings.browser,
-          device: payload.config.device ?? this.deviceSettings.device,
-          platformVersion: payload.config.platformVersion ?? this.deviceSettings.platformName,
-          waitTimeForStartupReload:
-            payload.config.waitTimeForStartupReload ?? this.deviceSettings.waitTimeForStartupReload
-        }
+    async writeDeviceSettings(payload: { deviceSettings: Partial<DeviceSettings> }) {
+      const deviceSettings: DeviceSettings = {
+        platformName:
+          payload.deviceSettings.platformName ?? this.userSettings.deviceSettings.platformName,
+        browser: payload.deviceSettings.browser ?? this.userSettings.deviceSettings.browser,
+        device: payload.deviceSettings.device ?? this.userSettings.deviceSettings.device,
+        platformVersion:
+          payload.deviceSettings.platformVersion ?? this.userSettings.deviceSettings.platformName,
+        waitTimeForStartupReload:
+          payload.deviceSettings.waitTimeForStartupReload ??
+          this.userSettings.deviceSettings.waitTimeForStartupReload
       };
 
       const result = await saveDeviceSettings(deviceSettings);
@@ -528,7 +583,7 @@ export const useRootStore = defineStore("root", {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
       }
 
-      this.deviceSettings = result.data.config;
+      this.userSettings.deviceSettings = result.data;
     },
 
     /**

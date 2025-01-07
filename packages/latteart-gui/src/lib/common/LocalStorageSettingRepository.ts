@@ -32,13 +32,10 @@ export class LocalStorageSettingRepository {
    * Get locale information.
    * @returns Locale information.
    */
-  public async getLocale(): Promise<RepositoryAccessResult<string>> {
-    const tmpLocale = localStorage.getItem("latteart-config-locale");
+  public getLocale(): "ja" | "en" {
+    const tmpLocale = localStorage.getItem("latteart-config-locale") as "ja" | "en" | null;
     const locale = tmpLocale ?? "ja";
-
-    return createRepositoryAccessSuccess({
-      data: locale as string
-    });
+    return locale;
   }
 
   /**
@@ -46,7 +43,7 @@ export class LocalStorageSettingRepository {
    * @param locale  locale information.
    * @returns Saved locale information.
    */
-  public async putLocale(locale: string): Promise<RepositoryAccessResult<string>> {
+  public putLocale(locale: string): RepositoryAccessResult<string> {
     localStorage.setItem("latteart-config-locale", locale);
 
     return createRepositoryAccessSuccess({
@@ -58,23 +55,19 @@ export class LocalStorageSettingRepository {
    * Get device settings information.
    * @returns Device settings information
    */
-  public async getDeviceSettings(): Promise<RepositoryAccessResult<{ config: DeviceSettings }>> {
+  public getDeviceSettings(): DeviceSettings {
     const tmpDeviceSettings = localStorage.getItem("latteart-config-deviceSettings");
 
     const deviceSettings = tmpDeviceSettings
       ? JSON.parse(tmpDeviceSettings)
       : {
-          config: {
-            platformName: "PC",
-            browser: "Chrome",
-            platformVersion: "",
-            waitTimeForStartupReload: 0
-          }
+          platformName: "PC",
+          browser: "Chrome",
+          platformVersion: "",
+          waitTimeForStartupReload: 0
         };
 
-    return createRepositoryAccessSuccess({
-      data: deviceSettings as { config: DeviceSettings }
-    });
+    return deviceSettings;
   }
 
   /**
@@ -82,21 +75,17 @@ export class LocalStorageSettingRepository {
    * @param deviceSettings  Device settings information.
    * @returns  Saved device settings information.
    */
-  public async putDeviceSettings(deviceSettings: {
-    config: DeviceSettings;
-  }): Promise<RepositoryAccessResult<{ config: DeviceSettings }>> {
+  public putDeviceSettings(deviceSettings: DeviceSettings): RepositoryAccessResult<DeviceSettings> {
     const tmpDeviceSettings = {
-      config: {
-        platformName: deviceSettings.config.platformName,
-        browser: deviceSettings.config.browser,
-        waitTimeForStartupReload: deviceSettings.config.waitTimeForStartupReload
-      }
+      platformName: deviceSettings.platformName,
+      browser: deviceSettings.browser,
+      waitTimeForStartupReload: deviceSettings.waitTimeForStartupReload
     };
 
     localStorage.setItem("latteart-config-deviceSettings", JSON.stringify(tmpDeviceSettings));
 
     return createRepositoryAccessSuccess({
-      data: deviceSettings as { config: DeviceSettings }
+      data: deviceSettings
     });
   }
 
@@ -104,17 +93,13 @@ export class LocalStorageSettingRepository {
    * Get test script option.
    * @returns Test script option.
    */
-  public async getTestScriptOption(): Promise<
-    RepositoryAccessResult<Pick<TestScriptOption, "buttonDefinitions">>
-  > {
+  public getTestScriptOption(): Pick<TestScriptOption, "buttonDefinitions"> {
     const optionJson = localStorage.getItem("latteart-config-scriptGenerationOption");
     const option: Pick<TestScriptOption, "buttonDefinitions"> = optionJson
       ? JSON.parse(optionJson)
       : {};
 
-    return createRepositoryAccessSuccess({
-      data: option
-    });
+    return option;
   }
 
   /**
@@ -122,14 +107,12 @@ export class LocalStorageSettingRepository {
    * @param option  Test script option.
    * @returns Saved test script option.
    */
-  public async putTestScriptOption(
+  public putTestScriptOption(
     option: Pick<TestScriptOption, "buttonDefinitions">
-  ): Promise<RepositoryAccessResult<Pick<TestScriptOption, "buttonDefinitions">>> {
+  ): Pick<TestScriptOption, "buttonDefinitions"> {
     localStorage.setItem("latteart-config-scriptGenerationOption", JSON.stringify(option));
 
-    return createRepositoryAccessSuccess({
-      data: option
-    });
+    return option;
   }
 
   /**

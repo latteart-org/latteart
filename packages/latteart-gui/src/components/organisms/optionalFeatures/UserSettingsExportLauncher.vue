@@ -36,7 +36,11 @@ export default defineComponent({
     const rootStore = useRootStore();
 
     const exportFile = () => {
-      const jsonString = JSON.stringify(rootStore.userSettings, null, 2);
+      const exportData = {
+        ...rootStore.userSettings,
+        locale: rootStore.getLocale()
+      };
+      const jsonString = JSON.stringify(exportData, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.createElement("a");

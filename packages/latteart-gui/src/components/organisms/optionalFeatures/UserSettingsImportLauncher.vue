@@ -64,7 +64,6 @@ export default defineComponent({
     const importTargetFile = ref<File | null>(null);
 
     const dialogOpened = ref(false);
-    const dialogTitle = ref("");
     const dialogMessage = ref("");
 
     const selectImportFile = (targetFile: File): void => {
@@ -100,7 +99,6 @@ export default defineComponent({
           rootStore.writeUserSettings({ userSettings });
 
           dialogMessage.value = "user-settings-import-launcher.succeeded";
-          dialogTitle.value = "user-settings-import-launcher.title";
           dialogOpened.value = true;
         } catch (error) {
           if (error instanceof Error) {

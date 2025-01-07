@@ -7,9 +7,244 @@ import type {
 import {
   validateAutofillSetting,
   validateAutoOperationSetting,
+  validateButtonDefinitions,
   validateCaptureMediaSetting,
+  validateDeviceSetting,
+  validateLocale,
+  validateRepositoryUrls,
   validateTestHintSetting
 } from "@/lib/common/settings/validateUserSettings";
+
+describe("validateLocale", () => {
+  const userSettings = {
+    locale: "ja"
+  };
+  it("返却値がtrue", () => {
+    expect(validateLocale(userSettings.locale)).toEqual(true);
+  });
+  describe("返却値がfalse", () => {
+    it("localeが存在しない", () => {
+      const testData: any = {
+        ...userSettings
+      };
+      delete testData.locale;
+      expect(validateLocale(testData.locale)).toEqual(false);
+    });
+    it("localeの値が不正", () => {
+      const testData: any = {
+        ...userSettings
+      };
+      testData.locale = "aa";
+      expect(validateLocale(testData.locale)).toEqual(false);
+    });
+  });
+});
+
+describe("validateRepositoryUrls", () => {
+  const userSettings = {
+    repositoryUrls: ["url1", "url2"]
+  };
+  it("返却値がtrue", () => {
+    expect(validateRepositoryUrls(userSettings.repositoryUrls)).toEqual(true);
+  });
+
+  describe("返却値がfalse", () => {
+    it("値が存在しない", () => {
+      const testData: any = {
+        ...userSettings
+      };
+      delete testData.repositoryUrls;
+      expect(validateRepositoryUrls(testData.repositoryUrls)).toEqual(false);
+    });
+    it("値が不正しない", () => {
+      const testData: any = {
+        ...userSettings
+      };
+      testData.repositoryUrls = ["url1", 2];
+      expect(validateRepositoryUrls(testData.repositoryUrls)).toEqual(false);
+    });
+  });
+});
+
+describe("validateButtonDefinitions", () => {
+  const userSettings = {
+    testScriptOption: {
+      buttonDefinitions: [
+        {
+          tagname: "html",
+          attribute: {
+            name: "class",
+            value: "html-class"
+          }
+        }
+      ]
+    }
+  };
+  describe("返却値がtrue", () => {
+    it("buttonDefinitionsが存在しない", () => {
+      const testData: any = {
+        ...userSettings.testScriptOption
+      };
+      delete testData.buttonDefinitions;
+      expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(true);
+    });
+    it("attributeが存在しない", () => {
+      const testData: any = {
+        ...userSettings.testScriptOption
+      };
+      testData.buttonDefinitions = [];
+      expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(true);
+    });
+    it("attributeが存在する", () => {
+      const testData: any = {
+        ...userSettings.testScriptOption
+      };
+      expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(true);
+    });
+  });
+  describe("返却値がfalse", () => {
+    it("buttonDefinitionsの値が不正", () => {
+      const testData: any = {
+        ...userSettings.testScriptOption
+      };
+      testData.buttonDefinitions = "aaa";
+      expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(false);
+    });
+    it("tagnameの値が不正", () => {
+      const testData: any = {
+        ...userSettings.testScriptOption
+      };
+      testData.buttonDefinitions[0].tagname = 1;
+      expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(false);
+    });
+    it("attribute.nameの値が不正", () => {
+      const testData: any = {
+        ...userSettings.testScriptOption
+      };
+      testData.buttonDefinitions[0].attribute.name = 1;
+      expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(false);
+    });
+    it("attribute.valueの値が不正", () => {
+      const testData: any = {
+        ...userSettings.testScriptOption
+      };
+      testData.buttonDefinitions[0].attribute.value = 1;
+      expect(validateButtonDefinitions(testData.buttonDefinitions)).toEqual(false);
+    });
+  });
+});
+
+describe("validateDeviceSetting", () => {
+  const deviceSetting = {
+    platformName: "PC",
+    browser: "Chrome",
+    device: {
+      deviceName: "name",
+      modelNumber: "1.0",
+      osVersion: "95"
+    },
+    platformVersion: "2.0",
+    waitTimeForStartupReload: 0
+  };
+  describe("返却値がtrue", () => {
+    it("deviceSettingが存在しない", () => {
+      const testData: any = {
+        ...deviceSetting
+      };
+      delete testData.device;
+      expect(validateDeviceSetting(testData)).toEqual(true);
+    });
+    it("platformVersionが存在しない", () => {
+      const testData: any = {
+        ...deviceSetting
+      };
+      delete testData.platformVersion;
+      expect(validateDeviceSetting(testData)).toEqual(true);
+    });
+  });
+  describe("返却値がfalse", () => {
+    it("platformNameが存在しない", () => {
+      const testData: any = {
+        ...deviceSetting
+      };
+      delete testData.platformName;
+      expect(validateDeviceSetting(testData)).toEqual(false);
+    });
+    it("platformNameの値が不正", () => {
+      const testData: any = {
+        ...deviceSetting
+      };
+      testData.platformName = "Windows";
+      expect(validateDeviceSetting(testData)).toEqual(false);
+    });
+    it("browserが存在しない", () => {
+      const testData: any = {
+        ...deviceSetting
+      };
+      delete testData.browser;
+      expect(validateDeviceSetting(testData)).toEqual(false);
+    });
+    it("browserの値が不正", () => {
+      const testData: any = {
+        ...deviceSetting
+      };
+      testData.browser = "IE";
+      expect(validateDeviceSetting(testData)).toEqual(false);
+    });
+    it("device.deviceNameの値が不正", () => {
+      const testData: any = {
+        ...deviceSetting,
+
+        device: {
+          deviceName: 1,
+          modelNumber: "2.0",
+          osVersion: "3.0"
+        }
+      };
+      expect(validateDeviceSetting(testData)).toEqual(false);
+    });
+    it("device.modelNumberの値が不正", () => {
+      const testData: any = {
+        ...deviceSetting,
+
+        device: {
+          deviceName: "1.0",
+          modelNumber: 2,
+          osVersion: "3.0"
+        }
+      };
+      expect(validateDeviceSetting(testData)).toEqual(false);
+    });
+    it("device.osVersionの値が不正", () => {
+      const testData: any = {
+        ...deviceSetting,
+
+        device: {
+          deviceName: "1.0",
+          modelNumber: "2.0",
+          osVersion: 3
+        }
+      };
+      expect(validateDeviceSetting(testData)).toEqual(false);
+    });
+    it("platformVersionの値が不正", () => {
+      const testData: any = {
+        ...deviceSetting,
+
+        platformVersion: 100
+      };
+      expect(validateDeviceSetting(testData)).toEqual(false);
+    });
+    it("waitTimeForStartupReloadの値が不正", () => {
+      const testData: any = {
+        ...deviceSetting,
+
+        waitTimeForStartupReload: "200"
+      };
+      expect(validateDeviceSetting(testData)).toEqual(false);
+    });
+  });
+});
 
 describe("validateCaptureMediaSetting", () => {
   const captureMediaSetting: CaptureMediaSetting = {

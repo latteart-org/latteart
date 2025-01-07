@@ -113,7 +113,7 @@ export default defineComponent({
     const saveViewConfig = () => {
       if (props.opened) {
         context.emit("save-view-config", {
-          testHint: {
+          testHintSetting: {
             commentMatching: {
               target: tempConfig.value.commentMatching.target,
               extraWords:
@@ -131,8 +131,9 @@ export default defineComponent({
       }
     };
 
-    const updateDefaultSearchSeconds = (seconds: number) => {
-      const defaultSeconds = seconds < 0 ? 0 : seconds;
+    const updateDefaultSearchSeconds = (seconds: string) => {
+      const num = Number(seconds);
+      const defaultSeconds = num < 0 ? 0 : num;
       tempConfig.value = { ...tempConfig.value, defaultSearchSeconds: defaultSeconds };
     };
 

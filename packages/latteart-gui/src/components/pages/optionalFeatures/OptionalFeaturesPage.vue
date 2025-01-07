@@ -47,14 +47,14 @@
     <v-row>
       <v-col cols="12">
         <v-card class="pa-0">
-          <usersettings-import-launcher />
+          <user-settings-import-launcher />
         </v-card>
       </v-col>
     </v-row>
     <v-row>
       <v-col cols="12">
         <v-card class="pa-0">
-          <usersettings-export-launcher />
+          <user-settings-export-launcher />
         </v-card>
       </v-col>
     </v-row>
@@ -78,8 +78,8 @@ export default defineComponent({
     "test-script-generation-launcher": TestScriptGenerationlauncher,
     "project-import-launcher": ProjectImportLauncher,
     "project-export-launcher": ProjectExportLauncher,
-    "usersettings-import-launcher": UserSettingsImportLauncher,
-    "usersettings-export-launcher": UserSettingsExportLauncher
+    "user-settings-import-launcher": UserSettingsImportLauncher,
+    "user-settings-export-launcher": UserSettingsExportLauncher
   },
   setup() {
     const rootStore = useRootStore();
