@@ -51,7 +51,7 @@ export default defineComponent({
     const captureControlStore = useCaptureControlStore();
 
     const config = computed((): DeviceSettings => {
-      return rootStore.deviceSettings;
+      return rootStore.userSettings.deviceSettings;
     });
 
     const isCapturing = computed((): boolean => {

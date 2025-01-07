@@ -89,7 +89,7 @@ export default defineComponent({
 
     const urls = computed((): string[] => {
       const localUrl = rootStore.repositoryService?.serviceUrl as string;
-      const remoteUrls = rootStore.repositoryUrls;
+      const remoteUrls = rootStore.userSettings.repositoryUrls;
       return [...new Set([localUrl, ...remoteUrls])];
     });
 

@@ -89,7 +89,7 @@ export default defineComponent({
       captureControlStore.url = captureOption.value.url;
       captureControlStore.testResultName = captureOption.value.testResultName;
       await rootStore.writeDeviceSettings({
-        config: {
+        deviceSettings: {
           platformName: captureOption.value.platform,
           device: captureOption.value.device,
           browser: captureOption.value.browser,

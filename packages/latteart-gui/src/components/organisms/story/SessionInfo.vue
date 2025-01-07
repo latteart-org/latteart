@@ -485,7 +485,7 @@ export default defineComponent({
       captureControlStore.testResultName = option.testResultName;
 
       await rootStore.writeDeviceSettings({
-        config: {
+        deviceSettings: {
           platformName: option.platform,
           device: option.device,
           browser: option.browser,

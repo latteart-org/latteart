@@ -114,7 +114,9 @@
     "completed-sessions": "完了セッション数",
     "bug-count": "バグ検出数",
     "do-review": "レビューする",
-    "story-filter": "ストーリーのフィルタ"
+    "story-filter": "ストーリーのフィルタ",
+    "export-button": "エクスポートを実行する",
+    "import-button": "インポートを実行する"
   },
   "page-frame": {
     "loading-project": "プロジェクトデータ読込中"
@@ -456,12 +458,6 @@
   "import-option": {
     "select-project-file-label": "プロジェクトファイル"
   },
-  "project-import-launcher": {
-    "execute-button": "インポートを実行する"
-  },
-  "project-export-launcher": {
-    "execute-button": "エクスポートを実行する"
-  },
   "config-page": {
     "user-settings": "ユーザー設定",
     "project-settings": "プロジェクト設定",
@@ -545,6 +541,15 @@
     "attention": "※有効にすると、通常時では記録できなかった要素に対して記録できるようになる可能性があります。",
     "attention-video": "※キャプチャメディア設定は無視され、プラットフォームが「PC」の場合は動画のみが記録されます。",
     "experimental-warning": "実験的機能のため、有効にすると動作が不安定になる可能性があります。"
+  },
+  "user-settings-import-launcher": {
+    "title": "ユーザー設定のインポート",
+    "select-button": "設定ファイルを選択",
+    "succeeded": "ユーザー設定のインポートが完了しました",
+    "invalid-file-format": "インポートファイルの形式が正しくありません。"
+  },
+  "user-settings-export-launcher": {
+    "title": "ユーザー設定のエクスポート"
   },
   "error": {
     "common": {

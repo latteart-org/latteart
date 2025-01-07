@@ -245,8 +245,9 @@ export default defineComponent({
       filterTestHints();
     };
 
-    const updateDefaultSearchSeconds = (seconds: number) => {
-      defaultSearchSeconds.value = seconds < 0 ? 0 : seconds;
+    const updateDefaultSearchSeconds = (seconds: string) => {
+      const num = Number(seconds);
+      defaultSearchSeconds.value = num < 0 ? 0 : num;
     };
 
     const setSearchText = () => {

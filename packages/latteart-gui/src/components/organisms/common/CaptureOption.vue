@@ -180,7 +180,7 @@ export default defineComponent({
       rootStore.userSettings.captureMediaSetting.mediaType
     );
     const deviceSettings = computed((): DeviceSettings | undefined => {
-      return rootStore.deviceSettings;
+      return rootStore.userSettings.deviceSettings;
     });
 
     const captureOption = ref<CaptureOptionParams>({

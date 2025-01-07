@@ -278,7 +278,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         const client = captureCl.createCaptureClient({
           testResult: destTestResult,
           config: {
-            ...rootStore.deviceSettings,
+            ...rootStore.userSettings.deviceSettings,
             captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
             shouldTakeScreenshot: replayOption.resultSavingEnabled
               ? replayOption.screenshotSavingEnabled
@@ -656,7 +656,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
       const mediaType = rootStore.userSettings.captureMediaSetting.mediaType;
 
       const config: CaptureConfig = {
-        ...rootStore.deviceSettings,
+        ...rootStore.userSettings.deviceSettings,
         captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
         shouldTakeScreenshot: mediaType === "image" || mediaType === "video_and_image"
       };

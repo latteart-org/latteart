@@ -14,15 +14,24 @@
  * limitations under the License.
  */
 
-import { type SettingsForRepository, type SnapshotConfigForRepository } from "latteart-client";
+import {
+  type SettingsForRepository,
+  type SnapshotConfigForRepository,
+  type TestScriptOption
+} from "latteart-client";
 
 export type ProjectSettings = SettingsForRepository;
+
+export type Locale = "ja" | "en";
 
 export type UserSettings = {
   captureMediaSetting: CaptureMediaSetting;
   autofillSetting: AutofillSetting;
   autoOperationSetting: AutoOperationSetting;
   testHintSetting: TestHintSetting;
+  deviceSettings: DeviceSettings;
+  testScriptOption: Pick<TestScriptOption, "buttonDefinitions">;
+  repositoryUrls: string[];
 };
 
 export type ScreenDefinitionSetting = ProjectSettings["config"]["screenDefinition"];

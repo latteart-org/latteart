@@ -114,7 +114,9 @@
     "completed-sessions": "# of Complete Sessions",
     "bug-count": "# of Found Bugs",
     "do-review": "Review",
-    "story-filter": "Story Filter"
+    "story-filter": "Story Filter",
+    "export-button": "Export",
+    "import-button": "Import"
   },
   "page-frame": {
     "loading-project": "Loading Project data."
@@ -456,12 +458,6 @@
   "import-option": {
     "select-project-file-label": "Project file"
   },
-  "project-import-launcher": {
-    "execute-button": "Import"
-  },
-  "project-export-launcher": {
-    "execute-button": "Export"
-  },
   "config-page": {
     "user-settings": "User Settings",
     "project-settings": "Project Settings",
@@ -545,6 +541,15 @@
     "attention": "*If enabled, it may be possible to record elements that can not be recorded under normal conditions.",
     "attention-video": "*Capture media settings are ignored and only video is recorded if 'Platform' is 'PC'.",
     "experimental-warning": "These are experimental features and may cause instability when enabled."
+  },
+  "user-settings-import-launcher": {
+    "title": "Import User settings",
+    "select-button": "Select setting file",
+    "succeeded": "User setting import is complete",
+    "invalid-file-format": "The format of the import file is invalid."
+  },
+  "user-settings-export-launcher": {
+    "title": "Export User settings"
   },
   "error": {
     "common": {
