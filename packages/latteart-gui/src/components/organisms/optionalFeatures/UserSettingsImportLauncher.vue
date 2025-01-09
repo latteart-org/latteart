@@ -41,7 +41,7 @@
       :opened="dialogOpened"
       :title="$t('user-settings-import-launcher.title')"
       :message="$t('user-settings-import-launcher.succeeded')"
-      @close="dialogOpened = false"
+      @close="closeDialog"
     />
   </v-card>
 </template>
@@ -108,11 +108,17 @@ export default defineComponent({
       })();
     };
 
+    const closeDialog = () => {
+      dialogOpened.value = false;
+      importTargetFile.value = null;
+    };
+
     return {
       dialogOpened,
       importTargetFile,
       importFile,
-      selectImportFile
+      selectImportFile,
+      closeDialog
     };
   }
 });
