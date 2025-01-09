@@ -516,6 +516,12 @@ export const useRootStore = defineStore("root", {
         );
       }
 
+      const remoteUrls = getRepositoryUrlsFromLocalStorage();
+      const localUrl = this.repositoryService?.serviceUrl;
+      if (localUrl) {
+        setRepositoryUrlsToLocalStorage([...new Set([localUrl, ...remoteUrls])]);
+      }
+
       this.userSettings = {
         autofillSetting: readAutofillSettingResult.data,
         autoOperationSetting: readAutoOperationSettingResult.data,
