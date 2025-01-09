@@ -165,9 +165,9 @@
                   </experimental-feature-config>
                 </v-expansion-panel-text>
               </v-expansion-panel>
-
-              <extension-configs />
             </v-expansion-panels>
+
+            <extension-configs />
           </v-col>
         </v-row>
       </v-col>
