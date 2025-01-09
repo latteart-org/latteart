@@ -1043,6 +1043,14 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       const rootStore = useRootStore();
       const testResult = await rootStore.dataLoader?.loadTestResult(payload.testResultId);
 
+      const testResultInfos = (await rootStore.dataLoader?.loadTestResultSummaries()) ?? [];
+      this.testResultInfo = {
+        repositoryUrl: "",
+        id: payload.testResultId,
+        name: testResultInfos.find((info) => info.id === payload.testResultId)?.name ?? "",
+        parentTestResultId: ""
+      };
+
       if (!testResult) {
         throw new Error(`historyLog not found. ${payload.testResultId}`);
       }
@@ -1067,7 +1075,6 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
         captureControlStore.isResuming = true;
 
         const testResult = await rootStore.dataLoader?.loadTestResult(payload.testResultId);
-
         if (!testResult) {
           throw new Error();
         }
