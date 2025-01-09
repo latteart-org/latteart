@@ -542,6 +542,9 @@
     "attention-video": "※キャプチャメディア設定は無視され、プラットフォームが「PC」の場合は動画のみが記録されます。",
     "experimental-warning": "実験的機能のため、有効にすると動作が不安定になる可能性があります。"
   },
+  "extension-configs": {
+    "title": "拡張機能設定"
+  },
   "user-settings-import-launcher": {
     "title": "ユーザー設定のインポート",
     "select-button": "設定ファイルを選択",
