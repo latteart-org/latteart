@@ -27,13 +27,21 @@ import {
   type TestHintSetting
 } from "./settings/Settings";
 
+const LOCAL_STORAGE_KEY_LOCALE = "latteart-user-settings-locale";
+const LOCAL_STORAGE_KEY_DEVICE_SETTINGS = "latteart-user-settings-deviceSettings";
+const LOCAL_STORAGE_KEY_SCRIPT_GENERATION_OPTION = "latteart-user-settings-scriptGenerationOption";
+const LOCAL_STORAGE_KEY_TEST_HINT_SETTINGS = "latteart-user-settings-testHintSettings";
+const LOCAL_STORAGE_KEY_CAPTURE_MEDIA_SETTINGS = "latteart-user-settings-captureMediaSettings";
+const LOCAL_STORAGE_KEY_AUTOFILL_SETTING = "latteart-user-settings-autofillSetting";
+const LOCAL_STORAGE_KEY_AUTO_OPERATION_SETTING = "latteart-user-settings-autoOperationSetting";
+
 export class LocalStorageSettingRepository {
   /**
    * Get locale information.
    * @returns Locale information.
    */
   public getLocale(): "ja" | "en" {
-    const tmpLocale = localStorage.getItem("latteart-config-locale") as "ja" | "en" | null;
+    const tmpLocale = localStorage.getItem(LOCAL_STORAGE_KEY_LOCALE) as "ja" | "en" | null;
     const locale = tmpLocale ?? "ja";
     return locale;
   }
@@ -44,7 +52,7 @@ export class LocalStorageSettingRepository {
    * @returns Saved locale information.
    */
   public putLocale(locale: string): RepositoryAccessResult<string> {
-    localStorage.setItem("latteart-config-locale", locale);
+    localStorage.setItem(LOCAL_STORAGE_KEY_LOCALE, locale);
 
     return createRepositoryAccessSuccess({
       data: locale as string
@@ -56,7 +64,7 @@ export class LocalStorageSettingRepository {
    * @returns Device settings information
    */
   public getDeviceSettings(): DeviceSettings {
-    const tmpDeviceSettings = localStorage.getItem("latteart-config-deviceSettings");
+    const tmpDeviceSettings = localStorage.getItem(LOCAL_STORAGE_KEY_DEVICE_SETTINGS);
 
     const deviceSettings = tmpDeviceSettings
       ? JSON.parse(tmpDeviceSettings)
@@ -82,7 +90,7 @@ export class LocalStorageSettingRepository {
       waitTimeForStartupReload: deviceSettings.waitTimeForStartupReload
     };
 
-    localStorage.setItem("latteart-config-deviceSettings", JSON.stringify(tmpDeviceSettings));
+    localStorage.setItem(LOCAL_STORAGE_KEY_DEVICE_SETTINGS, JSON.stringify(tmpDeviceSettings));
 
     return createRepositoryAccessSuccess({
       data: deviceSettings
@@ -94,7 +102,7 @@ export class LocalStorageSettingRepository {
    * @returns Test script option.
    */
   public getTestScriptOption(): Pick<TestScriptOption, "buttonDefinitions"> {
-    const optionJson = localStorage.getItem("latteart-config-scriptGenerationOption");
+    const optionJson = localStorage.getItem(LOCAL_STORAGE_KEY_SCRIPT_GENERATION_OPTION);
     const option: Pick<TestScriptOption, "buttonDefinitions"> = optionJson
       ? JSON.parse(optionJson)
       : {};
@@ -110,7 +118,7 @@ export class LocalStorageSettingRepository {
   public putTestScriptOption(
     option: Pick<TestScriptOption, "buttonDefinitions">
   ): Pick<TestScriptOption, "buttonDefinitions"> {
-    localStorage.setItem("latteart-config-scriptGenerationOption", JSON.stringify(option));
+    localStorage.setItem(LOCAL_STORAGE_KEY_SCRIPT_GENERATION_OPTION, JSON.stringify(option));
 
     return option;
   }
@@ -120,7 +128,7 @@ export class LocalStorageSettingRepository {
    * @param testHintSetting Test hint settings information.
    */
   putTestHintSetting(testHintSetting: TestHintSetting): void {
-    localStorage.setItem("latteart-config-testHintSettings", JSON.stringify(testHintSetting));
+    localStorage.setItem(LOCAL_STORAGE_KEY_TEST_HINT_SETTINGS, JSON.stringify(testHintSetting));
   }
 
   /**
@@ -128,7 +136,7 @@ export class LocalStorageSettingRepository {
    * @returns Test hint settings.
    */
   getTestHintSetting(): TestHintSetting {
-    const data = localStorage.getItem("latteart-config-testHintSettings");
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY_TEST_HINT_SETTINGS);
     return data
       ? JSON.parse(data)
       : {
@@ -143,7 +151,7 @@ export class LocalStorageSettingRepository {
    */
   public putCaptureMediaSetting(captureMediaSetting: CaptureMediaSetting) {
     localStorage.setItem(
-      "latteart-config-captureMediaSetting",
+      LOCAL_STORAGE_KEY_CAPTURE_MEDIA_SETTINGS,
       JSON.stringify(captureMediaSetting)
     );
   }
@@ -153,7 +161,7 @@ export class LocalStorageSettingRepository {
    * @returns Capture media settings information.
    */
   public getCaptureMediaSetting(): CaptureMediaSetting {
-    const setting = localStorage.getItem("latteart-config-captureMediaSetting");
+    const setting = localStorage.getItem(LOCAL_STORAGE_KEY_CAPTURE_MEDIA_SETTINGS);
     if (setting === null) {
       return {
         mediaType: "image",
@@ -170,7 +178,7 @@ export class LocalStorageSettingRepository {
    * @param autofillSetting  Auto fill settings information.
    */
   public putAutofillSetting(autofillSetting: AutofillSetting): void {
-    localStorage.setItem("latteart-config-autofillSetting", JSON.stringify(autofillSetting));
+    localStorage.setItem(LOCAL_STORAGE_KEY_AUTOFILL_SETTING, JSON.stringify(autofillSetting));
   }
 
   /**
@@ -178,7 +186,7 @@ export class LocalStorageSettingRepository {
    * @returns Auto fill settings information.
    */
   public getAutofillSetting(): AutofillSetting {
-    const setting = localStorage.getItem("latteart-config-autofillSetting");
+    const setting = localStorage.getItem(LOCAL_STORAGE_KEY_AUTOFILL_SETTING);
     if (setting === null) {
       return {
         autoPopupRegistrationDialog: false,
@@ -195,7 +203,7 @@ export class LocalStorageSettingRepository {
    */
   public putAutoOperationSetting(autoOperationSetting: AutoOperationSetting): void {
     localStorage.setItem(
-      "latteart-config-autoOperationSetting",
+      LOCAL_STORAGE_KEY_AUTO_OPERATION_SETTING,
       JSON.stringify(autoOperationSetting)
     );
   }
@@ -205,7 +213,7 @@ export class LocalStorageSettingRepository {
    * @returns Auto operation settings information.
    */
   public getAutoOperationSetting(): AutoOperationSetting {
-    const setting = localStorage.getItem("latteart-config-autoOperationSetting");
+    const setting = localStorage.getItem(LOCAL_STORAGE_KEY_AUTO_OPERATION_SETTING);
     if (setting === null) {
       return {
         conditionGroups: []
