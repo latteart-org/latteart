@@ -17,19 +17,19 @@
 <template>
   <div>
     <scrollable-dialog :opened="opened">
-      <template #title>{{ $t("replay-option.start-replay") }}</template>
+      <template #title>{{ $t("common.replay") }}</template>
       <template #content>
         <v-checkbox
           v-model="isWaitTimeReproductionEnabled"
           density="comfortable"
           hide-details
-          :label="$t('replay-option.wait-time')"
+          :label="$t('replay-option-dialog.wait-time')"
         />
         <v-checkbox
           v-model="isResultSavingEnabled"
           density="comfortable"
           hide-details
-          :label="$t('replay-option.replay-capture')"
+          :label="$t('replay-option-dialog.replay-capture')"
         />
 
         <v-card flat :disabled="!isResultSavingEnabled">
@@ -37,7 +37,7 @@
             <v-text-field
               v-model="testResultName"
               variant="underlined"
-              :label="$t('replay-option.test-result-name')"
+              :label="$t('common.test-result-name')"
               hide-details
             />
             <v-checkbox
@@ -45,7 +45,7 @@
               class="ml-n2"
               density="comfortable"
               hide-details
-              :label="$t('replay-option.take-screenshots')"
+              :label="$t('replay-option-dialog.take-screenshots')"
             />
             <p v-if="savingReplayResultsWarningMessage !== ''" class="alert-message">
               {{ savingReplayResultsWarningMessage }}
@@ -58,7 +58,7 @@
           density="comfortable"
           :disabled="!isResultSavingEnabled"
           :label="
-            $t('replay-option.replay-compare', {
+            $t('replay-option-dialog.replay-compare', {
               sourceTestResultName
             })
           "
@@ -145,7 +145,7 @@ export default defineComponent({
         return item.videoFrame;
       });
       return operationsWithVideo.length > 0
-        ? rootStore.message("replay-option.saving-replay-results-warning-message")
+        ? rootStore.message("replay-option-dialog.saving-replay-results-warning-message")
         : "";
     });
 
@@ -177,7 +177,7 @@ export default defineComponent({
       isScreenshotSavingEnabled.value = true;
       isComparisonEnabled.value = false;
       alertMessage.value = hasIgnoredOperations.value
-        ? rootStore.message("replay-option.ignored-operations-alert")
+        ? rootStore.message("replay-option-dialog.ignored-operations-alert")
         : "";
     };
 

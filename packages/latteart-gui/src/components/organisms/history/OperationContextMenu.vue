@@ -24,18 +24,80 @@
       close-on-content-click
     >
       <v-list>
-        <v-list-subheader>{{ $t("app.intention") }}</v-list-subheader>
+        <v-list-subheader>{{ $t("common.purpose-of-the-test") }}</v-list-subheader>
         <v-list-item
           v-for="intention in intentionItems"
           :key="intention.label"
+          prepend-icon="event_note"
+          append-icon="keyboard_arrow_right"
+          slim
           @click="intention.onClick"
         >
           <v-list-item-title>{{ intention.label }}</v-list-item-title>
+          <v-menu
+            v-if="intention.subItems.length > 0"
+            location="end"
+            :open-on-focus="false"
+            activator="parent"
+            open-on-hover
+            submenu
+            close-on-content-click
+          >
+            <v-list>
+              <v-list-item
+                v-for="(menu, index) in intention.subItems"
+                :key="index"
+                :prepend-icon="menu.icon"
+                slim
+                @click="menu.onClick"
+              >
+                <v-list-item-title>{{ menu.label }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-list-item>
+        <v-list-item
+          v-if="intentionItems.length === 0"
+          prepend-icon="add"
+          slim
+          @click="editIntention"
+        >
+          <v-list-item-title>{{ $t("common.add") }}</v-list-item-title>
         </v-list-item>
 
-        <v-list-subheader>{{ $t("app.notice") }}</v-list-subheader>
-        <v-list-item v-for="notice in noticeItems" :key="notice.label" @click="notice.onClick">
+        <v-list-subheader>{{ $t("common.notice") }}</v-list-subheader>
+        <v-list-item
+          v-for="notice in noticeItems"
+          :key="notice.label"
+          prepend-icon="announcement"
+          append-icon="keyboard_arrow_right"
+          slim
+          @click="notice.onClick"
+        >
           <v-list-item-title>{{ notice.label }}</v-list-item-title>
+          <v-menu
+            location="end"
+            :open-on-focus="false"
+            activator="parent"
+            open-on-hover
+            submenu
+            close-on-content-click
+          >
+            <v-list>
+              <v-list-item
+                v-for="(menu, index) in notice.subItems"
+                :key="index"
+                :prepend-icon="menu.icon"
+                slim
+                @click="menu.onClick"
+              >
+                <v-list-item-title>{{ menu.label }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </v-list-item>
+        <v-list-item prepend-icon="add" slim @click="addNote">
+          <v-list-item-title>{{ $t("common.add") }}</v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -43,7 +105,6 @@
 </template>
 
 <script lang="ts">
-import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
@@ -71,26 +132,92 @@ export default defineComponent({
     const t = useRootStore().message;
     const operationHistoryStore = useOperationHistoryStore();
 
+    const editIntention = () => {
+      operationHistoryStore.openNoteEditDialog("intention", props.operationInfo.sequence);
+    };
+
+    const addNote = () => {
+      operationHistoryStore.openNoteEditDialog("notice", props.operationInfo.sequence);
+    };
+
     const currentHistoryItem = ref<{
       operation: OperationForGUI;
-      bugs: NoteForGUI[] | null;
       notices: NoteForGUI[] | null;
       intention: NoteForGUI | null;
     } | null>(null);
-    const intentionItems = ref<{ label: string; onClick: () => void }[]>([]);
-    const noticeItems = ref<{ label: string; onClick: () => void }[]>([]);
+
+    const intentionItems = computed(
+      (): {
+        label: string;
+        onClick: () => void;
+        subItems: { label: string; icon: string; onClick: () => void }[];
+      }[] => {
+        const deleteIntention = () => {
+          operationHistoryStore.openNoteDeleteConfirmDialog(
+            "intention",
+            currentHistoryItem.value?.intention?.value ?? "",
+            props.operationInfo.sequence
+          );
+        };
+
+        if (!currentHistoryItem.value?.intention) {
+          return [];
+        }
+
+        return [
+          {
+            label: currentHistoryItem.value?.intention?.value ?? "",
+            onClick: editIntention,
+            subItems: [
+              { label: t("common.details"), icon: "edit", onClick: editIntention },
+              { label: t("common.delete"), icon: "delete", onClick: deleteIntention }
+            ]
+          }
+        ];
+      }
+    );
+
+    const noticeItems = computed(
+      (): {
+        label: string;
+        onClick: () => void;
+        subItems: { label: string; icon: string; onClick: () => void }[];
+      }[] => {
+        return (currentHistoryItem.value?.notices ?? []).map((notice: NoteForGUI, i: number) => {
+          const editNote = () => {
+            operationHistoryStore.openNoteEditDialog("notice", props.operationInfo.sequence, i);
+          };
+          const deleteNote = () => {
+            operationHistoryStore.openNoteDeleteConfirmDialog(
+              "notice",
+              notice.value,
+              props.operationInfo.sequence,
+              i
+            );
+          };
+
+          return {
+            label: notice.value,
+            onClick: editNote,
+            subItems: [
+              { label: t("common.details"), icon: "edit", onClick: editNote },
+              { label: t("common.delete"), icon: "delete", onClick: deleteNote }
+            ]
+          };
+        });
+      }
+    );
 
     const updateCurrentHistoryItem = (value: any) => {
       currentHistoryItem.value = value;
     };
+
     const show = computed({
       get: () => {
         if (props.opened) {
           updateCurrentHistoryItem(
             operationHistoryStore.findHistoryItem(props.operationInfo.sequence)
           );
-          initializeIntentionMenu();
-          initializeNoticesMenu();
         }
 
         return props.opened;
@@ -102,92 +229,12 @@ export default defineComponent({
       }
     });
 
-    const initializeIntentionMenu = () => {
-      intentionItems.value = [];
-
-      intentionItems.value.push({
-        label: t("test-result-page.edit-intention"),
-        onClick: () => {
-          operationHistoryStore.openNoteEditDialog("intention", props.operationInfo.sequence);
-        }
-      });
-      if (currentHistoryItem.value?.intention) {
-        intentionItems.value.push({
-          label: t("test-result-page.delete-intention"),
-          onClick: () => {
-            operationHistoryStore.openNoteDeleteConfirmDialog(
-              "intention",
-              currentHistoryItem.value?.intention?.value ?? "",
-              props.operationInfo.sequence
-            );
-          }
-        });
-      }
-    };
-
-    const initializeNoticesMenu = () => {
-      noticeItems.value = [];
-
-      noticeItems.value.push({
-        label: t("test-result-page.add-notice"),
-        onClick: () => {
-          operationHistoryStore.openNoteEditDialog("notice", props.operationInfo.sequence);
-        }
-      });
-      (currentHistoryItem.value?.bugs ?? []).forEach((bug: NoteForGUI, i: number) => {
-        const value = bug.value;
-        noticeItems.value.push({
-          label: t("test-result-page.edit-bug", {
-            value
-          }),
-          onClick: () => {
-            operationHistoryStore.openNoteEditDialog("bug", props.operationInfo.sequence, i);
-          }
-        });
-        noticeItems.value.push({
-          label: t("test-result-page.delete-notice", {
-            value
-          }),
-          onClick: () => {
-            operationHistoryStore.openNoteDeleteConfirmDialog(
-              "bug",
-              bug.value,
-              props.operationInfo.sequence,
-              i
-            );
-          }
-        });
-      });
-      (currentHistoryItem.value?.notices ?? []).forEach((notice: NoteForGUI, i: number) => {
-        const value = TextUtil.ellipsis(notice.value, 100);
-        noticeItems.value.push({
-          label: t("test-result-page.edit-notice", {
-            value
-          }),
-          onClick: () => {
-            operationHistoryStore.openNoteEditDialog("notice", props.operationInfo.sequence, i);
-          }
-        });
-        noticeItems.value.push({
-          label: t("test-result-page.delete-notice", {
-            value
-          }),
-          onClick: () => {
-            operationHistoryStore.openNoteDeleteConfirmDialog(
-              "notice",
-              notice.value,
-              props.operationInfo.sequence,
-              i
-            );
-          }
-        });
-      });
-    };
-
     return {
       intentionItems,
       noticeItems,
-      show
+      show,
+      addNote,
+      editIntention
     };
   }
 });

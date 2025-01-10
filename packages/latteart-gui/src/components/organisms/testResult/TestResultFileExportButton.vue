@@ -16,7 +16,9 @@
 
 <template>
   <v-list-item :disabled="isDisabled" @click="exportData">
-    <v-list-item-title>{{ $t("import-export-dialog.test-result-export-title") }}</v-list-item-title>
+    <v-list-item-title>{{
+      $t("test-result-file-export-button.export-test-result")
+    }}</v-list-item-title>
     <error-message-dialog
       :opened="errorMessageDialogOpened"
       :message="errorMessage"
@@ -99,7 +101,7 @@ export default defineComponent({
 
         try {
           rootStore.openProgressDialog({
-            message: rootStore.message("import-export-dialog.creating-export-data")
+            message: rootStore.message("common.creating-export-data")
           });
           const exportDataPath = await operationHistoryStore
             .exportData({ testResultId })
@@ -109,7 +111,7 @@ export default defineComponent({
           rootStore.closeProgressDialog();
           downloadLinkDialogTitle.value = rootStore.message("common.confirm");
           downloadLinkDialogMessage.value = rootStore.message(
-            "import-export-dialog.create-export-data-succeeded"
+            "common.create-export-data-succeeded"
           );
           downloadLinkDialogAlertMessage.value = "";
           downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${exportDataPath}`;

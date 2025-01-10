@@ -3,149 +3,139 @@
     "close": "閉じる",
     "ok": "OK",
     "cancel": "キャンセル",
+    "confirm": "確認",
+    "add": "追加",
     "delete": "削除",
     "delete-warning": "削除すると元に戻せません",
-    "confirm": "確認",
     "error-dialog-title": "エラーが発生しました",
-    "download-link": "ダウンロードする"
-  },
-  "app": {
-    "start": "テスト開始",
-    "finish": "テスト終了",
-    "pause-capturing": "記録の一時停止",
-    "resume-capturing": "記録の再開",
+    "download-link": "ダウンロードする",
+    "snapshot": "スナップショット出力",
     "replay": "テスト結果のリプレイ",
-    "stop-replay": "リプレイの中止",
-    "history": "テスト履歴",
-    "target": "テスト対象設定",
-    "record-intention": "テストの目的の記録",
-    "record-notice": "テスト中の気づき",
+    "url": "URL",
+    "page-title": "ページタイトル",
+    "input-value-set-name": "入力値セット名",
+    "input-value": "入力値",
+    "operation-set-name": "操作セット名",
+    "operation-set-details": "操作セット詳細",
+    "non-required-details": "詳細(非必須)",
+    "summary": "概要",
+    "details": "詳細",
+    "test-matrix": "テストマトリクス",
+    "group": "グループ",
+    "test-target": "テスト対象",
+    "viewpoint": "テスト観点",
+    "start-capture-window-title": "テスト記録開始",
     "record-note": "メモを残す",
+    "take-screenshot": "登録するスクリーンショット",
+    "previous-screen": "直前の操作時のテスト画面",
+    "current-screen": "現在のテスト画面",
+    "target-sequence": "対象操作の通番",
+    "check-video": "動画を確認する",
+    "check-still-image": "静止画を確認する",
     "target-tab-window": "対象タブ/ウィンドウ",
-    "url": "URL (必須)",
-    "test-result-name": "テスト結果名",
-    "intention": "テストの目的",
-    "note": "メモ",
-    "notice": "気づき",
-    "register-operation": "操作の登録",
-    "register-test-hint": "テストヒントの登録",
-    "select-operation": "操作の選択",
-    "auto-operation": "自動操作",
-    "autofill": "自動入力"
-  },
-  "replay": {
-    "done-title": "テスト結果のリプレイ終了",
-    "done-run-operations": "リプレイが終了しました。",
-    "run-operations-canceled": "リプレイを中止しました。"
-  },
-  "auto-operation": {
-    "done-title": "自動操作終了",
-    "done-auto-operations": "自動操作が終了しました。"
-  },
-  "navigate": {
-    "back": "ブラウザバックを行う",
-    "forward": "ブラウザフォワードを行う"
-  },
-  "test-result-page": {
-    "window-title": "テスト結果",
-    "edit-intention": "目的の追加・編集",
-    "delete-intention": "目的の削除",
-    "delete-intention-message": "目的「{value}」を削除してもよろしいですか？",
-    "add-bug": "バグの追加",
-    "edit-bug": "バグ「{value}」の編集",
-    "add-notice": "気づきの追加",
-    "edit-notice": "気づき「{value}」の参照・編集",
-    "delete-notice": "気づき「{value}」の削除",
-    "delete-notice-title": "気づきの削除",
-    "delete-notice-message": "気づき「{value}」を削除してもよろしいですか？",
-    "sequence": "シーケンス図モデル",
-    "screen-transition": "画面遷移図モデル",
-    "element-coverage": "画面部品カバレッジ",
-    "generate-testscript": "テストスクリプト生成",
-    "generate-testscript-title": "テストスクリプト生成",
-    "custom-button-tags": "デフォルト定義に加えてクリック対象とするタグ",
-    "default-button-tags": "デフォルト定義: {value}",
-    "testdata": "テストデータ",
-    "max-generation": "最大数",
-    "template-only": "雛形のみ",
-    "method": "方式",
-    "method-data-driven": "データ駆動方式を使用する",
-    "use-multi-locator1": "",
-    "use-multi-locator2": "を利用した頑健なテストスクリプトを生成（実験的）",
-    "generate-simple-testscript": "記録された操作を再現するテストスクリプトを生成（冗長なスクリプトが出力される場合があります）",
-    "generate-only-template": "※最大数が0の場合は雛形のみを生成します。",
-    "custom-button-definition": "カスタムボタン定義",
-    "generate-testscript-succeeded": "テストスクリプトの生成が完了しました。",
-    "update-model-and-coverage": "モデル・カバレッジの更新",
-    "there-are-updates-on-history": "操作履歴の更新があります",
-    "generate-alert-info": "※コード化対象外の操作が含まれています。出力されたzip内のdoc/index.htmlをご確認ください。",
-    "generate-screenshots": "スクリーンショットの出力が完了しました。",
     "export-screenshots": "スクリーンショット出力",
-    "delete-test-result": "テスト結果の削除",
-    "delete-test-result-title": "テスト結果の削除",
-    "delete-test-result-associated-session-message": "セッションに本テスト結果が取り込まれていますが、\nテスト結果「{value}」を削除してよろしいですか？",
-    "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？",
-    "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
-    "compare-test-result": "テスト結果の比較",
-    "compare-test-result-title": "テスト結果の比較",
-    "compare-test-result-message": "テスト結果を比較してよろしいですか？",
     "comparing-test-result": "テスト結果を比較中",
-    "compare-test-result-completed": "テスト結果「{actual}」と「{expected}」の比較が完了しました。",
-    "compare-test-result-is-same": "テスト結果に差異はありません。",
-    "compare-test-result-is-different": "テスト結果に {diffCount} 件の差異があります。",
-    "compare-test-result-download": "詳細はダウンロードファイルをご確認ください。",
-    "compare-test-result-not-exist": "比較するテスト結果がありません。",
-    "compare-diffs-sequence": "操作の通番",
-    "compare-diffs-items": "差異のあった項目",
-    "compare-diffs-remarks": "備考",
-    "compare-remarks-invalid-screenshot": "スクリーンショットの形式が不正です。",
-    "compare-remarks-image-sizes-do-not-match": "スクリーンショットの画像サイズが異なります。",
+    "page-url": "ページURL",
+    "element-texts": "ページ内文字列",
+    "screenshot": "スクリーンショット",
+    "test-hint-list-window-title": "テストヒント一覧",
+    "test-matrix-window-title": "テストマトリクス確認",
+    "test-matrix-edit-window-title": "テストマトリクス編集",
+    "story-window-title": "ストーリー",
+    "stories-review-window-title": "ストーリー一括レビュー",
+    "review-window-title": "テスト結果レビュー",
+    "progress-management-window-title": "進捗管理",
+    "quality-management-window-title": "品質管理",
+    "optional-features-window-title": "オプション機能",
+    "config-window-title": "設定",
+    "config-coverage-title": "画面要素カバレッジの設定",
+    "config-screen-def-title": "画面遷移の定義",
+    "recent-stories": "最近読み込んだストーリー",
+    "current-review": "現在のレビュー",
+    "other": "その他",
+    "project-data": "プロジェクト情報",
+    "test-result-data": "テスト結果情報",
+    "test-hint-data": "テストヒント情報",
+    "config-data": "設定情報",
+    "query": "文字列",
+    "sequence": "通番",
+    "tagname": "要素タグ",
+    "element-name": "要素名",
+    "text": "テキスト",
+    "type": "イベント種別",
     "test-result-name": "テスト結果名",
-    "test-purpose": "テスト目的",
-    "no-test-purpose": "目的なし",
-    "edit-test-purpose": "テスト目的の編集",
-    "image": "静止画",
-    "video": "動画",
-    "loading-test-results": "テスト結果読込中",
-    "search-test-hints": "テストヒントを受ける",
-    "comment-register-field-label": "コメント"
-  },
-  "test-result-navigation-drawer": {
-    "title": "テスト結果一覧",
-    "delete-test-results": "テスト結果の削除",
-    "delete-test-result-message": "選択したテスト結果を削除しますか？",
-    "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
-    "deleting-test-results": "テスト結果削除中",
-    "load": "読み込み中"
-  },
-  "test-result-list": {
-    "name": "テスト結果名",
-    "url": "テスト対象URL",
+    "test-result-list-window-title": "テスト結果一覧",
+    "target-url": "テスト対象URL",
     "testing-time": "テスト時間",
-    "test-purpose": "テスト目的",
     "creation-timestamp": "作成日時",
     "load": "テスト結果を読み込む",
-    "edit": "テスト結果名編集"
-  },
-  "import-export-dialog": {
-    "test-result-import-title": "テスト結果のインポート",
-    "project-import-title": "設定・プロジェクトのインポート",
-    "test-result-export-title": "テスト結果のエクスポート",
-    "project-export-title": "設定・プロジェクトのエクスポート",
-    "project-data": "プロジェクト情報",
-    "testresult-data": "テスト結果情報",
-    "config-data": "設定情報",
-    "test-hint": "テストヒント情報",
-    "select-test-result-file-label": "テスト結果ファイル",
-    "select-test-result-file-button": "選択",
-    "select-project-file-label": "プロジェクトファイル",
-    "select-project-file-button": "選択",
-    "creating-export-data": "エクスポートデータ作成中",
+    "test-result-name-edit": "テスト結果名編集",
+    "deleting-test-results": "テスト結果削除中",
+    "delete-test-result-succeeded": "テスト結果の削除が完了しました。",
+    "generate-test-script": "テストスクリプト生成",
+    "generating-test-script": "テストスクリプト生成中",
+    "generate-test-script-succeeded": "テストスクリプトの生成が完了しました。",
+    "generate-alert-info": "※コード化対象外の操作が含まれています。出力されたzip内のdoc/index.htmlをご確認ください。",
+    "test-purpose": "テスト目的",
+    "purpose-of-the-test": "テストの目的",
+    "no-test-purpose": "目的なし",
+    "use-test-purpose": "テスト目的を使用してテストする",
+    "first-test-purpose": "最初のテスト目的",
+    "note": "メモ",
+    "notice": "気づき",
+    "tags": "タグ",
+    "image": "静止画",
+    "video": "動画",
+    "import-test-result": "テスト結果のインポート",
+    "import-project": "設定・プロジェクトのインポート",
+    "select-file-button": "選択",
     "importing-data": "データインポート中",
+    "import-data-succeeded": "{returnName}のインポートが完了しました。",
+    "export-project": "設定・プロジェクトのエクスポート",
+    "creating-export-data": "エクスポートデータ作成中",
     "create-export-data-succeeded": "データエクスポートが完了しました。",
-    "import-data-succeeded": "{returnName}のインポートが完了しました。"
+    "hint-text": "ヒント本文",
+    "issues": "摘出されたバグ",
+    "test-hint-viewpoint": "観点",
+    "comment-words": "キーワード",
+    "screen-elements": "画面要素",
+    "register-test-hint": "テストヒント登録",
+    "edit-props": "カスタムフィールド編集",
+    "suffix": "秒前まで",
+    "status-ok": "OK",
+    "status-out-of-scope": "-",
+    "status-ng": "未実施あり",
+    "status-ongoing": "実施中",
+    "status-pending": "修正待ち",
+    "management": "テスト管理",
+    "filter-section": "[フィルタ]",
+    "all": "全て",
+    "planned-sessions": "予定セッション数",
+    "completed-sessions": "完了セッション数",
+    "bug-count": "バグ検出数",
+    "do-review": "レビューする",
+    "story-filter": "ストーリーのフィルタ",
+    "export-button": "エクスポートを実行する",
+    "import-button": "インポートを実行する"
   },
-  "config-page": {
+  "page-frame": {
+    "loading-project": "プロジェクトデータ読込中"
+  },
+  "root-page": {
+    "capture": "テスト記録",
+    "test-design-support": "テスト設計支援"
+  },
+  "default-routes": {
+    "test-result-window-title": "テスト結果"
+  },
+  "start-capture-page": {
+    "execute-button": "記録を開始する"
+  },
+  "record-start-trigger": {
+    "starting-capture": "記録開始中"
+  },
+  "capture-option": {
+    "url": "URL (必須)",
     "device": "デバイス",
     "platform": "プラットフォーム",
     "browser": "ブラウザ",
@@ -154,199 +144,47 @@
     "select-device": "デバイス選択",
     "update-device": "デバイス情報更新",
     "no-device": "認識できたデバイスがありません",
-    "device-name": "デバイス名",
     "os-version": "OSバージョン",
-    "setting-inclusion-tags": "画面要素カバレッジの設定",
     "media-type": "メディアタイプ",
-    "still-image": "静止画",
-    "video": "動画",
     "video-and-image": "静止画＋動画",
-    "capture-media-config-hint": "※「プラットフォーム」が「PC」以外の場合は「静止画」が選択されます",
-    "setting-image-compression": "画像圧縮設定",
-    "png": "png",
-    "webp": "webp(pngより圧縮率が高まりますが、テスト結果比較機能で画像の比較ができなくなります)",
-    "include-coverage": "カバレッジ計算に含めるタグ",
-    "setting-test-result-comparison": "テスト結果比較の設定",
-    "comparison-exclude-items-enabled": "指定した項目の差分を検出しない",
-    "comparison-exclude-items-value": "除外する項目",
-    "comparison-exclude-elements-enabled": "指定した画面要素の差分を検出しない",
-    "comparison-exclude-elements-tagname": "除外するタグ",
-    "setting-screen": "画面遷移の定義",
-    "setting-autofill": "自動入力設定",
-    "setting-auto-operation": "自動操作設定",
-    "no-data": "操作セットが登録されていません",
-    "screen-def": {
-      "judgement-url": "URLで画面遷移を判断する",
-      "judgement-title": "タイトルで画面遷移を判断する",
-      "judgement-keyword": "キーワードで画面遷移を判断する",
-      "screen-list-definition-label": "URL / タイトル / キーワード",
-      "screen-list-definition-placeholder": "例：/search",
-      "screen-list-alias-label": "別名",
-      "screen-list-alias-placeholder": "例：検索画面",
-      "screen-list-regex-error": "[エラー] URL / タイトル / キーワード に使用している正規表現が不正です。",
-      "advanced-add": "追加",
-      "advanced-delete": "削除",
-      "default-screen-definition": "デフォルト画面定義",
-      "priority-condition": "優先条件",
-      "delete-definition": "定義を削除する",
-      "add-condition": "詳細条件を追加する",
-      "url": "URL",
-      "title": "ページタイトル",
-      "keyword": "ページ内の表示文言",
-      "contains": "文字列が含まれている",
-      "equals": "文字列と一致している",
-      "regex": "正規表現がマッチしている",
-      "screen-name": "定義名",
-      "description": "詳細条件を複数設定した場合、その全てが満たされると定義名が適用されます",
-      "and": "かつ"
-    },
-    "autofill": {
-      "setting-name": "入力値セット名",
-      "add-setting": "入力値セットの追加",
-      "adding-autofill-values": "入力値の追加",
-      "locator": "Locater",
-      "locator-type": "Locater Type",
-      "locator-match-type": "Locater Match Type",
-      "iframe-index": "Iframe通番",
-      "auto-popup-registration": "入力値を登録するポップアップを自動表示する",
-      "auto-popup-selection": "入力値を選択するポップアップを自動表示する",
-      "input-value": "入力値"
-    },
-    "autoOperation": {
-      "name": "操作セット名",
-      "details": "操作セット詳細",
-      "title": "自動操作：セット内容",
-      "details-list": "詳細"
-    },
-    "setting-test-hint": "テストヒント設定",
-    "test-hint": {
-      "search-scope": "検索時の画面要素・キーワード自動補完範囲",
-      "default-search-seconds": "デフォルト値",
-      "suffix": "秒前まで",
-      "info": "※0でヒントの検索による自動補完無効",
-      "matching-scope": "登録時・検索時のキーワード自動補完対象",
-      "all": "「コメント全体」からキーワードを補完",
-      "words-on-page-only": "コメント内に存在する「画面中のテキスト」及び「任意ワード」からキーワードを補完",
-      "extra-words": "任意ワード",
-      "excluded-words": "除外ワード"
-    },
-    "setting-experimental-features": "実験的機能設定",
-    "recording-method": "記録方式",
-    "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
-    "attention": "※有効にすると、通常時では記録できなかった要素に対して記録できるようになる可能性があります。",
-    "attention-video": "※キャプチャメディア設定は無視され、プラットフォームが「PC」の場合は動画のみが記録されます。",
-    "experimental-warning": "実験的機能のため、有効にすると動作が不安定になる可能性があります。"
+    "media-config-hint": "※「プラットフォーム」が「PC」以外の場合は「静止画」が選択されます"
   },
-  "autofill-register-dialog": {
-    "title": "自動入力：登録",
-    "message": "ただいま入力した入力値を登録しますか？　登録する場合は入力値セット名を入力してください。",
-    "form-label": "入力値セット名"
+  "first-test-purpose-option-dialog": {
+    "start-testing": "テストを始める"
   },
-  "autofill-select-dialog": {
-    "title": "自動入力：選択",
-    "message": "自動入力可能なフォームが見つかりました。自動入力する場合は入力値セット名を選択してください。",
-    "form-label": "入力値セット名"
+  "test-result-load-trigger": {
+    "loading-test-results": "テスト結果読込中"
   },
-  "autofill-button": {
-    "message": "入力値セット名を選択してください。"
+  "record-button": {
+    "start": "テスト開始",
+    "finish": "テスト終了"
   },
-  "auto-operation-register-dialog": {
-    "title": "自動操作：登録",
-    "message": "選択した操作を登録しますか？登録する場合は操作セット名を入力してください。",
-    "name": "操作セット名",
-    "details": "詳細(非必須)"
+  "pause-button": {
+    "pause-capturing": "記録の一時停止",
+    "resume-capturing": "記録の再開"
   },
-  "auto-operation-select-dialog": {
-    "title": "自動操作：選択",
-    "message": "自動操作する場合は操作セット名を選択してください。",
-    "name": "操作セット名",
-    "details": "操作セット詳細"
+  "test-result-file-export-button": {
+    "export-test-result": "テスト結果のエクスポート"
   },
-  "test-hint-register-dialog": {
-    "title": "テストヒント登録"
+  "browser-back-button": {
+    "back": "ブラウザバックを行う"
   },
-  "test-hint-edit-dialog": {
-    "title": "テストヒント編集"
+  "browser-forward-button": {
+    "forward": "ブラウザフォワードを行う"
   },
-  "note-edit": {
-    "take-screenshot": "登録するスクリーンショット",
-    "previous-screen": "直前の操作時のテスト画面",
-    "current-screen": "現在のテスト画面",
-    "save-warning": "指定された対象操作の通番には既にテストの目的が記録されています。",
-    "target-sequence": "対象操作の通番",
-    "summary": "概要",
-    "details": "詳細(非必須)",
-    "tags": "タグ",
-    "no-problem": "特に問題はなかった",
-    "problem-occured": "動作に違和感があった",
-    "note-for-current-purpose": "現在のテスト目的では...",
-    "next-purpose": "次のテスト目的は...",
-    "continue-same-purpose": "同じテスト目的で続ける",
-    "error-cannot-take-screenshots": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。",
-    "check-video": "動画を確認する",
-    "check-still-Image": "静止画を確認する"
+  "auto-operation-register-button": {
+    "register-operation": "操作の登録"
   },
-  "replay-option": {
-    "start-replay": "テスト結果のリプレイ",
-    "wait-time": "操作時の待ち時間を再現する",
-    "replay-capture": "リプレイ結果を保存する",
-    "saving-replay-results-warning-message": "※リプレイ時の動画は保存できません",
-    "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
-    "test-result-name": "テスト結果名",
-    "take-screenshots": "画面キャプチャ(静止画)を取得する",
-    "ignored-operations-alert": "「記録の一時停止」、「テストの中断-再開」が含まれているため、リプレイが正常終了しない可能性があります。"
+  "test-hint-register-button": {
+    "register-test-hint": "テストヒントの登録"
   },
-  "test-option": {
-    "title": "テスト目的",
-    "start-testing": "テストを始める",
-    "use-test-purpose": "テスト目的を使用してテストする",
-    "first-test-purpose": "最初のテスト目的"
+  "comment-register-field": {
+    "label": "コメント"
   },
-  "input-value": {
-    "times": "回目",
-    "element-id": "要素ID",
-    "element-name": "要素名",
-    "element-value": "入力値",
-    "gray-out-not-input-value-cell": "明示的に入力された値以外のセルをグレーアウトする",
-    "hide-hidden-elements": "hidden要素は表示しない",
-    "autofill-dialog-message": "入力値セット名を入力してください。",
-    "end-of-test": "テスト終了"
+  "sequence-diagram": {
+    "edit-test-purpose": "テスト目的の編集"
   },
-  "note-list-dialog": {
-    "note-list": "メモ一覧",
-    "note": "メモ",
-    "details": "詳細"
-  },
-  "operation": {
-    "search": "検索",
-    "query": "文字列",
-    "reset": "フィルタリセット",
-    "purpose": "目的",
-    "notice": "気づき",
-    "sequence": "通番",
-    "title": "ページタイトル",
-    "tagname": "要素タグ",
-    "name": "要素名",
-    "text": "テキスト",
-    "type": "イベント種別",
-    "input": "入力値",
-    "timestamp": "時刻",
-    "url": "URL"
-  },
-  "test-result-comparison-items": {
-    "title": "ページタイトル",
-    "url": "ページURL",
-    "elementTexts": "ページ内文字列",
-    "screenshot": "スクリーンショット"
-  },
-  "sequence": {
-    "window-title": "シーケンス図"
-  },
-  "screen-transition": {
-    "window-title": "画面遷移図"
-  },
-  "coverage": {
-    "window-title": "カバレッジ",
+  "element-coverage": {
     "tagname": "タグ",
     "type": "type",
     "id": "id",
@@ -354,287 +192,385 @@
     "text": "text",
     "operated": "操作済"
   },
-  "navigation": {
-    "group-label": {
-      "capture": "テスト記録",
-      "test-design-support": "テスト設計支援",
-      "management": "テスト管理",
-      "recent-stories": "最近読み込んだストーリー",
-      "current-review": "現在のレビュー",
-      "other": "その他"
-    }
+  "test-purpose-edit-dialog": {
+    "record-test-purpose": "テストの目的の記録",
+    "save-warning": "指定された対象操作の通番には既にテストの目的が記録されています。"
   },
-  "start-capture-page": {
-    "title": "テスト記録開始",
-    "execute-button": "記録を開始する",
-    "starting-capture": "記録開始中"
+  "note-common-dialog": {
+    "record-notice": "テスト中の気づき",
+    "take-screenshots-warning": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
   },
-  "test-hint": {
-    "list-page": {
-      "title": "テストヒント一覧"
-    },
-    "edit-props-dialog": {
-      "title": "カスタムフィールド編集",
-      "add": "カラム追加",
-      "name": "カラム名",
-      "add-option": "項目追加"
-    },
-    "delete-dialog": {
-      "title": "テストヒントを削除しますか？"
-    },
-    "search-dialog": {
-      "title": "テストヒント:検索",
-      "filter-test-hints": "テストヒントのマッチング",
-      "matching-words": "マッチングワード",
-      "matching-result": "現在のテストに関連するヒント",
-      "matching-scope": "対象範囲:",
-      "show": "マッチング条件表示",
-      "hide": "マッチング条件非表示",
-      "ignore-check-box": "現在のテスト中は以後マッチング対象外になります",
-      "story-filter": "現在のストーリーのみ",
-      "comment-words": "ヒント本文・キーワード",
-      "display-all-test-hints": "全てのテストヒントを表示",
-      "display-matched-test-hints": "マッチするテストヒントのみ表示",
-      "information": "ヒントはマッチング条件に多く該当した順で表示されます",
-      "no-test-hint-matched": "マッチするテストヒントがありません。全てのテストヒントを表示します。"
-    },
-    "common": {
-      "match-count": "マッチ数",
-      "hint-text": "ヒント本文",
-      "issues": "摘出されたバグ",
-      "test-matrix": "テストマトリクス",
-      "group": "グループ",
-      "test-target": "テスト対象",
-      "view-point": "観点",
-      "comment-words": "キーワード",
-      "operation": "操作",
-      "screen-elements": "画面要素",
-      "add-element": "要素の追加",
-      "search": "文字列検索",
-      "add-issue": "追加"
-    }
+  "take-note-with-purpose-dialog": {
+    "no-problem": "特に問題はなかった",
+    "problem-occured": "動作に違和感があった",
+    "note-for-current-test-purpose": "現在のテスト目的では...",
+    "next-test-purpose": "次のテスト目的は...",
+    "continue-same-test-purpose": "同じテスト目的で続ける"
   },
-  "optional-features": {
-    "title": "オプション機能",
-    "snapshot-output": {
-      "title": "スナップショット出力",
-      "execute-button": "スナップショットを出力する"
-    },
-    "test-script-generation": {
-      "title": "テストスクリプト生成",
-      "execute-button": "テストスクリプトを生成する"
-    },
-    "project-import": {
-      "title": "設定・プロジェクトのインポート",
-      "execute-button": "インポートを実行する"
-    },
-    "project-export": {
-      "title": "設定・プロジェクトのエクスポート",
-      "execute-button": "エクスポートを実行する"
-    }
+  "history-display": {
+    "there-are-updates-on-history": "操作履歴の更新があります",
+    "delete-test-purpose": "目的の削除",
+    "delete-test-purpose-message": "目的「{value}」を削除してもよろしいですか？",
+    "delete-note-title": "気づきの削除",
+    "delete-note-message": "気づき「{value}」を削除してもよろしいですか？",
+    "update-model-and-coverage": "モデル・カバレッジの更新",
+    "sequence": "シーケンス図モデル",
+    "sequence-window-title": "シーケンス図",
+    "screen-transition": "画面遷移図モデル",
+    "screen-transition-window-title": "画面遷移図",
+    "element-coverage": "画面部品カバレッジ",
+    "coverage-window-title": "カバレッジ"
   },
-  "manage": {
-    "print-html-succeeded": "スナップショット出力が完了しました。",
-    "output-html-running": "スナップショット出力中",
-    "datafile-load-error": "データファイルの読み込み時にエラーが発生しました。\n[エラー]\n {error}",
-    "loading-project": "プロジェクトデータ読込中"
+  "operation-list": {
+    "search": "検索",
+    "test-purpose": "目的",
+    "timestamp": "時刻"
   },
-  "manage-header": {
-    "creating-snapshot": "スナップショット作成中",
-    "output-html": "スナップショット出力",
-    "capture-config": "設定",
-    "top": "テストマトリクス確認",
-    "generate-script": "テストスクリプト生成",
-    "generating-test-script": "テストスクリプト生成中",
-    "generate-script-succeeded": "テストスクリプトの生成が完了しました。",
-    "locale": "言語"
+  "decision-table": {
+    "times": "回目",
+    "element-id": "要素ID",
+    "gray-out-not-input-value-cell": "明示的に入力された値以外のセルをグレーアウトする",
+    "hide-hidden-elements": "hidden要素は表示しない",
+    "end-of-test": "テスト終了",
+    "autofill-dialog-message": "入力値セット名を入力してください。"
+  },
+  "note-list-dialog": {
+    "note-list": "メモ一覧"
+  },
+  "run-auto-operation-button": {
+    "auto-operation": "自動操作",
+    "done-title": "自動操作終了",
+    "done-auto-operations": "自動操作が終了しました。"
+  },
+  "autofill-button": {
+    "autofill": "自動入力",
+    "message": "入力値セット名を選択してください。"
+  },
+  "autofill-register-dialog": {
+    "title": "自動入力：登録"
+  },
+  "capture-control": {
+    "register-message": "ただいま入力した入力値を登録しますか？　登録する場合は入力値セット名を入力してください。",
+    "select-message": "自動入力可能なフォームが見つかりました。自動入力する場合は入力値セット名を選択してください。"
+  },
+  "autofill-select-dialog": {
+    "title": "自動入力：選択"
+  },
+  "auto-operation-register-dialog": {
+    "title": "自動操作：登録",
+    "message": "選択した操作を登録しますか？登録する場合は操作セット名を入力してください。"
+  },
+  "auto-operation-select-dialog": {
+    "title": "自動操作：選択",
+    "message": "自動操作する場合は操作セット名を選択してください。"
+  },
+  "test-hint-search-button": {
+    "search-test-hints": "テストヒントを受ける"
+  },
+  "test-hint-search-dialog": {
+    "title": "テストヒント:検索",
+    "matching-result": "現在のテストに関連するヒント",
+    "matching-scope": "対象範囲:",
+    "show": "マッチング条件表示",
+    "hide": "マッチング条件非表示",
+    "story-filter": "現在のストーリーのみ",
+    "comment-words": "ヒント本文・キーワード",
+    "display-all-test-hints": "全てのテストヒントを表示",
+    "display-matched-test-hints": "マッチするテストヒントのみ表示",
+    "information": "ヒントはマッチング条件に多く該当した順で表示されます",
+    "no-test-hint-matched": "マッチするテストヒントがありません。全てのテストヒントを表示します。"
+  },
+  "replay-history-button": {
+    "stop-replay": "リプレイの中止",
+    "done-title": "テスト結果のリプレイ終了",
+    "done-run-operations": "リプレイが終了しました。"
+  },
+  "replay-option-dialog": {
+    "wait-time": "操作時の待ち時間を再現する",
+    "replay-capture": "リプレイ結果を保存する",
+    "saving-replay-results-warning-message": "※リプレイ時の動画は保存できません",
+    "replay-compare": "リプレイ元のテスト結果「{sourceTestResultName}」と比較する",
+    "take-screenshots": "画面キャプチャ(静止画)を取得する",
+    "ignored-operations-alert": "「記録の一時停止」、「テストの中断-再開」が含まれているため、リプレイが正常終了しない可能性があります。"
+  },
+  "screenshots-download-button": {
+    "generate-screenshots": "スクリーンショットの出力が完了しました。"
+  },
+  "delete-test-result-button": {
+    "delete-test-result": "テスト結果の削除",
+    "delete-test-result-associated-session-message": "セッションに本テスト結果が取り込まれていますが、\nテスト結果「{value}」を削除してよろしいですか？",
+    "delete-test-result-message": "テスト結果「{value}」を削除してよろしいですか？"
+  },
+  "compare-history-button": {
+    "compare-test-result": "テスト結果の比較",
+    "compare-test-result-message": "テスト結果を比較してよろしいですか？"
+  },
+  "comparison-result-dialog": {
+    "compare-test-result-completed": "テスト結果「{actual}」と「{expected}」の比較が完了しました。",
+    "compare-test-result-is-same": "テスト結果に差異はありません。",
+    "compare-test-result-is-different": "テスト結果に {diffCount} 件の差異があります。",
+    "compare-test-result-download": "詳細はダウンロードファイルをご確認ください。",
+    "compare-diffs-sequence": "操作の通番",
+    "compare-diffs-items": "差異のあった項目",
+    "compare-diffs-remarks": "備考"
+  },
+  "test-result-list-page": {
+    "delete-test-results": "テスト結果の削除",
+    "delete-test-result-message": "選択したテスト結果を削除しますか？"
+  },
+  "test-result-import-dialog": {
+    "select-test-result-file-label": "テスト結果ファイル"
+  },
+  "test-hint-edit-dialog": {
+    "title": "テストヒント編集"
+  },
+  "element-container": {
+    "add-element": "要素の追加"
+  },
+  "test-hint-list-page": {
+    "delete-message": "テストヒントを削除しますか？"
+  },
+  "test-hint-list": {
+    "ignore-check-box": "現在のテスト中は以後マッチング対象外になります",
+    "match-count": "マッチ数",
+    "search": "文字列検索"
+  },
+  "test-hint-props-edit-dialog": {
+    "add": "カラム追加",
+    "name": "カラム名",
+    "add-option": "項目追加"
   },
   "test-matrix-page": {
+    "tester-name": "テスター名（完全一致）",
+    "incomplete-sessions": "未完了セッションを含むストーリーのみを表示"
+  },
+  "legend-viewer": {
     "legend1": "( X / Y )",
     "legend2": "X: 完了セッション数",
     "legend3": "Y: 予定セッション数",
-    "status-ok": "OK",
     "text-ok": "当該テスト観点のテストはすべて完了",
-    "status-out-of-scope": "-",
     "text-out-of-scope": "テスト対象外(予定が0件)",
-    "status-ng": "未実施あり",
     "text-ng": "未実施のセッションがある",
-    "status-ongoing": "実施中",
     "text-ongoing": "現在セッション実施中",
-    "status-pending": "修正待ち",
-    "text-pending": "バグの改修などの対応待ち",
-    "tester-name": "テスター名（完全一致）",
-    "search": "ストーリーのフィルタ",
-    "incomplete-sessions": "未完了セッションを含むストーリーのみを表示"
+    "text-pending": "バグの改修などの対応待ち"
+  },
+  "test-matrix-edit-page": {
+    "add-test-matrix": "テストマトリクスを追加"
+  },
+  "test-matrix-editor": {
+    "delete-test-matrix-confirm": "テストマトリクスを削除してよろしいですか？",
+    "settings": "設定",
+    "name": "グループ名",
+    "delete-group-confirm": "グループを削除してもよろしいですか？",
+    "add": "グループを追加"
+  },
+  "group-editor": {
+    "delete-target-confirm": "テスト対象を削除してもよろしいですか？"
   },
   "test-matrix-dialog": {
     "test-matrix-name": "テストマトリクス名",
-    "setting-viewPoint": "テスト観点の設定",
-    "viewPoint-name": "テスト観点名",
-    "view-point-description": "テスト観点の説明",
-    "new-viewPoint": "テスト観点追加",
+    "setting-viewpoint": "テスト観点の設定",
+    "viewpoint-name": "テスト観点名",
+    "viewpoint-description": "テスト観点の説明",
+    "add-viewpoint": "テスト観点追加",
     "preset": "使用するプリセット名",
     "create-test-matrix": "テストマトリクス作成",
     "edit-test-matrix": "テストマトリクスの設定",
-    "delete-viewPoint-confirm": "テスト観点を削除してよろしいですか？",
     "unselected": "プリセットなし"
   },
-  "progress-management": {
-    "title": "進捗管理",
-    "display-settings-section": "[表示設定]",
-    "period": "集計期間:",
-    "period-symbol": "～",
-    "filter-section": "[フィルタ]",
-    "test-matrix": "テストマトリクス",
-    "group": "グループ",
-    "test-target": "テスト対象",
-    "all": "全て",
-    "planned-sessions": "予定セッション数",
-    "completed-sessions": "完了セッション数",
-    "incompleted-sessions": "未完了セッション数"
-  },
-  "quality-management": {
-    "title": "品質管理",
-    "attention": "※バグ検出数: 'bug'タグを付与した気づきの数",
-    "filter-section": "[フィルタ]",
-    "test-matrix": "テストマトリクス",
-    "group": "グループ",
-    "test-target": "テスト対象",
-    "bug-report": "[バグ検出数]",
-    "pb-curve": "[PB曲線]",
-    "total-number": "全件数",
-    "times-per-session": "1セッションあたりの件数",
-    "total": "全体",
-    "all": "全て",
-    "unit-description-total": "単位: バグ検出数",
-    "unit-description": "単位: バグ検出数 / 完了セッション数"
-  },
-  "quality-chart": {
-    "bug-report-number": "バグ検出数",
-    "number-session": "完了済みセッション数"
-  },
-  "group-info": {
-    "target": "テスト対象"
-  },
-  "group-edit-info": {
-    "target": "テスト対象",
-    "delete-target-title": "テスト対象の削除",
-    "delete-target-confirm": "テスト対象を削除してもよろしいですか？",
-    "delete": "削除",
-    "add": "追加"
-  },
-  "group-edit-list": {
-    "name": "グループ名",
-    "delete-group-title": "グループの削除",
-    "delete-group-confirm": "グループを削除してもよろしいですか？",
-    "delete": "削除",
-    "add": "グループを追加"
+  "story-page": {
+    "session-complete": "セッションを完了にする",
+    "delete-session": "セッションを削除してもよろしいですか？",
+    "status": "ステータス",
+    "session": "セッション",
+    "review-target": "レビュー対象",
+    "add-session": "セッションを追加する"
   },
   "session-info": {
     "charter": "チャーター部",
-    "test-item": "テストアイテム",
     "tester-name": "テスター名",
     "memo": "メモ",
     "report": "レポート部",
     "model": "テスト実行モデル",
     "import": "実行結果の取り込み",
-    "file": "添付ファイル",
-    "add-file": "添付ファイルの追加",
     "delete-test-result-confirm": "セッションからテスト結果を取り外してもよろしいですか？",
     "delete-test-result-confirm-message": "テスト結果そのものは削除されません。",
-    "delete-attached-file-confirm": "添付ファイルを削除してもよろしいですか？",
-    "file-open-read-error": "添付ファイルの読み込みに失敗しました。",
     "result-list": "実行結果取り込み",
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
     "start-capture": "新規テストを開始",
     "open-test-result": "テスト結果を開く",
     "update-test-results-title": "テスト結果名と記録時間を最新化する",
-    "remove-test-results-title": "セッションからテスト結果を外す"
+    "remove-test-results-title": "セッションからテスト結果を外す",
+    "file": "添付ファイル",
+    "add-file": "添付ファイルの追加",
+    "delete-attached-file-confirm": "添付ファイルを削除してもよろしいですか？"
   },
   "test-purpose-note-list": {
     "title": "テスト目的・気づき",
     "open": "テスト目的をすべて開く",
-    "close": "テスト目的をすべて閉じる",
-    "details": "詳細",
-    "no-test-purpose": "目的なし"
-  },
-  "note-details-dialog": {
-    "details": "詳細",
-    "summary": "概要",
-    "tags": "タグ"
-  },
-  "media-display-group": {
-    "image": "静止画",
-    "video": "動画"
-  },
-  "session-list": {
-    "complete": "セッションを完了にする",
-    "delete": "削除",
-    "delete-session": "セッションを削除してもよろしいですか？",
-    "session-name-base": "セッション"
+    "close": "テスト目的をすべて閉じる"
   },
   "stories-review-page": {
-    "title": "ストーリー一括レビュー",
-    "filter": "ストーリーのフィルタ",
-    "clear": "フィルタクリア",
-    "test-matrix": "テストマトリクス",
-    "group": "グループ",
-    "test-target": "テスト対象",
-    "view-point": "テスト観点",
-    "do-review": "レビューする"
+    "clear": "フィルタクリア"
   },
-  "story-page": {
-    "title": "ストーリー",
-    "test-matrix": "テストマトリクス",
-    "group": "グループ",
-    "test-target": "テスト対象",
-    "viewPoint": "テスト観点",
-    "status": "ステータス",
-    "session": "セッション",
-    "planned-session": "予定セッション数",
-    "completed-session": "完了セッション数",
-    "bug-count": "バグ検出数",
-    "review-target": "レビュー対象",
-    "do-review": "レビューする",
-    "add-session": "セッションを追加する"
+  "progress-management-page": {
+    "display-settings-section": "[表示設定]",
+    "period": "集計期間:",
+    "period-symbol": "～"
   },
-  "viewPoint-status": {
-    "out-of-scope": "-",
-    "ok": "OK",
-    "ng": "未実施あり",
-    "ongoing": "実施中",
-    "pending": "修正待ち"
+  "progress-chart": {
+    "incompleted-sessions": "未完了セッション数"
   },
-  "manager-history-view": {
-    "review": "テスト結果レビュー"
+  "quality-management-page": {
+    "attention": "※バグ検出数: 'bug'タグを付与した気づきの数",
+    "bug-report": "[バグ検出数]",
+    "pb-curve": "[PB曲線]",
+    "total-number": "全件数",
+    "times-per-session": "1セッションあたりの件数",
+    "total": "全体",
+    "unit-description-total": "単位: バグ検出数",
+    "unit-description": "単位: バグ検出数 / 完了セッション数"
   },
-  "test-matrix-edit-page": {
-    "title": "テストマトリクス編集",
-    "add-test-matrix": "テストマトリクスを追加",
-    "delete-test-matrix-confirm": "テストマトリクスを削除してよろしいですか？",
-    "settings": "設定"
+  "quality-chart": {
+    "number-session": "完了済みセッション数"
   },
-  "remote-access": {
+  "snapshot-output-launcher": {
+    "execute-button": "スナップショットを出力する",
+    "snapshot-output-succeeded": "スナップショット出力が完了しました。",
+    "creating-snapshot": "スナップショット作成中"
+  },
+  "test-script-generation-launcher": {
+    "execute-button": "テストスクリプトを生成する"
+  },
+  "script-generation-option": {
+    "custom-button-tags": "デフォルト定義に加えてクリック対象とするタグ",
+    "default-button-tags": "デフォルト定義: {value}",
+    "testdata": "テストデータ",
+    "max-generation": "最大数",
+    "method-data-driven": "データ駆動方式を使用する",
+    "use-multi-locator1": "",
+    "use-multi-locator2": "を利用した頑健なテストスクリプトを生成（実験的）",
+    "generate-simple-testscript": "記録された操作を再現するテストスクリプトを生成（冗長なスクリプトが出力される場合があります）",
+    "generate-only-template": "※最大数が0の場合は雛形のみを生成します。",
+    "custom-button-definition": "カスタムボタン定義"
+  },
+  "import-option": {
+    "select-project-file-label": "プロジェクトファイル"
+  },
+  "config-page": {
+    "user-settings": "ユーザー設定",
+    "project-settings": "プロジェクト設定",
+    "user-settings-notice": "ユーザー固有の設定のため、他者と共有されません",
+    "base-settings": "基本設定",
+    "locale": "言語",
+    "setting-image-compression": "画像圧縮設定",
+    "setting-autofill": "自動入力設定",
+    "setting-auto-operation": "自動操作設定",
+    "setting-test-result-comparison": "テスト結果比較の設定",
+    "setting-test-hint": "テストヒント設定",
+    "setting-experimental-features": "実験的機能設定"
+  },
+  "remote-access-field": {
     "remote-connection-url": "リポジトリURL",
     "connect": "接続",
     "connecting-remote-url": "リポジトリに接続中",
-    "connect-remote-url-succeeded": "{url}に接続しました。",
-    "connect-remote-url-error": "リポジトリへの接続に失敗しました。\nURLが間違っている、もしくはサーバーが起動していない可能性があります。",
-    "delete-testresults": "テスト結果削除中"
+    "connect-remote-url-succeeded": "{url}に接続しました。"
+  },
+  "capture-media-config": {
+    "png": "png",
+    "webp": "webp(pngより圧縮率が高まりますが、テスト結果比較機能で画像の比較ができなくなります)"
+  },
+  "coverage-config": {
+    "include-coverage": "カバレッジ計算に含めるタグ"
+  },
+  "screen-definition-config": {
+    "judgement-url": "URLで画面遷移を判断する",
+    "judgement-title": "タイトルで画面遷移を判断する",
+    "default-screen-definition": "デフォルト画面定義",
+    "priority-condition": "優先条件"
+  },
+  "screen-def-unit": {
+    "delete-definition": "定義を削除する",
+    "add-condition": "詳細条件を追加する",
+    "keyword": "ページ内の表示文言",
+    "contains": "文字列が含まれている",
+    "equals": "文字列と一致している",
+    "regex": "正規表現がマッチしている",
+    "screen-name": "定義名",
+    "description": "詳細条件を複数設定した場合、その全てが満たされると定義名が適用されます",
+    "and": "かつ"
+  },
+  "autofill-config": {
+    "add-setting": "入力値セットの追加",
+    "auto-popup-registration": "入力値を登録するポップアップを自動表示する",
+    "auto-popup-selection": "入力値を選択するポップアップを自動表示する"
+  },
+  "autofill-input-value-container": {
+    "adding-autofill-values": "入力値の追加",
+    "locator": "Locater",
+    "locator-type": "Locater Type",
+    "locator-match-type": "Locater Match Type",
+    "iframe-index": "Iframe通番"
+  },
+  "auto-operation-config": {
+    "no-data": "操作セットが登録されていません"
+  },
+  "auto-operation-dialog": {
+    "title": "自動操作：セット内容"
+  },
+  "compare-config": {
+    "comparison-exclude-items-enabled": "指定した項目の差分を検出しない",
+    "comparison-exclude-items-value": "除外する項目",
+    "comparison-exclude-elements-enabled": "指定した画面要素の差分を検出しない",
+    "comparison-exclude-elements-tagname": "除外するタグ"
+  },
+  "test-hint-config": {
+    "search-scope": "検索時の画面要素・キーワード自動補完範囲",
+    "default-search-seconds": "デフォルト値",
+    "info": "※0でヒントの検索による自動補完無効",
+    "matching-scope": "登録時・検索時のキーワード自動補完対象",
+    "all": "「コメント全体」からキーワードを補完",
+    "words-on-page-only": "コメント内に存在する「画面中のテキスト」及び「任意ワード」からキーワードを補完",
+    "extra-words": "任意ワード",
+    "excluded-words": "除外ワード"
+  },
+  "experimental-feature-config": {
+    "recording-method": "記録方式",
+    "capture-arch": "テスト対象ページ上の操作をPUSH方式で記録する",
+    "attention": "※有効にすると、通常時では記録できなかった要素に対して記録できるようになる可能性があります。",
+    "attention-video": "※キャプチャメディア設定は無視され、プラットフォームが「PC」の場合は動画のみが記録されます。",
+    "experimental-warning": "実験的機能のため、有効にすると動作が不安定になる可能性があります。"
+  },
+  "extension-configs": {
+    "title": "拡張機能設定"
+  },
+  "user-settings-import-launcher": {
+    "title": "ユーザー設定のインポート",
+    "select-button": "設定ファイルを選択",
+    "succeeded": "ユーザー設定のインポートが完了しました",
+    "invalid-file-format": "インポートファイルの形式が正しくありません。"
+  },
+  "user-settings-export-launcher": {
+    "title": "ユーザー設定のエクスポート"
   },
   "error": {
     "common": {
       "fatal": "不明なエラーが発生しました。",
       "get_settings_failed": "設定の取得に失敗しました。",
       "save_settings_failed": "設定の保存に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。",
-      "change_locale_failed": "ロケールの変更に失敗しました。設定ファイルの書き込み権限もしくはディスク容量をご確認ください。"
+      "connect_remote_url_failed": "リポジトリへの接続に失敗しました。\nURLが間違っている、もしくはサーバーが起動していない可能性があります。",
+      "import_data_failed": "データインポートに失敗しました。",
+      "import_project_not_exist": "インポートデータにプロジェクト情報が存在しません。",
+      "import_test_result_not_exist": "インポートデータにテスト結果情報が存在しません。",
+      "import_test_hint_not_exist": "インポートデータにテストヒント情報が存在しません。",
+      "import_config_not_exist": "インポートデータに設定情報が存在しません。",
+      "create_export_data_failed": "データエクスポートに失敗しました。"
     },
     "capture_control": {
       "unknown_error": "'latteart-capture-cl'で不明なエラーが発生しました。",
       "client_side_capture_service_not_found": "'latteart-capture-cl'サーバに接続できません。'latteart-capture-cl'サーバが起動しているかご確認ください。",
       "capture_socket_disconnected": "記録中に'latteart-capture-cl'サーバとのコネクションが切断されました。「テスト開始」ボタンを押して記録を再開してください。",
-      "run_operations_socket_disconnected": "操作のリプレイ中に'latteart-capture-cl'サーバとのコネクションが切断されました。「テスト結果のリプレイ」ボタンを押して再度リプレイを実施してください。",
       "get_device_settings_failed": "デバイス設定の取得に失敗しました。",
       "save_device_settings_failed": "デバイス設定の保存に失敗しました。",
       "run_operations_failed": "操作のリプレイ中にエラーが発生しました。",
@@ -655,7 +591,6 @@
     },
     "operation_history": {
       "load_history_failed": "テスト結果の読み込みに失敗しました。",
-      "illegal_test_result": "テスト結果のフォーマットが不正です。",
       "save_test_scripts_failed": "テストスクリプトの生成に失敗しました。",
       "save_test_scripts_no_section_error": "テストスクリプトの生成を中止しました。画面遷移のあるセッションがありません。",
       "save_test_scripts_no_operation_error": "テストスクリプトの生成を中止しました。ユーザによる操作が記録されていません",
@@ -664,11 +599,8 @@
       "add_note_failed": "気づきの追加に失敗しました。",
       "delete_note_failed": "気づきの削除に失敗しました。",
       "edit_note_failed": "気づきの編集に失敗しました。",
-      "move_note_failed": "気づきの移動に失敗しました。",
       "import_test_result_failed": "テスト結果のインポートに失敗しました。",
       "delete_test_purpose_failed": "テスト目的の削除に失敗しました。",
-      "move_test_purpose_failed": "テスト目的の移動に失敗しました。",
-      "record_test_purpose_failed": "テスト目的の記録に失敗しました。",
       "create_test_result_failed": "テスト結果の作成に失敗しました。",
       "get_test_result_list_failed": "テスト結果一覧の取得に失敗しました。",
       "get_session_ids_failed": "セッションIDの取得に失敗しました。",
@@ -676,7 +608,10 @@
       "compare_test_results_failed": "テスト結果の比較に失敗しました。",
       "generate_sequence_view_failed": "シーケンス図モデルの生成に失敗しました。",
       "generate_graph_view_failed": "画面遷移図モデル・画面部品カバレッジの生成に失敗しました。",
-      "create_video_failed": "動画の作成に失敗しました。"
+      "create_video_failed": "動画の作成に失敗しました。",
+      "compare_test_result_not_exist": "比較するテスト結果がありません。",
+      "invalid_screenshot": "スクリーンショットの形式が不正です。",
+      "image_sizes_do_not_match": "スクリーンショットの画像サイズが異なります。"
     },
     "test_management": {
       "read_project_data_failed": "プロジェクト情報の読み込みに失敗しました。",
@@ -685,15 +620,7 @@
       "save_project_failed": "プロジェクト情報の保存に失敗しました。",
       "write_snapshot_failed": "スナップショットの出力に失敗しました。",
       "collect_progress_datas_failed": "進捗情報の取得に失敗しました。",
-      "review_data_not_exist": "レビューするテスト結果が存在しません。"
-    },
-    "import_export": {
-      "import-data-error": "データインポートに失敗しました。",
-      "import-project-not-exist": "インポートデータにプロジェクト情報が存在しません。",
-      "import-test-result-not-exist": "インポートデータにテスト結果情報が存在しません。",
-      "import-test-hint-not-exist": "インポートデータにテストヒント情報が存在しません。",
-      "import-config-not-exist": "インポートデータに設定情報が存在しません。",
-      "create-export-data-error": "データエクスポートに失敗しました。"
+      "file_open_read_failed": "添付ファイルの読み込みに失敗しました。"
     }
   }
 }

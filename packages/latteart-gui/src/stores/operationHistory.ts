@@ -21,7 +21,6 @@ import type { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import type {
   AutoOperation,
-  AutofillConditionGroup,
   OperationHistory,
   OperationWithNotes,
   ScreenImage,
@@ -61,6 +60,7 @@ import { GetTestResultListAction } from "@/lib/operationHistory/actions/testResu
 import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResult/ChangeTestResultAction";
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import * as Coverage from "@/lib/operationHistory/Coverage";
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 
 /**
  * State for operation history.
@@ -861,7 +861,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
           screenshot: payload.noteEditInfo.shouldTakeScreenshot,
           compressScreenshot:
             payload.noteEditInfo.shouldTakeScreenshot &&
-            rootStore.projectSettings.config.captureMediaSetting.imageCompression.format === "webp"
+            rootStore.userSettings.captureMediaSetting.imageCompression.format === "webp"
         };
 
         const testResult = rootStore.repositoryService.createTestResultAccessor(
@@ -950,22 +950,28 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
         throw new Error(rootStore.message(messageKey));
       }
 
-      if (payload.noteEditInfo.oldSequence !== undefined) {
-        this.deleteNoticeFromTestStep({
-          sequence: payload.noteEditInfo.oldSequence,
-          index: payload.noteEditInfo.oldIndex ?? 0
-        });
-      }
       const sequence = !destTestStepId
         ? payload.noteEditInfo.oldSequence
         : payload.noteEditInfo.newSequence;
       const index = !destTestStepId
         ? payload.noteEditInfo.oldIndex
         : result.data.testStep.notices.length - 1;
+
+      if (
+        payload.noteEditInfo.oldSequence !== undefined &&
+        payload.noteEditInfo.oldSequence !== sequence
+      ) {
+        this.deleteNoticeFromTestStep({
+          sequence: payload.noteEditInfo.oldSequence,
+          index: payload.noteEditInfo.oldIndex ?? 0
+        });
+      }
+
       this.setNotice({
         notice: convertNote(result.data.note, sequence),
         index: index ?? 0
       });
+
       this.canUpdateModels = true;
     },
 
@@ -1037,6 +1043,14 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       const rootStore = useRootStore();
       const testResult = await rootStore.dataLoader?.loadTestResult(payload.testResultId);
 
+      const testResultInfos = (await rootStore.dataLoader?.loadTestResultSummaries()) ?? [];
+      this.testResultInfo = {
+        repositoryUrl: "",
+        id: payload.testResultId,
+        name: testResultInfos.find((info) => info.id === payload.testResultId)?.name ?? "",
+        parentTestResultId: ""
+      };
+
       if (!testResult) {
         throw new Error(`historyLog not found. ${payload.testResultId}`);
       }
@@ -1061,7 +1075,6 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
         captureControlStore.isResuming = true;
 
         const testResult = await rootStore.dataLoader?.loadTestResult(payload.testResultId);
-
         if (!testResult) {
           throw new Error();
         }
@@ -1703,7 +1716,7 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       const rootStore = useRootStore();
 
       const autofillSetting = {
-        ...rootStore.projectSettings.config.autofillSetting
+        ...rootStore.userSettings.autofillSetting
       };
       autofillSetting.conditionGroups =
         payload.index < 0
@@ -1718,11 +1731,11 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
                 ...payload.conditionGroup
               }
             ]
-          : rootStore.projectSettings.config.autofillSetting.conditionGroups.map((group, index) => {
+          : rootStore.userSettings.autofillSetting.conditionGroups.map((group, index) => {
               return index !== payload.index ? group : { ...group, ...payload.conditionGroup };
             });
-      await rootStore.writeConfig({
-        config: {
+      await rootStore.writeUserSettings({
+        userSettings: {
           autofillSetting
         }
       });
@@ -1742,12 +1755,12 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
         autoOperations: payload.operations
       };
       const autoOperationSetting = {
-        ...rootStore.projectSettings.config.autoOperationSetting
+        ...rootStore.userSettings.autoOperationSetting
       };
       autoOperationSetting.conditionGroups.push(conditionGroup);
 
-      await rootStore.writeConfig({
-        config: {
+      rootStore.writeUserSettings({
+        userSettings: {
           autoOperationSetting
         }
       });

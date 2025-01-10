@@ -14,15 +14,29 @@
  * limitations under the License.
  */
 
-import { type SettingsForRepository, type SnapshotConfigForRepository } from "latteart-client";
+import {
+  type SettingsForRepository,
+  type SnapshotConfigForRepository,
+  type TestScriptOption
+} from "latteart-client";
 
 export type ProjectSettings = SettingsForRepository;
+
+export type Locale = "ja" | "en";
+
+export type UserSettings = {
+  captureMediaSetting: CaptureMediaSetting;
+  autofillSetting: AutofillSetting;
+  autoOperationSetting: AutoOperationSetting;
+  testHintSetting: TestHintSetting;
+  deviceSettings: DeviceSettings;
+  testScriptOption: Pick<TestScriptOption, "buttonDefinitions">;
+  repositoryUrls: string[];
+};
 
 export type ScreenDefinitionSetting = ProjectSettings["config"]["screenDefinition"];
 
 export type CoverageSetting = ProjectSettings["config"]["coverage"];
-
-export type CaptureMediaSetting = ProjectSettings["config"]["captureMediaSetting"];
 
 export type DeviceSettings = {
   platformName: "PC" | "Android" | "iOS";
@@ -34,16 +48,6 @@ export type DeviceSettings = {
   };
   platformVersion?: string;
   waitTimeForStartupReload: number;
-};
-
-export type ViewSettings = {
-  autofill: LocalAutofillSetting;
-  testHint: TestHintSetting;
-};
-
-export type LocalAutofillSetting = {
-  autoPopupRegistrationDialog: boolean;
-  autoPopupSelectionDialog: boolean;
 };
 
 export type SnapshotConfig = SnapshotConfigForRepository;
@@ -60,3 +64,60 @@ export type TestHintSetting = {
 };
 
 export type ExperimentalFeatureSetting = ProjectSettings["config"]["experimentalFeatureSetting"];
+
+export type CaptureMediaSetting = {
+  mediaType: "image" | "video" | "video_and_image";
+  imageCompression: {
+    format: "png" | "webp";
+  };
+};
+
+/**
+ * Autofill setting.
+ */
+export type AutofillSetting = {
+  autoPopupRegistrationDialog: boolean;
+  autoPopupSelectionDialog: boolean;
+  conditionGroups: AutofillConditionGroup[];
+};
+
+/**
+ * Autofill condition group.
+ */
+export type AutofillConditionGroup = {
+  isEnabled: boolean;
+  settingName: string;
+  url: string;
+  title: string;
+  inputValueConditions: Array<AutofillCondition>;
+};
+
+/**
+ * Autofill condition.
+ */
+export type LocatorMatchType = "equals" | "regex";
+export type AutofillCondition = {
+  isEnabled: boolean;
+  locatorType: "id" | "xpath";
+  locator: string;
+  locatorMatchType: LocatorMatchType;
+  inputValue: string;
+  iframeIndex?: number;
+};
+
+/**
+ * Auto operation setting.
+ */
+export type AutoOperationSetting = {
+  conditionGroups: AutoOperationConditionGroup[];
+};
+
+/**
+ * Auto operation condition group.
+ */
+export type AutoOperationConditionGroup = {
+  isEnabled: boolean;
+  settingName: string;
+  details?: string;
+  autoOperations: any[];
+};

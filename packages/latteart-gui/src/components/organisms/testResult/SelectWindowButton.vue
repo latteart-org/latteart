@@ -21,7 +21,7 @@
       :disabled="!windowSelectorIsEnabled"
       icon="tab"
       size="small"
-      :title="$t('app.target-tab-window')"
+      :title="$t('common.target-tab-window')"
       class="mx-2"
       @click="isWindowSelectorDialogOpened = true"
     >
@@ -51,7 +51,7 @@ export default defineComponent({
     const captureControlStore = useCaptureControlStore();
 
     const config = computed((): DeviceSettings => {
-      return rootStore.deviceSettings;
+      return rootStore.userSettings.deviceSettings;
     });
 
     const isCapturing = computed((): boolean => {

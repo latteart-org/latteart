@@ -16,7 +16,7 @@
 
 <template>
   <v-card flat class="pa-2">
-    <v-card-title>{{ $t("optional-features.project-import.title") }}</v-card-title>
+    <v-card-title>{{ $t("common.import-project") }}</v-card-title>
 
     <v-card-text>
       <import-option @update="updateOption" />
@@ -24,7 +24,7 @@
 
     <v-card-actions>
       <v-btn variant="elevated" :disabled="disabled" color="primary" @click="importData">{{
-        $t("optional-features.project-import.execute-button")
+        $t("common.import-button")
       }}</v-btn>
     </v-card-actions>
 
@@ -115,7 +115,7 @@ export default defineComponent({
       }
 
       rootStore.openProgressDialog({
-        message: rootStore.message("import-export-dialog.importing-data")
+        message: rootStore.message("common.importing-data")
       });
 
       const targetFile = option.value.targetFile;
@@ -144,13 +144,10 @@ export default defineComponent({
           }
 
           informationMessageDialogOpened.value = true;
-          informationTitle.value = rootStore.message("import-export-dialog.project-import-title");
-          informationMessage.value = rootStore.message(
-            "import-export-dialog.import-data-succeeded",
-            {
-              returnName: projectFile.name
-            }
-          );
+          informationTitle.value = rootStore.message("common.import-project");
+          informationMessage.value = rootStore.message("common.import-data-succeeded", {
+            returnName: projectFile.name
+          });
         } catch (error) {
           if (error instanceof Error) {
             errorMessage.value = error.message;

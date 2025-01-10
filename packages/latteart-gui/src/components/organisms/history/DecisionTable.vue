@@ -21,7 +21,7 @@
         v-model="shouldGrayOutNotInputValueCell"
         density="comfortable"
         class="checkbox-gray-out"
-        :label="message('input-value.gray-out-not-input-value-cell')"
+        :label="message('decision-table.gray-out-not-input-value-cell')"
         hide-details
       ></v-checkbox>
     </v-col>
@@ -30,7 +30,7 @@
         v-model="shouldHideHiddenElements"
         density="comfortable"
         class="checkbox-hide-elements"
-        :label="message('input-value.hide-hidden-elements')"
+        :label="message('decision-table.hide-hidden-elements')"
         hide-details
       ></v-checkbox>
     </v-col>
@@ -39,7 +39,7 @@
         v-model="search"
         variant="underlined"
         prepend-inner-icon="search"
-        :label="message('operation.query')"
+        :label="message('common.query')"
         hide-details
       ></v-text-field>
     </v-col>
@@ -82,7 +82,7 @@
               >
               <v-icon
                 v-if="header.headerProps?.notes.length > 0"
-                :title="message('app.note')"
+                :title="message('common.note')"
                 class="mx-1"
                 color="purple-lighten-3"
                 @click="
@@ -111,7 +111,7 @@
               <p v-else>
                 <b>[{{ header?.headerProps?.sourceScreenDef }}]</b><br />
                 ↓<br />
-                {{ message("input-value.end-of-test") }}<br />
+                {{ message("decision-table.end-of-test") }}<br />
               </p>
             </th>
           </tr>
@@ -135,7 +135,9 @@
               v-for="(_, index) in screenTransitions"
               :key="index"
               class="text-center"
+              :title="props.item[`set${index}`].value ?? ''"
               :style="{
+                wordBreak: 'break-all',
                 backgroundColor:
                   shouldGrayOutNotInputValueCell &&
                   (props.item[`set${index}`] ? props.item[`set${index}`].isDefaultValue : true)
@@ -143,7 +145,7 @@
                     : 'rgba(0,0,0,0)'
               }"
             >
-              {{ props.item[`set${index}`] ? props.item[`set${index}`].value : "" }}
+              {{ truncateText(props.item[`set${index}`]?.value ?? "", 100) }}
             </td>
           </tr>
         </template>
@@ -166,6 +168,7 @@ import { computed, defineComponent, ref, inject, type PropType } from "vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useRootStore } from "@/stores/root";
+import TextUtil from "@/lib/operationHistory/graphConverter/TextUtil";
 
 type InputValue = {
   [key: string]:
@@ -221,7 +224,7 @@ export default defineComponent({
         {
           children: [
             {
-              title: props.message("input-value.element-id"),
+              title: props.message("decision-table.element-id"),
               value: "elementId",
               headerProps: {
                 sourceScreenDef: "",
@@ -239,7 +242,7 @@ export default defineComponent({
         {
           children: [
             {
-              title: props.message("input-value.element-name"),
+              title: props.message("common.element-name"),
               value: "elementName",
               headerProps: {
                 sourceScreenDef: "",
@@ -275,7 +278,7 @@ export default defineComponent({
         {
           children: inputValueTable.value.headerColumns.map((screenTransition, index) => {
             return {
-              title: `${screenTransition.index + 1}${props.message("input-value.times")}`,
+              title: `${screenTransition.index + 1}${props.message("decision-table.times")}`,
               value: `set${screenTransition.index}`,
               headerProps: {
                 sourceScreenDef: screenTransition.sourceScreenDef,
@@ -378,7 +381,7 @@ export default defineComponent({
       captureControlStore.autofillRegisterDialogData = {
         title: screenTransition.trigger.pageTitle,
         url: screenTransition.trigger.pageUrl,
-        message: rootStore.message("input-value.autofill-dialog-message"),
+        message: rootStore.message("decision-table.autofill-dialog-message"),
         inputElements: screenTransition.inputElements?.map((element) => {
           return {
             xpath: element.xpath.toLowerCase(),
@@ -408,7 +411,8 @@ export default defineComponent({
       selectRow,
       elementTypeIsHidden,
       hasInputElements,
-      registerAutofillSetting
+      registerAutofillSetting,
+      truncateText: TextUtil.truncate
     };
   }
 });

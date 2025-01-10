@@ -16,7 +16,7 @@
 
 <template>
   <scrollable-dialog :opened="opened" :max-width="2000">
-    <template #title>{{ $t("config-page.autoOperation.title") }}</template>
+    <template #title>{{ $t("auto-operation-dialog.title") }}</template>
     <template #content>
       <v-data-table v-model:options="options" :headers="headers" :items="viewOperations">
         <template #item="props">
@@ -79,42 +79,42 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          title: t(`operation.sequence`),
+          title: t(`common.sequence`),
           sortable: false,
           value: "sequence"
         },
         {
-          title: t(`operation.title`),
+          title: t(`common.page-title`),
           sortable: false,
           value: "title"
         },
         {
-          title: t(`operation.url`),
+          title: t(`common.url`),
           sortable: false,
           value: "url"
         },
         {
-          title: t(`operation.tagname`),
+          title: t(`common.tagname`),
           sortable: false,
           value: "tag"
         },
         {
-          title: t(`operation.name`),
+          title: t(`common.element-name`),
           sortable: false,
           value: "tagname"
         },
         {
-          title: t(`operation.text`),
+          title: t(`common.text`),
           sortable: false,
           value: "text"
         },
         {
-          title: t(`operation.type`),
+          title: t(`common.type`),
           sortable: false,
           value: "type"
         },
         {
-          title: t(`operation.input`),
+          title: t(`common.input-value`),
           sortable: false,
           value: "input"
         }

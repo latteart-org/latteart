@@ -30,10 +30,10 @@
             :loading="updating"
             :disabled="!canUpdateModels"
             @click="updateTestResultViewModel"
-            >{{ message("test-result-page.update-model-and-coverage") }}</v-btn
+            >{{ message("history-display.update-model-and-coverage") }}</v-btn
           >
           <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
-            message("test-result-page.there-are-updates-on-history")
+            message("history-display.there-are-updates-on-history")
           }}</span>
         </div>
         <splitpanes
@@ -46,15 +46,15 @@
                 <v-col cols="12">
                   <v-radio-group v-model="diagramType" inline class="py-0" hide-details>
                     <v-radio
-                      :label="message('test-result-page.sequence')"
+                      :label="message('history-display.sequence')"
                       :value="DIAGRAM_TYPE_SEQUENCE"
                     ></v-radio>
                     <v-radio
-                      :label="message('test-result-page.screen-transition')"
+                      :label="message('history-display.screen-transition')"
                       :value="DIAGRAM_TYPE_SCREEN_TRANSITION"
                     ></v-radio>
                     <v-radio
-                      :label="message('test-result-page.element-coverage')"
+                      :label="message('history-display.element-coverage')"
                       :value="DIAGRAM_TYPE_ELEMENT_COVERAGE"
                     ></v-radio>
                   </v-radio-group>
@@ -92,12 +92,12 @@
                     hide-details
                   >
                     <v-radio
-                      :label="message('test-result-page.image')"
+                      :label="message('common.image')"
                       value="image"
                       :disabled="!hasStillImage"
                     ></v-radio>
                     <v-radio
-                      :label="message('test-result-page.video')"
+                      :label="message('common.video')"
                       value="video"
                       :disabled="!hasVideo"
                     ></v-radio>
@@ -292,8 +292,8 @@ export default defineComponent({
       contextMenuItems.value = [];
 
       contextMenuItems.value.push({
-        label: rootStore.message("test-result-page.edit-notice", {
-          value: TextUtil.ellipsis(note.value, 100)
+        label: rootStore.message("common.details", {
+          value: TextUtil.truncate(note.value, 100)
         }),
         onClick: () => {
           if (operationHistoryStore.tmpNoteInfoForEdit) {
@@ -305,8 +305,8 @@ export default defineComponent({
         }
       });
       contextMenuItems.value.push({
-        label: rootStore.message("test-result-page.delete-notice", {
-          value: TextUtil.ellipsis(note.value, 100)
+        label: rootStore.message("common.delete", {
+          value: TextUtil.truncate(note.value, 100)
         }),
         onClick: () => {
           if (operationHistoryStore.tmpNoteInfoForEdit) {
@@ -366,14 +366,14 @@ export default defineComponent({
       index?: number
     ) => {
       if (noteType === "intention") {
-        confirmDialogTitle.value = rootStore.message("test-result-page.delete-intention");
+        confirmDialogTitle.value = rootStore.message("history-display.delete-test-purpose");
         confirmDialogMessage.value = rootStore.message(
-          "test-result-page.delete-intention-message",
+          "history-display.delete-test-purpose-message",
           { value: title }
         );
       } else {
-        confirmDialogTitle.value = rootStore.message("test-result-page.delete-notice-title");
-        confirmDialogMessage.value = rootStore.message("test-result-page.delete-notice-message", {
+        confirmDialogTitle.value = rootStore.message("history-display.delete-note-title");
+        confirmDialogMessage.value = rootStore.message("history-display.delete-note-message", {
           value: title
         });
       }
@@ -528,13 +528,13 @@ export default defineComponent({
     const updateWindowTitle = () => {
       switch (diagramType.value) {
         case DIAGRAM_TYPE_SEQUENCE.value:
-          props.changeWindowTitle(props.message("sequence.window-title"));
+          props.changeWindowTitle(props.message("history-display.sequence-window-title"));
           return;
         case DIAGRAM_TYPE_SCREEN_TRANSITION.value:
-          props.changeWindowTitle(props.message("screen-transition.window-title"));
+          props.changeWindowTitle(props.message("history-display.screen-transition-window-title"));
           return;
         case DIAGRAM_TYPE_ELEMENT_COVERAGE.value:
-          props.changeWindowTitle(props.message("coverage.window-title"));
+          props.changeWindowTitle(props.message("history-display.coverage-window-title"));
           return;
         default:
           return;

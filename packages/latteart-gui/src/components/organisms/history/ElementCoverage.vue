@@ -91,28 +91,28 @@ export default defineComponent({
       coverages.value.forEach(() => {
         headers.push([
           {
-            title: props.message("coverage.tagname"),
+            title: props.message("element-coverage.tagname"),
             value: "tagname",
             sortable: true
           },
           {
-            title: props.message("coverage.type"),
+            title: props.message("element-coverage.type"),
             value: "type",
             sortable: true
           },
-          { title: props.message("coverage.id"), value: "id", sortable: true },
+          { title: props.message("element-coverage.id"), value: "id", sortable: true },
           {
-            title: props.message("coverage.name"),
+            title: props.message("element-coverage.name"),
             value: "name",
             sortable: true
           },
           {
-            title: props.message("coverage.text"),
+            title: props.message("element-coverage.text"),
             value: "text",
             sortable: true
           },
           {
-            title: props.message("coverage.operated"),
+            title: props.message("element-coverage.operated"),
             value: "operated",
             sortable: true
           }

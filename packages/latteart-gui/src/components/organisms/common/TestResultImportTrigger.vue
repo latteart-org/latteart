@@ -98,7 +98,7 @@ export default defineComponent({
       setTimeout(async () => {
         try {
           rootStore.openProgressDialog({
-            message: rootStore.message("import-export-dialog.importing-data")
+            message: rootStore.message("common.importing-data")
           });
           await operationHistoryStore.importData({
             source: { testResultFile: testResultImportFile }
@@ -106,15 +106,10 @@ export default defineComponent({
           rootStore.closeProgressDialog();
 
           informationMessageDialogOpened.value = true;
-          informationTitle.value = rootStore.message(
-            "import-export-dialog.test-result-import-title"
-          );
-          informationMessage.value = rootStore.message(
-            "import-export-dialog.import-data-succeeded",
-            {
-              returnName: testResultImportFile.name
-            }
-          );
+          informationTitle.value = rootStore.message("common.import-test-result");
+          informationMessage.value = rootStore.message("common.import-data-succeeded", {
+            returnName: testResultImportFile.name
+          });
 
           context.emit("update", testResultImportFile.name);
         } catch (error) {

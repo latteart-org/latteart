@@ -30,14 +30,14 @@
     <v-text-field
       v-model="settingName"
       variant="underlined"
-      :label="$t('autofill-register-dialog.form-label')"
+      :label="$t('common.input-value-set-name')"
     ></v-text-field>
   </execute-dialog>
 </template>
 
 <script lang="ts">
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
-import { type AutofillConditionGroup } from "@/lib/operationHistory/types";
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import { computed, defineComponent, ref, nextTick, watch } from "vue";

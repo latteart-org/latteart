@@ -32,7 +32,7 @@
       <v-col cols="9">
         <v-text-field
           variant="underlined"
-          :label="$t('config-page.autofill.setting-name')"
+          :label="$t('common.input-value-set-name')"
           :model-value="conditionGroup.settingName"
           @change="(e: any) => updateconditionGroup({ settingName: e.target._value })"
         ></v-text-field>
@@ -78,7 +78,7 @@
         <v-col cols="2">
           <v-select
             variant="underlined"
-            :label="$t('config-page.autofill.locator-type')"
+            :label="$t('autofill-input-value-container.locator-type')"
             :model-value="item.locatorType"
             :items="locatorTypeList"
             class="px-1"
@@ -88,7 +88,7 @@
         <v-col cols="2">
           <v-select
             variant="underlined"
-            :label="$t('config-page.autofill.locator-match-type')"
+            :label="$t('autofill-input-value-container.locator-match-type')"
             :model-value="item.locatorMatchType"
             :items="locatorMatchType(item.locatorType)"
             class="px-1"
@@ -98,7 +98,7 @@
         <v-col cols="2">
           <v-text-field
             variant="underlined"
-            :label="$t('config-page.autofill.locator')"
+            :label="$t('autofill-input-value-container.locator')"
             :model-value="item.locator"
             class="px-1"
             @change="(e: any) => updateCondition(i, { locator: e.target._value })"
@@ -106,7 +106,7 @@
         </v-col>
         <v-col cols="2">
           <number-field
-            :label="$t('config-page.autofill.iframe-index')"
+            :label="$t('autofill-input-value-container.iframe-index')"
             :item="item.iframeIndex"
             :value="item.iframeIndex"
             :allow-blank="true"
@@ -124,7 +124,7 @@
         <v-col cols="2">
           <v-text-field
             variant="underlined"
-            :label="$t('config-page.autofill.input-value')"
+            :label="$t('common.input-value')"
             :model-value="item.inputValue"
             class="px-1"
             @change="(e: any) => updateCondition(i, { inputValue: e.target._value })"
@@ -137,13 +137,15 @@
         </v-col>
       </v-row>
     </div>
-    <v-btn @click="addCondition">{{ $t("config-page.autofill.adding-autofill-values") }}</v-btn>
+    <v-btn @click="addCondition">{{
+      $t("autofill-input-value-container.adding-autofill-values")
+    }}</v-btn>
   </v-container>
 </template>
 
 <script lang="ts">
-import { type AutofillCondition, type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import NumberField from "@/components/molecules/NumberField.vue";
+import type { AutofillCondition, AutofillConditionGroup } from "@/lib/common/settings/Settings";
 import { computed, defineComponent, type PropType } from "vue";
 
 export default defineComponent({

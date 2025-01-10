@@ -21,7 +21,7 @@
 
       <v-card-text class="pt-0">
         <v-text-field
-          variant="underlined"
+          :variant="isViewerMode ? 'solo' : 'underlined'"
           class="pt-0"
           :label="$t('session-info.tester-name')"
           :model-value="session.testerName"
@@ -29,7 +29,7 @@
           @change="(e: any) => updateSession({ testerName: e.target._value })"
         ></v-text-field>
         <v-textarea
-          variant="underlined"
+          :variant="isViewerMode ? 'solo' : 'underlined'"
           class="pt-0"
           :label="$t('session-info.memo')"
           :model-value="memo"
@@ -326,7 +326,7 @@ export default defineComponent({
     const openAttachedFile = (file: AttachedFile): boolean => {
       const extension = SessionInfoService.getImageExtensionFrom(file.name);
       if (!file.fileUrl && !file.fileData) {
-        errorMessage.value = rootStore.message("session-info.file-open-read-error");
+        errorMessage.value = rootStore.message("error.management.file_open_read_failed");
         errorMessageDialogOpened.value = true;
         return false;
       }
@@ -485,21 +485,16 @@ export default defineComponent({
       captureControlStore.testResultName = option.testResultName;
 
       await rootStore.writeDeviceSettings({
-        config: {
+        deviceSettings: {
           platformName: option.platform,
           device: option.device,
           browser: option.browser,
           waitTimeForStartupReload: option.waitTimeForStartupReload
         }
       });
-      const config = rootStore.projectSettings.config;
-      await rootStore.writeConfig({
-        config: {
-          ...config,
-          captureMediaSetting: {
-            ...config.captureMediaSetting,
-            mediaType: option.mediaType
-          }
+      rootStore.writeCaptureMediaSettings({
+        captureMediaSetting: {
+          mediaType: option.mediaType
         }
       });
       captureControlStore.testOption = {

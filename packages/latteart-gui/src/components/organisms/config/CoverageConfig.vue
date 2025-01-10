@@ -17,7 +17,7 @@
 <template>
   <v-row class="px-4">
     <div class="head-label">
-      {{ $t("config-page.include-coverage") }}
+      {{ $t("coverage-config.include-coverage") }}
     </div>
     <v-col v-if="displayedTagList.length <= 0">
       <v-card color="#EEE">

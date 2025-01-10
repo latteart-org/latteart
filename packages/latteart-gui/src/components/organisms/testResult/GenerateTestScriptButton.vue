@@ -16,7 +16,7 @@
 
 <template>
   <v-list-item :disabled="isDisabled" @click="scriptGenerationOptionDialogIsOpened = true">
-    <v-list-item-title>{{ $t("test-result-page.generate-testscript") }}</v-list-item-title>
+    <v-list-item-title>{{ $t("common.generate-test-script") }}</v-list-item-title>
     <script-generation-option-dialog
       :opened="scriptGenerationOptionDialogIsOpened"
       @execute="generateTestScript"
@@ -124,7 +124,7 @@ export default defineComponent({
 
         try {
           rootStore.openProgressDialog({
-            message: rootStore.message("manage-header.generating-test-script")
+            message: rootStore.message("common.generating-test-script")
           });
           const testScriptInfo = await operationHistoryStore.generateTestScripts({
             option
@@ -132,12 +132,10 @@ export default defineComponent({
           rootStore.closeProgressDialog();
           downloadLinkDialogTitle.value = rootStore.message("common.confirm");
           downloadLinkDialogMessage.value = rootStore.message(
-            "test-result-page.generate-testscript-succeeded"
+            "common.generate-test-script-succeeded"
           );
           if (testScriptInfo.invalidOperationTypeExists) {
-            downloadLinkDialogAlertMessage.value = rootStore.message(
-              "test-result-page.generate-alert-info"
-            );
+            downloadLinkDialogAlertMessage.value = rootStore.message("common.generate-alert-info");
           } else {
             downloadLinkDialogAlertMessage.value = "";
           }

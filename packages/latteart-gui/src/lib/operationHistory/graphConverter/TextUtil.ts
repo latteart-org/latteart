@@ -51,7 +51,7 @@ export default class TextUtil {
    * @param length  Number of characters you want to omit.
    * @returns Character string after omission.
    */
-  public static ellipsis(before: string, length: number): string {
+  public static truncate(before: string, length: number): string {
     return before.length > length ? `${before.slice(0, length)}...` : before;
   }
 

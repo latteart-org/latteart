@@ -22,7 +22,7 @@
       </v-col>
       <v-col cols="2" style="text-align: right">
         <v-btn size="small" @click="testMatrixBeingEdited = testMatrix">
-          {{ $t("test-matrix-edit-page.settings") }}
+          {{ $t("test-matrix-editor.settings") }}
         </v-btn>
         <v-btn size="small" color="red" class="ml-2" @click="openConfirmDialogToDeleteTestMatrix">
           {{ $t("common.delete") }}
@@ -62,7 +62,7 @@
                     color="red"
                     class="mr-4"
                     @click.stop="openConfirmDialogToDeleteGroup(group.id)"
-                    >{{ $t("group-edit-list.delete") }}</v-btn
+                    >{{ $t("common.delete") }}</v-btn
                   >
                 </v-col>
               </v-row>
@@ -75,7 +75,10 @@
     ></v-row>
     <v-row>
       <v-col cols="2"
-        ><v-text-field v-model="groupName" variant="underlined" :label="$t('group-edit-list.name')"
+        ><v-text-field
+          v-model="groupName"
+          variant="underlined"
+          :label="$t('test-matrix-editor.name')"
       /></v-col>
 
       <v-col cols="10"
@@ -84,7 +87,7 @@
           class="my-4"
           :disabled="groupName === ''"
           @click="addNewGroup"
-          >{{ $t("group-edit-list.add") }}</v-btn
+          >{{ $t("test-matrix-editor.add") }}</v-btn
         ></v-col
       >
     </v-row>
@@ -185,9 +188,7 @@ export default defineComponent({
     };
 
     const openConfirmDialogToDeleteTestMatrix = () => {
-      confirmDialogTitle.value = rootStore.message(
-        "test-matrix-edit-page.delete-test-matrix-confirm"
-      );
+      confirmDialogTitle.value = rootStore.message("test-matrix-editor.delete-test-matrix-confirm");
       confirmDialogMessage.value = rootStore.message("common.delete-warning");
       confirmDialogAccept.value = () => {
         testManagementStore.deleteTestMatrix({
@@ -207,7 +208,7 @@ export default defineComponent({
     };
 
     const openConfirmDialogToDeleteGroup = (groupId: string): void => {
-      confirmDialogTitle.value = rootStore.message("group-edit-list.delete-group-confirm");
+      confirmDialogTitle.value = rootStore.message("test-matrix-editor.delete-group-confirm");
       confirmDialogMessage.value = rootStore.message("common.delete-warning");
       confirmDialogAccept.value = () => {
         testManagementStore.deleteGroup({

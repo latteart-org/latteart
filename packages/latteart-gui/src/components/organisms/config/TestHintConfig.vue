@@ -15,24 +15,24 @@
   <v-container class="mt-0 pt-0">
     <v-row>
       <v-col cols="12" class="py-0 my-0">
-        <h4>{{ $t("config-page.test-hint.search-scope") }}</h4>
+        <h4>{{ $t("test-hint-config.search-scope") }}</h4>
       </v-col>
       <v-col cols="12" class="pl-5">
         <v-text-field
           v-model="tempConfig.defaultSearchSeconds"
           hide-details
           variant="underlined"
-          :label="$t('config-page.test-hint.default-search-seconds')"
+          :label="$t('test-hint-config.default-search-seconds')"
           min="0"
-          :suffix="$t('config-page.test-hint.suffix')"
+          :suffix="$t('common.suffix')"
           type="number"
           @change="(e: any) => updateDefaultSearchSeconds(e.target._value)"
         />
-        <span style="font-size: smaller">{{ $t("config-page.test-hint.info") }}</span>
+        <span style="font-size: smaller">{{ $t("test-hint-config.info") }}</span>
       </v-col>
       <v-col cols="12" class="py-0 my-0">
         <h4>
-          {{ $t("config-page.test-hint.matching-scope") }}
+          {{ $t("test-hint-config.matching-scope") }}
         </h4>
         <div>
           <v-radio-group
@@ -41,9 +41,9 @@
             class="pr-0 my-0"
             @update:model-value="changeTarget"
           >
-            <v-radio :label="$t('config-page.test-hint.all')" value="all"></v-radio>
+            <v-radio :label="$t('test-hint-config.all')" value="all"></v-radio>
             <v-radio
-              :label="$t('config-page.test-hint.words-on-page-only')"
+              :label="$t('test-hint-config.words-on-page-only')"
               value="wordsOnPageOnly"
             ></v-radio>
           </v-radio-group>
@@ -54,7 +54,7 @@
           hide-details
           variant="underlined"
           :disabled="tempConfig.commentMatching.target !== 'wordsOnPageOnly'"
-          :label="$t('config-page.test-hint.extra-words')"
+          :label="$t('test-hint-config.extra-words')"
           :model-value="tempConfig.commentMatching.extraWords"
           @change="(e: any) => updateExtraWords(e.target._value)"
         ></v-text-field>
@@ -63,7 +63,7 @@
         <v-text-field
           hide-details
           variant="underlined"
-          :label="$t('config-page.test-hint.excluded-words')"
+          :label="$t('test-hint-config.excluded-words')"
           :model-value="tempConfig.commentMatching.excludedWords"
           @change="(e: any) => updateExcludedWords(e.target._value)"
         ></v-text-field>
@@ -113,7 +113,7 @@ export default defineComponent({
     const saveViewConfig = () => {
       if (props.opened) {
         context.emit("save-view-config", {
-          testHint: {
+          testHintSetting: {
             commentMatching: {
               target: tempConfig.value.commentMatching.target,
               extraWords:
@@ -131,8 +131,9 @@ export default defineComponent({
       }
     };
 
-    const updateDefaultSearchSeconds = (seconds: number) => {
-      const defaultSeconds = seconds < 0 ? 0 : seconds;
+    const updateDefaultSearchSeconds = (seconds: string) => {
+      const num = Number(seconds);
+      const defaultSeconds = num < 0 ? 0 : num;
       tempConfig.value = { ...tempConfig.value, defaultSearchSeconds: defaultSeconds };
     };
 

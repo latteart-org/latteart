@@ -16,7 +16,7 @@
 
 <template>
   <v-card flat class="pa-2">
-    <v-card-title>{{ $t("optional-features.project-export.title") }}</v-card-title>
+    <v-card-title>{{ $t("common.export-project") }}</v-card-title>
 
     <v-card-text>
       <export-option @update="updateOption" />
@@ -24,7 +24,7 @@
 
     <v-card-actions>
       <v-btn variant="elevated" :disabled="disabled" color="primary" @click="exportData">{{
-        $t("optional-features.project-export.execute-button")
+        $t("common.export-button")
       }}</v-btn>
     </v-card-actions>
 
@@ -103,7 +103,7 @@ export default defineComponent({
     const exportData = () => {
       (async () => {
         rootStore.openProgressDialog({
-          message: rootStore.message("import-export-dialog.creating-export-data")
+          message: rootStore.message("common.creating-export-data")
         });
 
         try {
@@ -112,11 +112,9 @@ export default defineComponent({
           });
 
           downloadLinkDialogOpened.value = true;
-          downloadLinkDialogTitle.value = rootStore.message(
-            "import-export-dialog.project-export-title"
-          );
+          downloadLinkDialogTitle.value = rootStore.message("common.export-project");
           downloadLinkDialogMessage.value = rootStore.message(
-            "import-export-dialog.create-export-data-succeeded"
+            "common.create-export-data-succeeded"
           );
           downloadLinkDialogAlertMessage.value = "";
           downloadLinkDialogLinkUrl.value = `${currentRepositoryUrl.value}/${exportDataUrl}`;

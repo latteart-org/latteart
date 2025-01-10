@@ -26,9 +26,9 @@
     </div>
 
     <div class="manage-show-legend mt-4">
-      {{ $t("test-matrix-page.legend1") }}<br />
-      {{ $t("test-matrix-page.legend2") }}<br />
-      {{ $t("test-matrix-page.legend3") }}<br />
+      {{ $t("legend-viewer.legend1") }}<br />
+      {{ $t("legend-viewer.legend2") }}<br />
+      {{ $t("legend-viewer.legend3") }}<br />
     </div>
   </v-row>
 </template>
@@ -49,28 +49,28 @@ export default defineComponent({
       }[] => {
         return [
           {
-            status: rootStore.message("test-matrix-page.status-ok"),
-            text: rootStore.message("test-matrix-page.text-ok"),
+            status: rootStore.message("common.status-ok"),
+            text: rootStore.message("legend-viewer.text-ok"),
             class: "status-fine"
           },
           {
-            status: rootStore.message("test-matrix-page.status-out-of-scope"),
-            text: rootStore.message("test-matrix-page.text-out-of-scope"),
+            status: rootStore.message("common.status-out-of-scope"),
+            text: rootStore.message("legend-viewer.text-out-of-scope"),
             class: "status-fine"
           },
           {
-            status: rootStore.message("test-matrix-page.status-ng"),
-            text: rootStore.message("test-matrix-page.text-ng"),
+            status: rootStore.message("common.status-ng"),
+            text: rootStore.message("legend-viewer.text-ng"),
             class: "status-ng"
           },
           {
-            status: rootStore.message("test-matrix-page.status-ongoing"),
-            text: rootStore.message("test-matrix-page.text-ongoing"),
+            status: rootStore.message("common.status-ongoing"),
+            text: rootStore.message("legend-viewer.text-ongoing"),
             class: "status-warn"
           },
           {
-            status: rootStore.message("test-matrix-page.status-pending"),
-            text: rootStore.message("test-matrix-page.text-pending"),
+            status: rootStore.message("common.status-pending"),
+            text: rootStore.message("legend-viewer.text-pending"),
             class: "status-warn"
           }
         ];

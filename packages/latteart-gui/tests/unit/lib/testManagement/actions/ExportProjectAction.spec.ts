@@ -75,7 +75,7 @@ describe("ExportProjectAction", () => {
           throw new Error("failed");
         } else {
           expect(result.error).toEqual({
-            messageKey: "error.import_export.create-export-data-error"
+            messageKey: "error.common.create_export_data_failed"
           });
         }
       });

@@ -20,7 +20,7 @@
       icon="arrow_forward"
       size="small"
       :disabled="isDisabled"
-      :title="$t('navigate.forward')"
+      :title="$t('browser-forward-button.forward')"
       class="mx-2"
       @click="browserForward"
     >

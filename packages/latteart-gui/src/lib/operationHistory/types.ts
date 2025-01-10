@@ -102,42 +102,6 @@ export type ScreenDefinitionType = "url" | "title" | "keyword";
 export type ScreenMatchType = "contains" | "equals" | "regex";
 export type LocatorMatchType = "equals" | "regex";
 
-export type AutoPopupSettings = Omit<AutofillSetting, "conditionGroups">;
-
-export interface AutofillSetting {
-  autoPopupRegistrationDialog: boolean;
-  autoPopupSelectionDialog: boolean;
-  conditionGroups: AutofillConditionGroup[];
-}
-
-export interface AutofillConditionGroup {
-  isEnabled: boolean;
-  settingName: string;
-  url: string;
-  title: string;
-  inputValueConditions: Array<AutofillCondition>;
-}
-
-export type AutofillCondition = {
-  isEnabled: boolean;
-  locatorType: "id" | "xpath";
-  locator: string;
-  locatorMatchType: LocatorMatchType;
-  inputValue: string;
-  iframeIndex?: number;
-};
-
-export interface AutoOperationSetting {
-  conditionGroups: AutoOperationConditionGroup[];
-}
-
-export interface AutoOperationConditionGroup {
-  isEnabled: boolean;
-  settingName: string;
-  details?: string;
-  autoOperations: AutoOperation[];
-}
-
 export interface ScreenDefinitionConditionGroup {
   isEnabled: boolean;
   screenName: string;

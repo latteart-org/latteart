@@ -25,21 +25,8 @@ export function parseProjectConfig(configText: string): ProjectConfig {
     viewPointsPreset: config.viewPointsPreset,
     defaultTagList: config.defaultTagList,
     config: {
-      autofillSetting: config.config.autofillSetting,
-      autoOperationSetting: config.config.autoOperationSetting,
       screenDefinition: config.config.screenDefinition,
       coverage: config.config.coverage,
-      captureMediaSetting:
-        "captureMediaSetting" in config.config
-          ? config.config.captureMediaSetting
-          : {
-              mediaType: "image",
-              imageCompression: {
-                format: config.config.imageCompression.isEnabled
-                  ? "webp"
-                  : "png",
-              },
-            },
       testResultComparison: config.config.testResultComparison,
       experimentalFeatureSetting:
         "experimentalFeatureSetting" in config.config

@@ -29,7 +29,7 @@
     </div>
     <v-select
       variant="underlined"
-      :label="$t('autofill-select-dialog.form-label')"
+      :label="$t('common.input-value-set-name')"
       :items="selectList"
       item-title="settingName"
       item-value="index"
@@ -39,11 +39,11 @@
 </template>
 
 <script lang="ts">
-import { type AutofillConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
 import { computed, defineComponent, ref } from "vue";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { watch } from "vue";
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 
 export default defineComponent({
   components: {

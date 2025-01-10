@@ -17,13 +17,13 @@
 <template>
   <div>
     <v-list-item :disabled="isDisabled" @click="openConfirmDialog">
-      <v-list-item-title>{{ $t("test-result-page.compare-test-result") }}</v-list-item-title>
+      <v-list-item-title>{{ $t("compare-history-button.compare-test-result") }}</v-list-item-title>
     </v-list-item>
 
     <confirm-dialog
       :opened="confirmDialogOpened"
-      :title="$t('test-result-page.compare-test-result-title')"
-      :message="$t('test-result-page.compare-test-result-message')"
+      :title="$t('compare-history-button.compare-test-result')"
+      :message="$t('compare-history-button.compare-test-result-message')"
       :on-accept="compareHistory"
       :strong="false"
       @close="confirmDialogOpened = false"
@@ -114,19 +114,23 @@ export default defineComponent({
 
     const compareHistory = async (): Promise<void> => {
       rootStore.openProgressDialog({
-        message: rootStore.message("test-result-page.comparing-test-result")
+        message: rootStore.message("common.comparing-test-result")
       });
 
       try {
         const testResults: TestResultSummary[] = await operationHistoryStore.getTestResults();
         if (testResults.length === 0) {
-          throw new Error(rootStore.message("test-result-page.compare-test-result-not-exist"));
+          throw new Error(
+            rootStore.message("error.operation_history.compare_test_result_not_exist")
+          );
         }
 
         const { actualTestResultId, expectedTestResultId } = findCompareTargets(testResults);
 
         if (!expectedTestResultId) {
-          throw new Error(rootStore.message("test-result-page.compare-test-result-not-exist"));
+          throw new Error(
+            rootStore.message("error.operation_history.compare_test_result_not_exist")
+          );
         }
 
         comparisonResult.value = await operationHistoryStore.compareTestResults({

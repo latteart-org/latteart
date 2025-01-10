@@ -27,7 +27,7 @@
             v-model="search"
             style="min-width: 50%"
             variant="underlined"
-            :label="$t('test-hint.common.search')"
+            :label="$t('test-hint-list.search')"
             clearable
           ></v-text-field>
         </v-row>
@@ -62,7 +62,7 @@
             <v-checkbox-btn
               :model-value="isSelected([internalItem])"
               :onclick="withModifiers(() => toggleSelect(internalItem), ['stop'])"
-              :title="$t('test-hint.search-dialog.ignore-check-box')"
+              :title="$t('test-hint-list.ignore-check-box')"
             />
           </template>
           <template #[`item.value`]="{ item }">
@@ -100,7 +100,7 @@
     <information-message-dialog
       :opened="informationDialogOpened"
       :title="$t('common.confirm')"
-      :message="$t('test-result-navigation-drawer.delete-test-result-succeeded')"
+      :message="$t('common.delete-test-result-succeeded')"
       @close="informationDialogOpened = false"
     />
 
@@ -207,54 +207,54 @@ export default defineComponent({
             ]
           : []),
         {
-          title: rootStore.message("test-hint.common.hint-text"),
+          title: rootStore.message("common.hint-text"),
           value: "value",
           sortable: true
         },
         {
-          title: rootStore.message("test-hint.common.issues"),
+          title: rootStore.message("common.issues"),
           value: "issues",
           sortable: false
         },
         ...customColumns,
         {
-          title: rootStore.message("test-hint.common.test-matrix"),
+          title: rootStore.message("common.test-matrix"),
           value: "testMatrixName",
           width: "170",
           sortable: true
         },
         {
-          title: rootStore.message("test-hint.common.group"),
+          title: rootStore.message("common.group"),
           value: "groupName",
           width: "170",
           sortable: true
         },
         {
-          title: rootStore.message("test-hint.common.test-target"),
+          title: rootStore.message("common.test-target"),
           value: "testTargetName",
           width: "170",
           sortable: true
         },
         {
-          title: rootStore.message("test-hint.common.view-point"),
+          title: rootStore.message("common.test-hint-viewpoint"),
           value: "viewPointName",
           width: "170",
           sortable: true
         },
         // {
-        //   title: rootStore.message("test-hint.common.comment-words"),
+        //   title: rootStore.message("common.comment-words"),
         //   value: "commentWords",
         //   sortable: false
         // },
         // {
-        //   title: rootStore.message("test-hint.common.screen-elements"),
+        //   title: rootStore.message("common.screen-elements"),
         //   value: "operationElements",
         //   sortable: false
         // },
         ...(props.showMatchCounts
           ? [
               {
-                title: rootStore.message("test-hint.common.match-count"),
+                title: rootStore.message("test-hint-list.match-count"),
                 value: "matchCount",
                 width: "30",
                 sortable: false

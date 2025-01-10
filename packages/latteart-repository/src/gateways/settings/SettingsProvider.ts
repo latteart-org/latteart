@@ -175,24 +175,6 @@ export class SettingsProvider {
       target.defaultTestHintProps = source.defaultTestHintProps;
     }
 
-    if (source.config && source.config.autofillSetting) {
-      const sourceAutofillSetting = source.config.autofillSetting;
-
-      if (sourceAutofillSetting.conditionGroups) {
-        target.config.autofillSetting.conditionGroups =
-          sourceAutofillSetting.conditionGroups;
-      }
-    }
-
-    if (source.config && source.config.autoOperationSetting) {
-      const sourceAutoOperationSetting = source.config.autoOperationSetting;
-
-      if (sourceAutoOperationSetting.conditionGroups) {
-        target.config.autoOperationSetting.conditionGroups =
-          sourceAutoOperationSetting.conditionGroups;
-      }
-    }
-
     if (source.config && source.config.screenDefinition) {
       const sourceScreenDefinition = source.config.screenDefinition;
 
@@ -216,13 +198,6 @@ export class SettingsProvider {
       if (sourceCoverage.include && sourceCoverage.include.tags) {
         target.config.coverage.include.tags = sourceCoverage.include.tags;
       }
-    }
-
-    if (source.config && source.config.captureMediaSetting) {
-      Object.assign(
-        target.config.captureMediaSetting,
-        source.config.captureMediaSetting
-      );
     }
 
     if (source.captureSettings && source.captureSettings.ignoreTags) {

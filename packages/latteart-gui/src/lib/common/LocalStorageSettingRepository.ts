@@ -14,26 +14,36 @@
  * limitations under the License.
  */
 
-import { type AutoPopupSettings } from "@/lib/operationHistory/types";
 import {
   type RepositoryAccessResult,
   createRepositoryAccessSuccess,
   type TestScriptOption
 } from "latteart-client";
-import { type DeviceSettings, type ViewSettings } from "./settings/Settings";
+import {
+  type AutofillSetting,
+  type AutoOperationSetting,
+  type CaptureMediaSetting,
+  type DeviceSettings,
+  type TestHintSetting
+} from "./settings/Settings";
+
+const LOCAL_STORAGE_KEY_LOCALE = "latteart-user-settings-locale";
+const LOCAL_STORAGE_KEY_DEVICE_SETTINGS = "latteart-user-settings-deviceSettings";
+const LOCAL_STORAGE_KEY_SCRIPT_GENERATION_OPTION = "latteart-user-settings-scriptGenerationOption";
+const LOCAL_STORAGE_KEY_TEST_HINT_SETTINGS = "latteart-user-settings-testHintSettings";
+const LOCAL_STORAGE_KEY_CAPTURE_MEDIA_SETTINGS = "latteart-user-settings-captureMediaSettings";
+const LOCAL_STORAGE_KEY_AUTOFILL_SETTING = "latteart-user-settings-autofillSetting";
+const LOCAL_STORAGE_KEY_AUTO_OPERATION_SETTING = "latteart-user-settings-autoOperationSetting";
 
 export class LocalStorageSettingRepository {
   /**
    * Get locale information.
    * @returns Locale information.
    */
-  public async getLocale(): Promise<RepositoryAccessResult<string>> {
-    const tmpLocale = localStorage.getItem("latteart-config-locale");
+  public getLocale(): "ja" | "en" {
+    const tmpLocale = localStorage.getItem(LOCAL_STORAGE_KEY_LOCALE) as "ja" | "en" | null;
     const locale = tmpLocale ?? "ja";
-
-    return createRepositoryAccessSuccess({
-      data: locale as string
-    });
+    return locale;
   }
 
   /**
@@ -41,8 +51,8 @@ export class LocalStorageSettingRepository {
    * @param locale  locale information.
    * @returns Saved locale information.
    */
-  public async putLocale(locale: string): Promise<RepositoryAccessResult<string>> {
-    localStorage.setItem("latteart-config-locale", locale);
+  public putLocale(locale: string): RepositoryAccessResult<string> {
+    localStorage.setItem(LOCAL_STORAGE_KEY_LOCALE, locale);
 
     return createRepositoryAccessSuccess({
       data: locale as string
@@ -53,23 +63,19 @@ export class LocalStorageSettingRepository {
    * Get device settings information.
    * @returns Device settings information
    */
-  public async getDeviceSettings(): Promise<RepositoryAccessResult<{ config: DeviceSettings }>> {
-    const tmpDeviceSettings = localStorage.getItem("latteart-config-deviceSettings");
+  public getDeviceSettings(): DeviceSettings {
+    const tmpDeviceSettings = localStorage.getItem(LOCAL_STORAGE_KEY_DEVICE_SETTINGS);
 
     const deviceSettings = tmpDeviceSettings
       ? JSON.parse(tmpDeviceSettings)
       : {
-          config: {
-            platformName: "PC",
-            browser: "Chrome",
-            platformVersion: "",
-            waitTimeForStartupReload: 0
-          }
+          platformName: "PC",
+          browser: "Chrome",
+          platformVersion: "",
+          waitTimeForStartupReload: 0
         };
 
-    return createRepositoryAccessSuccess({
-      data: deviceSettings as { config: DeviceSettings }
-    });
+    return deviceSettings;
   }
 
   /**
@@ -77,60 +83,17 @@ export class LocalStorageSettingRepository {
    * @param deviceSettings  Device settings information.
    * @returns  Saved device settings information.
    */
-  public async putDeviceSettings(deviceSettings: {
-    config: DeviceSettings;
-  }): Promise<RepositoryAccessResult<{ config: DeviceSettings }>> {
+  public putDeviceSettings(deviceSettings: DeviceSettings): RepositoryAccessResult<DeviceSettings> {
     const tmpDeviceSettings = {
-      config: {
-        platformName: deviceSettings.config.platformName,
-        browser: deviceSettings.config.browser,
-        waitTimeForStartupReload: deviceSettings.config.waitTimeForStartupReload
-      }
+      platformName: deviceSettings.platformName,
+      browser: deviceSettings.browser,
+      waitTimeForStartupReload: deviceSettings.waitTimeForStartupReload
     };
 
-    localStorage.setItem("latteart-config-deviceSettings", JSON.stringify(tmpDeviceSettings));
+    localStorage.setItem(LOCAL_STORAGE_KEY_DEVICE_SETTINGS, JSON.stringify(tmpDeviceSettings));
 
     return createRepositoryAccessSuccess({
-      data: deviceSettings as { config: DeviceSettings }
-    });
-  }
-
-  /**
-   * Get autoPopup settings information.
-   * @returns autoPopup settings information
-   */
-  public async getAutoPopupSettings(): Promise<RepositoryAccessResult<AutoPopupSettings>> {
-    const tmpAutoPopupSettings = localStorage.getItem("latteart-config-autoPopupSettings");
-
-    const autoPopupSettings = tmpAutoPopupSettings
-      ? JSON.parse(tmpAutoPopupSettings)
-      : {
-          autoPopupRegistrationDialog: false,
-          autoPopupSelectionDialog: false
-        };
-
-    return createRepositoryAccessSuccess({
-      data: autoPopupSettings as AutoPopupSettings
-    });
-  }
-
-  /**
-   * Save autoPopup settings information.
-   * @param autoPopupSettings  AutoPopup settings information.
-   * @returns  Saved autoPopup settings information.
-   */
-  public async putAutoPopupSettings(
-    autoPopupSettings: AutoPopupSettings
-  ): Promise<RepositoryAccessResult<AutoPopupSettings>> {
-    const tmpAutoPopupSettings = {
-      autoPopupRegistrationDialog: autoPopupSettings.autoPopupRegistrationDialog,
-      autoPopupSelectionDialog: autoPopupSettings.autoPopupSelectionDialog
-    };
-
-    localStorage.setItem("latteart-config-autoPopupSettings", JSON.stringify(tmpAutoPopupSettings));
-
-    return createRepositoryAccessSuccess({
-      data: autoPopupSettings as AutoPopupSettings
+      data: deviceSettings
     });
   }
 
@@ -138,17 +101,13 @@ export class LocalStorageSettingRepository {
    * Get test script option.
    * @returns Test script option.
    */
-  public async getTestScriptOption(): Promise<
-    RepositoryAccessResult<Pick<TestScriptOption, "buttonDefinitions">>
-  > {
-    const optionJson = localStorage.getItem("latteart-config-scriptGenerationOption");
+  public getTestScriptOption(): Pick<TestScriptOption, "buttonDefinitions"> {
+    const optionJson = localStorage.getItem(LOCAL_STORAGE_KEY_SCRIPT_GENERATION_OPTION);
     const option: Pick<TestScriptOption, "buttonDefinitions"> = optionJson
       ? JSON.parse(optionJson)
       : {};
 
-    return createRepositoryAccessSuccess({
-      data: option
-    });
+    return option;
   }
 
   /**
@@ -156,69 +115,110 @@ export class LocalStorageSettingRepository {
    * @param option  Test script option.
    * @returns Saved test script option.
    */
-  public async putTestScriptOption(
+  public putTestScriptOption(
     option: Pick<TestScriptOption, "buttonDefinitions">
-  ): Promise<RepositoryAccessResult<Pick<TestScriptOption, "buttonDefinitions">>> {
-    localStorage.setItem("latteart-config-scriptGenerationOption", JSON.stringify(option));
+  ): Pick<TestScriptOption, "buttonDefinitions"> {
+    localStorage.setItem(LOCAL_STORAGE_KEY_SCRIPT_GENERATION_OPTION, JSON.stringify(option));
 
-    return createRepositoryAccessSuccess({
-      data: option
-    });
+    return option;
   }
 
   /**
-   * Get view settings information.
-   * @returns View settings information.
+   * Save test hint settings information.
+   * @param testHintSetting Test hint settings information.
    */
-  public async getViewSettings(): Promise<RepositoryAccessResult<ViewSettings>> {
-    const tmpAutofillSettings = localStorage.getItem("latteart-config-autoPopupSettings");
-    const tmpTestHintSettings = localStorage.getItem("latteart-config-testHintSettings");
-
-    const viewSettings = {
-      autofill: tmpAutofillSettings
-        ? JSON.parse(tmpAutofillSettings)
-        : { autoPopupRegistrationDialog: false, autoPopupSelectionDialog: false },
-      testHint: tmpTestHintSettings
-        ? JSON.parse(tmpTestHintSettings)
-        : {
-            commentMatching: { target: "all", extraWords: [], excludedWords: [] },
-            defaultSearchSeconds: 30
-          }
-    };
-
-    return createRepositoryAccessSuccess({
-      data: viewSettings as ViewSettings
-    });
+  putTestHintSetting(testHintSetting: TestHintSetting): void {
+    localStorage.setItem(LOCAL_STORAGE_KEY_TEST_HINT_SETTINGS, JSON.stringify(testHintSetting));
   }
 
   /**
-   * Save view settings information.
-   * @param viewSettings  View settings information.
-   * @returns  Saved view settings information.
+   * Get test hint settings information.
+   * @returns Test hint settings.
    */
-  public async putViewSettings(
-    viewSettings: ViewSettings
-  ): Promise<RepositoryAccessResult<ViewSettings>> {
-    const tmpAutoPopupSettings = {
-      autoPopupRegistrationDialog: viewSettings.autofill.autoPopupRegistrationDialog,
-      autoPopupSelectionDialog: viewSettings.autofill.autoPopupSelectionDialog
-    };
+  getTestHintSetting(): TestHintSetting {
+    const data = localStorage.getItem(LOCAL_STORAGE_KEY_TEST_HINT_SETTINGS);
+    return data
+      ? JSON.parse(data)
+      : {
+          commentMatching: { target: "all", extraWords: [], excludedWords: [] },
+          defaultSearchSeconds: 30
+        };
+  }
 
-    localStorage.setItem("latteart-config-autoPopupSettings", JSON.stringify(tmpAutoPopupSettings));
+  /**
+   * Save capture media settings information.
+   * @param captureMediaSetting Capture media settings information.
+   */
+  public putCaptureMediaSetting(captureMediaSetting: CaptureMediaSetting) {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY_CAPTURE_MEDIA_SETTINGS,
+      JSON.stringify(captureMediaSetting)
+    );
+  }
 
-    const tmpTestHintSettings = {
-      commentMatching: {
-        target: viewSettings.testHint.commentMatching.target,
-        extraWords: viewSettings.testHint.commentMatching.extraWords,
-        excludedWords: viewSettings.testHint.commentMatching.excludedWords
-      },
-      defaultSearchSeconds: viewSettings.testHint.defaultSearchSeconds
-    };
+  /**
+   * Get capture media settings information.
+   * @returns Capture media settings information.
+   */
+  public getCaptureMediaSetting(): CaptureMediaSetting {
+    const setting = localStorage.getItem(LOCAL_STORAGE_KEY_CAPTURE_MEDIA_SETTINGS);
+    if (setting === null) {
+      return {
+        mediaType: "image",
+        imageCompression: {
+          format: "png"
+        }
+      };
+    }
+    return JSON.parse(setting);
+  }
 
-    localStorage.setItem("latteart-config-testHintSettings", JSON.stringify(tmpTestHintSettings));
+  /**
+   * Save auto fill settings information.
+   * @param autofillSetting  Auto fill settings information.
+   */
+  public putAutofillSetting(autofillSetting: AutofillSetting): void {
+    localStorage.setItem(LOCAL_STORAGE_KEY_AUTOFILL_SETTING, JSON.stringify(autofillSetting));
+  }
 
-    return createRepositoryAccessSuccess({
-      data: viewSettings as ViewSettings
-    });
+  /**
+   * Get auto fill settings information.
+   * @returns Auto fill settings information.
+   */
+  public getAutofillSetting(): AutofillSetting {
+    const setting = localStorage.getItem(LOCAL_STORAGE_KEY_AUTOFILL_SETTING);
+    if (setting === null) {
+      return {
+        autoPopupRegistrationDialog: false,
+        autoPopupSelectionDialog: false,
+        conditionGroups: []
+      };
+    }
+    return JSON.parse(setting);
+  }
+
+  /**
+   * Save auto operation settings information.
+   * @param autoOperationSetting  Auto operation settings information.
+   */
+  public putAutoOperationSetting(autoOperationSetting: AutoOperationSetting): void {
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY_AUTO_OPERATION_SETTING,
+      JSON.stringify(autoOperationSetting)
+    );
+  }
+
+  /**
+   * Get auto operation settings information.
+   * @returns Auto operation settings information.
+   */
+  public getAutoOperationSetting(): AutoOperationSetting {
+    const setting = localStorage.getItem(LOCAL_STORAGE_KEY_AUTO_OPERATION_SETTING);
+    if (setting === null) {
+      return {
+        conditionGroups: []
+      };
+    }
+    return JSON.parse(setting);
   }
 }

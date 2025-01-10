@@ -3,149 +3,139 @@
     "close": "Close",
     "ok": "OK",
     "cancel": "Cancel",
+    "confirm": "Confirm",
+    "add": "Add",
     "delete": "Delete",
     "delete-warning": "Deletion is not reversible.",
-    "confirm": "Confirm",
     "error-dialog-title": "An error has occurred",
-    "download-link": "Download"
-  },
-  "app": {
-    "start": "Start",
-    "finish": "Finish",
-    "pause-capturing": "Pause Capture",
-    "resume-capturing": "Resume Capture",
+    "download-link": "Download",
+    "snapshot": "Output Snapshot",
     "replay": "Replay Test Result",
-    "stop-replay": "Stop Replay",
-    "history": "Test History",
-    "target": "Test Target",
-    "record-intention": "Record Test Purpose",
-    "record-notice": "Record Finding",
+    "url": "URL",
+    "page-title": "Page Title",
+    "input-value-set-name": "Input Value Set Name",
+    "input-value": "Input Value",
+    "operation-set-name": "Operation Set Name",
+    "operation-set-details": "Operation Set Details",
+    "non-required-details": "Details(optional)",
+    "summary": "Summary",
+    "details": "Details",
+    "test-matrix": "Test Matrix",
+    "group": "Group",
+    "test-target": "Test Target",
+    "viewpoint": "Viewpoint",
+    "start-capture-window-title": "Start Capturing",
     "record-note": "Make Note",
+    "take-screenshot": "Screenshot to register",
+    "previous-screen": "Test screen from the previous operation",
+    "current-screen": "Current test screen",
+    "target-sequence": "Target Operation Number",
+    "check-video": "Check the video",
+    "check-still-image": "Check the still image",
     "target-tab-window": "Target Tab/Window",
-    "url": "URL (required)",
-    "test-result-name": "Test Result Name",
-    "intention": "Test Purpose",
-    "note": "Note",
-    "notice": "Finding",
-    "register-operation": "Operation Registration",
-    "register-test-hint": "Test Hint Registration",
-    "select-operation": "Operation Selection",
-    "auto-operation": "Auto Operation",
-    "autofill": "Autofill"
-  },
-  "replay": {
-    "done-title": "Replay is done",
-    "done-run-operations": "Replay is finished.",
-    "run-operations-canceled": "Replay is canceled."
-  },
-  "auto-operation": {
-    "done-title": "Auto operation is done",
-    "done-auto-operations": "Auto operation is finished."
-  },
-  "navigate": {
-    "back": "Trigger browser back",
-    "forward": "Trigger browser forward"
-  },
-  "test-result-page": {
-    "window-title": "Test Result",
-    "edit-intention": "Add/Edit Test Purpose",
-    "delete-intention": "Delete Test Purpose",
-    "delete-intention-message": "Are you sure you want to delete this Test Purpose \"{value}\"?",
-    "add-bug": "Add Bug",
-    "edit-bug": "Edit Bug \"{value}\"",
-    "add-notice": "Add Finding",
-    "edit-notice": "View/Edit Finding \"{value}\"",
-    "delete-notice": "Delete Finding \"{value}\"",
-    "delete-notice-title": "Delete Finding",
-    "delete-notice-message": "Are you sure you want to delete this Finding \"{value}\"?",
-    "sequence": "Sequence Diagram Model",
-    "screen-transition": "Screen Transition Diagram Model",
-    "element-coverage": "Web Element Coverage",
-    "generate-testscript": "Generate Test Script",
-    "generate-testscript-title": "Test Script Generation",
-    "custom-button-tags": "Tags considered clickable in addition to the default definition",
-    "default-button-tags": "Default definition: {value}",
-    "testdata": "Test Data",
-    "max-generation": "Maximum Number of Test Data",
-    "template-only": "Template Only",
-    "method": "Method",
-    "method-data-driven": "Use Data Driven Testing",
-    "use-multi-locator1": "Generate robust test script using ",
-    "use-multi-locator2": " (experimental)",
-    "generate-simple-testscript": "Generate test script that reproduces the entire test (maybe redundant)",
-    "generate-only-template": "*If the maximum number is 0, only the template is generated.",
-    "custom-button-definition": "Custom Button Definition",
-    "generate-testscript-succeeded": "Test script generation has finished.",
-    "update-model-and-coverage": "Update Model/Coverage",
-    "there-are-updates-on-history": "There is an update of operation history",
-    "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip.",
-    "generate-screenshots": "Successful screenshot generation.",
-    "export-screenshots": "Screenshots Export",
-    "delete-test-result": "Delete Test Result",
-    "delete-test-result-title": "Delete Test Result",
-    "delete-test-result-associated-session-message": "This test result is included in the session.\nAre you sure you want to delete this Test Result \"{value}\"?",
-    "delete-test-result-message": "Are you sure you want to delete this Test Result \"{value}\"?",
-    "delete-test-result-succeeded": "Test Result deletion has finished.",
-    "compare-test-result": "Compare Test Result",
-    "compare-test-result-title": "Compare Test Result",
-    "compare-test-result-message": "Are you sure you want to compare the test results?",
+    "export-screenshots": "Export Screenshots",
     "comparing-test-result": "Comparing test results",
-    "compare-test-result-completed": "The comparison of test results '{actual}' and '{expected}' is completed.",
-    "compare-test-result-is-same": " There is no difference in the test results.",
-    "compare-test-result-is-different": " There are {diffCount} differences in the test results.\n",
-    "compare-test-result-download": "Please check the download file for details.",
-    "compare-test-result-not-exist": "There are no test results to compare.",
-    "compare-diffs-sequence": "Operation number",
-    "compare-diffs-items": "Items with differences",
-    "compare-diffs-remarks": "Remarks",
-    "compare-remarks-invalid-screenshot": "Invalid format screenshot.",
-    "compare-remarks-image-sizes-do-not-match": "Screenshot image size is different.",
+    "page-url": "Page URL",
+    "element-texts": "Element Texts",
+    "screenshot": "Screenshot",
+    "test-hint-list-window-title": "Test Hint List",
+    "test-matrix-window-title": "Browse Test Matrices",
+    "test-matrix-edit-window-title": "Edit Test Matrices",
+    "story-window-title": "Story",
+    "stories-review-window-title": "Review Stories",
+    "review-window-title": "Review Test Result",
+    "progress-management-window-title": "Progress Management",
+    "quality-management-window-title": "Quality Management",
+    "optional-features-window-title": "Optional Features",
+    "config-window-title": "Settings",
+    "config-coverage-title": "Web Element Coverage Settings",
+    "config-screen-def-title": "Screen Transition Definition",
+    "recent-stories": "Recent Stories",
+    "current-review": "Current Review",
+    "other": "Other",
+    "project-data": "Project Information",
+    "test-result-data": "Test Result Information",
+    "test-hint-data": "Test Hint Information",
+    "config-data": "Config Information",
+    "query": "Text",
+    "sequence": "No.",
+    "tagname": "Tag",
+    "element-name": "Name",
+    "text": "Text",
+    "type": "Event Type",
     "test-result-name": "Test Result Name",
-    "test-purpose": "Test Purpose",
-    "no-test-purpose": "No Test Purpose",
-    "edit-test-purpose": "Edit Test Purpose",
-    "image": "Image",
-    "video": "Video",
-    "loading-test-results": "Loading Test Results.",
-    "search-test-hints": "Get test hint",
-    "comment-register-field-label": "Comment"
-  },
-  "test-result-navigation-drawer": {
-    "title": "Test Result List",
-    "delete-test-results": "Delete Test Result",
-    "delete-test-result-message": "Delete selected test results?",
-    "delete-test-result-succeeded": "Test Result deletion has finished.",
-    "deleting-test-results": "Deleting test results.",
-    "load": "Loading"
-  },
-  "test-result-list": {
-    "name": "Test Result Name",
-    "url": "Test Target Url",
+    "test-result-list-window-title": "Test Result List",
+    "target-url": "Test Target URL",
     "testing-time": "Test Time",
-    "test-purpose": "Test Purpose",
     "creation-timestamp": "Creation Date",
     "load": "Load test result",
-    "edit": "Edit test result name"
-  },
-  "import-export-dialog": {
-    "test-result-import-title": "Import Test Result",
-    "project-import-title": "Import Config/Project",
-    "test-result-export-title": "Export Test Result",
-    "project-export-title": "Export Config/Project",
-    "project-data": "Project Information",
-    "testresult-data": "Test Result Information",
-    "config-data": "Config Information",
-    "test-hint": "Test Hint Information",
-    "select-test-result-file-label": "Test result file",
-    "select-test-result-file-button": "Select",
-    "select-project-file-label": "Project file",
-    "select-project-file-button": "Select",
-    "creating-export-data": "Creating export data",
+    "test-result-name-edit": "Edit test result name",
+    "deleting-test-results": "Deleting test results.",
+    "delete-test-result-succeeded": "Test Result deletion has finished.",
+    "generate-test-script": "Generate Test Script",
+    "generating-test-script": "Generating test script.",
+    "generate-test-script-succeeded": "Test script generation has finished.",
+    "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip.",
+    "test-purpose": "Test Purpose",
+    "purpose-of-the-test": "Test Purpose",
+    "no-test-purpose": "No Test Purpose",
+    "use-test-purpose": "Use Test Purpose in this session",
+    "first-test-purpose": "First Test Purpose",
+    "note": "Note",
+    "notice": "Finding",
+    "tags": "Tags",
+    "image": "Still Image",
+    "video": "Video",
+    "import-test-result": "Import Test Result",
+    "import-project": "Import Config/Project",
+    "select-file-button": "Select",
     "importing-data": "Importing data",
+    "import-data-succeeded": "{returnName} import is complete.",
+    "export-project": "Export Config/Project",
+    "creating-export-data": "Creating export data",
     "create-export-data-succeeded": "Data export is complete.",
-    "import-data-succeeded": "{returnName} import is complete."
+    "hint-text": "Hint text",
+    "issues": "Detected Issues",
+    "test-hint-viewpoint": "Viewpoint",
+    "comment-words": "Keywords",
+    "screen-elements": "Screen elements",
+    "register-test-hint": "Register Test Hint",
+    "edit-props": "Edit Custom Field",
+    "suffix": "seconds",
+    "status-ok": "OK",
+    "status-out-of-scope": "-",
+    "status-ng": "Not Yet",
+    "status-ongoing": "Ongoing",
+    "status-pending": "Pending",
+    "management": "Test Management",
+    "filter-section": "[Filter]",
+    "all": "All",
+    "planned-sessions": "# of Planned Sessions",
+    "completed-sessions": "# of Complete Sessions",
+    "bug-count": "# of Found Bugs",
+    "do-review": "Review",
+    "story-filter": "Story Filter",
+    "export-button": "Export",
+    "import-button": "Import"
   },
-  "config-page": {
+  "page-frame": {
+    "loading-project": "Loading Project data."
+  },
+  "root-page": {
+    "capture": "Test Capturing",
+    "test-design-support": "Test Design Support"
+  },
+  "default-routes": {
+    "test-result-window-title": "Test Result"
+  },
+  "start-capture-page": {
+    "execute-button": "Start"
+  },
+  "record-start-trigger": {
+    "starting-capture": "Starting capture."
+  },
+  "capture-option": {
+    "url": "URL (required)",
     "device": "Device",
     "platform": "Platform",
     "browser": "Browser",
@@ -154,199 +144,47 @@
     "select-device": "Select Device",
     "update-device": "Update Device Info",
     "no-device": "No Devices Recognized",
-    "device-name": "Device Name",
     "os-version": "OS Version",
-    "setting-inclusion-tags": "Web Element Coverage Settings",
     "media-type": "Media Type",
-    "still-image": "Still Image",
-    "video": "Video",
     "video-and-image": "Still Image + Video",
-    "capture-media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected.",
-    "setting-image-compression": "Image Compression Settings",
-    "png": "png",
-    "webp": "webp(The compression rate is higher than png, but the test result comparison function will not be able to compare images)",
-    "include-coverage": "Tags to include in coverage calculation",
-    "setting-test-result-comparison": "Compare Test Results Settings",
-    "comparison-exclude-items-enabled": "Do not detect differences in specified items",
-    "comparison-exclude-items-value": "Items to exclude",
-    "comparison-exclude-elements-enabled": "Do not detect differences for specified screen elements",
-    "comparison-exclude-elements-tagname": "Tags to exclude",
-    "setting-screen": "Screen Transition Definition",
-    "setting-autofill": "Autofill Setting",
-    "setting-auto-operation": "Auto Operation Setting",
-    "no-data": "Operation Set not registered",
-    "screen-def": {
-      "judgement-url": "Determined by URL",
-      "judgement-title": "Determined by Page Title",
-      "judgement-keyword": "Determined by Keyword",
-      "screen-list-definition-label": "URL/Title/Keyword",
-      "screen-list-definition-placeholder": "ex) /search",
-      "screen-list-alias-label": "Alias",
-      "screen-list-alias-placeholder": "ex) SearchScreen",
-      "screen-list-regex-error": "[Error]Invalid RegExp used in URL/Title/Keyword.",
-      "advanced-add": "Add",
-      "advanced-delete": "Delete",
-      "default-screen-definition": "Default Screen Definition",
-      "priority-condition": "Conditions to Be Prioritized",
-      "delete-definition": "Delete Definition",
-      "add-condition": "Add Detailed Condition",
-      "url": "URL",
-      "title": "Page Title",
-      "keyword": "Texts Displayed on a Page",
-      "contains": "contains",
-      "equals": "equals",
-      "regex": "matches the regular expression",
-      "screen-name": "Definition Name",
-      "description": "When multiple detailed conditions are set, the definition name will be applied if all of them are satisfied.",
-      "and": "and"
-    },
-    "autofill": {
-      "setting-name": "Setting Name",
-      "add-setting": "Add Setting",
-      "adding-autofill-values": "Adding Autofill Values",
-      "locator": "Locater",
-      "locator-type": "Locater Type",
-      "locator-match-type": "Locater Match Type",
-      "iframe-index": "Iframe Index",
-      "auto-popup-registration": "Automatically display a popup to register input values",
-      "auto-popup-selection": "Automatically display popup to select input value",
-      "input-value": "Input Value"
-    },
-    "autoOperation": {
-      "name": "Setting Name",
-      "details": "Setting Details",
-      "title": "Auto operation: Set Content",
-      "details-list": "Details"
-    },
-    "setting-test-hint": "Test Hint Settings",
-    "test-hint": {
-      "search-scope": "Scope of auto-complete for Screen Elements / Keywords when searching",
-      "default-search-seconds": "Default value",
-      "suffix": "seconds",
-      "info": "*0 disables auto-completion by hint search",
-      "matching-scope": "Target of auto-complete for Keywords when registration and searching",
-      "all": "Complete Keywords from 'Entire comment'",
-      "words-on-page-only": "Complete Keywords from 'Words on page' and 'Extra Words'",
-      "extra-words": "Extra Words",
-      "excluded-words": "Excluded Words"
-    },
-    "setting-experimental-features": "Experimental Feature Settings",
-    "recording-method": "Recording Method",
-    "capture-arch": "Record operations on the test page using PUSH method",
-    "attention": "*If enabled, it may be possible to record elements that can not be recorded under normal conditions.",
-    "attention-video": "*Capture media settings are ignored and only video is recorded if 'Platform' is 'PC'.",
-    "experimental-warning": "These are experimental features and may cause instability when enabled."
+    "media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected."
   },
-  "autofill-register-dialog": {
-    "title": "Autofill: Registration",
-    "message": "Do you want to register the input value you just entered? Enter an input value set name during registration.",
-    "form-label": "Input Value Set Name"
+  "first-test-purpose-option-dialog": {
+    "start-testing": "Start Session"
   },
-  "autofill-select-dialog": {
-    "title": "Autofill: Select",
-    "message": "Found an autofillable form. Select the input value set name to autofill.",
-    "form-label": "Input Value Set Name"
+  "test-result-load-trigger": {
+    "loading-test-results": "Loading Test Results."
   },
-  "autofill-button": {
-    "message": "Please select an input value set name."
+  "record-button": {
+    "start": "Start",
+    "finish": "Finish"
   },
-  "auto-operation-register-dialog": {
-    "title": "Auto operation: Registration",
-    "message": "Do you want to register the selected operation? When registering, enter the operation set name.",
-    "name": "Operation Set Name",
-    "details": "Details(optional)"
+  "pause-button": {
+    "pause-capturing": "Pause Capture",
+    "resume-capturing": "Resume Capture"
   },
-  "auto-operation-select-dialog": {
-    "title": "Auto Operation: Select",
-    "message": "For automatic operation, select the operation set name.",
-    "name": "Operation Set Name",
-    "details": "Operation Set Details"
+  "test-result-file-export-button": {
+    "export-test-result": "Export Test Result"
   },
-  "test-hint-register-dialog": {
-    "title": "Register Test Hint"
+  "browser-back-button": {
+    "back": "Trigger browser back"
   },
-  "test-hint-edit-dialog": {
-    "title": "Edit Test Hint"
+  "browser-forward-button": {
+    "forward": "Trigger browser forward"
   },
-  "note-edit": {
-    "take-screenshot": "Screenshot to register",
-    "previous-screen": "Test screen from the previous operation",
-    "current-screen": "Current test screen",
-    "save-warning": "The test purpose has already been noted for the specified operation.",
-    "target-sequence": "Target Operation Number",
-    "summary": "Summary",
-    "details": "Details(optional)",
-    "tags": "Tags",
-    "no-problem": "No problems at all",
-    "problem-occured": "Problems occurred",
-    "note-for-current-purpose": "As for current test purpose, ...",
-    "next-purpose": "Next test purpose is ...",
-    "continue-same-purpose": "Same as Before",
-    "error-cannot-take-screenshots": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note.",
-    "check-video": "Check the video",
-    "check-still-Image": "Check the still image"
+  "auto-operation-register-button": {
+    "register-operation": "Operation Registration"
   },
-  "replay-option": {
-    "start-replay": "Replay",
-    "wait-time": "Reproduce the waiting time when operating",
-    "replay-capture": "Save replay result",
-    "saving-replay-results-warning-message": "*Saving replay results warning message.",
-    "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
-    "test-result-name": "Test result name",
-    "take-screenshots": "Take screenshots",
-    "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."
+  "test-hint-register-button": {
+    "register-test-hint": "Test Hint Registration"
   },
-  "test-option": {
-    "title": "Test Purpose",
-    "start-testing": "Start Session",
-    "use-test-purpose": "Use Test Purpose in this session",
-    "first-test-purpose": "First Test Purpose"
+  "comment-register-field": {
+    "label": "Comment"
   },
-  "input-value": {
-    "times": " times",
-    "element-id": "ID",
-    "element-name": "Name",
-    "element-value": "Value",
-    "gray-out-not-input-value-cell": "Gray out Pre-entered Values",
-    "hide-hidden-elements": "Don't Display Hidden Elements",
-    "autofill-dialog-message": "Please select an input value set name.",
-    "end-of-test": "End of test"
+  "sequence-diagram": {
+    "edit-test-purpose": "Edit Test Purpose"
   },
-  "note-list-dialog": {
-    "note-list": "Note List",
-    "note": "Note",
-    "details": "Details"
-  },
-  "operation": {
-    "search": "Search",
-    "query": "Text",
-    "reset": "Reset Filter",
-    "purpose": "Purpose",
-    "notice": "Finding",
-    "sequence": "No.",
-    "title": "Title",
-    "tagname": "Tag",
-    "name": "Name",
-    "text": "Text",
-    "type": "Event Type",
-    "input": "Input Value",
-    "timestamp": "Timestamp",
-    "url": "Url"
-  },
-  "test-result-comparison-items": {
-    "title": "Page Title",
-    "url": "Page URL",
-    "elementTexts": "Element Texts",
-    "screenshot": "Screenshot"
-  },
-  "sequence": {
-    "window-title": "Sequence Diagram"
-  },
-  "screen-transition": {
-    "window-title": "Screen Transition Diagram"
-  },
-  "coverage": {
-    "window-title": "Coverage",
+  "element-coverage": {
     "tagname": "Tag",
     "type": "Type",
     "id": "ID",
@@ -354,287 +192,385 @@
     "text": "Text",
     "operated": "Operated"
   },
-  "navigation": {
-    "group-label": {
-      "capture": "Test Capturing",
-      "test-design-support": "Test Design Support",
-      "management": "Test Management",
-      "recent-stories": "Recent Stories",
-      "current-review": "Current Review",
-      "other": "Other"
-    }
+  "test-purpose-edit-dialog": {
+    "record-test-purpose": "Record Test Purpose",
+    "save-warning": "The test purpose has already been noted for the specified operation."
   },
-  "start-capture-page": {
-    "title": "Start Capturing",
-    "execute-button": "Start",
-    "starting-capture": "Starting capture."
+  "note-common-dialog": {
+    "record-notice": "Record Finding",
+    "take-screenshots-warning": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note."
   },
-  "test-hint": {
-    "list-page": {
-      "title": "Test Hint List"
-    },
-    "edit-props-dialog": {
-      "title": "Edit Custom Field",
-      "add": "Add Column",
-      "name": "Column Name",
-      "add-option": "Add Option"
-    },
-    "delete-dialog": {
-      "title": "Are you sure you want to delete this Test hint?"
-    },
-    "search-dialog": {
-      "title": "Test Hint: Search",
-      "filter-test-hints": "Filter test hints",
-      "matching-words": "Matching words",
-      "matching-result": "Hints related to current test",
-      "matching-scope": "Matching scope:",
-      "show": "Show matching conditions",
-      "hide": "Hide matching conditions",
-      "ignore-check-box": "During the current test, you will no longer be eligible for matching.",
-      "story-filter": "Current Story Only",
-      "comment-words": "Hint text / Keyword",
-      "display-all-test-hints": "Display all Test Hints",
-      "display-matched-test-hints": "Display only matched Test Hints",
-      "information": "Hints displayed in the order that most of the Matching Conditions are met",
-      "no-test-hint-matched": "No Test Hints matched. Display all Test Hints."
-    },
-    "common": {
-      "match-count": "Match count",
-      "hint-text": "Hint text",
-      "issues": "Detected Issues",
-      "test-matrix": "Test matrix",
-      "group": "Group",
-      "test-target": "Test target",
-      "view-point": "View point",
-      "comment-words": "Keywords",
-      "operation": "Operation",
-      "screen-elements": "Screen elements",
-      "add-element": "Add Element",
-      "search": "String search",
-      "add-issue": "Add"
-    }
+  "take-note-with-purpose-dialog": {
+    "no-problem": "No problems at all",
+    "problem-occured": "Problems occurred",
+    "note-for-current-test-purpose": "As for current test purpose, ...",
+    "next-test-purpose": "Next test purpose is ...",
+    "continue-same-test-purpose": "Same as Before"
   },
-  "optional-features": {
-    "title": "Optional Features",
-    "snapshot-output": {
-      "title": "Snapshot Output",
-      "execute-button": "Output Snapshot"
-    },
-    "test-script-generation": {
-      "title": "Test Script Generation",
-      "execute-button": "Generate Test Scripts"
-    },
-    "project-import": {
-      "title": "Config/Project Import",
-      "execute-button": "Import"
-    },
-    "project-export": {
-      "title": "Config/Project Export",
-      "execute-button": "Export"
-    }
+  "history-display": {
+    "there-are-updates-on-history": "There is an update of operation history",
+    "delete-test-purpose": "Delete Test Purpose",
+    "delete-test-purpose-message": "Are you sure you want to delete this Test Purpose \"{value}\"?",
+    "delete-note-title": "Delete Finding",
+    "delete-note-message": "Are you sure you want to delete this Finding \"{value}\"?",
+    "update-model-and-coverage": "Update Model/Coverage",
+    "sequence": "Sequence Diagram Model",
+    "sequence-window-title": "Sequence Diagram",
+    "screen-transition": "Screen Transition Diagram Model",
+    "screen-transition-window-title": "Screen Transition Diagram",
+    "element-coverage": "Web Element Coverage",
+    "coverage-window-title": "Coverage"
   },
-  "manage": {
-    "print-html-succeeded": "Snapshot output has finished.",
-    "output-html-running": "Snapshot output is running.",
-    "datafile-load-error": "An error occurred when load data file.\n[Error]\n {error}",
-    "loading-project": "Loading Project data."
+  "operation-list": {
+    "search": "Search",
+    "test-purpose": "Test Purpose",
+    "timestamp": "Timestamp"
   },
-  "manage-header": {
-    "creating-snapshot": "Creating snapshot.",
-    "output-html": "Output Snapshot",
-    "capture-config": "Settings",
-    "top": "Browse Test Matrices",
-    "generate-script": "Generate Test Script",
-    "generating-test-script": "Generating test script.",
-    "generate-script-succeeded": "Test script generation has finished.",
-    "locale": "locale"
+  "decision-table": {
+    "times": " times",
+    "element-id": "ID",
+    "gray-out-not-input-value-cell": "Gray out Pre-entered Values",
+    "hide-hidden-elements": "Don't Display Hidden Elements",
+    "end-of-test": "End of test",
+    "autofill-dialog-message": "Please select an input value set name."
+  },
+  "note-list-dialog": {
+    "note-list": "Note List"
+  },
+  "run-auto-operation-button": {
+    "auto-operation": "Auto Operation",
+    "done-title": "Auto operation is done",
+    "done-auto-operations": "Auto operation is finished."
+  },
+  "autofill-button": {
+    "autofill": "Autofill",
+    "message": "Please select an input value set name."
+  },
+  "autofill-register-dialog": {
+    "title": "Autofill: Registration"
+  },
+  "capture-control": {
+    "register-message": "Do you want to register the input value you just entered? Enter an input value set name during registration.",
+    "select-message": "Found an autofillable form. Select the input value set name to autofill."
+  },
+  "autofill-select-dialog": {
+    "title": "Autofill: Select"
+  },
+  "auto-operation-register-dialog": {
+    "title": "Auto operation: Registration",
+    "message": "Do you want to register the selected operation? When registering, enter the operation set name."
+  },
+  "auto-operation-select-dialog": {
+    "title": "Auto Operation: Select",
+    "message": "For automatic operation, select the operation set name."
+  },
+  "test-hint-search-button": {
+    "search-test-hints": "Get test hint"
+  },
+  "test-hint-search-dialog": {
+    "title": "Test Hint: Search",
+    "matching-result": "Hints related to current test",
+    "matching-scope": "Matching scope:",
+    "show": "Show matching conditions",
+    "hide": "Hide matching conditions",
+    "story-filter": "Current Story Only",
+    "comment-words": "Hint text / Keyword",
+    "display-all-test-hints": "Display all Test Hints",
+    "display-matched-test-hints": "Display only matched Test Hints",
+    "information": "Hints displayed in the order that most of the Matching Conditions are met",
+    "no-test-hint-matched": "No Test Hints matched. Display all Test Hints."
+  },
+  "replay-history-button": {
+    "stop-replay": "Stop Replay",
+    "done-title": "Replay is done",
+    "done-run-operations": "Replay is finished."
+  },
+  "replay-option-dialog": {
+    "wait-time": "Reproduce the waiting time when operating",
+    "replay-capture": "Save replay result",
+    "saving-replay-results-warning-message": "*Saving replay results warning message.",
+    "replay-compare": "Compare with replay source test result '{sourceTestResultName}'",
+    "take-screenshots": "Take screenshots",
+    "ignored-operations-alert": "Replay may not complete successfully because target test contains 'pause' or 'restart'."
+  },
+  "screenshots-download-button": {
+    "generate-screenshots": "Successful screenshot generation."
+  },
+  "delete-test-result-button": {
+    "delete-test-result": "Delete Test Result",
+    "delete-test-result-associated-session-message": "This test result is included in the session.\nAre you sure you want to delete this Test Result \"{value}\"?",
+    "delete-test-result-message": "Are you sure you want to delete this Test Result \"{value}\"?"
+  },
+  "compare-history-button": {
+    "compare-test-result": "Compare Test Result",
+    "compare-test-result-message": "Are you sure you want to compare the test results?"
+  },
+  "comparison-result-dialog": {
+    "compare-test-result-completed": "The comparison of test results '{actual}' and '{expected}' is completed.",
+    "compare-test-result-is-same": " There is no difference in the test results.",
+    "compare-test-result-is-different": " There are {diffCount} differences in the test results.\n",
+    "compare-test-result-download": "Please check the download file for details.",
+    "compare-diffs-sequence": "Operation number",
+    "compare-diffs-items": "Items with differences",
+    "compare-diffs-remarks": "Remarks"
+  },
+  "test-result-list-page": {
+    "delete-test-results": "Delete Test Result",
+    "delete-test-result-message": "Delete selected test results?"
+  },
+  "test-result-import-dialog": {
+    "select-test-result-file-label": "Test result file"
+  },
+  "test-hint-edit-dialog": {
+    "title": "Edit Test Hint"
+  },
+  "element-container": {
+    "add-element": "Add Element"
+  },
+  "test-hint-list-page": {
+    "delete-message": "Are you sure you want to delete this Test hint?"
+  },
+  "test-hint-list": {
+    "ignore-check-box": "During the current test, you will no longer be eligible for matching.",
+    "match-count": "Match count",
+    "search": "String search"
+  },
+  "test-hint-props-edit-dialog": {
+    "add": "Add Column",
+    "name": "Column Name",
+    "add-option": "Add Option"
   },
   "test-matrix-page": {
+    "tester-name": "Tester Name (Exact match)",
+    "incomplete-sessions": "Show only stories with incomplete sessions"
+  },
+  "legend-viewer": {
     "legend1": "( X / Y )",
     "legend2": "X: # of complete session",
     "legend3": "Y: # of planned session",
-    "status-ok": "OK",
     "text-ok": "This viewpoint is complete.",
-    "status-out-of-scope": "-",
     "text-out-of-scope": "This viewpoint is out of scope.",
-    "status-ng": "Not Yet",
     "text-ng": "There are incomplete sessions.",
-    "status-ongoing": "Ongoing",
     "text-ongoing": "There are ongoing sessions.",
-    "status-pending": "Pending",
-    "text-pending": "Pending for bug fixes, etc.",
-    "tester-name": "Tester Name (Exact match)",
-    "search": "Story Filter",
-    "incomplete-sessions": "Show only stories with incomplete sessions"
+    "text-pending": "Pending for bug fixes, etc."
+  },
+  "test-matrix-edit-page": {
+    "add-test-matrix": "Add Test Matrix"
+  },
+  "test-matrix-editor": {
+    "delete-test-matrix-confirm": "Are you sure you want to delete the test matrix?",
+    "settings": "Settings",
+    "name": "Group Name",
+    "delete-group-confirm": "Are you sure you want to delete this group?",
+    "add": "Add Group"
+  },
+  "group-editor": {
+    "delete-target-confirm": "Are you sure you want to delete this test target feature?"
   },
   "test-matrix-dialog": {
     "test-matrix-name": "Test Matrix Name",
-    "setting-viewPoint": "View Point Settings",
-    "viewPoint-name": "View Point Name",
-    "view-point-description": "Description of test viewpoint",
-    "new-viewPoint": "Add View Point",
+    "setting-viewpoint": "Viewpoint Settings",
+    "viewpoint-name": "Viewpoint Name",
+    "viewpoint-description": "Description of test viewpoint",
+    "add-viewpoint": "Add Viewpoint",
     "preset": "Preset to Use",
     "create-test-matrix": "Create Test Matrix",
     "edit-test-matrix": "Edit Test Matrix",
-    "delete-viewPoint-confirm": "Are you sure you want to delete this view point?",
     "unselected": "No Preset"
   },
-  "progress-management": {
-    "title": "Progress Management",
-    "display-settings-section": "[Display Settings]",
-    "period": "Period:",
-    "period-symbol": "-",
-    "filter-section": "[Filter]",
-    "test-matrix": "Test Matrix",
-    "group": "Group",
-    "test-target": "Target Feature",
-    "all": "All",
-    "planned-sessions": "# of Planned Sessions",
-    "completed-sessions": "# of Complete Sessions",
-    "incompleted-sessions": "# Incomplete Sessions"
-  },
-  "quality-management": {
-    "title": "Quality Management",
-    "attention": "*# of Found Bugs: number of notes with 'bug' tag",
-    "filter-section": "[Filter]",
-    "test-matrix": "Test Matrix",
-    "group": "Group",
-    "test-target": "Target Feature",
-    "bug-report": "[# of Found Bugs]",
-    "pb-curve": "[Reliability Growth Curve]",
-    "total-number": "Total Number",
-    "times-per-session": "# of Bugs per Session",
-    "total": "All",
-    "all": "All",
-    "unit-description-total": "unit: # of Found Bugs",
-    "unit-description": "unit: # of Found Bugs / # of Complete Sessions"
-  },
-  "quality-chart": {
-    "bug-report-number": "# of Found Bugs",
-    "number-session": "# of Complete Session"
-  },
-  "group-info": {
-    "target": "Target Feature"
-  },
-  "group-edit-info": {
-    "target": "Target Feature",
-    "delete-target-title": "Delete Target Feature",
-    "delete-target-confirm": "Are you sure you want to delete this test target feature?",
-    "delete": "Delete",
-    "add": "Add"
-  },
-  "group-edit-list": {
-    "name": "Group Name",
-    "delete-group-title": "Delete Group",
-    "delete-group-confirm": "Are you sure you want to delete this group?",
-    "delete": "Delete",
-    "add": "Add Group"
+  "story-page": {
+    "session-complete": "Check as Complete",
+    "delete-session": "Are you sure you want to delete the delete session?",
+    "status": "Status",
+    "session": "Session",
+    "review-target": "Review Target",
+    "add-session": "Add Session"
   },
   "session-info": {
     "charter": "Charter",
-    "test-item": "Test Items",
     "tester-name": "Tester Name",
     "memo": "Memo",
     "report": "Report",
     "model": "Session Logs",
     "import": "Import Session Log",
-    "file": "Attachments",
-    "add-file": "Add Attachments",
     "delete-test-result-confirm": "Are you sure you want to remove the test result from the session?",
     "delete-test-result-confirm-message": "The test result itself is not deleted.",
-    "delete-attached-file-confirm": "Are you sure you want to delete the attached file?",
-    "file-open-read-error": "Failed to read the attached file.",
     "result-list": "Import Test Result",
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
     "start-capture": "Start capture",
     "open-test-result": "Open test result.",
     "update-test-results-title": "Update test result name and capture time.",
-    "remove-test-results-title": "Remove test result from session."
+    "remove-test-results-title": "Remove test result from session.",
+    "file": "Attachments",
+    "add-file": "Add Attachments",
+    "delete-attached-file-confirm": "Are you sure you want to delete the attached file?"
   },
   "test-purpose-note-list": {
-    "title": "Test Purposes/Bugs",
+    "title": "Test Purposes/Findings",
     "open": "Open All Test Purposes",
-    "close": "Close All Test Purposes",
-    "details": "Details",
-    "no-test-purpose": "No Test Purpose"
-  },
-  "note-details-dialog": {
-    "details": "Details",
-    "summary": "Summary",
-    "tags": "Tags"
-  },
-  "media-display-group": {
-    "image": "Image",
-    "video": "Video"
-  },
-  "session-list": {
-    "complete": "Check as Complete",
-    "delete": "Delete",
-    "delete-session": "Are you sure you want to delete the delete session?",
-    "session-name-base": "Session"
+    "close": "Close All Test Purposes"
   },
   "stories-review-page": {
-    "title": "Review Stories",
-    "filter": "Story Filter",
-    "clear": "Filter Clear",
-    "test-matrix": "Test Matrix",
-    "group": "Group",
-    "test-target": "Test Target",
-    "view-point": "View Point",
-    "do-review": "Review"
+    "clear": "Filter Clear"
   },
-  "story-page": {
-    "title": "Story",
-    "test-matrix": "Test Matrix",
-    "group": "Group",
-    "test-target": "Target Feature",
-    "viewPoint": "Viewpoint",
-    "status": "Status",
-    "session": "Session",
-    "planned-session": "# of Planned Session",
-    "completed-session": "# of Complete Session",
-    "bug-count": "# of Found Bugs",
-    "review-target": "Review Target",
-    "do-review": "Review",
-    "add-session": "Add Session"
+  "progress-management-page": {
+    "display-settings-section": "[Display Settings]",
+    "period": "Period:",
+    "period-symbol": "-"
   },
-  "viewPoint-status": {
-    "out-of-scope": "-",
-    "ok": "OK",
-    "ng": "Not Yet",
-    "ongoing": "Ongoing",
-    "pending": "Pending"
+  "progress-chart": {
+    "incompleted-sessions": "# Incomplete Sessions"
   },
-  "manager-history-view": {
-    "review": "Review Test Result"
+  "quality-management-page": {
+    "attention": "*# of Found Bugs: number of findings with 'bug' tag",
+    "bug-report": "[# of Found Bugs]",
+    "pb-curve": "[Reliability Growth Curve]",
+    "total-number": "Total Number",
+    "times-per-session": "# of Bugs per Session",
+    "total": "All",
+    "unit-description-total": "unit: # of Found Bugs",
+    "unit-description": "unit: # of Found Bugs / # of Complete Sessions"
   },
-  "test-matrix-edit-page": {
-    "title": "Edit Test Matrices",
-    "add-test-matrix": "Add Test Matrix",
-    "delete-test-matrix-confirm": "Are you sure you want to delete the test matrix?",
-    "settings": "Settings"
+  "quality-chart": {
+    "number-session": "# of Complete Session"
   },
-  "remote-access": {
+  "snapshot-output-launcher": {
+    "execute-button": "Output Snapshot",
+    "snapshot-output-succeeded": "Snapshot output has finished.",
+    "creating-snapshot": "Creating snapshot."
+  },
+  "test-script-generation-launcher": {
+    "execute-button": "Generate Test Scripts"
+  },
+  "script-generation-option": {
+    "custom-button-tags": "Tags considered clickable in addition to the default definition",
+    "default-button-tags": "Default definition: {value}",
+    "testdata": "Test Data",
+    "max-generation": "Maximum Number of Test Data",
+    "method-data-driven": "Use Data Driven Testing",
+    "use-multi-locator1": "Generate robust test script using ",
+    "use-multi-locator2": " (experimental)",
+    "generate-simple-testscript": "Generate test script that reproduces the entire test (maybe redundant)",
+    "generate-only-template": "*If the maximum number is 0, only the template is generated.",
+    "custom-button-definition": "Custom Button Definition"
+  },
+  "import-option": {
+    "select-project-file-label": "Project file"
+  },
+  "config-page": {
+    "user-settings": "User Settings",
+    "project-settings": "Project Settings",
+    "user-settings-notice": "User-specific settings, not shared with others.",
+    "base-settings": "Base Settings",
+    "locale": "locale",
+    "setting-image-compression": "Image Compression Settings",
+    "setting-autofill": "Autofill Setting",
+    "setting-auto-operation": "Auto Operation Setting",
+    "setting-test-result-comparison": "Compare Test Results Settings",
+    "setting-test-hint": "Test Hint Settings",
+    "setting-experimental-features": "Experimental Feature Settings"
+  },
+  "remote-access-field": {
     "remote-connection-url": "Repository URL",
     "connect": "Connect",
     "connecting-remote-url": "Connecting to a repository.",
-    "connect-remote-url-succeeded": "Connected to {url}.",
-    "connect-remote-url-error": "Failed to connect to the repository.\nThe URL may be incorrect or the server may not be running.",
-    "delete-testresults": "Deleting test results."
+    "connect-remote-url-succeeded": "Connected to {url}."
+  },
+  "capture-media-config": {
+    "png": "png",
+    "webp": "webp(The compression rate is higher than png, but the test result comparison function will not be able to compare images)"
+  },
+  "coverage-config": {
+    "include-coverage": "Tags to include in coverage calculation"
+  },
+  "screen-definition-config": {
+    "judgement-url": "Determined by URL",
+    "judgement-title": "Determined by Page Title",
+    "default-screen-definition": "Default Screen Definition",
+    "priority-condition": "Conditions to Be Prioritized"
+  },
+  "screen-def-unit": {
+    "delete-definition": "Delete Definition",
+    "add-condition": "Add Detailed Condition",
+    "keyword": "Texts Displayed on a Page",
+    "contains": "contains",
+    "equals": "equals",
+    "regex": "matches the regular expression",
+    "screen-name": "Definition Name",
+    "description": "When multiple detailed conditions are set, the definition name will be applied if all of them are satisfied.",
+    "and": "and"
+  },
+  "autofill-config": {
+    "add-setting": "Add Setting",
+    "auto-popup-registration": "Automatically display a popup to register input values",
+    "auto-popup-selection": "Automatically display popup to select input value"
+  },
+  "autofill-input-value-container": {
+    "adding-autofill-values": "Adding Autofill Values",
+    "locator": "Locater",
+    "locator-type": "Locater Type",
+    "locator-match-type": "Locater Match Type",
+    "iframe-index": "Iframe Index"
+  },
+  "auto-operation-config": {
+    "no-data": "Operation Set not registered"
+  },
+  "auto-operation-dialog": {
+    "title": "Auto operation: Set Content"
+  },
+  "compare-config": {
+    "comparison-exclude-items-enabled": "Do not detect differences in specified items",
+    "comparison-exclude-items-value": "Items to exclude",
+    "comparison-exclude-elements-enabled": "Do not detect differences for specified screen elements",
+    "comparison-exclude-elements-tagname": "Tags to exclude"
+  },
+  "test-hint-config": {
+    "search-scope": "Scope of auto-complete for Screen Elements / Keywords when searching",
+    "default-search-seconds": "Default value",
+    "info": "*0 disables auto-completion by hint search",
+    "matching-scope": "Target of auto-complete for Keywords when registration and searching",
+    "all": "Complete Keywords from 'Entire comment'",
+    "words-on-page-only": "Complete Keywords from 'Words on page' and 'Extra Words'",
+    "extra-words": "Extra Words",
+    "excluded-words": "Excluded Words"
+  },
+  "experimental-feature-config": {
+    "recording-method": "Recording Method",
+    "capture-arch": "Record operations on the test page using PUSH method",
+    "attention": "*If enabled, it may be possible to record elements that can not be recorded under normal conditions.",
+    "attention-video": "*Capture media settings are ignored and only video is recorded if 'Platform' is 'PC'.",
+    "experimental-warning": "These are experimental features and may cause instability when enabled."
+  },
+  "extension-configs": {
+    "title": "Extension Settings"
+  },
+  "user-settings-import-launcher": {
+    "title": "Import User settings",
+    "select-button": "Select setting file",
+    "succeeded": "User setting import is complete",
+    "invalid-file-format": "The format of the import file is invalid."
+  },
+  "user-settings-export-launcher": {
+    "title": "Export User settings"
   },
   "error": {
     "common": {
       "fatal": "An unknown error occurred.",
       "get_settings_failed": "Failed to get settings.",
       "save_settings_failed": "Failed to save settings. Please check permissions of the config file or disk capacity.",
-      "change_locale_failed": "Failed to change locale. Please check permissions of the config file or disk capacity."
+      "connect_remote_url_failed": "Failed to connect to the repository.\nThe URL may be incorrect or the server may not be running.",
+      "import_data_failed": "Data import failed.",
+      "import_project_not_exist": "Project information does not exist.",
+      "import_test_result_not_exist": "Test result information does not exist.",
+      "import_test_hint_not_exist": "Test hint information does not exist.",
+      "import_config_not_exist": "Setting information does not exist.",
+      "create_export_data_failed": "Data export failed."
     },
     "capture_control": {
       "unknown_error": "An unknown error occurred on 'latteart-capture-cl'",
       "client_side_capture_service_not_found": "Failed to connect 'latteart-capture-cl' server. Please check if 'latteart-capture-cl' server is running.",
       "capture_socket_disconnected": "Disconnected from 'latteart-capture-cl' server during capturing operations. Please click 'Start' button to resume capture.",
-      "run_operations_socket_disconnected": "Disconnected from 'latteart-capture-cl' server during replaying operations. Please click 'Replay Test Result' button to replay operations again.",
       "get_device_settings_failed": "Failed to get device settings",
       "save_device_settings_failed": "Failed to save device settings",
       "run_operations_failed": "An error has occurred during replaying operations.",
@@ -655,7 +591,6 @@
     },
     "operation_history": {
       "load_history_failed": "Failed to load a test result.",
-      "illegal_test_result": "Illegal format of test result.",
       "save_test_scripts_failed": "Test script generation failed.",
       "save_test_scripts_no_section_error": "Aborted test script generation. There is no session including screen transitions.",
       "save_test_scripts_no_operation_error": "Aborted test script generation. There is no recorded operation.",
@@ -664,11 +599,8 @@
       "add_note_failed": "Failed to add note.",
       "delete_note_failed": "Failed to delete note.",
       "edit_note_failed": "Failed to update note.",
-      "move_note_failed": "Failed to move note.",
       "import_test_result_failed": "Failed to import test result.",
       "delete_test_purpose_failed": "Failed to delete test purpose.",
-      "move_test_purpose_failed": "Failed to move test purpose.",
-      "record_test_purpose_failed": "Failed to record test purpose.",
       "create_test_result_failed": "Failed to create test result.",
       "get_test_result_list_failed": "Failed to get test result list.",
       "get_session_ids_failed": "Failed to get session ids.",
@@ -676,7 +608,10 @@
       "compare_test_results_failed": "Failed to compare test results.",
       "generate_sequence_view_failed": "Failed to generate Sequence Diagram Model.",
       "generate_graph_view_failed": "Failed to generate Screen Transition Diagram Model, Web Element Coverage.",
-      "create_video_failed": "Failed to create video."
+      "create_video_failed": "Failed to create video.",
+      "compare_test_result_not_exist": "There are no test results to compare.",
+      "invalid_screenshot": "Invalid format screenshot.",
+      "image_sizes_do_not_match": "Screenshot image size is different."
     },
     "test_management": {
       "read_project_data_failed": "Failed to read project data.",
@@ -685,15 +620,7 @@
       "save_project_failed": "Failed to save project data.",
       "write_snapshot_failed": "Failed to write snapshot.",
       "collect_progress_datas_failed": "Failed to collect progress datas.",
-      "review_data_not_exist": "There are no test results to review."
-    },
-    "import_export": {
-      "import-data-error": "Data import failed.",
-      "import-project-not-exist": "Project information does not exist.",
-      "import-test-result-not-exist": "Test result information does not exist.",
-      "import-test-hint-not-exist": "Test hint information does not exist.",
-      "import-config-not-exist": "Setting information does not exist.",
-      "create-export-data-error": "Data export failed."
+      "file_open_read_failed": "Failed to read the attached file."
     }
   }
 }

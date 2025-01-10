@@ -335,7 +335,7 @@ function buildGraphText(source: {
   const screenTexts = source.screens.map(({ id, name }) => {
     const lineLength = 15;
     return `participant ${id} as ${TextUtil.escapeSpecialCharacters(
-      TextUtil.lineBreak(TextUtil.ellipsis(TextUtil.toSingleLine(name), lineLength * 3), lineLength)
+      TextUtil.lineBreak(TextUtil.truncate(TextUtil.toSingleLine(name), lineLength * 3), lineLength)
     )};`;
   });
 
@@ -387,7 +387,7 @@ function buildScreenTransitionTexts(
   const sequence = testStepIdToSequence.get(lastTestStep?.id ?? "");
   const operationType = lastTestStep?.type;
   const targetElement = TextUtil.escapeSpecialCharacters(
-    TextUtil.ellipsis(TextUtil.toSingleLine(lastTestStep?.element?.text ?? ""), 20)
+    TextUtil.truncate(TextUtil.toSingleLine(lastTestStep?.element?.text ?? ""), 20)
   );
   const screenTransitionTrigger = node.disabled
     ? "screen transition"

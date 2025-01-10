@@ -35,7 +35,7 @@
         <replay-button />
         <screenshots-download-button v-slot="slotProps">
           <v-list-item :disabled="slotProps.obj.isDisabled" @click="slotProps.obj.execute">
-            <v-list-item-title>{{ $t("test-result-page.export-screenshots") }}</v-list-item-title>
+            <v-list-item-title>{{ $t("common.export-screenshots") }}</v-list-item-title>
           </v-list-item>
         </screenshots-download-button>
         <compare-history-button />

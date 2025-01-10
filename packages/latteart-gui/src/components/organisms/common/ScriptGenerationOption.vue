@@ -19,7 +19,7 @@
       v-model="testGenerationOption.testScript.isSimple"
       density="comfortable"
       hide-details
-      :label="$t('test-result-page.generate-simple-testscript')"
+      :label="$t('script-generation-option.generate-simple-testscript')"
     >
     </v-checkbox>
     <v-checkbox
@@ -30,10 +30,10 @@
     >
       <template #label>
         <div>
-          {{ $t("test-result-page.use-multi-locator1") }}
+          {{ $t("script-generation-option.use-multi-locator1") }}
           <a href="https://github.com/latteart-org/multi-locator" target="_blank" @click.stop
             >multi-locator</a
-          >{{ $t("test-result-page.use-multi-locator2") }}
+          >{{ $t("script-generation-option.use-multi-locator2") }}
         </div>
       </template>
     </v-checkbox>
@@ -46,7 +46,7 @@
               'text--disabled': testGenerationOption.testScript.isSimple
             }"
           >
-            {{ $t("test-result-page.custom-button-definition") }}
+            {{ $t("script-generation-option.custom-button-definition") }}
           </p>
         </v-col>
         <v-col cols="12" class="pl-2">
@@ -58,13 +58,13 @@
               'text--disabled': testGenerationOption.testScript.isSimple
             }"
           >
-            {{ $t("test-result-page.custom-button-tags") }}
+            {{ $t("script-generation-option.custom-button-tags") }}
             <v-tooltip location="top">
               <template #activator="{ props }">
                 <v-icon size="15" v-bind="props" class="icon-info">info</v-icon>
               </template>
               <span>{{
-                $t("test-result-page.default-button-tags", {
+                $t("script-generation-option.default-button-tags", {
                   value: standardButtontags.join(", ")
                 })
               }}</span>
@@ -107,7 +107,7 @@
               'text--disabled': testGenerationOption.testScript.isSimple
             }"
           >
-            {{ $t("test-result-page.testdata") }}
+            {{ $t("script-generation-option.testdata") }}
           </p>
         </v-col>
         <v-col cols="12" class="pl-2">
@@ -115,7 +115,7 @@
             v-model="testGenerationOption.testData.useDataDriven"
             density="comfortable"
             hide-details
-            :label="$t('test-result-page.method-data-driven')"
+            :label="$t('script-generation-option.method-data-driven')"
             :disabled="testGenerationOption.testScript.isSimple"
           >
           </v-checkbox>
@@ -123,7 +123,7 @@
         <v-col cols="12" class="pl-2">
           <number-field
             :value="testGenerationOption.testData.maxGeneration"
-            :label="$t('test-result-page.max-generation')"
+            :label="$t('script-generation-option.max-generation')"
             :disabled="
               !testGenerationOption.testData.useDataDriven ||
               testGenerationOption.testScript.isSimple
@@ -140,7 +140,7 @@
                 !testGenerationOption.testData.useDataDriven ||
                 testGenerationOption.testScript.isSimple
             }"
-            >{{ $t("test-result-page.generate-only-template") }}</span
+            >{{ $t("script-generation-option.generate-only-template") }}</span
           >
         </v-col>
       </v-row>

@@ -16,9 +16,6 @@
 
 import { ScreenDefinitionConfig } from "../domain/ScreenDefFactory";
 import {
-  AutofillSetting,
-  AutoOperationSetting,
-  CaptureMediaSetting,
   Coverage,
   ExperimentalFeatureSetting,
 } from "../gateways/settings/Settings";
@@ -68,11 +65,8 @@ export type ProjectConfig = {
   }>;
   defaultTagList: string[];
   config: {
-    autofillSetting: AutofillSetting;
-    autoOperationSetting: AutoOperationSetting;
     screenDefinition: ScreenDefinitionConfig;
     coverage: Coverage;
-    captureMediaSetting: CaptureMediaSetting;
     testResultComparison: {
       excludeItems: {
         isEnabled: boolean;

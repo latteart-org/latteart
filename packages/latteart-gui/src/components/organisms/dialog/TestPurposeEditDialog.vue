@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$t('app.record-intention')"
+      :title="$t('test-purpose-edit-dialog.record-test-purpose')"
       :accept-button-disabled="!canSave"
       @accept="
         saveTestPurpose();
@@ -31,7 +31,7 @@
     >
       <number-field
         v-if="oldSequence !== null"
-        :label="$t('note-edit.target-sequence')"
+        :label="$t('common.target-sequence')"
         :value="newTargetSequence ?? undefined"
         :min-value="1"
         :max-value="maxSequence ?? undefined"
@@ -39,17 +39,17 @@
         @input="updateNewTargetSequence"
       ></number-field>
       <p v-if="isSaveWarning" class="warningMessage">
-        {{ $t("note-edit.save-warning") }}
+        {{ $t("test-purpose-edit-dialog.save-warning") }}
       </p>
       <v-text-field
         v-model="newNote"
         variant="underlined"
-        :label="$t('note-edit.summary')"
+        :label="$t('common.summary')"
       ></v-text-field>
       <v-textarea
         v-model="newNoteDetails"
         variant="underlined"
-        :label="$t('note-edit.details')"
+        :label="$t('common.non-required-details')"
       ></v-textarea>
     </execute-dialog>
     <error-message-dialog

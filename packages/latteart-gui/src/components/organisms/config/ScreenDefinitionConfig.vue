@@ -19,7 +19,7 @@
     <v-row>
       <v-col cols="12" class="py-0 my-0">
         <h4>
-          {{ $t("config-page.screen-def.default-screen-definition") }}
+          {{ $t("screen-definition-config.default-screen-definition") }}
         </h4>
         <v-radio-group
           :model-value="tempConfig.screenDefType"
@@ -27,13 +27,13 @@
           inline
           @update:model-value="changeScreenDefType"
         >
-          <v-radio :label="$t('config-page.screen-def.judgement-title')" value="title"></v-radio>
-          <v-radio :label="$t('config-page.screen-def.judgement-url')" value="url"></v-radio>
+          <v-radio :label="$t('screen-definition-config.judgement-title')" value="title"></v-radio>
+          <v-radio :label="$t('screen-definition-config.judgement-url')" value="url"></v-radio>
         </v-radio-group>
       </v-col>
       <v-col cols="12">
         <h4>
-          {{ $t("config-page.screen-def.priority-condition") }}
+          {{ $t("screen-definition-config.priority-condition") }}
         </h4>
         <screen-def-unit-container
           :screen-definition="tempConfig"

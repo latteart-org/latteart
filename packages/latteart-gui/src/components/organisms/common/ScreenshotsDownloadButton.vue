@@ -21,7 +21,7 @@
     <download-link-dialog
       :opened="dialogOpened"
       :title="$t('common.confirm')"
-      :message="$t('test-result-page.generate-screenshots')"
+      :message="$t('screenshots-download-button.generate-screenshots')"
       :link-url="linkUrl"
       @close="dialogOpened = false"
     />
@@ -93,7 +93,7 @@ export default defineComponent({
       processing.value = true;
       try {
         rootStore.openProgressDialog({
-          message: rootStore.message("test-result-page.export-screenshots")
+          message: rootStore.message("common.export-screenshots")
         });
         const url = await operationHistoryStore.getScreenshots({
           testResultId: testResultId.value

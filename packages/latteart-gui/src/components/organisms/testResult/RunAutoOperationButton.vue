@@ -21,7 +21,7 @@
       color="blue"
       icon="video_library"
       size="small"
-      :title="$t('app.auto-operation')"
+      :title="$t('run-auto-operation-button.auto-operation')"
       class="mx-2"
       @click="autoOperationSelectDialogOpened = true"
     >
@@ -43,12 +43,12 @@
 </template>
 
 <script lang="ts">
-import { type AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import AutoOperationSelectDialog from "@/components/organisms/dialog/AutoOperationSelectDialog.vue";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { computed, defineComponent, ref } from "vue";
 import { useRootStore } from "@/stores/root";
 import { useCaptureControlStore } from "@/stores/captureControl";
+import type { AutoOperationConditionGroup } from "@/lib/common/settings/Settings";
 
 export default defineComponent({
   components: {
@@ -65,7 +65,7 @@ export default defineComponent({
 
     const autoOperationConditionGroups = computed(() => {
       const conditionGroups: AutoOperationConditionGroup[] =
-        rootStore.projectSettings.config.autoOperationSetting.conditionGroups;
+        rootStore.userSettings.autoOperationSetting.conditionGroups;
       return conditionGroups.filter((group) => {
         return group.isEnabled;
       });
@@ -94,8 +94,8 @@ export default defineComponent({
           operations: tempOperations
         });
         captureControlStore.completionDialogData = {
-          title: rootStore.message("auto-operation.done-title"),
-          message: rootStore.message("auto-operation.done-auto-operations")
+          title: rootStore.message("run-auto-operation-button.done-title"),
+          message: rootStore.message("run-auto-operation-button.done-auto-operations")
         };
       } catch (error) {
         if (error instanceof Error) {

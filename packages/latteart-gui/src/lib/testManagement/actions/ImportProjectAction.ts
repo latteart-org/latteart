@@ -43,27 +43,27 @@ export class ImportProjectAction {
     if (postProjectsResult.isFailure()) {
       if (postProjectsResult.error.code === "import_config_not_exist") {
         return new ActionFailure({
-          messageKey: "error.import_export.import-config-not-exist"
+          messageKey: "error.common.import_config_not_exist"
         });
       }
       if (postProjectsResult.error.code === "import_test_result_not_exist") {
         return new ActionFailure({
-          messageKey: "error.import_export.import-test-result-not-exist"
+          messageKey: "error.common.import_test_result_not_exist"
         });
       }
       if (postProjectsResult.error?.code === "import_project_not_exist") {
         return new ActionFailure({
-          messageKey: "error.import_export.import-project-not-exist"
+          messageKey: "error.common.import_project_not_exist"
         });
       }
       if (postProjectsResult.error?.code === "import_test_hint_not_exist") {
         return new ActionFailure({
-          messageKey: "error.import_export.import-test-hint-not-exist"
+          messageKey: "error.common.import_test_hint_not_exist"
         });
       }
 
       return new ActionFailure({
-        messageKey: "error.import_export.import-data-error"
+        messageKey: "error.common.import_data_failed"
       });
     }
 

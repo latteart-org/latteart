@@ -17,7 +17,7 @@
 <template>
   <execute-dialog
     :opened="opened"
-    :title="$t('test-hint-register-dialog.title')"
+    :title="$t('common.register-test-hint')"
     :accept-button-disabled="isOkButtonDisabled"
     @accept="
       registerTestHint();
@@ -147,7 +147,7 @@ export default defineComponent({
         customPropHeaders.value = testHints?.props ?? [];
         commentWords.value = buildCommentMatchingWords(
           testHintResources,
-          rootStore.viewSettings.testHint.commentMatching
+          rootStore.userSettings.testHintSetting.commentMatching
         ).join(" ");
         operatedElements.value = testHintResources.elements;
         issues.value = testHintResources.issues;

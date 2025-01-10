@@ -18,7 +18,7 @@ import Timer from "@/lib/common/Timer";
 import { convertInputValue } from "@/lib/common/util";
 import type { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { AutofillTestAction } from "@/lib/operationHistory/actions/AutofillTestAction";
-import type { AutoOperation, AutofillConditionGroup } from "@/lib/operationHistory/types";
+import type { AutoOperation } from "@/lib/operationHistory/types";
 import type {
   CaptureConfig,
   CaptureEventListeners,
@@ -36,6 +36,7 @@ import { convertNote, convertTestStepOperation } from "@/lib/common/replyDataCon
 import type { NoteEditInfo } from "@/lib/captureControl/types";
 import { useOperationHistoryStore } from "./operationHistory";
 import InputValueTable from "@/lib/operationHistory/InputValueTable";
+import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
 
 /**
  * Store for capture control.
@@ -277,7 +278,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         const client = captureCl.createCaptureClient({
           testResult: destTestResult,
           config: {
-            ...rootStore.deviceSettings,
+            ...rootStore.userSettings.deviceSettings,
             captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
             shouldTakeScreenshot: replayOption.resultSavingEnabled
               ? replayOption.screenshotSavingEnabled
@@ -289,8 +290,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         const session = await (async () => {
           const startCaptureResult = await client.startCapture(payload.initialUrl, {
             compressScreenshots:
-              rootStore.projectSettings.config.captureMediaSetting.imageCompression.format ===
-              "webp"
+              rootStore.userSettings.captureMediaSetting.imageCompression.format === "webp"
           });
           if (startCaptureResult.isFailure()) {
             const errorMessage = rootStore.message(`error.capture_control.run_operations_failed`);
@@ -466,12 +466,12 @@ export const useCaptureControlStore = defineStore("captureControl", {
 
       const openAutofillSelectDialogCallBack = () => {
         if (
-          rootStore.projectSettings.config.autofillSetting &&
-          rootStore.viewSettings.autofill.autoPopupSelectionDialog &&
-          rootStore.projectSettings.config.autofillSetting.conditionGroups.length > 0
+          rootStore.userSettings.autofillSetting &&
+          rootStore.userSettings.autofillSetting.autoPopupSelectionDialog &&
+          rootStore.userSettings.autofillSetting.conditionGroups.length > 0
         ) {
           const matchGroup = new AutofillTestAction().extractMatchingAutofillConditionGroup(
-            rootStore.projectSettings.config.autofillSetting.conditionGroups,
+            rootStore.userSettings.autofillSetting.conditionGroups,
             payload.targetPage.title,
             payload.targetPage.url
           );
@@ -480,7 +480,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
           }
           this.autofillSelectDialogData = {
             autofillConditionGroups: matchGroup.data,
-            message: rootStore.message("autofill-select-dialog.message")
+            message: rootStore.message("capture-control.select-message")
           };
         } else {
           this.autofillSelectDialogData = {
@@ -490,14 +490,14 @@ export const useCaptureControlStore = defineStore("captureControl", {
       };
 
       if (
-        rootStore.viewSettings.autofill.autoPopupRegistrationDialog &&
+        rootStore.userSettings.autofillSetting.autoPopupRegistrationDialog &&
         payload.beforeOperation &&
         (payload.beforeOperation?.inputElements ?? []).length > 0
       ) {
         this.autofillRegisterDialogData = {
           title: payload.beforeOperation.title,
           url: payload.beforeOperation.url,
-          message: rootStore.message("autofill-register-dialog.message"),
+          message: rootStore.message("capture-control.register-message"),
           inputElements:
             payload.beforeOperation.inputElements?.map((element) => {
               return {
@@ -653,10 +653,10 @@ export const useCaptureControlStore = defineStore("captureControl", {
       const testResult = rootStore.repositoryService.createTestResultAccessor(
         operationHistoryStore.testResultInfo.id
       );
-      const mediaType = rootStore.projectSettings.config.captureMediaSetting.mediaType;
+      const mediaType = rootStore.userSettings.captureMediaSetting.mediaType;
 
       const config: CaptureConfig = {
-        ...rootStore.deviceSettings,
+        ...rootStore.userSettings.deviceSettings,
         captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
         shouldTakeScreenshot: mediaType === "image" || mediaType === "video_and_image"
       };
@@ -689,7 +689,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
 
       const result = await client.startCapture(payload.url, {
         compressScreenshots:
-          rootStore.projectSettings.config.captureMediaSetting.imageCompression.format === "webp",
+          rootStore.userSettings.captureMediaSetting.imageCompression.format === "webp",
         firstTestPurpose
       });
 
@@ -765,7 +765,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         screenshot: payload.noteEditInfo.shouldTakeScreenshot,
         compressScreenshot:
           payload.noteEditInfo.shouldTakeScreenshot &&
-          rootStore.projectSettings.config.captureMediaSetting.imageCompression.format === "webp"
+          rootStore.userSettings.captureMediaSetting.imageCompression.format === "webp"
       };
 
       this.captureSession?.takeNote(note, option);

@@ -31,14 +31,14 @@
     <v-select
       v-model="selectedItem"
       variant="underlined"
-      :label="$t('auto-operation-select-dialog.name')"
+      :label="$t('common.operation-set-name')"
       :items="selectList"
       item-title="settingName"
       item-value="value"
     ></v-select>
     <v-textarea
       variant="underlined"
-      :label="$t('auto-operation-select-dialog.details')"
+      :label="$t('common.operation-set-details')"
       readonly
       no-resize
       :model-value="selectedItem ? selectedItem.details : ''"
@@ -47,8 +47,8 @@
 </template>
 
 <script lang="ts">
-import { type AutoOperationConditionGroup } from "@/lib/operationHistory/types";
 import ExecuteDialog from "@/components/molecules/ExecuteDialog.vue";
+import type { AutoOperationConditionGroup } from "@/lib/common/settings/Settings";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import type { PropType } from "vue";
 

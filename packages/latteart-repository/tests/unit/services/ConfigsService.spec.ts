@@ -51,17 +51,11 @@ describe("ConfigsService", () => {
         viewPointsPreset: [],
         defaultTagList: [],
         config: {
-          autofillSetting: { conditionGroups: [] },
-          autoOperationSetting: { conditionGroups: [] },
           screenDefinition: { screenDefType: "title", conditionGroups: [] },
           coverage: {
             include: {
               tags: [],
             },
-          },
-          captureMediaSetting: {
-            mediaType: "image",
-            imageCompression: { format: "png" },
           },
           testResultComparison: {
             excludeItems: {

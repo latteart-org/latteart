@@ -17,7 +17,7 @@
 import { type ActionResult, ActionFailure, ActionSuccess } from "@/lib/common/ActionResult";
 import { type RepositoryService } from "latteart-client";
 
-const EXPORT_TEST_RESULT_FAILED_MESSAGE_KEY = "error.import_export.create-export-data-error";
+const EXPORT_TEST_RESULT_FAILED_MESSAGE_KEY = "error.common.create_export_data_failed";
 
 export class ExportTestResultAction {
   constructor(private repositoryService: Pick<RepositoryService, "testResultRepository">) {}

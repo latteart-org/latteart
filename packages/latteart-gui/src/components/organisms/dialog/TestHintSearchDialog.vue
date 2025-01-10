@@ -17,7 +17,7 @@
 <template>
   <scrollable-dialog :opened="opened" :max-width="2000">
     <template #title>
-      <span>{{ $t("test-hint.search-dialog.title") }}</span>
+      <span>{{ $t("test-hint-search-dialog.title") }}</span>
     </template>
 
     <template #content>
@@ -27,8 +27,8 @@
             <v-row class="my-1 pb-2">
               <v-btn variant="elevated" @click="changeMatchingConditionsOpened">{{
                 matchingConditionsOpened
-                  ? $t("test-hint.search-dialog.hide")
-                  : $t("test-hint.search-dialog.show")
+                  ? $t("test-hint-search-dialog.hide")
+                  : $t("test-hint-search-dialog.show")
               }}</v-btn>
             </v-row>
           </v-card-text>
@@ -42,11 +42,11 @@
                   <v-col class="pa-1">
                     <v-radio-group v-model="isMatchingEnabled" hide-details>
                       <v-radio
-                        :label="$t('test-hint.search-dialog.display-all-test-hints')"
+                        :label="$t('test-hint-search-dialog.display-all-test-hints')"
                         :value="false"
                       ></v-radio>
                       <v-radio
-                        :label="$t('test-hint.search-dialog.display-matched-test-hints')"
+                        :label="$t('test-hint-search-dialog.display-matched-test-hints')"
                         :value="true"
                       ></v-radio>
                     </v-radio-group>
@@ -56,14 +56,14 @@
                           <v-checkbox
                             v-model="isFilteringByElementsEnabled"
                             density="compact"
-                            :label="$t('test-hint.common.screen-elements')"
+                            :label="$t('common.screen-elements')"
                             hide-details
                           ></v-checkbox>
                         </v-row>
                         <v-row class="align-center py-0">
                           <v-checkbox
                             v-model="isFilteringByCommentsEnabled"
-                            :label="$t('test-hint.search-dialog.comment-words')"
+                            :label="$t('test-hint-search-dialog.comment-words')"
                             class="mr-4"
                             hide-details
                             density="compact"
@@ -78,7 +78,7 @@
                         </v-row>
                         <v-row class="align-center py-0">
                           <v-list-subheader class="pt-2 pr-3">{{
-                            $t("test-hint.search-dialog.matching-scope")
+                            $t("test-hint-search-dialog.matching-scope")
                           }}</v-list-subheader>
                           <v-text-field
                             v-model="defaultSearchSeconds"
@@ -91,7 +91,7 @@
                               !isFilteringByElementsEnabled && !isFilteringByCommentsEnabled
                             "
                             style="max-width: 150px"
-                            :suffix="$t('config-page.test-hint.suffix')"
+                            :suffix="$t('common.suffix')"
                             @update:model-value="
                               setSearchText();
                               filterTestHints();
@@ -111,7 +111,7 @@
                   <v-checkbox
                     v-model="isFilteringByStoryEnabled"
                     density="comfortable"
-                    :label="$t('test-hint.search-dialog.story-filter')"
+                    :label="$t('test-hint-search-dialog.story-filter')"
                     hide-details
                     :disabled="currentStoryInfo ? false : true"
                   ></v-checkbox>
@@ -136,18 +136,18 @@
       >
         <template #actions>
           <span class="text-subtitle-1 font-weight-bold">{{
-            `${$t("test-hint.search-dialog.matching-result")} (${filteredTestHints.length}/${testHints.length})`
+            `${$t("test-hint-search-dialog.matching-result")} (${filteredTestHints.length}/${testHints.length})`
           }}</span>
 
           <v-tooltip location="top">
             <template #activator="{ props }">
               <v-icon v-bind="props" class="icon-info mt-n1 pl-2">info</v-icon>
             </template>
-            <span>{{ $t("test-hint.search-dialog.information") }}</span>
+            <span>{{ $t("test-hint-search-dialog.information") }}</span>
           </v-tooltip>
 
           <p v-if="filteredTestHints.length === 0" style="color: red">
-            {{ $t("test-hint.search-dialog.no-test-hint-matched") }}
+            {{ $t("test-hint-search-dialog.no-test-hint-matched") }}
           </p>
         </template>
       </test-hint-list>
@@ -210,7 +210,7 @@ export default defineComponent({
     });
 
     const testHintSetting = computed(() => {
-      return rootStore.viewSettings.testHint;
+      return rootStore.userSettings.testHintSetting;
     });
 
     const currentStoryInfo = computed(() => {
@@ -245,8 +245,9 @@ export default defineComponent({
       filterTestHints();
     };
 
-    const updateDefaultSearchSeconds = (seconds: number) => {
-      defaultSearchSeconds.value = seconds < 0 ? 0 : seconds;
+    const updateDefaultSearchSeconds = (seconds: string) => {
+      const num = Number(seconds);
+      defaultSearchSeconds.value = num < 0 ? 0 : num;
     };
 
     const setSearchText = () => {

@@ -25,7 +25,7 @@
           variant="text"
           size="large"
           color="grey-darken-3"
-          :title="$t('app.start')"
+          :title="$t('record-button.start')"
           class="mx-1"
           @click="openOptionDialog"
         >
@@ -47,7 +47,7 @@
       variant="text"
       size="large"
       color="red"
-      :title="$t('app.finish')"
+      :title="$t('record-button.finish')"
       class="mx-2"
       @click="endCapture"
     >
