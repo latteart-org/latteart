@@ -86,13 +86,19 @@ export default defineComponent({
     const testMatrix = ref<TestMatrix | undefined>(undefined);
 
     const initializePanels = () => {
+      const index = getSavedExpandedPanelIndex();
+
       expandedPanelIndex.value = -1;
       testMatrix.value = targetTestMatrix.value;
 
       setTimeout(() => {
-        const savedIndex = getSavedExpandedPanelIndex();
-        expandedPanelIndex.value =
-          (testMatrix.value?.groups.length ?? 0) > savedIndex ? savedIndex : 0;
+        if (!index || !testMatrix.value?.groups) {
+          expandedPanelIndex.value = 0;
+        } else if (testMatrix.value.groups.length > index) {
+          expandedPanelIndex.value = index;
+        } else {
+          expandedPanelIndex.value = 0;
+        }
         isInitialized = true;
       }, 100);
 
