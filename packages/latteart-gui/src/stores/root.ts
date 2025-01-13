@@ -543,6 +543,8 @@ export const useRootStore = defineStore("root", {
       if (result.isFailure()) {
         throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
       }
+
+      this.userSettings.testScriptOption = { ...result.data };
     },
 
     /**

@@ -542,6 +542,9 @@
     "attention-video": "*Capture media settings are ignored and only video is recorded if 'Platform' is 'PC'.",
     "experimental-warning": "These are experimental features and may cause instability when enabled."
   },
+  "extension-configs": {
+    "title": "Extension Settings"
+  },
   "user-settings-import-launcher": {
     "title": "Import User settings",
     "select-button": "Select setting file",
