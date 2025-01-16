@@ -90,9 +90,7 @@ export class ElementMapperFactory {
       coverageSources.flatMap(({ screenDef, screenElements }) => {
         return screenElements.map((screenElement) => {
           return [
-            `${screenElement.pageUrl}_${screenElement.pageTitle}_${
-              screenElement.xpath
-            }_${
+            `${screenElement.pageUrl}_${screenElement.pageTitle}_${adjustRedFrameXpath(screenElement.xpath)}_${
               screenElement.iframe?.index !== undefined
                 ? screenElement.iframe?.index
                 : ""
@@ -117,7 +115,7 @@ export class ElementMapperFactory {
         iframeIndex?: number
       ) => {
         const element = keyToScreenElement.get(
-          `${pageUrl}_${pageTitle}_${xpath}_${
+          `${pageUrl}_${pageTitle}_${adjustRedFrameXpath(xpath)}_${
             iframeIndex !== undefined ? iframeIndex : ""
           }`
         )?.element;
@@ -522,4 +520,10 @@ function getRadioGroup(operation: TestStepForGraphView["operation"]) {
   }
 
   return undefined;
+}
+
+function adjustRedFrameXpath(xpath: string): string {
+  return xpath.startsWith("/HTML/BODY/DIV/")
+    ? `${xpath.slice(0, 14)}[1]${xpath.slice(14)}`
+    : xpath;
 }
