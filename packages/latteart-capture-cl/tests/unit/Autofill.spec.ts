@@ -7,7 +7,12 @@ describe("Autofill", () => {
   };
 
   describe("#execute", () => {
-    const client: any = {};
+    const client: any = {
+      doActionInDefaultFrame: async (lockId: string, action: any) => {
+        await action();
+        jest.fn().mockResolvedValue(undefined);
+      },
+    };
 
     it("selectboxに値を設定", async () => {
       const inputValueSets: InputValueSet[] = [
