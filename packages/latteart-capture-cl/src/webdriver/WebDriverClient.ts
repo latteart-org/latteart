@@ -216,6 +216,16 @@ export default interface WebDriverClient extends ScriptExecutor {
   setScrollPosition(x: number, height: number): Promise<void>;
 
   /**
+   * Do action in default frame.
+   * @param lockId  lock id
+   * @param action  action
+   */
+  doActionInDefaultFrame<T>(
+    lockId: string,
+    action: () => Promise<T>
+  ): Promise<{ result: T }>;
+
+  /**
    * Do action in iframes.
    * @param lockId lock id
    * @param action action
