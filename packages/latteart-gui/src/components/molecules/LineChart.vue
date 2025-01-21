@@ -46,7 +46,7 @@ ChartJS.register(
 
 export default defineComponent({
   components: {
-    "line-chart-impl": Line
+    "line-chart-impl": Line as any
   },
   props: {
     data: {
