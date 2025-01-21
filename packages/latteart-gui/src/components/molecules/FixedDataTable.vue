@@ -15,6 +15,7 @@
 -->
 <template>
   <v-data-table :items="items" :headers="addedPaddingCellheaders" :items-per-page="itemPerPage">
+    <!-- @vue-ignore -->
     <template v-for="(name, index) of Object.keys($slots) as {}" #[name]="props" :key="index">
       <slot :name="name" v-bind="props"></slot>
     </template>
