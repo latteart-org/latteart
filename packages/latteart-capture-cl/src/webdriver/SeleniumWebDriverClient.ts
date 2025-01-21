@@ -132,6 +132,43 @@ export class SeleniumWebDriverClient implements WebDriverClient {
     }
   }
 
+  public async doActionInDefaultFrame<T>(
+    lockId: string,
+    action: () => Promise<T>
+  ): Promise<{
+    result: T;
+  }> {
+    try {
+      await this.waitUntilFrameUnlock();
+      this.lockFrame(lockId);
+
+      await this.switchDefaultContent(lockId);
+
+      try {
+        const result = await action();
+        return { result };
+      } catch (error) {
+        if (error instanceof Error) {
+          if (
+            [
+              "NoSuchWindowError",
+              "NoSuchFrameError",
+              "NoSuchElementError",
+              "StaleElementReferenceError",
+              "WebDriverError",
+            ].includes(error.name)
+          ) {
+            LoggingService.debug(`${error}`);
+          }
+        }
+
+        throw error;
+      }
+    } finally {
+      this.unLockFrame();
+    }
+  }
+
   public async doActionInIframes<T>(
     lockId: string,
     action: (iframe?: {

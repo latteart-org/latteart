@@ -95,13 +95,14 @@ export default class Autofill {
 
       // wait to prevent multiple operations being pulled in main loop.
       await this.currentWindow.sleep(200);
+      const lockId = "autoFill";
 
       if (inputValueSet.iframeIndex !== undefined) {
-        await this.client.doActionInIframes("autoFill", action, {
+        await this.client.doActionInIframes(lockId, action, {
           iframeIndexes: [inputValueSet.iframeIndex],
         });
       } else {
-        await action();
+        await this.client.doActionInDefaultFrame(lockId, action);
       }
     }
   }
@@ -209,8 +210,8 @@ export default class Autofill {
         locatorType === "id" && locatorMatchType === "equals"
           ? `//*[@id="${locator}"]`
           : locatorType === "id" && locatorMatchType === "contains"
-          ? `//*[contains(@id,"${locator}")]`
-          : locator
+            ? `//*[contains(@id,"${locator}")]`
+            : locator
       );
     } catch (error) {
       if (error instanceof Error) {

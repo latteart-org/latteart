@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Operation, ScreenElements } from "../Operation";
+import { ElementInfo, Operation, ScreenElements } from "../Operation";
 import LoggingService from "../logger/LoggingService";
 import WebBrowser from "./browser/WebBrowser";
 import { CaptureConfig } from "../CaptureConfig";
@@ -538,7 +538,9 @@ export default class BrowserOperationCapturer {
       }
 
       const operationType = operation.type;
-      const elementInfo = operation.elementInfo;
+      const elementInfo = operation.elementInfo as ElementInfo & {
+        iframeIndex?: number;
+      };
       const xpath = elementInfo.xpath.toLowerCase();
 
       const action = async () => {
@@ -573,12 +575,13 @@ export default class BrowserOperationCapturer {
         }
       };
 
-      if (elementInfo.iframe !== undefined) {
-        await this.client.doActionInIframes("runOperation", action, {
-          iframeIndexes: [elementInfo.iframe.index],
+      const lockId = "runOperation";
+      if (elementInfo.iframeIndex !== undefined) {
+        await this.client.doActionInIframes(lockId, action, {
+          iframeIndexes: [elementInfo.iframeIndex],
         });
       } else {
-        await action();
+        await this.client.doActionInDefaultFrame(lockId, action);
       }
     } catch (error) {
       if (
