@@ -37,6 +37,7 @@ export type CompareTestResultsResponse = {
   summary: {
     isOk: boolean;
     steps: {
+      sequence: number;
       isOk: boolean;
       items: {
         title?: { isOk: boolean };

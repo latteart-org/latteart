@@ -34,6 +34,7 @@ export type PageAssertionOption = {
 };
 
 export type PageAssertionResult = {
+  sequence: number;
   isOk: boolean;
   items: {
     title?: {

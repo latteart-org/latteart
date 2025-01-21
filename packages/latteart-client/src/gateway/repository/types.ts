@@ -381,6 +381,7 @@ export type TestResultComparisonResultForRepository = {
   summary: {
     isOk: boolean;
     steps: {
+      sequence: number;
       isOk: boolean;
       items: {
         title?: { isOk: boolean };

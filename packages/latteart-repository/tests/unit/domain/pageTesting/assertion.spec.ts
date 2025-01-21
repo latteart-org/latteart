@@ -23,7 +23,7 @@ describe("assertPageStateEqual", () => {
           },
         };
 
-        const result = await assertPageStateEqual({
+        const result = await assertPageStateEqual(1, {
           actual: {
             title: "title",
             url: "url",
@@ -39,6 +39,7 @@ describe("assertPageStateEqual", () => {
         });
 
         expect(result).toEqual({
+          sequence: 3,
           isOk: true,
           items: {
             title: { isOk: true, actual: "title", expected: "title" },
@@ -50,9 +51,10 @@ describe("assertPageStateEqual", () => {
       });
 
       it("actual側とexpected側の画面状態が両方指定されていない場合", async () => {
-        const result = await assertPageStateEqual({});
+        const result = await assertPageStateEqual(1, {});
 
         expect(result).toEqual({
+          sequence: 3,
           isOk: true,
           items: {
             title: { isOk: true },
@@ -73,7 +75,7 @@ describe("assertPageStateEqual", () => {
       `(
         "ページタイトルが異なる場合: '$actual' '$expected'",
         async ({ actual, expected }) => {
-          const result = await assertPageStateEqual({
+          const result = await assertPageStateEqual(1, {
             actual: {
               title: actual,
               url: "url",
@@ -87,6 +89,7 @@ describe("assertPageStateEqual", () => {
           });
 
           expect(result).toEqual({
+            sequence: 3,
             isOk: false,
             items: {
               title: { isOk: false, actual, expected },
@@ -106,7 +109,7 @@ describe("assertPageStateEqual", () => {
       `(
         "ページURLが異なる場合: '$actual' '$expected'",
         async ({ actual, expected }) => {
-          const result = await assertPageStateEqual({
+          const result = await assertPageStateEqual(1, {
             actual: {
               title: "title",
               url: actual,
@@ -120,6 +123,7 @@ describe("assertPageStateEqual", () => {
           });
 
           expect(result).toEqual({
+            sequence: 3,
             isOk: false,
             items: {
               title: { isOk: true, actual: "title", expected: "title" },
@@ -138,7 +142,7 @@ describe("assertPageStateEqual", () => {
         ${[]}                                                    | ${[{ tagname: "tagname2", textWithoutChildren: "hoge" }]} | ${"実結果側に要素が無い"}
         ${[{ tagname: "tagname", textWithoutChildren: "hoge" }]} | ${[]}                                                     | ${"期待結果側に要素が無い"}
       `("画面要素が異なる場合: $description", async ({ actual, expected }) => {
-        const result = await assertPageStateEqual({
+        const result = await assertPageStateEqual(1, {
           actual: {
             title: "title",
             url: "url",
@@ -152,6 +156,7 @@ describe("assertPageStateEqual", () => {
         });
 
         expect(result).toEqual({
+          sequence: 3,
           isOk: false,
           items: {
             title: { isOk: true, actual: "title", expected: "title" },
@@ -183,7 +188,7 @@ describe("assertPageStateEqual", () => {
             },
           };
 
-          const result = await assertPageStateEqual({
+          const result = await assertPageStateEqual(1, {
             actual: {
               title: "title",
               url: "url",
@@ -199,6 +204,7 @@ describe("assertPageStateEqual", () => {
           });
 
           expect(result).toEqual({
+            sequence: 3,
             isOk: false,
             items: {
               title: { isOk: true, actual: "title", expected: "title" },
@@ -230,7 +236,7 @@ describe("assertPageStateEqual", () => {
           },
         };
 
-        const result = await assertPageStateEqual({
+        const result = await assertPageStateEqual(1, {
           expected: {
             title: "title",
             url: "url",
@@ -240,6 +246,7 @@ describe("assertPageStateEqual", () => {
         });
 
         expect(result).toEqual({
+          sequence: 3,
           isOk: false,
           items: {
             title: { isOk: false, expected: "title" },
@@ -261,7 +268,7 @@ describe("assertPageStateEqual", () => {
           },
         };
 
-        const result = await assertPageStateEqual({
+        const result = await assertPageStateEqual(1, {
           actual: {
             title: "title",
             url: "url",
@@ -271,6 +278,7 @@ describe("assertPageStateEqual", () => {
         });
 
         expect(result).toEqual({
+          sequence: 3,
           isOk: false,
           items: {
             title: { isOk: false, actual: "title" },
