@@ -19,6 +19,7 @@ import { Image } from "../types";
 import { PageAssertionResult, PageAssertionOption, PageState } from "./types";
 
 export async function assertPageStateEqual(
+  index: number,
   pageStates: { actual?: PageState; expected?: PageState },
   option: PageAssertionOption = {}
 ): Promise<PageAssertionResult> {
@@ -65,6 +66,7 @@ export async function assertPageStateEqual(
   };
 
   return {
+    sequence: index + 2,
     isOk: Object.values(items).every((detail) => detail?.isOk ?? true),
     items,
     errors: screenshot?.error ? [screenshot.error] : undefined,

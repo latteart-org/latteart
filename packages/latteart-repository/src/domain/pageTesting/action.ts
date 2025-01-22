@@ -30,6 +30,10 @@ export function createTestActions(
         }
       : undefined;
 
+    if (array.length - 1 === index) {
+      return acc;
+    }
+
     return [
       ...acc,
       {

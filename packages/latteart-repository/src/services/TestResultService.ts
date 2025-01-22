@@ -674,6 +674,7 @@ export class TestResultServiceImpl implements TestResultService {
     const assertionResults = await Promise.all(
       expectedActions.map((expected, index) => {
         return assertPageStateEqual(
+          index,
           {
             actual: actualActions.at(index)?.result,
             expected: expected.result,

@@ -42,6 +42,7 @@ export type TestResultCompareReport = {
 export type TestResultCompareReportSummary = {
   isOk: boolean;
   steps: {
+    sequence: number;
     isOk: boolean;
     items: {
       title?: { isOk: boolean };
@@ -92,7 +93,7 @@ export function createReport(
   assertionResults: PageAssertionResult[]
 ): TestResultCompareReport {
   return assertionResults.reduce(
-    (acc: TestResultCompareReport, assertionResult, index) => {
+    (acc: TestResultCompareReport, assertionResult) => {
       if (!assertionResult.isOk) {
         acc.result.isOk = false;
       }
@@ -107,7 +108,10 @@ export function createReport(
         }
 
         const data = writePNG(screenshot.diff);
-        const imageFilePath = path.join("screenshots", `${index + 1}.png`);
+        const imageFilePath = path.join(
+          "screenshots",
+          `${assertionResult.sequence}.png`
+        );
         acc.screenshots.push({ filePath: imageFilePath, data });
 
         return { isOk: screenshot.isOk, diffFilePath: imageFilePath };
