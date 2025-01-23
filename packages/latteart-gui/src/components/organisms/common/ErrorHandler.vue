@@ -52,6 +52,10 @@ export default defineComponent({
     const errorHandler = (event: ErrorEvent) => {
       console.error(event);
 
+      if (event.message === "ResizeObserver loop completed with undelivered notifications.") {
+        return;
+      }
+
       openErrorDialog({
         code: event.error?.code,
         message: event.error?.message
