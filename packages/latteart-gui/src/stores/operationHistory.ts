@@ -1245,26 +1245,31 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
         });
       };
 
-      const graphs = (
-        await convertToSequenceDiagramGraphs(
-          payload.sequenceView,
-          createSequenceDiagramGraphExtender
-        )
-      ).map(({ sequence, testPurpose, graph, disabledNodeIndexes }) => {
-        if (!graph) {
-          return { sequence, testPurpose };
-        }
+      const graphs = await Promise.all(
+        (
+          await convertToSequenceDiagramGraphs(
+            payload.sequenceView,
+            createSequenceDiagramGraphExtender
+          )
+        ).map(async ({ sequence, testPurpose, graph, disabledNodeIndexes }) => {
+          if (!graph) {
+            return { sequence, testPurpose };
+          }
 
-        const svgElement = (() => {
-          const element = document.createElement("div");
-          element.innerHTML = new MermaidGraphConverter().toSVG("sequenceDiagram", graph.graphText);
-          return element.firstElementChild!;
-        })();
+          const svgElement = await (async () => {
+            const element = document.createElement("div");
+            element.innerHTML = await new MermaidGraphConverter().toSVG(
+              "sequenceDiagram",
+              graph.graphText
+            );
+            return element.firstElementChild!;
+          })();
 
-        graph.graphExtender.extendGraph(svgElement, disabledNodeIndexes);
+          graph.graphExtender.extendGraph(svgElement, disabledNodeIndexes);
 
-        return { sequence, testPurpose, element: svgElement };
-      });
+          return { sequence, testPurpose, element: svgElement };
+        })
+      );
 
       this.sequenceDiagramGraphs = [...graphs.flat()];
     },
@@ -1322,9 +1327,9 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
         await convertToScreenTransitionDiagramGraph(payload.graphView, createFlowChartGraphExtender)
       ).graph;
 
-      const svgElement = (() => {
+      const svgElement = await (async () => {
         const element = document.createElement("div");
-        element.innerHTML = new MermaidGraphConverter().toSVG(
+        element.innerHTML = await new MermaidGraphConverter().toSVG(
           "screenTransitionDiagram",
           graph.graphText
         );
