@@ -82,7 +82,7 @@
               >
               <v-icon
                 v-if="header.headerProps?.notes.length > 0"
-                :title="message('common.note')"
+                :title="message('common.notice')"
                 class="mx-1"
                 color="purple-lighten-3"
                 @click="

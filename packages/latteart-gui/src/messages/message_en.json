@@ -25,7 +25,7 @@
     "test-target": "Test Target",
     "viewpoint": "Viewpoint",
     "start-capture-window-title": "Start Capturing",
-    "record-note": "Make Note",
+    "record-note": "Record Your Findings",
     "take-screenshot": "Screenshot to register",
     "previous-screen": "Test screen from the previous operation",
     "current-screen": "Current test screen",
@@ -77,11 +77,9 @@
     "generate-test-script-succeeded": "Test script generation has finished.",
     "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip.",
     "test-purpose": "Test Purpose",
-    "purpose-of-the-test": "Test Purpose",
     "no-test-purpose": "No Test Purpose",
     "use-test-purpose": "Use Test Purpose in this session",
     "first-test-purpose": "First Test Purpose",
-    "note": "Note",
     "notice": "Finding",
     "tags": "Tags",
     "image": "Still Image",
@@ -197,7 +195,6 @@
     "save-warning": "The test purpose has already been noted for the specified operation."
   },
   "note-common-dialog": {
-    "record-notice": "Record Finding",
     "take-screenshots-warning": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note."
   },
   "take-note-with-purpose-dialog": {
@@ -223,7 +220,6 @@
   },
   "operation-list": {
     "search": "Search",
-    "test-purpose": "Test Purpose",
     "timestamp": "Timestamp"
   },
   "decision-table": {
@@ -235,7 +231,7 @@
     "autofill-dialog-message": "Please select an input value set name."
   },
   "note-list-dialog": {
-    "note-list": "Note List"
+    "note-list": "Finding List"
   },
   "run-auto-operation-button": {
     "auto-operation": "Auto Operation",

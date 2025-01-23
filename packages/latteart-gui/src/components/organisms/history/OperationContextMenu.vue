@@ -24,7 +24,7 @@
       close-on-content-click
     >
       <v-list>
-        <v-list-subheader>{{ $t("common.purpose-of-the-test") }}</v-list-subheader>
+        <v-list-subheader>{{ $t("common.test-purpose") }}</v-list-subheader>
         <v-list-item
           v-for="intention in intentionItems"
           :key="intention.label"
