@@ -60,11 +60,10 @@ export default defineComponent({
       required: true
     }
   },
-  emits: ["error", "ok", "close"],
+  emits: ["ok", "close"],
   setup(props, context) {
     const settingName = ref("");
     const settingDetails = ref("");
-    const invalidTypes = ref(["switch_window"]);
 
     const okButtonIsDisabled = computed(() => {
       return !settingName.value ? true : false;
@@ -78,17 +77,7 @@ export default defineComponent({
       settingDetails.value = "";
     };
 
-    const invalidOperations = computed(() => {
-      return props.targetOperations.filter((operation) => {
-        return invalidTypes.value.includes(operation.type);
-      });
-    });
-
     const ok = () => {
-      if (invalidOperations.value.length > 0) {
-        context.emit("error", invalidTypes.value);
-        return;
-      }
       const sortedOperations = [...props.targetOperations]
         .sort((a, b) => a.sequence - b.sequence)
         .map((operation) => {
