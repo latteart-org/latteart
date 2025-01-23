@@ -25,7 +25,7 @@
     "test-target": "テスト対象",
     "viewpoint": "テスト観点",
     "start-capture-window-title": "テスト記録開始",
-    "record-note": "メモを残す",
+    "record-note": "気づきを残す",
     "take-screenshot": "登録するスクリーンショット",
     "previous-screen": "直前の操作時のテスト画面",
     "current-screen": "現在のテスト画面",
@@ -77,11 +77,9 @@
     "generate-test-script-succeeded": "テストスクリプトの生成が完了しました。",
     "generate-alert-info": "※コード化対象外の操作が含まれています。出力されたzip内のdoc/index.htmlをご確認ください。",
     "test-purpose": "テスト目的",
-    "purpose-of-the-test": "テストの目的",
-    "no-test-purpose": "目的なし",
+    "no-test-purpose": "テスト目的なし",
     "use-test-purpose": "テスト目的を使用してテストする",
     "first-test-purpose": "最初のテスト目的",
-    "note": "メモ",
     "notice": "気づき",
     "tags": "タグ",
     "image": "静止画",
@@ -193,11 +191,10 @@
     "operated": "操作済"
   },
   "test-purpose-edit-dialog": {
-    "record-test-purpose": "テストの目的の記録",
-    "save-warning": "指定された対象操作の通番には既にテストの目的が記録されています。"
+    "record-test-purpose": "テスト目的の記録",
+    "save-warning": "指定された対象操作の通番には既にテスト目的が記録されています。"
   },
   "note-common-dialog": {
-    "record-notice": "テスト中の気づき",
     "take-screenshots-warning": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
   },
   "take-note-with-purpose-dialog": {
@@ -209,8 +206,8 @@
   },
   "history-display": {
     "there-are-updates-on-history": "操作履歴の更新があります",
-    "delete-test-purpose": "目的の削除",
-    "delete-test-purpose-message": "目的「{value}」を削除してもよろしいですか？",
+    "delete-test-purpose": "テスト目的の削除",
+    "delete-test-purpose-message": "テスト目的「{value}」を削除してもよろしいですか？",
     "delete-note-title": "気づきの削除",
     "delete-note-message": "気づき「{value}」を削除してもよろしいですか？",
     "update-model-and-coverage": "モデル・カバレッジの更新",
@@ -223,7 +220,6 @@
   },
   "operation-list": {
     "search": "検索",
-    "test-purpose": "目的",
     "timestamp": "時刻"
   },
   "decision-table": {
@@ -235,7 +231,7 @@
     "autofill-dialog-message": "入力値セット名を入力してください。"
   },
   "note-list-dialog": {
-    "note-list": "メモ一覧"
+    "note-list": "気づき一覧"
   },
   "run-auto-operation-button": {
     "auto-operation": "自動操作",

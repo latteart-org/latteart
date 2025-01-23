@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$t('note-common-dialog.record-notice')"
+      :title="$t('common.notice')"
       :accept-button-disabled="!canSave"
       :max-width="800"
       @accept="execute"

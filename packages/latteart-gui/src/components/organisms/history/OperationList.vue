@@ -86,13 +86,13 @@
             <td>
               <v-icon
                 v-if="item.notes.intention"
-                :title="message('common.purpose-of-the-test')"
+                :title="message('common.test-purpose')"
                 color="blue"
                 >event_note</v-icon
               >
               <v-icon
                 v-if="item.notes.notices.length + item.notes.bugs.length > 0"
-                :title="message('common.note')"
+                :title="message('common.notice')"
                 color="purple-lighten-3"
                 >announcement</v-icon
               >
@@ -200,7 +200,7 @@
       <v-checkbox
         v-model="isPurposeFilterEnabled"
         class="search-checkbox pl-4"
-        :label="message('operation-list.test-purpose')"
+        :label="message('common.test-purpose')"
       ></v-checkbox>
       <v-checkbox
         v-model="isNoteFilterEnabled"
@@ -574,7 +574,7 @@ export default defineComponent({
 
         const elementInfoForDisplay: ElementInfoForDisplay = {
           tagname: elementInfo?.tagname ?? "",
-          text: elementInfo ? elementInfo.text ?? elementInfo.value ?? "" : "",
+          text: elementInfo ? (elementInfo.text ?? elementInfo.value ?? "") : "",
           attributes: { ...elementInfo?.attributes },
           xpath: elementInfo?.xpath ?? "",
           iframeIndex: elementInfo?.iframe?.index
