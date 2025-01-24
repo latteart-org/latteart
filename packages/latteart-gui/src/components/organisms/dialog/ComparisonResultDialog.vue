@@ -88,17 +88,17 @@ export default defineComponent({
     const headers = computed(() => {
       return [
         {
-          text: `${rootStore.message("comparison-result-dialog.compare-diffs-sequence")}`,
+          title: `${rootStore.message("comparison-result-dialog.compare-diffs-sequence")}`,
           value: "sequence",
           sortable: false
         },
         {
-          text: `${rootStore.message("comparison-result-dialog.compare-diffs-items")}`,
+          title: `${rootStore.message("comparison-result-dialog.compare-diffs-items")}`,
           value: "ngItemNames",
           sortable: false
         },
         {
-          text: `${rootStore.message("comparison-result-dialog.compare-diffs-remarks")}`,
+          title: `${rootStore.message("comparison-result-dialog.compare-diffs-remarks")}`,
           value: "remarks",
           sortable: false
         }
@@ -192,7 +192,7 @@ export default defineComponent({
 </script>
 
 <style lang="sass" scoped>
-:v-deep(.hover-disabled)
+:deep(.hover-disabled)
   tbody
     tr:hover
       background-color: transparent !important
