@@ -23,7 +23,7 @@ const port = process.env.PORT || 3000;
 
 const app = express();
 
-app.use(history());
+app.use(history() as any);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const executablePath = (process as any).pkg?.entrypoint;
