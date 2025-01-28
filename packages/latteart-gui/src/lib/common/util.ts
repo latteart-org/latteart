@@ -179,3 +179,14 @@ export const parseHistoryLog = (historyItems: any[]) => {
     };
   });
 };
+
+/**
+ * Check the items to be excluded from the notice registration.
+ * @param target  Target operation type.
+ * @returns Returns true if they match.
+ */
+export const checkExcludeOperationType = (target: string): boolean => {
+  const exclusionType = ["start_capturing", "open_window"];
+
+  return exclusionType.includes(target);
+};

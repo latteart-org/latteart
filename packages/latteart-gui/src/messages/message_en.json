@@ -195,7 +195,8 @@
     "save-warning": "The test purpose has already been noted for the specified operation."
   },
   "note-common-dialog": {
-    "take-screenshots-warning": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note."
+    "take-screenshots-warning": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note.",
+    "save-warning": "The specified target operation number cannot be used to register finding."
   },
   "take-note-with-purpose-dialog": {
     "no-problem": "No problems at all",

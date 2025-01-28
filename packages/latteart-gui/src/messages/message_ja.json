@@ -195,7 +195,8 @@
     "save-warning": "指定された対象操作の通番には既にテスト目的が記録されています。"
   },
   "note-common-dialog": {
-    "take-screenshots-warning": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
+    "take-screenshots-warning": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。",
+    "save-warning": "指定された対象操作の通番には気づきを登録できません。"
   },
   "take-note-with-purpose-dialog": {
     "no-problem": "特に問題はなかった",
