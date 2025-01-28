@@ -17,7 +17,7 @@
 <template>
   <div>
     <v-btn
-      :disabled="!isCapturing"
+      :disabled="isDisabled"
       color="green"
       icon="add_comment"
       size="small"
@@ -41,6 +41,7 @@ import TakeNoteDialog from "@/components/organisms/dialog/TakeNoteDialog.vue";
 import { computed, defineComponent, ref } from "vue";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { checkExcludeOperationType } from "@/lib/common/util";
 
 export default defineComponent({
   components: {
@@ -58,8 +59,23 @@ export default defineComponent({
       return captureControlStore.isCapturing;
     });
 
+    const history = computed(() => {
+      return operationHistoryStore.history;
+    });
+
+    const isDisabled = computed((): boolean => {
+      if (!isCapturing.value) {
+        return true;
+      }
+      if (captureControlStore.testOption.shouldRecordTestPurpose) {
+        return false;
+      }
+      const target = history.value.at(-1)?.operation.type ?? "";
+      return checkExcludeOperationType(target);
+    });
+
     const open = () => {
-      const sequence = operationHistoryStore.history.length;
+      const sequence = history.value.length;
       operationHistoryStore.selectOperation({ sequence, doScroll: false });
       operationHistoryStore.selectedOperationNote = { sequence, index: null };
       if (captureControlStore.testOption.shouldRecordTestPurpose) {
@@ -73,6 +89,7 @@ export default defineComponent({
       takeNoteWithPurposeDialogOpened,
       takeNoteDialogOpened,
       isCapturing,
+      isDisabled,
       open
     };
   }
