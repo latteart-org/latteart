@@ -47,7 +47,7 @@ type CapturingAction = (iframe?: Iframe) => Promise<{
  */
 export default class WebBrowserWindow {
   public currentScreenSummary: ScreenSummary = new ScreenSummary();
-  public prevCapturedOperation?: CapturedOperation;
+  public prevCapturedOperations?: CapturedOperation[];
 
   private client: WebDriverClient;
   private captureArch: "polling" | "push";
@@ -312,7 +312,7 @@ export default class WebBrowserWindow {
    */
   public clearScreenAndOperationInfo(): void {
     this.currentScreenSummary = new ScreenSummary();
-    this.prevCapturedOperation = undefined;
+    this.prevCapturedOperations = [];
   }
 
   /**
@@ -562,6 +562,9 @@ export default class WebBrowserWindow {
       }
       await this.refireSuspendedEvent(item);
     }
+    this.prevCapturedOperations = capturedItems.map(
+      (capturedItem) => capturedItem.operation
+    );
     return { imageData, clientSize };
   }
 
@@ -656,8 +659,9 @@ export default class WebBrowserWindow {
     clientSize: { width: number; height: number },
     shouldTakeScreenshot: boolean
   ) {
-    if (isIgnoreOperation(capturedItem.operation, this.prevCapturedOperation)) {
-      this.prevCapturedOperation = capturedItem.operation;
+    if (
+      isIgnoreOperation(capturedItem.operation, this.prevCapturedOperations)
+    ) {
       return;
     }
 
@@ -688,7 +692,6 @@ export default class WebBrowserWindow {
     }
 
     this.currentScreenSummary.screenshotBase64 = screenShotBase64;
-    this.prevCapturedOperation = capturedItem.operation;
 
     const elementInfo: ElementInfo = {
       tagname: capturedItem.operation.elementInfo.tagname,

@@ -62,14 +62,16 @@ describe("isIgnoreOperation", () => {
           targetAttributes,
           targetXpath,
         }) => {
-          const prevOperation = {
-            type: prevEventType,
-            elementInfo: {
-              tagname: prevTargetTagname,
-              xpath: prevTargetXpath,
-              attributes: prevTargetAttributes,
+          const prevOperations = [
+            {
+              type: prevEventType,
+              elementInfo: {
+                tagname: prevTargetTagname,
+                xpath: prevTargetXpath,
+                attributes: prevTargetAttributes,
+              },
             },
-          };
+          ];
 
           const operation = {
             type: eventType,
@@ -80,7 +82,7 @@ describe("isIgnoreOperation", () => {
             },
           };
 
-          const result = isIgnoreOperation(operation, prevOperation);
+          const result = isIgnoreOperation(operation, prevOperations);
 
           expect(result).toBeFalsy();
         }
@@ -136,14 +138,16 @@ describe("isIgnoreOperation", () => {
           targetAttributes,
           targetXpath,
         }) => {
-          const prevOperation = {
-            type: prevEventType,
-            elementInfo: {
-              tagname: prevTargetTagname,
-              xpath: prevTargetXpath,
-              attributes: prevTargetAttributes,
+          const prevOperations = [
+            {
+              type: prevEventType,
+              elementInfo: {
+                tagname: prevTargetTagname,
+                xpath: prevTargetXpath,
+                attributes: prevTargetAttributes,
+              },
             },
-          };
+          ];
 
           const operation = {
             type: eventType,
@@ -154,7 +158,7 @@ describe("isIgnoreOperation", () => {
             },
           };
 
-          const result = isIgnoreOperation(operation, prevOperation);
+          const result = isIgnoreOperation(operation, prevOperations);
 
           expect(result).toBeTruthy();
         }
