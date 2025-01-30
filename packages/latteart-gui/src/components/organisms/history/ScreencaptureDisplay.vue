@@ -18,14 +18,7 @@
   <v-container v-if="screenshotUrl" fluid class="pa-0 fill-height" style="position: relative">
     <popup-image :image-file-url="imageInfo.decode"></popup-image>
 
-    <a
-      ref="dllink"
-      :href="screenshotUrl"
-      :download="screenshotName"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="screenshot-button"
-    >
+    <a @click="downloadFile" class="screenshot-button">
       <v-btn color="white" icon="image" size="small"> </v-btn
     ></a>
   </v-container>
@@ -42,18 +35,6 @@ export default defineComponent({
   },
   setup() {
     const operationHistoryStore = useOperationHistoryStore();
-
-    const selectedOperationInfo = computed(() => {
-      return operationHistoryStore.selectedOperationInfo;
-    });
-
-    const screenshotName = computed((): string => {
-      const url = imageInfo.value.decode;
-      const ar = url.split(".");
-      const ext = ar[ar.length - 1];
-      const sequence = selectedOperationInfo.value.sequence;
-      return `${sequence}.${ext}`;
-    });
 
     const displayedScreenshotUrl = computed((): string => {
       const screenImage = operationHistoryStore.screenImage;
@@ -76,11 +57,30 @@ export default defineComponent({
       return imageInfo.value.decode ?? "";
     });
 
-    return {
-      screenshotName,
-      imageInfo,
-      screenshotUrl
+    const downloadFile = (): boolean => {
+      const url = new URL(imageInfo.value.decode);
+      const pathName = url.pathname;
+      const ar = pathName.split("/");
+      ar.shift();
+      const fileUrl = ar.join("/");
+
+      const a = document.createElement("a");
+      (async () => {
+        const fileData = await operationHistoryStore.getFileData({ fileUrl });
+        if (!fileData) {
+          return false;
+        }
+        const blobUrl = window.URL.createObjectURL(fileData);
+        a.href = blobUrl;
+        a.download = ar[ar.length - 1];
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+      })();
+
+      return false;
     };
+
+    return { imageInfo, screenshotUrl, downloadFile };
   }
 });
 </script>

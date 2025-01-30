@@ -61,6 +61,7 @@ import { ChangeTestResultAction } from "@/lib/operationHistory/actions/testResul
 import { GetSessionIdsAction } from "@/lib/operationHistory/actions/testResult/GetSessionIdsAction";
 import * as Coverage from "@/lib/operationHistory/Coverage";
 import type { AutofillConditionGroup } from "@/lib/common/settings/Settings";
+import { GetFileDataAction } from "@/lib/testManagement/actions/GetFileDataAction";
 
 /**
  * State for operation history.
@@ -1920,6 +1921,25 @@ export const useOperationHistoryStore = defineStore("operationHistory", {
       this.comments.push(result.data);
 
       this.canUpdateModels = true;
+    },
+
+    async getFileData(payload: { fileUrl: string }): Promise<Blob | null> {
+      const rootStore = useRootStore();
+
+      if (!rootStore.repositoryService) {
+        throw new Error("repository service is not active.");
+      }
+
+      const result = await new GetFileDataAction().getFileData(
+        { fileUrl: payload.fileUrl },
+        rootStore.repositoryService
+      );
+
+      if (result.isFailure()) {
+        throw new Error(rootStore.message(result.error.messageKey, result.error.variables ?? {}));
+      }
+
+      return result.data;
     }
   }
 });
