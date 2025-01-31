@@ -238,6 +238,7 @@ export default defineComponent({
         id: string | undefined;
         displayName: string;
       }[] => {
+        reviewTargetSessionIds.value = [];
         if (!story.value) {
           return [];
         }
