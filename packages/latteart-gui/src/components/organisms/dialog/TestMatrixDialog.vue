@@ -285,6 +285,7 @@ export default defineComponent({
     };
 
     const upViewPoint = (index: number): void => {
+      openedPanelIndex.value = undefined;
       const temp = [...tempViewPoints.value];
       temp[index].index = index - 1;
       temp[index - 1].index = index;
@@ -294,6 +295,7 @@ export default defineComponent({
     };
 
     const downViewPoint = (index: number): void => {
+      openedPanelIndex.value = undefined;
       const temp = [...tempViewPoints.value];
       temp[index].index = index + 1;
       temp[index + 1].index = index;
