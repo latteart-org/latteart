@@ -21,8 +21,9 @@
       color="blue"
       icon="video_library"
       size="small"
-      :title="$t('run-auto-operation-button.auto-operation')"
+      :title="$t('run-auto-operation-button.title')"
       class="mx-2"
+      style="pointer-events: auto"
       @click="autoOperationSelectDialogOpened = true"
     >
     </v-btn>

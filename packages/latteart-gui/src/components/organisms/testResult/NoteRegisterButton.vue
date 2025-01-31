@@ -21,8 +21,9 @@
       color="green"
       icon="add_comment"
       size="small"
-      :title="$t('common.record-note')"
+      :title="$t('common.record-note') + ': ' + $t('note-register-button.details')"
       class="mx-2"
+      style="pointer-events: auto"
       @click="open"
     >
     </v-btn>

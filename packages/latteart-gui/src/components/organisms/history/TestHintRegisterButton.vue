@@ -20,9 +20,13 @@
       :disabled="isDisabled"
       color="blue"
       size="small"
+      :title="
+        $t('test-hint-register-button.title') + ': ' + $t('test-hint-register-button.details')
+      "
       class="mx-1"
+      style="pointer-events: auto"
       @click="registerDialogOpened = true"
-      >{{ $t("test-hint-register-button.register-test-hint") }}
+      >{{ $t("test-hint-register-button.title") }}
     </v-btn>
 
     <test-hint-register-dialog
