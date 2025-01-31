@@ -891,7 +891,7 @@ function collectRunTargets(...operations: RunnableOperation[]) {
     );
   };
 
-  let isCounting = false;
+  let isPausing = false;
 
   return operations
     .map((operation, index) => {
@@ -905,16 +905,16 @@ function collectRunTargets(...operations: RunnableOperation[]) {
       }
 
       if (runTarget.operation.type === "pause_capturing") {
-        isCounting = true;
+        isPausing = true;
         return false;
       }
 
       if (runTarget.operation.type === "resume_capturing") {
-        isCounting = false;
+        isPausing = false;
         return false;
       }
 
-      if (isCounting) {
+      if (isPausing) {
         return false;
       }
 

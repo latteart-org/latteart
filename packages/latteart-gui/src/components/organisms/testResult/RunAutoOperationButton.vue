@@ -77,7 +77,7 @@ export default defineComponent({
 
     const runAutoOperations = async (index: number) => {
       try {
-        let isCounting = false;
+        let isPausing = false;
         const tempOperations = autoOperationConditionGroups.value[index].autoOperations
           .map((operation) => {
             return {
@@ -91,16 +91,16 @@ export default defineComponent({
           })
           .filter((target) => {
             if (target.type === "pause_capturing") {
-              isCounting = true;
+              isPausing = true;
               return false;
             }
 
             if (target.type === "resume_capturing") {
-              isCounting = false;
+              isPausing = false;
               return false;
             }
 
-            if (isCounting) {
+            if (isPausing) {
               return false;
             }
             return true;
