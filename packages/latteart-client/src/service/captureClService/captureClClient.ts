@@ -891,19 +891,30 @@ function collectRunTargets(...operations: RunnableOperation[]) {
     );
   };
 
+  let isCounting = false;
+
   return operations
     .map((operation, index) => {
       return { operation, index };
     })
     .filter((runTarget, index, array) => {
       if (
-        [
-          "start_capturing",
-          "open_window",
-          "pause_capturing",
-          "resume_capturing",
-        ].includes(runTarget.operation.type)
+        ["start_capturing", "open_window"].includes(runTarget.operation.type)
       ) {
+        return false;
+      }
+
+      if (runTarget.operation.type === "pause_capturing") {
+        isCounting = true;
+        return false;
+      }
+
+      if (runTarget.operation.type === "resume_capturing") {
+        isCounting = false;
+        return false;
+      }
+
+      if (isCounting) {
         return false;
       }
 
