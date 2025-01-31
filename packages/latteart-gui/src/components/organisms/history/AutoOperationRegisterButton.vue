@@ -16,8 +16,19 @@
 
 <template>
   <div>
-    <v-btn :disabled="isDisabled" color="blue" size="small" class="mx-1" @click="openRegisterDialog"
-      >{{ $t("auto-operation-register-button.register-operation") }}
+    <v-btn
+      :disabled="isDisabled"
+      color="blue"
+      size="small"
+      :title="
+        $t('auto-operation-register-button.title') +
+        ': ' +
+        $t('auto-operation-register-button.details')
+      "
+      class="mx-1"
+      style="pointer-events: auto"
+      @click="openRegisterDialog"
+      >{{ $t("auto-operation-register-button.title") }}
     </v-btn>
 
     <auto-operation-register-dialog

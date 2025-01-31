@@ -25,7 +25,7 @@
     "test-target": "Test Target",
     "viewpoint": "Viewpoint",
     "start-capture-window-title": "Start Capturing",
-    "record-note": "Record Your Findings",
+    "record-note": "Record of findings",
     "take-screenshot": "Screenshot to register",
     "previous-screen": "Test screen from the previous operation",
     "current-screen": "Current test screen",
@@ -171,10 +171,12 @@
     "forward": "Trigger browser forward"
   },
   "auto-operation-register-button": {
-    "register-operation": "Operation Registration"
+    "title": "Operation Registration",
+    "details": "Register an operation to be executed automatically. Select the operation to be registered from the list."
   },
   "test-hint-register-button": {
-    "register-test-hint": "Test Hint Registration"
+    "title": "Test Hint Registration",
+    "details": "Register a test that is effective in finding bugs as a hint. Select a related action from the list."
   },
   "comment-register-field": {
     "label": "Comment"
@@ -189,6 +191,12 @@
     "name": "Name",
     "text": "Text",
     "operated": "Operated"
+  },
+  "screencapture-display": {
+    "save-screenshot": "Save Screenshot"
+  },
+  "note-register-button": {
+    "details": "Any irregularities or bugs you notice will be recorded. You can call them up during test recording."
   },
   "test-purpose-edit-dialog": {
     "record-test-purpose": "Record Test Purpose",
@@ -235,12 +243,12 @@
     "note-list": "Finding List"
   },
   "run-auto-operation-button": {
-    "auto-operation": "Auto Operation",
+    "title": "Auto Operation: Automatically executes the registered operations. Can be called when there is a set of registered operations.",
     "done-title": "Auto operation is done",
     "done-auto-operations": "Auto operation is finished."
   },
   "autofill-button": {
-    "autofill": "Autofill",
+    "title": "Autofill: Automatically executes the registered input. It can be called when there is an executable input value set.",
     "message": "Please select an input value set name."
   },
   "autofill-register-dialog": {
@@ -262,7 +270,7 @@
     "message": "For automatic operation, select the operation set name."
   },
   "test-hint-search-button": {
-    "search-test-hints": "Get test hint"
+    "title": "Get test hint: Search for hints from registered test hints. Can be called during test recording."
   },
   "test-hint-search-dialog": {
     "title": "Test Hint: Search",

@@ -21,8 +21,9 @@
       color="blue"
       icon="edit"
       size="small"
-      :title="$t('autofill-button.autofill')"
+      :title="$t('autofill-button.title')"
       class="mx-2"
+      style="pointer-events: auto"
       @click="openDialog"
     >
     </v-btn>

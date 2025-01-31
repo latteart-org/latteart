@@ -19,7 +19,13 @@
     <popup-image :image-file-url="imageInfo.decode"></popup-image>
 
     <a @click="downloadFile" class="screenshot-button">
-      <v-btn color="white" icon="image" size="small"> </v-btn
+      <v-btn
+        :title="$t('screencapture-display.save-screenshot')"
+        color="white"
+        icon="image"
+        size="small"
+      >
+      </v-btn
     ></a>
   </v-container>
 </template>

@@ -21,8 +21,9 @@
       color="green"
       icon="live_help"
       size="small"
-      :title="$t('test-hint-search-button.search-test-hints')"
+      :title="$t('test-hint-search-button.title')"
       class="mx-2"
+      style="pointer-events: auto"
       @click="open"
     >
     </v-btn>
