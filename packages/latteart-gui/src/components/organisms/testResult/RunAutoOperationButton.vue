@@ -77,8 +77,9 @@ export default defineComponent({
 
     const runAutoOperations = async (index: number) => {
       try {
-        const tempOperations = autoOperationConditionGroups.value[index].autoOperations.map(
-          (operation) => {
+        let isPausing = false;
+        const tempOperations = autoOperationConditionGroups.value[index].autoOperations
+          .map((operation) => {
             return {
               input: operation.input,
               type: operation.type,
@@ -87,8 +88,23 @@ export default defineComponent({
               url: operation.url,
               timestamp: operation.timestamp
             };
-          }
-        );
+          })
+          .filter((target) => {
+            if (target.type === "pause_capturing") {
+              isPausing = true;
+              return false;
+            }
+
+            if (target.type === "resume_capturing") {
+              isPausing = false;
+              return false;
+            }
+
+            if (isPausing) {
+              return false;
+            }
+            return true;
+          });
 
         await captureControlStore.runAutoOperations({
           operations: tempOperations
