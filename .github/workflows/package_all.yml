@@ -56,7 +56,7 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-launch-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
@@ -108,7 +108,7 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-cli-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
@@ -161,7 +161,7 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-gui-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
@@ -213,7 +213,7 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-repository-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
@@ -265,7 +265,7 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-capture-cl-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
@@ -295,37 +295,37 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Download latteart-launch Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-launch-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
       - name: Download latteart-cli Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-cli-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
       - name: Download latteart-gui Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-gui-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
       - name: Download latteart-repository Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-repository-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
       - name: Download latteart-capture-cl Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-capture-cl-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
