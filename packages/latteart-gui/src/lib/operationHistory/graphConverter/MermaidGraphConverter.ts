@@ -25,7 +25,7 @@ export default class MermaidGraphConverter {
    * @param theme
    */
   constructor(theme: "default" | "forest" | "dark" | "neutral" = "default") {
-    Mermaid.mermaidAPI.initialize({
+    Mermaid.initialize({
       startOnLoad: true,
       theme,
       fontSize: undefined
@@ -38,21 +38,14 @@ export default class MermaidGraphConverter {
    * @param graphText  Graph text to convert.
    * @returns svg
    */
-  public toSVG(svgId: string, graphText: string): string {
+  public async toSVG(svgId: string, graphText: string): Promise<string> {
     // Create a container applied a 'font-family' before rendering.
-    const container = document.createElement("div");
-    container.style.fontFamily = '"trebuchet ms", verdana, arial';
+    const container = document.createElement("div") as Element;
+    (container as any).style.fontFamily = '"trebuchet ms", verdana, arial';
     document.body.insertAdjacentElement("beforeend", container);
 
-    const svg = Mermaid.render(
-      svgId,
-      graphText,
-      () => {
-        /* Do nothing */
-      },
-      container as any
-    );
+    const svg = await Mermaid.render(svgId, graphText, container);
     container.remove();
-    return svg;
+    return svg.svg;
   }
 }
