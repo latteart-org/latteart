@@ -46,7 +46,11 @@ import path from "path";
         appRootPath,
         serverConfig.binaryFilePath
       );
-      launchServer(binaryFilePath, mergeEnv(serverConfig.env));
+      launchServer(
+        binaryFilePath,
+        mergeEnv(serverConfig.env),
+        serverConfig.args
+      );
 
       if (!serverConfig.http?.connectionCheck) {
         await sleep(1000);

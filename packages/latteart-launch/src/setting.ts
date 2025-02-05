@@ -23,6 +23,7 @@ export type Config = {
   servers: {
     name: string;
     binaryFilePath: string;
+    args?: string[];
     env?: Env;
     http?: {
       url: string;

@@ -21,9 +21,10 @@ import { BrowserType } from "./setting";
 
 export function launchServer(
   serverBinaryFilePath: string,
-  env: NodeJS.ProcessEnv
+  env: NodeJS.ProcessEnv,
+  args?: string[]
 ): void {
-  const serverProcess = spawn(serverBinaryFilePath, { env });
+  const serverProcess = spawn(serverBinaryFilePath, args, { env });
 
   serverProcess.stdout.on("data", (data: Buffer) => {
     process.stdout.write(data);
