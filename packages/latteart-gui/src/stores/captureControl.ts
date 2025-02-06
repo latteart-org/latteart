@@ -286,6 +286,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
           config: {
             ...rootStore.userSettings.deviceSettings,
             captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
+            captureWindowSize: rootStore.userSettings.captureWindowSize,
             shouldTakeScreenshot: replayOption.resultSavingEnabled
               ? replayOption.screenshotSavingEnabled
               : true
@@ -580,6 +581,18 @@ export const useCaptureControlStore = defineStore("captureControl", {
             operation: convertTestStepOperation(testStep.operation)
           });
 
+          if (testStep.operation.clientSize) {
+            const rootStore = useRootStore();
+            rootStore.writeUserSettings({
+              userSettings: {
+                captureWindowSize: {
+                  width: testStep.operation.clientSize.width,
+                  height: testStep.operation.clientSize.height
+                }
+              }
+            });
+          }
+
           if (testStep.operation.type === "screen_transition") {
             const { title, url } = testStep.operation;
             this.openAutofillDialog({
@@ -666,6 +679,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
       const config: CaptureConfig = {
         ...rootStore.userSettings.deviceSettings,
         captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
+        captureWindowSize: rootStore.userSettings.captureWindowSize,
         shouldTakeScreenshot: mediaType === "image" || mediaType === "video_and_image"
       };
 

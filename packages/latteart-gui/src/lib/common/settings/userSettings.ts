@@ -22,7 +22,8 @@ import {
   type CaptureMediaSetting,
   type DeviceSettings,
   type Locale,
-  type TestHintSetting
+  type TestHintSetting,
+  type WindowSize
 } from "@/lib/common/settings/Settings";
 import { type TestScriptOption } from "latteart-client";
 
@@ -111,6 +112,16 @@ export function saveCaptureMediaSettings(
 
 export function readCaptureMediaSettings(): ActionResult<CaptureMediaSetting> {
   return new ActionSuccess(new LocalStorageSettingRepository().getCaptureMediaSetting());
+}
+
+export function saveCaptureWindowSize(captureWindowSize: WindowSize): ActionResult<void> {
+  return new ActionSuccess(
+    new LocalStorageSettingRepository().putCaptureWindowSize(captureWindowSize)
+  );
+}
+
+export function readCaptureWindowSize(): ActionResult<WindowSize> {
+  return new ActionSuccess(new LocalStorageSettingRepository().getCaptureWindowSize());
 }
 
 export function saveAutofillSetting(autofillSetting: AutofillSetting): ActionResult<void> {

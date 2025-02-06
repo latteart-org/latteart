@@ -145,7 +145,10 @@
     "os-version": "OS Version",
     "media-type": "Media Type",
     "video-and-image": "Still Image + Video",
-    "media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected."
+    "media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected.",
+    "window-size": "Window size at the start of test recording",
+    "previous-capture-window-size": "Window size at the end of the previous capture",
+    "window-size-preset": "Choose from presets"
   },
   "first-test-purpose-option-dialog": {
     "start-testing": "Start Session"

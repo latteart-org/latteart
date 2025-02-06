@@ -53,6 +53,7 @@ export default defineComponent({
       waitTimeForStartupReload: 0,
       browser: "Chrome",
       mediaType: "image",
+      captureWindowSize: { width: 0, height: 0 },
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
       firstTestPurposeDetails: ""

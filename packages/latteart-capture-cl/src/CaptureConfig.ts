@@ -81,6 +81,14 @@ export class CaptureConfig {
   public shouldTakeScreenshot = true;
 
   /**
+   * Capture window size.
+   */
+  public captureWindowSize = {
+    width: 800,
+    height: 600,
+  };
+
+  /**
    * Constructor.
    * @param init The information for initialization.
    */

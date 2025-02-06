@@ -61,7 +61,8 @@ export default defineComponent({
       mediaType: "image",
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
-      firstTestPurposeDetails: ""
+      firstTestPurposeDetails: "",
+      captureWindowSize: { width: 800, height: 600 }
     });
 
     const updateOption = (option: CaptureOptionParams) => {
@@ -96,9 +97,18 @@ export default defineComponent({
           waitTimeForStartupReload: captureOption.value.waitTimeForStartupReload
         }
       });
+
       rootStore.writeCaptureMediaSettings({
         captureMediaSetting: {
           mediaType: captureOption.value.mediaType
+        }
+      });
+      rootStore.writeUserSettings({
+        userSettings: {
+          captureWindowSize: {
+            width: captureOption.value.captureWindowSize.width,
+            height: captureOption.value.captureWindowSize.height
+          }
         }
       });
       captureControlStore.testOption = {

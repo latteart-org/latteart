@@ -145,7 +145,10 @@
     "os-version": "OSバージョン",
     "media-type": "メディアタイプ",
     "video-and-image": "静止画＋動画",
-    "media-config-hint": "※「プラットフォーム」が「PC」以外の場合は「静止画」が選択されます"
+    "media-config-hint": "※「プラットフォーム」が「PC」以外の場合は「静止画」が選択されます",
+    "window-size": "テスト記録開始時のウィンドウサイズ",
+    "previous-capture-window-size": "前回のキャプチャ終了時のウィンドウサイズ",
+    "window-size-preset": "プリセットから選択する"
   },
   "first-test-purpose-option-dialog": {
     "start-testing": "テストを始める"

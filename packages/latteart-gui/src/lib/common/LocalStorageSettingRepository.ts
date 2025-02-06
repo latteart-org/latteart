@@ -24,7 +24,8 @@ import {
   type AutoOperationSetting,
   type CaptureMediaSetting,
   type DeviceSettings,
-  type TestHintSetting
+  type TestHintSetting,
+  type WindowSize
 } from "./settings/Settings";
 
 const LOCAL_STORAGE_KEY_LOCALE = "latteart-user-settings-locale";
@@ -32,6 +33,7 @@ const LOCAL_STORAGE_KEY_DEVICE_SETTINGS = "latteart-user-settings-deviceSettings
 const LOCAL_STORAGE_KEY_SCRIPT_GENERATION_OPTION = "latteart-user-settings-scriptGenerationOption";
 const LOCAL_STORAGE_KEY_TEST_HINT_SETTINGS = "latteart-user-settings-testHintSettings";
 const LOCAL_STORAGE_KEY_CAPTURE_MEDIA_SETTINGS = "latteart-user-settings-captureMediaSettings";
+const LOCAL_STORAGE_KEY_CAPTURE_WINDOW_SIZE = "latteart-user-settings-captureWindowSize";
 const LOCAL_STORAGE_KEY_AUTOFILL_SETTING = "latteart-user-settings-autofillSetting";
 const LOCAL_STORAGE_KEY_AUTO_OPERATION_SETTING = "latteart-user-settings-autoOperationSetting";
 
@@ -168,6 +170,29 @@ export class LocalStorageSettingRepository {
         imageCompression: {
           format: "png"
         }
+      };
+    }
+    return JSON.parse(setting);
+  }
+
+  /**
+   * Save capture window size information.
+   * @param captureWindowSize Capture media settings information.
+   */
+  public putCaptureWindowSize(captureWindowSize: WindowSize) {
+    localStorage.setItem(LOCAL_STORAGE_KEY_CAPTURE_WINDOW_SIZE, JSON.stringify(captureWindowSize));
+  }
+
+  /**
+   * Get capture window size information.
+   * @returns Capture window size information.
+   */
+  public getCaptureWindowSize(): WindowSize {
+    const setting = localStorage.getItem(LOCAL_STORAGE_KEY_CAPTURE_WINDOW_SIZE);
+    if (setting === null) {
+      return {
+        width: 800,
+        height: 600
       };
     }
     return JSON.parse(setting);
