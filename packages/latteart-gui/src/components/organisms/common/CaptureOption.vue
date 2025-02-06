@@ -237,6 +237,10 @@ export default defineComponent({
         value: { width: 1280, height: 800 }
       },
       {
+        label: "1600 * 720 - HD+",
+        value: { width: 1600, height: 720 }
+      },
+      {
         label: "1920 * 1080 - Full HD ",
         value: { width: 1920, height: 1080 }
       }
