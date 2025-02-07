@@ -5,29 +5,65 @@
 # 事前準備
 
 1. Chrome のバージョンに対応した`ChromeDriver`をダウンロードし、パスを通します。
-   - ダウンロードサイト (https://chromedriver.chromium.org/downloads)
-1. `cwebp`をインストールし、パスを通します。
-   - ダウンロードサイト (https://developers.google.com/speed/webp/docs/precompiled)
+   - ダウンロードサイト (https://developer.chrome.com/docs/chromedriver/downloads?hl=ja)
 1. テスト対象の Web アプリケーションに Google Chrome からアクセスできることを確認します。
 
 :bulb: Edge を使用する場合は、手順１で Chrome ではなく、Edge のバージョンに対応した`edgedriver`をダウンロードし、パスを通します。
 
 - ダウンロードサイト（https://developer.microsoft.com/ja-jp/microsoft-edge/tools/webdriver/）
 
+# 事前準備(オプション)
+
+テストの記録中にスクリーンショットを取得する際、オプションで画像の圧縮を行うことができます(詳細は「[マニュアル](../manual/others/manual-config.md/#画像圧縮設定)」参照)。
+
+圧縮には`cwebp`を利用します。画像の圧縮を利用する場合は以下に従ってインストールしてください。
+
+1. `cwebp`をインストールし、パスを通します。
+   - ダウンロードサイト (https://developers.google.com/speed/webp/docs/precompiled)
+
 # インストール
 
-GitHub の [Releases](https://github.com/latteart-org/latteart/releases) から最新版をダウンロードして下さい。
+## Node.js版
+
+Node.jsを用いて実行する版です。
+
+1. 事前に「[Node.js公式のダウンロードサイト](https://nodejs.org/ja/download)」から以下バージョンのNode.jsをダウンロードし、インストールしてください。
+
+   - **Node.js v22.13.1**
+
+2. GitHub の「[Releases](https://github.com/latteart-org/latteart/releases)」から LatteArtのNode.js版 (`latteart-v〇〇〇-node.zip`) をダウンロードして下さい。
 
 ダウンロードした zip ファイルを解凍すると、以下のディレクトリ構成になっています。
 
 ```bash
-latteart
+latteart-v〇〇〇-node/
+      ├─ latteart.bat
+      ├─ latteart.command
+      ├─ launch.config.json
+      ├─ launch/
+      ├─ latteart/
+      ├─ latteart-capture-cl/
+      ├─ latteart-repository/
+      └─ node_modules/
+```
+
+## 実行ファイル版
+
+Node.js v18が同梱された実行ファイル形式版です。
+Node.jsをインストールせずにご利用いただけます。
+
+1. GitHub の [Releases](https://github.com/latteart-org/latteart/releases) からLatteArtのWin版 (`latteart-v〇〇〇-win.zip`) をダウンロードして下さい。
+
+ダウンロードした zip ファイルを解凍すると、以下のディレクトリ構成になっています。
+
+```bash
+latteart-v〇〇〇-win/
       ├─ latteart.bat
       ├─ launch.config.json
       ├─ launch.exe
-      ├─ latteart
-      ├─ latteart-capture-cl
-      └─ latteart-repository
+      ├─ latteart/
+      ├─ latteart-capture-cl/
+      └─ latteart-repository/
 ```
 
 # ツール構成
@@ -134,10 +170,12 @@ LatteArt を用いたテストの考え方、および実践については 「[
 
 # Mac での利用（実験的）
 
+GitHub の [Releases](https://github.com/latteart-org/latteart/releases) からLatteArtのMac版 (`latteart-v〇〇〇-mac.zip`) をダウンロードして下さい。
+
 ダウンロードした zip ファイルを解凍すると、以下のディレクトリ構成になっています。
 
 ```bash
-latteart/
+latteart-v〇〇〇-mac/
       ├─ latteart.command
       ├─ launch.config.json
       ├─ launch
