@@ -18,14 +18,7 @@
   <div>
     <v-menu :close-on-content-click="false">
       <template #activator="{ props }">
-        <v-btn
-          id="optionFooterMenuButton"
-          variant="text"
-          v-bind="props"
-          icon="menu"
-          size="small"
-          class="mx-2"
-        />
+        <v-btn id="optionFooterMenuButton" variant="text" v-bind="props" icon="menu" class="ml-2" />
       </template>
       <v-list>
         <run-auto-operation-button />

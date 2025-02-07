@@ -19,7 +19,7 @@
     <v-btn
       :disabled="isDisabled"
       color="green"
-      icon="add_comment"
+      icon="edit"
       size="small"
       class="mx-2"
       @click="open"
