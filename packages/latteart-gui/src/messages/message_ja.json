@@ -148,7 +148,8 @@
     "media-config-hint": "※「プラットフォーム」が「PC」以外の場合は「静止画」が選択されます",
     "window-size": "テスト記録開始時のウィンドウサイズ",
     "previous-capture-window-size": "前回のキャプチャ終了時のウィンドウサイズ",
-    "window-size-preset": "プリセットから選択する"
+    "window-size-preset": "プリセットから選択する",
+    "specify-window-size": "ウィンドウサイズを指定する"
   },
   "first-test-purpose-option-dialog": {
     "start-testing": "テストを始める"

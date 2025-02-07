@@ -28,7 +28,7 @@ export type CaptureOptionParams = {
   waitTimeForStartupReload: number;
   browser: DeviceSettings["browser"];
   mediaType: CaptureMediaSetting["mediaType"];
-  captureWindowSize: WindowSize;
+  captureWindowSize?: WindowSize;
   shouldRecordTestPurpose: boolean;
   firstTestPurpose: string;
   firstTestPurposeDetails: string;

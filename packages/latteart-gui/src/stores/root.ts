@@ -39,7 +39,8 @@ import type {
   CaptureMediaSetting,
   DeviceSettings,
   ProjectSettings,
-  UserSettings
+  UserSettings,
+  WindowSize
 } from "@/lib/common/settings/Settings";
 import { ExportConfigAction } from "@/lib/operationHistory/actions/ExportConfigAction";
 import {
@@ -640,6 +641,15 @@ export const useRootStore = defineStore("root", {
       };
       this.userSettings.captureMediaSetting = settings;
       saveCaptureMediaSettings(settings);
+    },
+
+    writeCaptureWindowSize(payload: { captureWindowSize?: WindowSize }) {
+      this.userSettings.captureWindowSize = payload.captureWindowSize
+        ? {
+            width: Number(payload.captureWindowSize.width),
+            height: Number(payload.captureWindowSize.height)
+          }
+        : undefined;
     },
 
     readCaptureMediaSettings(): CaptureMediaSetting {
