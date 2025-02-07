@@ -15,35 +15,30 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      :disabled="isDisabled"
-      color="blue"
-      size="small"
-      :title="
-        $t('auto-operation-register-button.title') +
-        ': ' +
-        $t('auto-operation-register-button.details')
-      "
-      class="mx-1"
-      style="pointer-events: auto"
-      @click="openRegisterDialog"
+  <div
+    :title="
+      $t('auto-operation-register-button.title') +
+      ': ' +
+      $t('auto-operation-register-button.details')
+    "
+  >
+    <v-btn :disabled="isDisabled" color="blue" size="small" class="mx-1" @click="openRegisterDialog"
       >{{ $t("auto-operation-register-button.title") }}
     </v-btn>
-
-    <auto-operation-register-dialog
-      :opened="registerDialogOpened"
-      :target-operations="targetOperations"
-      @ok="clearCheckedOperations"
-      @close="registerDialogOpened = false"
-    />
-
-    <error-message-dialog
-      :opened="errorMessageDialogOpened"
-      :message="errorMessage"
-      @close="errorMessageDialogOpened = false"
-    />
   </div>
+
+  <auto-operation-register-dialog
+    :opened="registerDialogOpened"
+    :target-operations="targetOperations"
+    @ok="clearCheckedOperations"
+    @close="registerDialogOpened = false"
+  />
+
+  <error-message-dialog
+    :opened="errorMessageDialogOpened"
+    :message="errorMessage"
+    @close="errorMessageDialogOpened = false"
+  />
 </template>
 
 <script lang="ts">

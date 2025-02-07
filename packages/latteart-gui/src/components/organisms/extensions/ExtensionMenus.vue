@@ -15,8 +15,8 @@
 -->
 
 <template>
-  <div v-for="component in components" :key="component.name" :title="$t(component.title)">
-    <component :is="component.name" />
+  <div v-for="menu in menus" :key="menu.name" :title="$t(menu.title)">
+    <component :is="menu.name" />
   </div>
 </template>
 
@@ -25,7 +25,7 @@ import { defineComponent } from "vue";
 import { extensions } from "@/extensions";
 export default defineComponent({
   setup() {
-    return { components: [...extensions.flatMap(({ components }) => components.contents ?? [])] };
+    return { menus: [...extensions.flatMap(({ components }) => components.menus ?? [])] };
   }
 });
 </script>

@@ -15,21 +15,13 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      :disabled="!isCapturing"
-      color="green"
-      icon="live_help"
-      size="small"
-      :title="$t('test-hint-search-button.title')"
-      class="mx-2"
-      style="pointer-events: auto"
-      @click="open"
-    >
-    </v-btn>
-
-    <test-hint-search-dialog :opened="opened" @close="opened = false" />
+  <div :title="$t('test-hint-search-button.details')">
+    <v-list-item :disabled="!isCapturing" @click="open">
+      <v-list-item-title>{{ $t("test-hint-search-button.title") }}</v-list-item-title>
+    </v-list-item>
   </div>
+
+  <test-hint-search-dialog :opened="opened" @close="opened = false" />
 </template>
 
 <script lang="ts">

@@ -15,32 +15,24 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      :disabled="isDisabled"
-      color="blue"
-      icon="video_library"
-      size="small"
-      :title="$t('run-auto-operation-button.title')"
-      class="mx-2"
-      style="pointer-events: auto"
-      @click="autoOperationSelectDialogOpened = true"
-    >
-    </v-btn>
-
-    <auto-operation-select-dialog
-      :opened="autoOperationSelectDialogOpened"
-      :auto-operation-condition-groups="autoOperationConditionGroups"
-      @ok="runAutoOperations"
-      @close="autoOperationSelectDialogOpened = false"
-    />
-
-    <error-message-dialog
-      :opened="errorDialogOpened"
-      :message="errorDialogMessage"
-      @close="errorDialogOpened = false"
-    />
+  <div :title="$t('run-auto-operation-button.details')">
+    <v-list-item :disabled="isDisabled" @click="autoOperationSelectDialogOpened = true">
+      <v-list-item-title>{{ $t("run-auto-operation-button.title") }}</v-list-item-title>
+    </v-list-item>
   </div>
+
+  <auto-operation-select-dialog
+    :opened="autoOperationSelectDialogOpened"
+    :auto-operation-condition-groups="autoOperationConditionGroups"
+    @ok="runAutoOperations"
+    @close="autoOperationSelectDialogOpened = false"
+  />
+
+  <error-message-dialog
+    :opened="errorDialogOpened"
+    :message="errorDialogMessage"
+    @close="errorDialogOpened = false"
+  />
 </template>
 
 <script lang="ts">

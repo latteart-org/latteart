@@ -23,7 +23,8 @@ export type GuiExtension = {
   name?: string;
   version?: string;
   components: {
-    contents?: { name: string }[];
+    contents?: { name: string; title: string }[];
+    menus?: { name: string; title: string }[];
     configs?: { name: string; title: string }[];
     globals?: { name: string }[];
   };

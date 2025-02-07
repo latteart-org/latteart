@@ -15,25 +15,22 @@
 -->
 
 <template>
-  <div>
+  <div :title="$t('common.record-note') + ': ' + $t('note-register-button.details')">
     <v-btn
       :disabled="isDisabled"
       color="green"
       icon="add_comment"
       size="small"
-      :title="$t('common.record-note') + ': ' + $t('note-register-button.details')"
       class="mx-2"
-      style="pointer-events: auto"
       @click="open"
-    >
-    </v-btn>
-
-    <take-not-with-purpose-dialog
-      :opened="takeNoteWithPurposeDialogOpened"
-      @close="takeNoteWithPurposeDialogOpened = false"
     />
-    <take-note-dialog :opened="takeNoteDialogOpened" @close="takeNoteDialogOpened = false" />
   </div>
+
+  <take-not-with-purpose-dialog
+    :opened="takeNoteWithPurposeDialogOpened"
+    @close="takeNoteWithPurposeDialogOpened = false"
+  />
+  <take-note-dialog :opened="takeNoteDialogOpened" @close="takeNoteDialogOpened = false" />
 </template>
 
 <script lang="ts">

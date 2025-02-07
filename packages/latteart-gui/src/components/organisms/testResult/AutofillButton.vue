@@ -15,18 +15,10 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      :disabled="isDisabled"
-      color="blue"
-      icon="edit"
-      size="small"
-      :title="$t('autofill-button.title')"
-      class="mx-2"
-      style="pointer-events: auto"
-      @click="openDialog"
-    >
-    </v-btn>
+  <div :title="$t('autofill-button.details')">
+    <v-list-item :disabled="isDisabled" @click="openDialog">
+      <v-list-item-title>{{ $t("autofill-button.title") }}</v-list-item-title>
+    </v-list-item>
   </div>
 </template>
 
