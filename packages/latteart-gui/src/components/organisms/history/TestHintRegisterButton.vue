@@ -15,27 +15,25 @@
 -->
 
 <template>
-  <div>
+  <div
+    :title="$t('test-hint-register-button.title') + ': ' + $t('test-hint-register-button.details')"
+  >
     <v-btn
       :disabled="isDisabled"
       color="blue"
       size="small"
-      :title="
-        $t('test-hint-register-button.title') + ': ' + $t('test-hint-register-button.details')
-      "
       class="mx-1"
-      style="pointer-events: auto"
       @click="registerDialogOpened = true"
       >{{ $t("test-hint-register-button.title") }}
     </v-btn>
-
-    <test-hint-register-dialog
-      :opened="registerDialogOpened"
-      :related-test-steps="checkedTestSteps"
-      @accept="clearCheckedOperations"
-      @close="registerDialogOpened = false"
-    />
   </div>
+
+  <test-hint-register-dialog
+    :opened="registerDialogOpened"
+    :related-test-steps="checkedTestSteps"
+    @accept="clearCheckedOperations"
+    @close="registerDialogOpened = false"
+  />
 </template>
 
 <script lang="ts">

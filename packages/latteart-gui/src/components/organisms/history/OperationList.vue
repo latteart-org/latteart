@@ -210,7 +210,7 @@
       <v-text-field
         v-model="search"
         variant="underlined"
-        class="pl-4"
+        class="px-4"
         :label="message('common.query')"
       ></v-text-field>
     </v-row>

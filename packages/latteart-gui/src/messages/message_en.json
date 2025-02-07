@@ -243,12 +243,14 @@
     "note-list": "Finding List"
   },
   "run-auto-operation-button": {
-    "title": "Auto Operation: Automatically executes the registered operations. Can be called when there is a set of registered operations.",
+    "title": "Auto Operation",
+    "details": "Automatically executes the registered operations. Can be called when there is a set of registered operations.",
     "done-title": "Auto operation is done",
     "done-auto-operations": "Auto operation is finished."
   },
   "autofill-button": {
-    "title": "Autofill: Automatically executes the registered input. It can be called when there is an executable input value set.",
+    "title": "Autofill",
+    "details": "Automatically executes the registered input. It can be called when there is an executable input value set.",
     "message": "Please select an input value set name."
   },
   "autofill-register-dialog": {
@@ -270,7 +272,8 @@
     "message": "For automatic operation, select the operation set name."
   },
   "test-hint-search-button": {
-    "title": "Get test hint: Search for hints from registered test hints. Can be called during test recording."
+    "title": "Get test hint",
+    "details": "Search for hints from registered test hints. Can be called during test recording."
   },
   "test-hint-search-dialog": {
     "title": "Test Hint: Search",
