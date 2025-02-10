@@ -20,6 +20,7 @@ import {
   type AutofillSetting,
   type AutoOperationSetting,
   type CaptureMediaSetting,
+  type CaptureWindowSize,
   type DeviceSettings,
   type Locale,
   type TestHintSetting
@@ -111,6 +112,16 @@ export function saveCaptureMediaSettings(
 
 export function readCaptureMediaSettings(): ActionResult<CaptureMediaSetting> {
   return new ActionSuccess(new LocalStorageSettingRepository().getCaptureMediaSetting());
+}
+
+export function saveCaptureWindowSize(captureWindowSize: CaptureWindowSize): ActionResult<void> {
+  return new ActionSuccess(
+    new LocalStorageSettingRepository().putCaptureWindowSize(captureWindowSize)
+  );
+}
+
+export function readCaptureWindowSize(): ActionResult<CaptureWindowSize> {
+  return new ActionSuccess(new LocalStorageSettingRepository().getCaptureWindowSize());
 }
 
 export function saveAutofillSetting(autofillSetting: AutofillSetting): ActionResult<void> {

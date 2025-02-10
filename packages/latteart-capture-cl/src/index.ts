@@ -198,6 +198,7 @@ io.on("connection", (socket) => {
           browserBinaryPath: "",
           webDriverServer: server,
           isHeadlessMode: captureConfig.isHeadlessMode,
+          captureWindowSize: captureConfig.captureWindowSize,
         });
 
         capturer = new BrowserOperationCapturer(client, captureConfig, {

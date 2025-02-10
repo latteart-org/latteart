@@ -497,6 +497,11 @@ export default defineComponent({
           mediaType: option.mediaType
         }
       });
+      rootStore.writeUserSettings({
+        userSettings: {
+          captureWindowSize: option.captureWindowSize
+        }
+      });
       captureControlStore.testOption = {
         firstTestPurpose: option.firstTestPurpose,
         firstTestPurposeDetails: option.firstTestPurposeDetails,

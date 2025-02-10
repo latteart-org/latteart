@@ -82,6 +82,7 @@ describe("動作確認用", () => {
     isHeadlessMode: false,
     captureArch: "polling" as "polling" | "push",
     shouldTakeScreenshot: true,
+    captureWindowSize: { isEnabled: false, width: 800, height: 600 },
   };
 
   it("BrowserOperationCapturer", async () => {

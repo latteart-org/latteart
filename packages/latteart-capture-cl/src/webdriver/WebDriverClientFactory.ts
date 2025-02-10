@@ -48,6 +48,7 @@ export default class WebDriverClientFactory {
     browserBinaryPath: string;
     webDriverServer: WebDriverServer;
     isHeadlessMode: boolean;
+    captureWindowSize: { isEnabled: boolean; width: number; height: number };
   }): Promise<WebDriverClient> {
     const driver = await (async () => {
       if (params.platformName === PlatformName.Android) {
@@ -67,7 +68,8 @@ export default class WebDriverClientFactory {
         params.browserBinaryPath,
         params.browserName,
         params.webDriverServer.url,
-        params.isHeadlessMode
+        params.isHeadlessMode,
+        params.captureWindowSize
       );
     })();
 
@@ -78,15 +80,21 @@ export default class WebDriverClientFactory {
     browserPath: string,
     browserName: Browser,
     serverUrl: string,
-    isHeadlessMode: boolean
+    isHeadlessMode: boolean,
+    captureWindowSize: { isEnabled: boolean; width: number; height: number }
   ) {
     if (browserName === Browser.Edge) {
-      return this.createEdgeWebDriverBuilder(serverUrl, isHeadlessMode);
+      return this.createEdgeWebDriverBuilder(
+        serverUrl,
+        isHeadlessMode,
+        captureWindowSize
+      );
     } else {
       return this.createChromeWebDriverBuilder(
         browserPath,
         serverUrl,
-        isHeadlessMode
+        isHeadlessMode,
+        captureWindowSize
       );
     }
   }
@@ -94,7 +102,8 @@ export default class WebDriverClientFactory {
   private createChromeWebDriverBuilder(
     browserPath: string,
     serverUrl: string,
-    isHeadlessMode: boolean
+    isHeadlessMode: boolean,
+    captureWindowSize: { isEnabled: boolean; width: number; height: number }
   ): ThenableWebDriver {
     const caps = new Capabilities();
     caps.setPageLoadStrategy("eager");
@@ -105,6 +114,12 @@ export default class WebDriverClientFactory {
     if (isHeadlessMode) {
       options.addArguments("--headless");
     }
+    if (captureWindowSize.isEnabled) {
+      options.addArguments(
+        `--window-size=${captureWindowSize.width},${captureWindowSize.height}`
+      );
+    }
+
     return new Builder()
       .withCapabilities(caps)
       .forBrowser("chrome")
@@ -115,13 +130,19 @@ export default class WebDriverClientFactory {
 
   private createEdgeWebDriverBuilder(
     serverUrl: string,
-    isHeadlessMode: boolean
+    isHeadlessMode: boolean,
+    captureWindowSize: { isEnabled: boolean; width: number; height: number }
   ): ThenableWebDriver {
     const caps = new Capabilities();
     caps.setPageLoadStrategy("eager");
     const options = new EdgeOptions();
     if (isHeadlessMode) {
       options.addArguments("--headless");
+    }
+    if (captureWindowSize.isEnabled) {
+      options.addArguments(
+        `--window-size=${captureWindowSize.width},${captureWindowSize.height}`
+      );
     }
     return new Builder()
       .withCapabilities(caps)

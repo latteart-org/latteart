@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { type CaptureMediaSetting, type DeviceSettings } from "./settings/Settings";
+import {
+  type CaptureMediaSetting,
+  type CaptureWindowSize,
+  type DeviceSettings
+} from "./settings/Settings";
 
 export type CaptureOptionParams = {
   url: string;
@@ -24,6 +28,7 @@ export type CaptureOptionParams = {
   waitTimeForStartupReload: number;
   browser: DeviceSettings["browser"];
   mediaType: CaptureMediaSetting["mediaType"];
+  captureWindowSize: CaptureWindowSize;
   shouldRecordTestPurpose: boolean;
   firstTestPurpose: string;
   firstTestPurposeDetails: string;

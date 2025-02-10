@@ -61,7 +61,8 @@ export default defineComponent({
       mediaType: "image",
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
-      firstTestPurposeDetails: ""
+      firstTestPurposeDetails: "",
+      captureWindowSize: { isEnabled: false, width: 800, height: 600 }
     });
 
     const updateOption = (option: CaptureOptionParams) => {
@@ -72,7 +73,12 @@ export default defineComponent({
       return (
         !captureOption.value.url ||
         !urlIsValid.value ||
-        (captureOption.value.shouldRecordTestPurpose && captureOption.value.firstTestPurpose === "")
+        (captureOption.value.shouldRecordTestPurpose &&
+          captureOption.value.firstTestPurpose === "") ||
+        !(captureOption.value.captureWindowSize
+          ? !isNaN(captureOption.value.captureWindowSize.height) &&
+            !isNaN(captureOption.value.captureWindowSize.width)
+          : true)
       );
     });
 
@@ -96,9 +102,15 @@ export default defineComponent({
           waitTimeForStartupReload: captureOption.value.waitTimeForStartupReload
         }
       });
+
       rootStore.writeCaptureMediaSettings({
         captureMediaSetting: {
           mediaType: captureOption.value.mediaType
+        }
+      });
+      rootStore.writeUserSettings({
+        userSettings: {
+          captureWindowSize: captureOption.value.captureWindowSize
         }
       });
       captureControlStore.testOption = {

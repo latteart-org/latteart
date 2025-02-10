@@ -197,6 +197,13 @@ export type CaptureConfig = {
   waitTimeForStartupReload: number;
   captureArch: "polling" | "push";
   shouldTakeScreenshot: boolean;
+  captureWindowSize: CaptureWindowSize;
+};
+
+export type CaptureWindowSize = {
+  isEnabled: boolean;
+  height: number;
+  width: number;
 };
 
 export type VisualizeConfig = {

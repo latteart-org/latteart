@@ -53,6 +53,7 @@ export default defineComponent({
       waitTimeForStartupReload: 0,
       browser: "Chrome",
       mediaType: "image",
+      captureWindowSize: { isEnabled: false, width: 800, height: 600 },
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
       firstTestPurposeDetails: ""
@@ -66,7 +67,12 @@ export default defineComponent({
       return (
         !captureOption.value.url ||
         !isUrlValid.value ||
-        (captureOption.value.shouldRecordTestPurpose && captureOption.value.firstTestPurpose === "")
+        (captureOption.value.shouldRecordTestPurpose &&
+          captureOption.value.firstTestPurpose === "") ||
+        !(captureOption.value.captureWindowSize
+          ? !isNaN(captureOption.value.captureWindowSize.height) &&
+            !isNaN(captureOption.value.captureWindowSize.width)
+          : true)
       );
     });
 
