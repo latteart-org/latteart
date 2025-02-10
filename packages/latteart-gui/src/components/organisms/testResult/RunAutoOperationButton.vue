@@ -65,11 +65,16 @@ export default defineComponent({
     });
 
     const isDisabled = computed((): boolean => {
-      return !captureControlStore.isCapturing || autoOperationConditionGroups.value.length < 1;
+      return (
+        !captureControlStore.isCapturing ||
+        autoOperationConditionGroups.value.length < 1 ||
+        captureControlStore.isRunning
+      );
     });
 
     const runAutoOperations = async (index: number) => {
       try {
+        captureControlStore.isRunning = true;
         let isPausing = false;
         const tempOperations = autoOperationConditionGroups.value[index].autoOperations
           .map((operation) => {
@@ -114,6 +119,7 @@ export default defineComponent({
           throw error;
         }
       } finally {
+        captureControlStore.isRunning = false;
         autoOperationSelectDialogOpened.value = false;
       }
     };

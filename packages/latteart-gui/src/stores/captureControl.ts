@@ -58,6 +58,11 @@ export type CaptureControlState = {
   isResuming: boolean;
 
   /**
+   * Whether it is running or not.
+   */
+  isRunning: boolean;
+
+  /**
    * Whether it is paused or not.
    */
   isPaused: boolean;
@@ -144,6 +149,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
     isCapturing: false,
     isReplaying: false,
     isResuming: false,
+    isRunning: false,
     isPaused: false,
     url: "",
     testResultName: "",
@@ -441,6 +447,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
     },
 
     async autofill(payload: { autofillConditionGroup: AutofillConditionGroup }) {
+      this.isRunning = true;
       const targetAndValues = payload.autofillConditionGroup.inputValueConditions
         .filter((inputValue) => inputValue.isEnabled)
         .map((condition) => {
@@ -456,6 +463,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
         });
 
       await this.captureSession?.automate().enterValues(...targetAndValues);
+      this.isRunning = false;
     },
 
     openAutofillDialog(payload: {
@@ -511,7 +519,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
                     ? element.checked === true
                       ? "on"
                       : "off"
-                    : element.value ?? ""
+                    : (element.value ?? "")
               };
             }) ?? [],
           callback: openAutofillSelectDialogCallBack

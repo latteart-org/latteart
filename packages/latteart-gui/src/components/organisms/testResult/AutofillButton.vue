@@ -39,6 +39,9 @@ export default defineComponent({
     const autofillConditionGroup = ref<AutofillConditionGroup[] | null>(null);
 
     const isDisabled = computed((): boolean => {
+      if (captureControlStore.isRunning) {
+        return true;
+      }
       if (!captureControlStore.isCapturing) {
         setMatchedAutofillConditionGroup(null);
         return true;
