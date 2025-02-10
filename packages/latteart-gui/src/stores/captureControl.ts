@@ -586,6 +586,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
             rootStore.writeUserSettings({
               userSettings: {
                 captureWindowSize: {
+                  isEnabled: rootStore.userSettings.captureWindowSize.isEnabled,
                   width: testStep.operation.clientSize.width,
                   height: testStep.operation.clientSize.height
                 }

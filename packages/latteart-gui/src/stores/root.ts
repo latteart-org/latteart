@@ -39,8 +39,7 @@ import type {
   CaptureMediaSetting,
   DeviceSettings,
   ProjectSettings,
-  UserSettings,
-  WindowSize
+  UserSettings
 } from "@/lib/common/settings/Settings";
 import { ExportConfigAction } from "@/lib/operationHistory/actions/ExportConfigAction";
 import {
@@ -447,6 +446,17 @@ export const useRootStore = defineStore("root", {
         };
       }
 
+      if (payload.userSettings.captureWindowSize) {
+        console.log(payload.userSettings.captureWindowSize);
+        const result = saveCaptureWindowSize(payload.userSettings.captureWindowSize);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.userSettings.captureWindowSize = {
+          ...payload.userSettings.captureWindowSize
+        };
+      }
+
       if (payload.userSettings.repositoryUrls) {
         setRepositoryUrlsToLocalStorage(payload.userSettings.repositoryUrls);
         this.userSettings.repositoryUrls = [...payload.userSettings.repositoryUrls];
@@ -641,15 +651,6 @@ export const useRootStore = defineStore("root", {
       };
       this.userSettings.captureMediaSetting = settings;
       saveCaptureMediaSettings(settings);
-    },
-
-    writeCaptureWindowSize(payload: { captureWindowSize?: WindowSize }) {
-      this.userSettings.captureWindowSize = payload.captureWindowSize
-        ? {
-            width: Number(payload.captureWindowSize.width),
-            height: Number(payload.captureWindowSize.height)
-          }
-        : undefined;
     },
 
     readCaptureMediaSettings(): CaptureMediaSetting {

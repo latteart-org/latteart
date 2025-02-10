@@ -62,7 +62,7 @@ export default defineComponent({
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
       firstTestPurposeDetails: "",
-      captureWindowSize: undefined
+      captureWindowSize: { isEnabled: false, width: 800, height: 600 }
     });
 
     const updateOption = (option: CaptureOptionParams) => {
@@ -108,8 +108,10 @@ export default defineComponent({
           mediaType: captureOption.value.mediaType
         }
       });
-      rootStore.writeCaptureWindowSize({
-        captureWindowSize: captureOption.value.captureWindowSize
+      rootStore.writeUserSettings({
+        userSettings: {
+          captureWindowSize: captureOption.value.captureWindowSize
+        }
       });
       captureControlStore.testOption = {
         firstTestPurpose: captureOption.value.firstTestPurpose,

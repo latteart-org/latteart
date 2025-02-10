@@ -83,7 +83,11 @@ export class CaptureConfig {
   /**
    * Capture window size.
    */
-  public captureWindowSize?: { width: number; height: number } = undefined;
+  public captureWindowSize: {
+    isEnabled: boolean;
+    width: number;
+    height: number;
+  } = { isEnabled: false, width: 800, height: 600 };
 
   /**
    * Constructor.

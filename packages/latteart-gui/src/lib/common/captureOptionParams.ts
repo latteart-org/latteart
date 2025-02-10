@@ -16,8 +16,8 @@
 
 import {
   type CaptureMediaSetting,
-  type DeviceSettings,
-  type WindowSize
+  type CaptureWindowSize,
+  type DeviceSettings
 } from "./settings/Settings";
 
 export type CaptureOptionParams = {
@@ -28,7 +28,7 @@ export type CaptureOptionParams = {
   waitTimeForStartupReload: number;
   browser: DeviceSettings["browser"];
   mediaType: CaptureMediaSetting["mediaType"];
-  captureWindowSize?: WindowSize;
+  captureWindowSize: CaptureWindowSize;
   shouldRecordTestPurpose: boolean;
   firstTestPurpose: string;
   firstTestPurposeDetails: string;

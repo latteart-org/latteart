@@ -32,10 +32,11 @@ export type UserSettings = {
   deviceSettings: DeviceSettings;
   testScriptOption: Pick<TestScriptOption, "buttonDefinitions">;
   repositoryUrls: string[];
-  captureWindowSize?: WindowSize;
+  captureWindowSize: CaptureWindowSize;
 };
 
-export type WindowSize = {
+export type CaptureWindowSize = {
+  isEnabled: boolean;
   height: number;
   width: number;
 };

@@ -23,9 +23,9 @@ import {
   type AutofillSetting,
   type AutoOperationSetting,
   type CaptureMediaSetting,
+  type CaptureWindowSize,
   type DeviceSettings,
-  type TestHintSetting,
-  type WindowSize
+  type TestHintSetting
 } from "./settings/Settings";
 
 const LOCAL_STORAGE_KEY_LOCALE = "latteart-user-settings-locale";
@@ -177,9 +177,9 @@ export class LocalStorageSettingRepository {
 
   /**
    * Save capture window size information.
-   * @param captureWindowSize Capture media settings information.
+   * @param captureWindowSize Capture window size settings information.
    */
-  public putCaptureWindowSize(captureWindowSize: WindowSize) {
+  public putCaptureWindowSize(captureWindowSize: CaptureWindowSize) {
     localStorage.setItem(LOCAL_STORAGE_KEY_CAPTURE_WINDOW_SIZE, JSON.stringify(captureWindowSize));
   }
 
@@ -187,10 +187,11 @@ export class LocalStorageSettingRepository {
    * Get capture window size information.
    * @returns Capture window size information.
    */
-  public getCaptureWindowSize(): WindowSize {
+  public getCaptureWindowSize(): CaptureWindowSize {
     const setting = localStorage.getItem(LOCAL_STORAGE_KEY_CAPTURE_WINDOW_SIZE);
     if (setting === null) {
       return {
+        isEnabled: false,
         width: 800,
         height: 600
       };

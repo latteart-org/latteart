@@ -112,7 +112,7 @@
 
     <v-card-text class="mb-3 mt-0 pt-1">
       <v-checkbox
-        v-model="enableCaptureWindowSize"
+        v-model="captureWindowSize.isEnabled"
         class="mt-0"
         :label="$t('capture-option.specify-window-size')"
         hide-details
@@ -120,7 +120,7 @@
       <div class="d-flex align-start">
         <v-text-field
           v-model="captureOption.captureWindowSize.width"
-          :disabled="!enableCaptureWindowSize"
+          :disabled="!captureWindowSize.isEnabled"
           variant="underlined"
           label="Width"
           class="pl-2"
@@ -128,7 +128,7 @@
         ></v-text-field>
         <v-text-field
           v-model="captureOption.captureWindowSize.height"
-          :disabled="!enableCaptureWindowSize"
+          :disabled="!captureWindowSize.isEnabled"
           variant="underlined"
           label="Height"
           class="pl-2"
@@ -140,7 +140,7 @@
               captureOption.captureWindowSize = { ...windowSize };
             }
           "
-          :disabled="!enableCaptureWindowSize"
+          :disabled="!captureWindowSize.isEnabled"
           variant="underlined"
           :items="captureWindowSizeItems"
           item-title="label"
@@ -198,8 +198,8 @@ import NumberField from "@/components/molecules/NumberField.vue";
 import { type SettingsForRepository } from "latteart-client";
 import {
   type CaptureMediaSetting,
-  type DeviceSettings,
-  type WindowSize
+  type CaptureWindowSize,
+  type DeviceSettings
 } from "@/lib/common/settings/Settings";
 import ErrorMessageDialog from "@/components/molecules/ErrorMessageDialog.vue";
 import { type CaptureOptionParams } from "@/lib/common/captureOptionParams";
@@ -231,16 +231,15 @@ export default defineComponent({
       rootStore.userSettings.captureMediaSetting.mediaType
     );
 
-    const enableCaptureWindowSize = ref(false);
-    const captureWindowSize = ref<WindowSize>(
-      rootStore.userSettings.captureWindowSize
-        ? {
-            width: rootStore.userSettings.captureWindowSize.width,
-            height: rootStore.userSettings.captureWindowSize.height
-          }
-        : { width: 0, height: 0 }
-    );
+    const captureWindowSize = ref<CaptureWindowSize>(rootStore.userSettings.captureWindowSize);
     const captureWindowSizeItems = [
+      {
+        label: `${rootStore.userSettings.captureWindowSize.width} * ${rootStore.userSettings.captureWindowSize.height} - ${rootStore.message("capture-option.previous-capture-window-size")}`,
+        value: {
+          width: rootStore.userSettings.captureWindowSize.width,
+          height: rootStore.userSettings.captureWindowSize.height
+        }
+      },
       {
         label: "800 * 600 - SVGA",
         value: { width: 800, height: 600 }
@@ -262,12 +261,7 @@ export default defineComponent({
         value: { width: 1920, height: 1080 }
       }
     ];
-    if (rootStore.userSettings.captureWindowSize) {
-      captureWindowSizeItems.unshift({
-        label: `${rootStore.userSettings.captureWindowSize.width} * ${rootStore.userSettings.captureWindowSize.height} - ${rootStore.message("capture-option.previous-capture-window-size")}`,
-        value: { ...rootStore.userSettings.captureWindowSize }
-      });
-    }
+
     const deviceSettings = computed((): DeviceSettings | undefined => {
       return rootStore.userSettings.deviceSettings;
     });
@@ -327,9 +321,11 @@ export default defineComponent({
         firstTestPurposeDetails: captureOption.value.shouldRecordTestPurpose
           ? captureOption.value.firstTestPurposeDetails
           : "",
-        captureWindowSize: enableCaptureWindowSize.value
-          ? captureOption.value.captureWindowSize
-          : undefined
+        captureWindowSize: {
+          isEnabled: !!captureOption.value.captureWindowSize.isEnabled,
+          width: captureOption.value.captureWindowSize.width,
+          height: captureOption.value.captureWindowSize.height
+        }
       });
     };
 
@@ -368,7 +364,6 @@ export default defineComponent({
     };
 
     watch(captureOption, update, { deep: true });
-    watch(enableCaptureWindowSize, update);
     watch(browsers, initializeBrowserSelection);
     watch(() => captureOption.value.platform, updateDevices);
 
@@ -382,7 +377,6 @@ export default defineComponent({
       isMediaTypeDisabled,
       isMobileSelected,
       updateDevices,
-      enableCaptureWindowSize,
       captureWindowSize,
       captureWindowSizeItems
     };

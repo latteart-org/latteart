@@ -48,7 +48,7 @@ export default class WebDriverClientFactory {
     browserBinaryPath: string;
     webDriverServer: WebDriverServer;
     isHeadlessMode: boolean;
-    captureWindowSize?: { width: number; height: number };
+    captureWindowSize: { isEnabled: boolean; width: number; height: number };
   }): Promise<WebDriverClient> {
     const driver = await (async () => {
       if (params.platformName === PlatformName.Android) {
@@ -81,7 +81,7 @@ export default class WebDriverClientFactory {
     browserName: Browser,
     serverUrl: string,
     isHeadlessMode: boolean,
-    captureWindowSize?: { width: number; height: number }
+    captureWindowSize: { isEnabled: boolean; width: number; height: number }
   ) {
     if (browserName === Browser.Edge) {
       return this.createEdgeWebDriverBuilder(
@@ -103,7 +103,7 @@ export default class WebDriverClientFactory {
     browserPath: string,
     serverUrl: string,
     isHeadlessMode: boolean,
-    captureWindowSize?: { width: number; height: number }
+    captureWindowSize: { isEnabled: boolean; width: number; height: number }
   ): ThenableWebDriver {
     const caps = new Capabilities();
     caps.setPageLoadStrategy("eager");
@@ -114,7 +114,7 @@ export default class WebDriverClientFactory {
     if (isHeadlessMode) {
       options.addArguments("--headless");
     }
-    if (captureWindowSize) {
+    if (captureWindowSize.isEnabled) {
       options.addArguments(
         `--window-size=${captureWindowSize.width},${captureWindowSize.height}`
       );
@@ -131,7 +131,7 @@ export default class WebDriverClientFactory {
   private createEdgeWebDriverBuilder(
     serverUrl: string,
     isHeadlessMode: boolean,
-    captureWindowSize?: { width: number; height: number }
+    captureWindowSize: { isEnabled: boolean; width: number; height: number }
   ): ThenableWebDriver {
     const caps = new Capabilities();
     caps.setPageLoadStrategy("eager");
@@ -139,7 +139,7 @@ export default class WebDriverClientFactory {
     if (isHeadlessMode) {
       options.addArguments("--headless");
     }
-    if (captureWindowSize) {
+    if (captureWindowSize.isEnabled) {
       options.addArguments(
         `--window-size=${captureWindowSize.width},${captureWindowSize.height}`
       );
