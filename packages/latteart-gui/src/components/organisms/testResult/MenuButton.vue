@@ -16,16 +16,18 @@
 
 <template>
   <div>
-    <v-menu :close-on-content-click="false">
+    <v-menu :close-on-content-click="false" persistent>
       <template #activator="{ props }">
         <v-btn
           v-if="!isViewerMode"
           id="optionMenuButton"
+          :disabled="isDisabled"
           variant="text"
           v-bind="props"
           icon
           size="large"
           class="mx-2"
+          @click="changeOpenedFlag"
           >...</v-btn
         >
       </template>
@@ -52,7 +54,8 @@ import GenerateTestScriptButton from "./GenerateTestScriptButton.vue";
 import ScreenshotsDownloadButton from "@/components/organisms/common/ScreenshotsDownloadButton.vue";
 import DeleteTestResultButton from "./DeleteTestResultButton.vue";
 import CompareHistoryButton from "./CompareHistoryButton.vue";
-import { computed, defineComponent, inject } from "vue";
+import { computed, defineComponent, ref, inject } from "vue";
+import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
   components: {
@@ -64,13 +67,23 @@ export default defineComponent({
     "compare-history-button": CompareHistoryButton
   },
   setup() {
+    const captureControlStore = useCaptureControlStore();
+
+    const opened = ref(false);
+
     const isViewerMode = computed((): boolean => {
       return inject("isViewerMode") ?? false;
     });
 
-    return {
-      isViewerMode
+    const isDisabled = computed((): boolean => {
+      return captureControlStore.isReplaying && opened.value;
+    });
+
+    const changeOpenedFlag = () => {
+      opened.value = opened.value ? false : true;
     };
+
+    return { isViewerMode, isDisabled, changeOpenedFlag };
   }
 });
 </script>
