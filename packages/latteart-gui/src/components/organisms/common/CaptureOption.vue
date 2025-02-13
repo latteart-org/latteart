@@ -137,7 +137,8 @@
         <v-select
           @update:modelValue="
             (windowSize) => {
-              captureOption.captureWindowSize = { ...windowSize };
+              captureOption.captureWindowSize.width = windowSize.width;
+              captureOption.captureWindowSize.height = windowSize.height;
             }
           "
           :disabled="!captureWindowSize.isEnabled"
@@ -253,8 +254,8 @@ export default defineComponent({
         value: { width: 1280, height: 800 }
       },
       {
-        label: "1600 * 720 - HD+",
-        value: { width: 1600, height: 720 }
+        label: "1600 * 900 - HD+",
+        value: { width: 1600, height: 900 }
       },
       {
         label: "1920 * 1080 - Full HD ",
