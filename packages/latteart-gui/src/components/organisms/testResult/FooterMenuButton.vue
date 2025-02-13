@@ -16,9 +16,17 @@
 
 <template>
   <div>
-    <v-menu :close-on-content-click="false">
+    <v-menu :close-on-content-click="false" persistent>
       <template #activator="{ props }">
-        <v-btn id="optionFooterMenuButton" variant="text" v-bind="props" icon="menu" class="ml-2" />
+        <v-btn
+          id="optionFooterMenuButton"
+          :disabled="isDisabled"
+          variant="text"
+          v-bind="props"
+          icon="menu"
+          class="ml-2"
+          @click="changeOpenedFlag"
+        />
       </template>
       <v-list>
         <run-auto-operation-button />
@@ -31,11 +39,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent, ref } from "vue";
 import RunAutoOperationButton from "./RunAutoOperationButton.vue";
 import AutofillButton from "./AutofillButton.vue";
 import TestHintSearchButton from "./TestHintSearchButton.vue";
 import ExtensionMenus from "../extensions/ExtensionMenus.vue";
+import { useCaptureControlStore } from "@/stores/captureControl";
 
 export default defineComponent({
   components: {
@@ -44,6 +53,20 @@ export default defineComponent({
     "test-hint-search-button": TestHintSearchButton,
     "extension-menus": ExtensionMenus
   },
-  setup() {}
+  setup() {
+    const captureControlStore = useCaptureControlStore();
+
+    const opened = ref(false);
+
+    const isDisabled = computed((): boolean => {
+      return captureControlStore.isRunning && opened.value;
+    });
+
+    const changeOpenedFlag = () => {
+      opened.value = opened.value ? false : true;
+    };
+
+    return { isDisabled, changeOpenedFlag };
+  }
 });
 </script>
