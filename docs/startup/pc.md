@@ -23,9 +23,14 @@
 
 # インストール
 
-## Node.js版
+以下の2種類のディストリビューションがあります。お好みのディストリビューションを選択してインストールしてください。
 
-Node.jsを用いて実行する版です。
+- **Node.js版**
+  - 実行環境にインストールされているNode.jsを用いて実行する版です。ご利用の前にNode.jsをインストールする必要があります。
+- **実行ファイル版**
+  - Node.jsが同梱された実行ファイル形式版です。Node.jsを別途インストールする必要はありませんが、Node.jsのバージョンは**v18**で固定になります。
+
+## Node.js版 インストール手順
 
 1. 事前に「[Node.js公式のダウンロードサイト](https://nodejs.org/ja/download)」から以下バージョンのNode.jsをダウンロードし、インストールしてください。
 
@@ -47,10 +52,7 @@ latteart-v〇〇〇-node/
       └─ node_modules/
 ```
 
-## 実行ファイル版
-
-Node.js v18が同梱された実行ファイル形式版です。
-Node.jsをインストールせずにご利用いただけます。
+## 実行ファイル版 インストール手順
 
 1. GitHub の [Releases](https://github.com/latteart-org/latteart/releases) からLatteArtのWin版 (`latteart-v〇〇〇-win.zip`) をダウンロードして下さい。
 
