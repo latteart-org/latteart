@@ -151,13 +151,7 @@ export default defineComponent({
 ```vue
 <template>
   <div>
-    <v-btn
-      color="blue"
-      icon="list"
-      size="small"
-      :title="$t('simple-history.button.title')"
-      @click="openedDialog = true"
-    />
+    <v-btn color="blue" icon="list" size="small" @click="openedDialog = true" />
 
     <simple-history-dialog
       :opened="openedDialog"
@@ -249,6 +243,7 @@ export const SimpleHistoryExtension: GuiExtension = {
     contents: [
       {
         name: "OpenSimpleHistoryDialogButton",
+        title: "simple-history.button.title",
       },
     ],
   },
@@ -288,7 +283,8 @@ export type GuiExtension = {
   name?: string;
   version?: string;
   components: {
-    contents?: { name: string }[];
+    contents?: { name: string; title: string }[];
+    menus?: { name: string; title: string }[];
     configs?: { name: string; title: string }[];
     globals?: { name: string }[];
   };
