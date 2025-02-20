@@ -104,7 +104,7 @@ export default defineComponent({
       if (!props.opened) {
         return;
       }
-      newTags.value = props.tags;
+      newTags.value = [...props.tags];
 
       isMediaDisplayed.value = false;
       nextTick(() => {
