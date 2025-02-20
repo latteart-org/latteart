@@ -252,6 +252,10 @@ export const useCaptureControlStore = defineStore("captureControl", {
             .map(({ operation }) => operation);
         })();
 
+        const startingWindowSize = operations.find((operation) => {
+          return operation.type === "screen_transition";
+        })?.clientSize;
+
         const replayOption = this.replayOption;
         const destTestResult = replayOption.resultSavingEnabled
           ? await (async () => {
@@ -286,7 +290,9 @@ export const useCaptureControlStore = defineStore("captureControl", {
           config: {
             ...rootStore.userSettings.deviceSettings,
             captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
-            captureWindowSize: rootStore.userSettings.captureWindowSize,
+            captureWindowSize: startingWindowSize
+              ? { isEnabled: true, ...startingWindowSize }
+              : rootStore.userSettings.captureWindowSize,
             shouldTakeScreenshot: replayOption.resultSavingEnabled
               ? replayOption.screenshotSavingEnabled
               : true
