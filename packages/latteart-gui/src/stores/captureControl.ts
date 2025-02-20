@@ -587,7 +587,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
             operation: convertTestStepOperation(testStep.operation)
           });
 
-          if (testStep.operation.clientSize) {
+          if (testStep.operation.clientSize && !this.isReplaying) {
             const rootStore = useRootStore();
             rootStore.writeUserSettings({
               userSettings: {
