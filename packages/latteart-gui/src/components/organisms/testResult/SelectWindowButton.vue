@@ -63,6 +63,9 @@ export default defineComponent({
     });
 
     const windowSelectorIsEnabled = computed(() => {
+      if (captureControlStore.isRunning) {
+        return false;
+      }
       if (!isCapturing.value) {
         return false;
       }

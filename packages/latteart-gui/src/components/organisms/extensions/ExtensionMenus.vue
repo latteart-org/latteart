@@ -15,17 +15,37 @@
 -->
 
 <template>
-  <div v-for="menu in menus" :key="menu.name" :title="$t(menu.title)">
+  <div
+    v-for="menu in menus"
+    :key="menu.name"
+    :title="$t(menu.title)"
+    :class="{ 'disabled-menu': isDisabled }"
+  >
     <component :is="menu.name" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 import { extensions } from "@/extensions";
+import { useCaptureControlStore } from "@/stores/captureControl";
 export default defineComponent({
   setup() {
-    return { menus: [...extensions.flatMap(({ components }) => components.menus ?? [])] };
+    const captureControlStore = useCaptureControlStore();
+
+    const isDisabled = computed((): boolean => {
+      return captureControlStore.isReplaying || captureControlStore.isRunning;
+    });
+    return {
+      isDisabled,
+      menus: [...extensions.flatMap(({ components }) => components.menus ?? [])]
+    };
   }
 });
 </script>
+
+<style lang="sass" scoped>
+.disabled-menu
+  pointer-events: none
+  opacity: 0.6
+</style>
