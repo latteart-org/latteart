@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -237,9 +237,9 @@ export class TestStepServiceImpl implements TestStepService {
     const testStepEntity = await this.getTestStepEntity(testStepId);
 
     const noteEntity = testPurposeId
-      ? (await this.dataSource.getRepository(TestPurposeEntity).findOneBy({
+      ? ((await this.dataSource.getRepository(TestPurposeEntity).findOneBy({
           id: testPurposeId,
-        })) ?? null
+        })) ?? null)
       : null;
 
     testStepEntity.testPurpose = noteEntity;
