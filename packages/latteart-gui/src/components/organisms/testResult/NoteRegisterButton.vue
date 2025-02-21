@@ -53,16 +53,15 @@ export default defineComponent({
     const takeNoteWithPurposeDialogOpened = ref(false);
     const takeNoteDialogOpened = ref(false);
 
-    const isCapturing = computed((): boolean => {
-      return captureControlStore.isCapturing;
-    });
-
     const history = computed(() => {
       return operationHistoryStore.history;
     });
 
     const isDisabled = computed((): boolean => {
-      if (!isCapturing.value) {
+      if (captureControlStore.isRunning) {
+        return true;
+      }
+      if (!captureControlStore.isCapturing) {
         return true;
       }
       if (captureControlStore.testOption.shouldRecordTestPurpose) {
@@ -86,7 +85,6 @@ export default defineComponent({
     return {
       takeNoteWithPurposeDialogOpened,
       takeNoteDialogOpened,
-      isCapturing,
       isDisabled,
       open
     };

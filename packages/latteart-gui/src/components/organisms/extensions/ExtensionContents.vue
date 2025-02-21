@@ -15,17 +15,38 @@
 -->
 
 <template>
-  <div v-for="component in components" :key="component.name" :title="$t(component.title)">
+  <div
+    v-for="component in components"
+    :key="component.name"
+    :title="$t(component.title)"
+    :class="{ 'disabled-button': isDisabled }"
+  >
     <component :is="component.name" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 import { extensions } from "@/extensions";
+import { useCaptureControlStore } from "@/stores/captureControl";
 export default defineComponent({
   setup() {
-    return { components: [...extensions.flatMap(({ components }) => components.contents ?? [])] };
+    const captureControlStore = useCaptureControlStore();
+
+    const isDisabled = computed((): boolean => {
+      return captureControlStore.isReplaying || captureControlStore.isRunning;
+    });
+
+    return {
+      isDisabled,
+      components: [...extensions.flatMap(({ components }) => components.contents ?? [])]
+    };
   }
 });
 </script>
+
+<style lang="sass" scoped>
+.disabled-button
+  pointer-events: none
+  opacity: 0.6
+</style>

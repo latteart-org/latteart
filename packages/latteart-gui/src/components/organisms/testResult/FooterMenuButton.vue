@@ -59,7 +59,7 @@ export default defineComponent({
     const opened = ref(false);
 
     const isDisabled = computed((): boolean => {
-      return captureControlStore.isRunning && opened.value;
+      return (captureControlStore.isReplaying || captureControlStore.isRunning) && opened.value;
     });
 
     const changeOpenedFlag = () => {

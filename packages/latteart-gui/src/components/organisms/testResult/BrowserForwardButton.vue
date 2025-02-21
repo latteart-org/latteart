@@ -41,7 +41,7 @@ export default defineComponent({
     const canDoBrowserForward = ref(false);
 
     const isDisabled = computed((): boolean => {
-      return !isCapturing.value || !canDoBrowserForward.value;
+      return captureControlStore.isRunning || !isCapturing.value || !canDoBrowserForward.value;
     });
 
     const isCapturing = computed((): boolean => {
@@ -60,10 +60,7 @@ export default defineComponent({
       canDoBrowserForward.value = captureControlStore.captureSession?.canNavigateForward ?? false;
     });
 
-    return {
-      isDisabled,
-      browserForward
-    };
+    return { isDisabled, browserForward };
   }
 });
 </script>
