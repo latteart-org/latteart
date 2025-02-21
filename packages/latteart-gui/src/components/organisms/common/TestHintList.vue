@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -285,7 +285,7 @@ export default defineComponent({
                 const customProp = props.testHintProps.find(({ id }) => id === custom.propId);
                 const value = customProp
                   ? customProp.type === "list"
-                    ? customProp.listItems?.find(({ key }) => key === custom.value)?.value ?? ""
+                    ? (customProp.listItems?.find(({ key }) => key === custom.value)?.value ?? "")
                     : custom.value
                   : "";
                 return [custom.propId, value];
