@@ -33,11 +33,9 @@ export class MutationEntity {
   @JoinColumn({ name: "test_result_id" })
   testResult?: TestResultEntity;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "element_mutations" })
   elementMutations: string = "[]";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "timestamp", default: 0 })
   timestamp: number = 0;
 
@@ -45,31 +43,24 @@ export class MutationEntity {
   @JoinColumn({ name: "screenshot_id" })
   screenshot?: ScreenshotEntity;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "window_handle" })
   windowHandle: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "scroll_position_x" })
   scrollPositionX: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "scroll_position_y" })
   scrollPositionY: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "client_size_width" })
   clientSizeWidth: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "client_size_height" })
   clientSizeHeight: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "url" })
   url: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "title" })
   title: string = "";
 }

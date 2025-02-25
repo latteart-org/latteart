@@ -36,15 +36,12 @@ export class NoteEntity {
   @PrimaryGeneratedColumn("uuid", { name: "note_id" })
   id!: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "value" })
   value: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "details" })
   details: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "timestamp", default: 0 })
   timestamp: number = 0;
 
@@ -83,7 +80,6 @@ export class NoteEntity {
   @JoinColumn({ name: "video_id" })
   video?: VideoEntity;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "video_time", nullable: true })
   videoTime?: number = 0;
 

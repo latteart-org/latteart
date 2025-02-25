@@ -22,7 +22,6 @@ export class TagEntity {
   @PrimaryGeneratedColumn("uuid", { name: "tag_id" })
   id!: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "name" })
   name: string = "";
 
