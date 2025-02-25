@@ -30,7 +30,6 @@ export class ScreenshotEntity {
   @PrimaryGeneratedColumn("uuid", { name: "screenshot_id" })
   id!: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "file_url" })
   fileUrl: string = "";
 

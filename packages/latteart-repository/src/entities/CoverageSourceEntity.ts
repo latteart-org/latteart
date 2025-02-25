@@ -28,15 +28,12 @@ export class CoverageSourceEntity {
   @PrimaryGeneratedColumn({ name: "coverage_source_id" })
   id!: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "title" })
   title: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "url" })
   url: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "screen_elements" })
   screenElements: string = "[]";
 
