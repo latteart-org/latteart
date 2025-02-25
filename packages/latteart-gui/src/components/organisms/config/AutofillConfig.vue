@@ -33,22 +33,23 @@
         >
         </v-checkbox>
       </v-col>
-      <v-col cols="12" class="py-0 my-0">
+      <v-col cols="12" class="py-0 mt-0 mb-4">
         <v-btn @click="addConditionGroup">{{ $t("autofill-config.add-setting") }}</v-btn>
       </v-col>
-      <v-col cols="12" class="py-0 mt-6">
-        <autofill-input-value-container
-          v-for="(group, index) in conditionGroups"
-          :key="index"
-          :condition-group="group"
-          :index="index"
-          class="mt-4"
-          @add-condition="addCondition"
-          @update-condition-group="updateConditionGroup"
-          @update-condition="updateCondition"
-          @delete-condition-group="deleteConditionGroup"
-          @delete-condition="deleteCondition"
-        ></autofill-input-value-container>
+      <v-col cols="12" class="py-0 my-0">
+        <v-expansion-panels eager multiple bg-color="grey-lighten-3">
+          <autofill-input-value-container
+            v-for="(group, index) in conditionGroups"
+            :key="index"
+            :condition-group="group"
+            :index="index"
+            @add-condition="addCondition"
+            @update-condition-group="updateConditionGroup"
+            @update-condition="updateCondition"
+            @delete-condition-group="deleteConditionGroup"
+            @delete-condition="deleteCondition"
+          />
+        </v-expansion-panels>
       </v-col>
     </v-row>
   </v-container>

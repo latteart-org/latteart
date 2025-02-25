@@ -15,57 +15,64 @@
 -->
 
 <template>
-  <v-container class="pa-4" style="background-color: #eee">
-    <v-row>
-      <v-col cols="1" align="right">
-        <v-checkbox
-          :style="{ maxWidth: '40px' }"
-          :model-value="conditionGroup.isEnabled"
-          hide-details
-          class="default-flex"
-          @update:model-value="
-            (isEnabled) => updateConditionGroup({ isEnabled: isEnabled ?? false })
-          "
-        >
-        </v-checkbox>
-      </v-col>
-      <v-col cols="8">
-        <v-text-field
-          variant="underlined"
-          :label="$t('common.operation-set-name')"
-          :model-value="conditionGroup.settingName"
-          hide-details
-          @change="(e: any) => updateConditionGroup({ settingName: e.target._value })"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="3" class="d-flex align-center pt-0">
-        <v-btn @click="dialogOpened = true">{{ $t("common.details") }}</v-btn>
-        <v-btn color="red" class="ml-4" @click="deleteConditionGroup">{{
-          $t("common.delete")
-        }}</v-btn>
-      </v-col>
-    </v-row>
+  <v-expansion-panel>
+    <v-expansion-panel-title>
+      <v-container class="pa-0">
+        <v-row class="align-center">
+          <v-col cols="1">
+            <v-checkbox
+              :style="{ maxWidth: '40px' }"
+              :model-value="conditionGroup.isEnabled"
+              hide-details
+              @click.stop
+              @update:model-value="
+                (isEnabled) => updateConditionGroup({ isEnabled: isEnabled ?? false })
+              "
+            >
+            </v-checkbox>
+          </v-col>
+          <v-col cols="8">
+            <v-text-field
+              variant="underlined"
+              :label="$t('common.operation-set-name')"
+              :model-value="conditionGroup.settingName"
+              @change="(e: any) => updateConditionGroup({ settingName: e.target._value })"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="3" class="d-flex align-center">
+            <v-btn @click.stop="dialogOpened = true">{{ $t("common.details") }}</v-btn>
+            <v-btn color="red" class="ml-4" @click.stop="deleteConditionGroup">{{
+              $t("common.delete")
+            }}</v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-expansion-panel-title>
+    <v-expansion-panel-text>
+      <v-container class="pa-0 ma-0">
+        <v-row>
+          <v-col cols="1" />
+          <v-col cols="9">
+            <v-textarea
+              variant="underlined"
+              hide-details
+              :label="$t('common.operation-set-details')"
+              :model-value="conditionGroup.details"
+              @change="(e: any) => updateConditionGroup({ details: e.target._value })"
+            ></v-textarea>
+          </v-col>
+          <v-col cols="2" />
+        </v-row>
+      </v-container>
+    </v-expansion-panel-text>
+  </v-expansion-panel>
 
-    <v-row>
-      <v-col cols="1" />
-      <v-col cols="9">
-        <v-textarea
-          variant="underlined"
-          hide-details
-          :label="$t('common.operation-set-details')"
-          :model-value="conditionGroup.details"
-          @change="(e: any) => updateConditionGroup({ details: e.target._value })"
-        ></v-textarea>
-      </v-col>
-      <v-col cols="2" />
-    </v-row>
-    <auto-operation-dialog
-      :opened="dialogOpened"
-      :auto-operations="conditionGroup.autoOperations"
-      :items-per-page="10"
-      @close="dialogOpened = false"
-    />
-  </v-container>
+  <auto-operation-dialog
+    :opened="dialogOpened"
+    :auto-operations="conditionGroup.autoOperations"
+    :items-per-page="10"
+    @close="dialogOpened = false"
+  />
 </template>
 
 <script lang="ts">

@@ -21,15 +21,16 @@
         <p v-if="conditionGroups.length < 1">
           {{ $t("auto-operation-config.no-data") }}
         </p>
-        <auto-operation-container
-          v-for="(group, index) in conditionGroups"
-          :key="index"
-          :condition-group="group"
-          :index="index"
-          class="mt-4"
-          @update-condition-group="updateConditionGroup"
-          @delete-condition-group="deleteConditionGroup"
-        ></auto-operation-container>
+        <v-expansion-panels eager multiple bg-color="grey-lighten-3">
+          <auto-operation-container
+            v-for="(group, index) in conditionGroups"
+            :key="index"
+            :condition-group="group"
+            :index="index"
+            @update-condition-group="updateConditionGroup"
+            @delete-condition-group="deleteConditionGroup"
+          />
+        </v-expansion-panels>
       </v-col>
     </v-row>
   </v-container>
