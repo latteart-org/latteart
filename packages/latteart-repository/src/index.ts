@@ -102,7 +102,7 @@ function runServer(port: number, timeout?: number) {
 
   app.use(express.static(publicDirPath));
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json({ limit: "100mb" }));
+  app.use(bodyParser.json({ limit: "4gb" }));
 
   RegisterRoutes(app);
   for (const extension of extensions) {
