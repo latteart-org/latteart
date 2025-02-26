@@ -35,15 +35,12 @@ export class TestProgressEntity {
   @Column({ name: "date" })
   date!: Date;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "planned" })
   plannedSessionNumber: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "completed" })
   completedSessionNumber: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "incompleted" })
   incompletedSessionNumber: number = 0;
 

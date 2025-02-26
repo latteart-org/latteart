@@ -35,35 +35,27 @@ export class TestStepEntity {
   @PrimaryGeneratedColumn("uuid", { name: "test_step_id" })
   id!: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "window_handle" })
   windowHandle: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "page_title" })
   pageTitle: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "page_url" })
   pageUrl: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "keyword_texts" })
   keywordTexts: string = "[]";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "operation_type" })
   operationType: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "operation_input" })
   operationInput: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "operation_element" })
   operationElement: string = "{}";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "input_elements" })
   inputElements: string = "[]";
 
@@ -79,11 +71,9 @@ export class TestStepEntity {
   @Column({ name: "client_size_height", nullable: true })
   clientSizeHeight?: number;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "timestamp" })
   timestamp: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "is_automatic", nullable: true, default: false })
   isAutomatic: boolean = false;
 
@@ -118,7 +108,6 @@ export class TestStepEntity {
   @JoinColumn({ name: "video_id" })
   video?: VideoEntity;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "video_time", nullable: true })
   videoTime?: number = 0;
 

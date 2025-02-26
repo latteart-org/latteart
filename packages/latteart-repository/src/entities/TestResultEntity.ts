@@ -36,31 +36,24 @@ export class TestResultEntity {
   @PrimaryGeneratedColumn("uuid", { name: "test_result_id" })
   id!: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "name" })
   name: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "start_timestamp" })
   startTimestamp: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "last_update_timestamp" })
   lastUpdateTimestamp: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "initial_url" })
   initialUrl: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "parent_test_result_id", nullable: true })
   parentTestResultId?: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "testing_time" })
   testingTime: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "creation_timestamp", nullable: true, default: 0 })
   creationTimestamp: number = 0;
 
