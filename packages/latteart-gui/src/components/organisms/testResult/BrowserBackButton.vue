@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ export default defineComponent({
     const canDoBrowserBack = ref(false);
 
     const isDisabled = computed((): boolean => {
-      return !isCapturing.value || !canDoBrowserBack.value;
+      return captureControlStore.isRunning || !isCapturing.value || !canDoBrowserBack.value;
     });
 
     const isCapturing = computed((): boolean => {
@@ -60,10 +60,7 @@ export default defineComponent({
       canDoBrowserBack.value = captureControlStore.captureSession?.canNavigateBack ?? false;
     });
 
-    return {
-      isDisabled,
-      browserBack
-    };
+    return { isDisabled, browserBack };
   }
 });
 </script>

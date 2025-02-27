@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,22 +18,36 @@
   <v-container v-if="screenshotUrl" fluid class="pa-0 fill-height" style="position: relative">
     <popup-image :image-file-url="imageInfo.decode"></popup-image>
 
-    <a @click="downloadFile" class="screenshot-button">
+    <a
+      v-if="isViewerMode"
+      :href="screenshotUrl"
+      target="_blank"
+      rel="noopener"
+      class="screenshot-button"
+    >
       <v-btn
         :title="$t('screencapture-display.save-screenshot')"
         color="white"
         icon="image"
         size="small"
-      >
-      </v-btn
-    ></a>
+      />
+    </a>
+
+    <a v-else @click="downloadFile" class="screenshot-button">
+      <v-btn
+        :title="$t('screencapture-display.save-screenshot')"
+        color="white"
+        icon="image"
+        size="small"
+      />
+    </a>
   </v-container>
 </template>
 
 <script lang="ts">
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, inject } from "vue";
 
 export default defineComponent({
   components: {
@@ -41,6 +55,8 @@ export default defineComponent({
   },
   setup() {
     const operationHistoryStore = useOperationHistoryStore();
+
+    const isViewerMode: boolean = inject("isViewerMode") ?? false;
 
     const displayedScreenshotUrl = computed((): string => {
       const screenImage = operationHistoryStore.screenImage;
@@ -86,7 +102,7 @@ export default defineComponent({
       return false;
     };
 
-    return { imageInfo, screenshotUrl, downloadFile };
+    return { isViewerMode, imageInfo, screenshotUrl, downloadFile };
   }
 });
 </script>

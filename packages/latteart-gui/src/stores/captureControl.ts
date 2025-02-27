@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -252,6 +252,10 @@ export const useCaptureControlStore = defineStore("captureControl", {
             .map(({ operation }) => operation);
         })();
 
+        const startingWindowSize = operations.find((operation) => {
+          return operation.type === "screen_transition";
+        })?.clientSize;
+
         const replayOption = this.replayOption;
         const destTestResult = replayOption.resultSavingEnabled
           ? await (async () => {
@@ -286,7 +290,9 @@ export const useCaptureControlStore = defineStore("captureControl", {
           config: {
             ...rootStore.userSettings.deviceSettings,
             captureArch: rootStore.projectSettings.config.experimentalFeatureSetting.captureArch,
-            captureWindowSize: rootStore.userSettings.captureWindowSize,
+            captureWindowSize: startingWindowSize
+              ? { isEnabled: true, ...startingWindowSize }
+              : rootStore.userSettings.captureWindowSize,
             shouldTakeScreenshot: replayOption.resultSavingEnabled
               ? replayOption.screenshotSavingEnabled
               : true
@@ -581,7 +587,7 @@ export const useCaptureControlStore = defineStore("captureControl", {
             operation: convertTestStepOperation(testStep.operation)
           });
 
-          if (testStep.operation.clientSize) {
+          if (testStep.operation.clientSize && !this.isReplaying) {
             const rootStore = useRootStore();
             rootStore.writeUserSettings({
               userSettings: {

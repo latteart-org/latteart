@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 <template>
   <div :title="$t('test-hint-search-button.details')">
-    <v-list-item :disabled="!isCapturing" @click="open">
+    <v-list-item :disabled="isDisabled" @click="open">
       <v-list-item-title>{{ $t("test-hint-search-button.title") }}</v-list-item-title>
     </v-list-item>
   </div>
@@ -38,15 +38,15 @@ export default defineComponent({
 
     const opened = ref(false);
 
-    const isCapturing = computed((): boolean => {
-      return captureControlStore.isCapturing;
+    const isDisabled = computed((): boolean => {
+      return !captureControlStore.isCapturing || captureControlStore.isRunning;
     });
 
     const open = () => {
       opened.value = true;
     };
 
-    return { opened, isCapturing, open };
+    return { opened, isDisabled, open };
   }
 });
 </script>

@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@ import { appRootPath } from "@/common";
 import { ViewerTemplate } from "@/interfaces/viewerTemplate";
 
 export class ViewerTemplateImpl implements ViewerTemplate {
-  constructor(private dirPath: string, private appDirPath = appRootPath) {}
+  constructor(
+    private dirPath: string,
+    private appDirPath = appRootPath
+  ) {}
 
   public async copyDir(
     fileRepository: FileRepository,
