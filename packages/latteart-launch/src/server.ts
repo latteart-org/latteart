@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,10 @@ import { BrowserType } from "./setting";
 
 export function launchServer(
   serverBinaryFilePath: string,
-  env: NodeJS.ProcessEnv
+  env: NodeJS.ProcessEnv,
+  args?: string[]
 ): void {
-  const serverProcess = spawn(serverBinaryFilePath, { env });
+  const serverProcess = spawn(serverBinaryFilePath, args, { env });
 
   serverProcess.stdout.on("data", (data: Buffer) => {
     process.stdout.write(data);

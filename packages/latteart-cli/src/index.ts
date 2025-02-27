@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ const port = process.env.PORT || 3000;
 
 const app = express();
 
-app.use(history());
+app.use(history() as any);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const executablePath = (process as any).pkg?.entrypoint;

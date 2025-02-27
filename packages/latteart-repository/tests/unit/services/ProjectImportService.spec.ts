@@ -61,6 +61,7 @@ describe("ProjectImportService", () => {
       notesService = createNotesServiceMock();
       testPurposeService = createTestPurposeServiceMock();
       importFileRepository = createImportFileRepositoryMock();
+      configService = new ConfigsService(TestDataSource);
     });
 
     const settings = {

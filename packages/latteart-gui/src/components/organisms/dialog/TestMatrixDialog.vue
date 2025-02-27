@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -285,6 +285,7 @@ export default defineComponent({
     };
 
     const upViewPoint = (index: number): void => {
+      openedPanelIndex.value = undefined;
       const temp = [...tempViewPoints.value];
       temp[index].index = index - 1;
       temp[index - 1].index = index;
@@ -294,6 +295,7 @@ export default defineComponent({
     };
 
     const downViewPoint = (index: number): void => {
+      openedPanelIndex.value = undefined;
       const temp = [...tempViewPoints.value];
       temp[index].index = index + 1;
       temp[index + 1].index = index;

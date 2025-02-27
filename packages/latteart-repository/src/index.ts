@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ function runServer(port: number, timeout?: number) {
 
   app.use(express.static(publicDirPath));
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json({ limit: "100mb" }));
+  app.use(bodyParser.json({ limit: "4gb" }));
 
   RegisterRoutes(app);
   for (const extension of extensions) {

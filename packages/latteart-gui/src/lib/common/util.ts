@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -178,4 +178,15 @@ export const parseHistoryLog = (historyItems: any[]) => {
       intention: item.intention ? NoteForGUI.createFromOtherNote({ other: item.intention }) : null
     };
   });
+};
+
+/**
+ * Check the items to be excluded from the notice registration.
+ * @param target  Target operation type.
+ * @returns Returns true if they match.
+ */
+export const checkExcludeOperationType = (target: string): boolean => {
+  const exclusionType = ["start_capturing", "open_window"];
+
+  return exclusionType.includes(target);
 };

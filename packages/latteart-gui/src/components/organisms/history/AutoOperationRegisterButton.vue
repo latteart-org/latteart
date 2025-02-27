@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,30 +15,30 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      :disabled="isDisabled"
-      color="blue"
-      size="small"
-      class="mx-1"
-      @click="registerDialogOpened = true"
-      >{{ $t("auto-operation-register-button.register-operation") }}
+  <div
+    :title="
+      $t('auto-operation-register-button.title') +
+      ': ' +
+      $t('auto-operation-register-button.details')
+    "
+  >
+    <v-btn :disabled="isDisabled" color="blue" size="small" class="mx-1" @click="openRegisterDialog"
+      >{{ $t("auto-operation-register-button.title") }}
     </v-btn>
-
-    <auto-operation-register-dialog
-      :opened="registerDialogOpened"
-      :target-operations="targetOperations"
-      @ok="clearCheckedOperations"
-      @close="registerDialogOpened = false"
-      @error="openInvalidTypeErrorDialog"
-    />
-
-    <error-message-dialog
-      :opened="errorMessageDialogOpened"
-      :message="errorMessage"
-      @close="errorMessageDialogOpened = false"
-    />
   </div>
+
+  <auto-operation-register-dialog
+    :opened="registerDialogOpened"
+    :target-operations="targetOperations"
+    @ok="clearCheckedOperations"
+    @close="registerDialogOpened = false"
+  />
+
+  <error-message-dialog
+    :opened="errorMessageDialogOpened"
+    :message="errorMessage"
+    @close="errorMessageDialogOpened = false"
+  />
 </template>
 
 <script lang="ts">
@@ -64,9 +64,17 @@ export default defineComponent({
     const errorMessageDialogOpened = ref(false);
     const errorMessage = ref("");
 
+    const invalidTypes = ref(["switch_window"]);
+
     const targetOperations = computed((): OperationForGUI[] => {
       return operationHistoryStore.checkedTestSteps.map((item) => {
         return item.operation;
+      });
+    });
+
+    const invalidOperations = computed(() => {
+      return targetOperations.value.filter((operation) => {
+        return invalidTypes.value.includes(operation.type);
       });
     });
 
@@ -78,16 +86,24 @@ export default defineComponent({
       return targetOperations.value.length < 1 || isReplaying.value;
     });
 
+    const openRegisterDialog = () => {
+      if (invalidOperations.value.length > 0) {
+        openInvalidTypeErrorDialog();
+        return;
+      }
+      registerDialogOpened.value = true;
+    };
+
     const clearCheckedOperations = () => {
       operationHistoryStore.checkedTestSteps = [];
       registerDialogOpened.value = false;
     };
 
-    const openInvalidTypeErrorDialog = (invalidTypes: string[]): void => {
+    const openInvalidTypeErrorDialog = (): void => {
       registerDialogOpened.value = false;
       errorMessage.value = rootStore.message(
         "error.operation_history.register_failed_with_invalid_type",
-        { value: invalidTypes.join(",") }
+        { value: invalidTypes.value.join(",") }
       );
       errorMessageDialogOpened.value = true;
     };
@@ -98,6 +114,7 @@ export default defineComponent({
       errorMessage,
       targetOperations,
       isDisabled,
+      openRegisterDialog,
       clearCheckedOperations,
       openInvalidTypeErrorDialog
     };

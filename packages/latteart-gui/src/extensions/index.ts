@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ export type GuiExtension = {
   name?: string;
   version?: string;
   components: {
-    contents?: { name: string }[];
+    contents?: { name: string; title: string }[];
+    menus?: { name: string; title: string }[];
     configs?: { name: string; title: string }[];
     globals?: { name: string }[];
   };

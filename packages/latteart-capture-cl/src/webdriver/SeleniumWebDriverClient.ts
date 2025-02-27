@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,6 +129,43 @@ export class SeleniumWebDriverClient implements WebDriverClient {
         }
       }
       throw error;
+    }
+  }
+
+  public async doActionInDefaultFrame<T>(
+    lockId: string,
+    action: () => Promise<T>
+  ): Promise<{
+    result: T;
+  }> {
+    try {
+      await this.waitUntilFrameUnlock();
+      this.lockFrame(lockId);
+
+      await this.switchDefaultContent(lockId);
+
+      try {
+        const result = await action();
+        return { result };
+      } catch (error) {
+        if (error instanceof Error) {
+          if (
+            [
+              "NoSuchWindowError",
+              "NoSuchFrameError",
+              "NoSuchElementError",
+              "StaleElementReferenceError",
+              "WebDriverError",
+            ].includes(error.name)
+          ) {
+            LoggingService.debug(`${error}`);
+          }
+        }
+
+        throw error;
+      }
+    } finally {
+      this.unLockFrame();
     }
   }
 

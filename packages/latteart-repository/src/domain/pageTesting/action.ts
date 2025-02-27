@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,10 @@ export function createTestActions(
           screenshot: next.screenshot,
         }
       : undefined;
+
+    if (array.length - 1 === index) {
+      return acc;
+    }
 
     return [
       ...acc,

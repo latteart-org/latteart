@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,20 +15,13 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      :disabled="!isCapturing"
-      color="green"
-      icon="live_help"
-      size="small"
-      :title="$t('test-hint-search-button.search-test-hints')"
-      class="mx-2"
-      @click="open"
-    >
-    </v-btn>
-
-    <test-hint-search-dialog :opened="opened" @close="opened = false" />
+  <div :title="$t('test-hint-search-button.details')">
+    <v-list-item :disabled="isDisabled" @click="open">
+      <v-list-item-title>{{ $t("test-hint-search-button.title") }}</v-list-item-title>
+    </v-list-item>
   </div>
+
+  <test-hint-search-dialog :opened="opened" @close="opened = false" />
 </template>
 
 <script lang="ts">
@@ -45,15 +38,15 @@ export default defineComponent({
 
     const opened = ref(false);
 
-    const isCapturing = computed((): boolean => {
-      return captureControlStore.isCapturing;
+    const isDisabled = computed((): boolean => {
+      return !captureControlStore.isCapturing || captureControlStore.isRunning;
     });
 
     const open = () => {
       opened.value = true;
     };
 
-    return { opened, isCapturing, open };
+    return { opened, isDisabled, open };
   }
 });
 </script>

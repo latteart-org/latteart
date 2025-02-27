@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,23 +15,25 @@
 -->
 
 <template>
-  <div>
+  <div
+    :title="$t('test-hint-register-button.title') + ': ' + $t('test-hint-register-button.details')"
+  >
     <v-btn
       :disabled="isDisabled"
       color="blue"
       size="small"
       class="mx-1"
       @click="registerDialogOpened = true"
-      >{{ $t("test-hint-register-button.register-test-hint") }}
+      >{{ $t("test-hint-register-button.title") }}
     </v-btn>
-
-    <test-hint-register-dialog
-      :opened="registerDialogOpened"
-      :related-test-steps="checkedTestSteps"
-      @accept="clearCheckedOperations"
-      @close="registerDialogOpened = false"
-    />
   </div>
+
+  <test-hint-register-dialog
+    :opened="registerDialogOpened"
+    :related-test-steps="checkedTestSteps"
+    @accept="clearCheckedOperations"
+    @close="registerDialogOpened = false"
+  />
 </template>
 
 <script lang="ts">

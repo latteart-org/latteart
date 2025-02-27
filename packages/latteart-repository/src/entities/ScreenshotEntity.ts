@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ export class ScreenshotEntity {
   @PrimaryGeneratedColumn("uuid", { name: "screenshot_id" })
   id!: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "file_url" })
   fileUrl: string = "";
 

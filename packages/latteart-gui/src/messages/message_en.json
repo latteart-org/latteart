@@ -25,7 +25,7 @@
     "test-target": "Test Target",
     "viewpoint": "Viewpoint",
     "start-capture-window-title": "Start Capturing",
-    "record-note": "Make Note",
+    "record-note": "Record of findings",
     "take-screenshot": "Screenshot to register",
     "previous-screen": "Test screen from the previous operation",
     "current-screen": "Current test screen",
@@ -77,11 +77,9 @@
     "generate-test-script-succeeded": "Test script generation has finished.",
     "generate-alert-info": "* Contains operations that are not coded. Please check doc/index.html in the output zip.",
     "test-purpose": "Test Purpose",
-    "purpose-of-the-test": "Test Purpose",
     "no-test-purpose": "No Test Purpose",
     "use-test-purpose": "Use Test Purpose in this session",
     "first-test-purpose": "First Test Purpose",
-    "note": "Note",
     "notice": "Finding",
     "tags": "Tags",
     "image": "Still Image",
@@ -147,7 +145,11 @@
     "os-version": "OS Version",
     "media-type": "Media Type",
     "video-and-image": "Still Image + Video",
-    "media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected."
+    "media-config-hint": "*If 'Platform' is other than 'PC', 'Still Image' is selected.",
+    "window-size": "Window size at the start of test recording",
+    "previous-capture-window-size": "Window size at the end of the previous capture",
+    "window-size-preset": "Choose from presets",
+    "specify-window-size": "Specify window size"
   },
   "first-test-purpose-option-dialog": {
     "start-testing": "Start Session"
@@ -173,10 +175,12 @@
     "forward": "Trigger browser forward"
   },
   "auto-operation-register-button": {
-    "register-operation": "Operation Registration"
+    "title": "Operation Registration",
+    "details": "Register an operation to be executed automatically. Select the operation to be registered from the list."
   },
   "test-hint-register-button": {
-    "register-test-hint": "Test Hint Registration"
+    "title": "Test Hint Registration",
+    "details": "Register a test that is effective in finding bugs as a hint. Select a related action from the list."
   },
   "comment-register-field": {
     "label": "Comment"
@@ -192,13 +196,19 @@
     "text": "Text",
     "operated": "Operated"
   },
+  "screencapture-display": {
+    "save-screenshot": "Save Screenshot"
+  },
+  "note-register-button": {
+    "details": "Any irregularities or bugs you notice will be recorded. You can call them up during test recording."
+  },
   "test-purpose-edit-dialog": {
     "record-test-purpose": "Record Test Purpose",
     "save-warning": "The test purpose has already been noted for the specified operation."
   },
   "note-common-dialog": {
-    "record-notice": "Record Finding",
-    "take-screenshots-warning": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note."
+    "take-screenshots-warning": "If an popup window (alert/confirmation/ prompt) is displayed on the screen, you cannot take screenshots. Take a screenshot manually or explain the findings in a note.",
+    "save-warning": "The specified target operation number cannot be used to register finding."
   },
   "take-note-with-purpose-dialog": {
     "no-problem": "No problems at all",
@@ -223,7 +233,6 @@
   },
   "operation-list": {
     "search": "Search",
-    "test-purpose": "Test Purpose",
     "timestamp": "Timestamp"
   },
   "decision-table": {
@@ -235,15 +244,17 @@
     "autofill-dialog-message": "Please select an input value set name."
   },
   "note-list-dialog": {
-    "note-list": "Note List"
+    "note-list": "Finding List"
   },
   "run-auto-operation-button": {
-    "auto-operation": "Auto Operation",
+    "title": "Auto Operation",
+    "details": "Automatically executes the registered operations. Can be called when there is a set of registered operations.",
     "done-title": "Auto operation is done",
     "done-auto-operations": "Auto operation is finished."
   },
   "autofill-button": {
-    "autofill": "Autofill",
+    "title": "Autofill",
+    "details": "Automatically executes the registered input. It can be called when there is an executable input value set.",
     "message": "Please select an input value set name."
   },
   "autofill-register-dialog": {
@@ -265,7 +276,8 @@
     "message": "For automatic operation, select the operation set name."
   },
   "test-hint-search-button": {
-    "search-test-hints": "Get test hint"
+    "title": "Get test hint",
+    "details": "Search for hints from registered test hints. Can be called during test recording."
   },
   "test-hint-search-dialog": {
     "title": "Test Hint: Search",
@@ -393,8 +405,8 @@
     "report": "Report",
     "model": "Session Logs",
     "import": "Import Session Log",
-    "delete-test-result-confirm": "Are you sure you want to remove the test result from the session?",
-    "delete-test-result-confirm-message": "The test result itself is not deleted.",
+    "delete-test-result-confirm": "Remove test result",
+    "delete-test-result-confirm-message": "Are you sure you want to remove the test result from the session?\nThe test result itself is not deleted.",
     "result-list": "Import Test Result",
     "call-test-results": "Getting test results",
     "import-test-result": "Importing the test result",
@@ -604,7 +616,7 @@
       "create_test_result_failed": "Failed to create test result.",
       "get_test_result_list_failed": "Failed to get test result list.",
       "get_session_ids_failed": "Failed to get session ids.",
-      "register_failed_with_invalid_type": "Could not be registered because it includes an operation that does not support automatic operation.\nUnsupported operation:{value}",
+      "register_failed_with_invalid_type": "Cannot be registered because it includes an operation that does not support automatic operation.\nPlease split and select the areas before and after the following unsupported operations, and then register them.\nUnsupported operation:{value}",
       "compare_test_results_failed": "Failed to compare test results.",
       "generate_sequence_view_failed": "Failed to generate Sequence Diagram Model.",
       "generate_graph_view_failed": "Failed to generate Screen Transition Diagram Model, Web Element Coverage.",

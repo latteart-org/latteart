@@ -1835,7 +1835,7 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  "Pick_TestResult-at-testSteps%5B0%5D.id_": {
+  "Pick_TestStep.id_": {
     dataType: "refAlias",
     type: {
       dataType: "nestedObjectLiteral",
@@ -1945,7 +1945,7 @@ const models: TsoaRoute.Models = {
               array: {
                 dataType: "intersection",
                 subSchemas: [
-                  { ref: "Pick_TestResult-at-testSteps%5B0%5D.id_" },
+                  { ref: "Pick_TestStep.id_" },
                   {
                     dataType: "nestedObjectLiteral",
                     nestedProperties: {
@@ -3143,6 +3143,7 @@ const models: TsoaRoute.Models = {
                     required: true,
                   },
                   isOk: { dataType: "boolean", required: true },
+                  sequence: { dataType: "double", required: true },
                 },
               },
               required: true,

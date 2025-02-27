@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,15 +15,38 @@
 -->
 
 <template>
-  <component :is="component.name" v-for="component in components" :key="component.name" />
+  <div
+    v-for="component in components"
+    :key="component.name"
+    :title="$t(component.title)"
+    :class="{ 'disabled-button': isDisabled }"
+  >
+    <component :is="component.name" />
+  </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { computed, defineComponent } from "vue";
 import { extensions } from "@/extensions";
+import { useCaptureControlStore } from "@/stores/captureControl";
 export default defineComponent({
   setup() {
-    return { components: [...extensions.flatMap(({ components }) => components.contents ?? [])] };
+    const captureControlStore = useCaptureControlStore();
+
+    const isDisabled = computed((): boolean => {
+      return captureControlStore.isReplaying || captureControlStore.isRunning;
+    });
+
+    return {
+      isDisabled,
+      components: [...extensions.flatMap(({ components }) => components.contents ?? [])]
+    };
   }
 });
 </script>
+
+<style lang="sass" scoped>
+.disabled-button
+  pointer-events: none
+  opacity: 0.6
+</style>

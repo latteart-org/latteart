@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 -->
 <template>
   <v-data-table :items="items" :headers="addedPaddingCellheaders" :items-per-page="itemPerPage">
+    <!-- @vue-ignore -->
     <template v-for="(name, index) of Object.keys($slots) as {}" #[name]="props" :key="index">
       <slot :name="name" v-bind="props"></slot>
     </template>

@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -24,46 +24,42 @@
           'hidden-coverage': !dispCoverage
         }"
       >
-        <div style="position: relative" class="pt-2">
-          <v-btn
-            color="blue"
-            :loading="updating"
-            :disabled="!canUpdateModels"
-            @click="updateTestResultViewModel"
-            >{{ message("history-display.update-model-and-coverage") }}</v-btn
-          >
-          <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
-            message("history-display.there-are-updates-on-history")
-          }}</span>
+        <div style="height: 40px; display: flex" class="pt-2">
+          <div>
+            <v-btn
+              color="blue"
+              :loading="updating"
+              :disabled="!canUpdateModels"
+              @click="updateTestResultViewModel"
+              >{{ message("history-display.update-model-and-coverage") }}</v-btn
+            >
+            <span v-if="canUpdateModels" :style="{ color: 'red' }">{{
+              message("history-display.there-are-updates-on-history")
+            }}</span>
+          </div>
+          <v-radio-group v-model="diagramType" inline class="py-0 button-group" hide-details>
+            <v-radio
+              :label="message('history-display.sequence')"
+              :value="DIAGRAM_TYPE_SEQUENCE"
+            ></v-radio>
+            <v-radio
+              :label="message('history-display.screen-transition')"
+              :value="DIAGRAM_TYPE_SCREEN_TRANSITION"
+            ></v-radio>
+            <v-radio
+              :label="message('history-display.element-coverage')"
+              :value="DIAGRAM_TYPE_ELEMENT_COVERAGE"
+            ></v-radio>
+          </v-radio-group>
         </div>
-        <splitpanes
-          :style="{ height: 'calc(100% - 44px)' }"
-          @resized="resize('horizontal', $event)"
-        >
+        <splitpanes style="height: calc(100% - 40px)" @resized="resize('horizontal', $event)">
           <pane :size="horizontalPaneSize">
             <v-container fluid class="pa-0 ma-0" style="height: 100%">
-              <v-row no-gutters>
-                <v-col cols="12">
-                  <v-radio-group v-model="diagramType" inline class="py-0" hide-details>
-                    <v-radio
-                      :label="message('history-display.sequence')"
-                      :value="DIAGRAM_TYPE_SEQUENCE"
-                    ></v-radio>
-                    <v-radio
-                      :label="message('history-display.screen-transition')"
-                      :value="DIAGRAM_TYPE_SCREEN_TRANSITION"
-                    ></v-radio>
-                    <v-radio
-                      :label="message('history-display.element-coverage')"
-                      :value="DIAGRAM_TYPE_ELEMENT_COVERAGE"
-                    ></v-radio>
-                  </v-radio-group>
-                </v-col>
-              </v-row>
               <v-row
                 ref="mermaidGraphDisplay"
+                class="pb-2"
                 no-gutters
-                :style="{ 'overflow-y': 'auto', height: 'calc(100% - 40px)' }"
+                :style="{ 'overflow-y': 'auto', height: '100%' }"
               >
                 <v-col cols="12" class="pt-0 fill-height">
                   <element-coverage
@@ -657,4 +653,8 @@ export default defineComponent({
 
   :deep(.splitpanes__splitter)
     z-index: 5
+
+.button-group
+  :deep(.v-selection-control-group)
+    flex-wrap: nowrap
 </style>

@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
   >
     <v-container>
       <v-row>
-        <v-expansion-panels>
+        <v-expansion-panels v-model="panels">
           <v-expansion-panel v-for="(prop, index) in tempProps" :key="index">
             <v-expansion-panel-title>
               <v-row>
@@ -121,6 +121,7 @@ export default defineComponent({
   setup(props, context) {
     const rootStore = useRootStore();
 
+    const panels = ref<number[]>([]);
     const tempProps = ref<TempTestHintProp[]>([]);
 
     const initialize = () => {
@@ -198,10 +199,12 @@ export default defineComponent({
     };
 
     const upIndex = (index: number) => {
+      panels.value = [];
       tempProps.value.splice(index - 1, 2, tempProps.value[index], tempProps.value[index - 1]);
     };
 
     const downIndex = (index: number) => {
+      panels.value = [];
       tempProps.value.splice(index, 2, tempProps.value[index + 1], tempProps.value[index]);
     };
 
@@ -223,6 +226,7 @@ export default defineComponent({
     watch(opened, initialize);
 
     return {
+      panels,
       tempProps,
       addList,
       deleteList,

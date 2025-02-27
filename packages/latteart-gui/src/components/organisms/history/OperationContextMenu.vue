@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
       close-on-content-click
     >
       <v-list>
-        <v-list-subheader>{{ $t("common.purpose-of-the-test") }}</v-list-subheader>
+        <v-list-subheader>{{ $t("common.test-purpose") }}</v-list-subheader>
         <v-list-item
           v-for="intention in intentionItems"
           :key="intention.label"
@@ -65,7 +65,7 @@
           <v-list-item-title>{{ $t("common.add") }}</v-list-item-title>
         </v-list-item>
 
-        <v-list-subheader>{{ $t("common.notice") }}</v-list-subheader>
+        <v-list-subheader v-if="!isDisabled">{{ $t("common.notice") }}</v-list-subheader>
         <v-list-item
           v-for="notice in noticeItems"
           :key="notice.label"
@@ -96,7 +96,7 @@
             </v-list>
           </v-menu>
         </v-list-item>
-        <v-list-item prepend-icon="add" slim @click="addNote">
+        <v-list-item v-if="!isDisabled" prepend-icon="add" slim @click="addNote">
           <v-list-item-title>{{ $t("common.add") }}</v-list-item-title>
         </v-list-item>
       </v-list>
@@ -105,6 +105,7 @@
 </template>
 
 <script lang="ts">
+import { checkExcludeOperationType } from "@/lib/common/util";
 import { NoteForGUI } from "@/lib/operationHistory/NoteForGUI";
 import { OperationForGUI } from "@/lib/operationHistory/OperationForGUI";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
@@ -229,10 +230,16 @@ export default defineComponent({
       }
     });
 
+    const isDisabled = computed((): boolean => {
+      const target = currentHistoryItem.value?.operation.type;
+      return checkExcludeOperationType(target ?? "");
+    });
+
     return {
       intentionItems,
       noticeItems,
       show,
+      isDisabled,
       addNote,
       editIntention
     };

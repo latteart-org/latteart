@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@
         <v-list-subheader v-if="!mini">{{ $t("root-page.test-design-support") }}</v-list-subheader>
 
         <v-list-item
-          :disabled="isReplaying"
+          :disabled="isReplaying || isRunning"
           to="/page/test-hint-list"
           :title.attr="$t('common.test-hint-list-window-title')"
           exact
@@ -89,7 +89,7 @@
         <v-list-subheader v-if="!mini">{{ $t("common.management") }}</v-list-subheader>
 
         <v-list-item
-          :disabled="!hasTestMatrix"
+          :disabled="!hasTestMatrix || isReplaying || isRunning"
           to="/page/test-matrix"
           :title.attr="$t('common.test-matrix-window-title')"
           exact
@@ -154,6 +154,7 @@
           <v-list-subheader v-if="!mini">{{ $t("common.recent-stories") }}</v-list-subheader>
 
           <v-list-item
+            :disabled="isReplaying || isRunning"
             v-for="story in recentStories"
             :key="story.id"
             :to="story.path"
@@ -186,6 +187,7 @@
         <v-list-subheader v-if="!mini">{{ $t("common.other") }}</v-list-subheader>
 
         <v-list-item
+          :disabled="isReplaying || isRunning"
           to="/page/config"
           :title.attr="$t('common.config-window-title')"
           exact
@@ -334,6 +336,10 @@ export default defineComponent({
       return captureControlStore.isReplaying;
     });
 
+    const isRunning = computed((): boolean => {
+      return captureControlStore.isRunning;
+    });
+
     const hasTestMatrix = computed((): boolean => {
       const testMatrices: TestMatrix[] = testManagementStore.getTestMatrices();
 
@@ -396,6 +402,7 @@ export default defineComponent({
       recentReviewQuery,
       isCapturing,
       isReplaying,
+      isRunning,
       hasTestMatrix,
       hasSession,
       version,

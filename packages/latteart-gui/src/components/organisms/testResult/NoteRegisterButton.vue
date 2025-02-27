@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,24 +15,22 @@
 -->
 
 <template>
-  <div>
+  <div :title="$t('common.record-note') + ': ' + $t('note-register-button.details')">
     <v-btn
-      :disabled="!isCapturing"
+      :disabled="isDisabled"
       color="green"
-      icon="add_comment"
+      icon="edit"
       size="small"
-      :title="$t('common.record-note')"
       class="mx-2"
       @click="open"
-    >
-    </v-btn>
-
-    <take-not-with-purpose-dialog
-      :opened="takeNoteWithPurposeDialogOpened"
-      @close="takeNoteWithPurposeDialogOpened = false"
     />
-    <take-note-dialog :opened="takeNoteDialogOpened" @close="takeNoteDialogOpened = false" />
   </div>
+
+  <take-not-with-purpose-dialog
+    :opened="takeNoteWithPurposeDialogOpened"
+    @close="takeNoteWithPurposeDialogOpened = false"
+  />
+  <take-note-dialog :opened="takeNoteDialogOpened" @close="takeNoteDialogOpened = false" />
 </template>
 
 <script lang="ts">
@@ -41,6 +39,7 @@ import TakeNoteDialog from "@/components/organisms/dialog/TakeNoteDialog.vue";
 import { computed, defineComponent, ref } from "vue";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
+import { checkExcludeOperationType } from "@/lib/common/util";
 
 export default defineComponent({
   components: {
@@ -54,12 +53,26 @@ export default defineComponent({
     const takeNoteWithPurposeDialogOpened = ref(false);
     const takeNoteDialogOpened = ref(false);
 
-    const isCapturing = computed((): boolean => {
-      return captureControlStore.isCapturing;
+    const history = computed(() => {
+      return operationHistoryStore.history;
+    });
+
+    const isDisabled = computed((): boolean => {
+      if (captureControlStore.isRunning) {
+        return true;
+      }
+      if (!captureControlStore.isCapturing) {
+        return true;
+      }
+      if (captureControlStore.testOption.shouldRecordTestPurpose) {
+        return false;
+      }
+      const target = history.value.at(-1)?.operation.type ?? "";
+      return checkExcludeOperationType(target);
     });
 
     const open = () => {
-      const sequence = operationHistoryStore.history.length;
+      const sequence = history.value.length;
       operationHistoryStore.selectOperation({ sequence, doScroll: false });
       operationHistoryStore.selectedOperationNote = { sequence, index: null };
       if (captureControlStore.testOption.shouldRecordTestPurpose) {
@@ -72,7 +85,7 @@ export default defineComponent({
     return {
       takeNoteWithPurposeDialogOpened,
       takeNoteDialogOpened,
-      isCapturing,
+      isDisabled,
       open
     };
   }

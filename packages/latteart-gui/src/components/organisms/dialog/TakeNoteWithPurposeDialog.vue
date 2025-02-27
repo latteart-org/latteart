@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@
         {{ $t("take-note-with-purpose-dialog.note-for-current-test-purpose") }}
       </h3>
 
-      <v-card flat>
+      <v-card flat :disabled="isDisabled">
         <v-card-text>
           <v-radio-group v-model="shouldRecordAsIssue">
             <v-radio
@@ -133,6 +133,7 @@ import { computed, defineComponent, ref, toRefs, watch } from "vue";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
+import { checkExcludeOperationType } from "@/lib/common/util";
 
 export default defineComponent({
   components: {
@@ -296,6 +297,11 @@ export default defineComponent({
       isImageVisible.value = false;
     };
 
+    const isDisabled = computed((): boolean => {
+      const target = operationHistoryStore.history.at(-1)?.operation.type ?? "";
+      return checkExcludeOperationType(target);
+    });
+
     const { opened } = toRefs(props);
     watch(opened, initialize);
 
@@ -319,7 +325,8 @@ export default defineComponent({
       close,
       canSave,
       showStillImage,
-      showVideo
+      showVideo,
+      isDisabled
     };
   }
 });

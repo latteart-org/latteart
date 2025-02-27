@@ -10,7 +10,7 @@
    - SDK プラットフォームツールダウンロードサイト(https://developer.android.com/studio/releases/platform-tools?hl=ja)
      ※`adb`は SDK プラットフォームツールに含まれています。
 1. テスト対象となる Android 端末の Chrome のバージョンに対応した`ChromeDriver`をダウンロードします。
-   - 公式ダウンロードサイト(https://chromedriver.chromium.org/downloads)
+   - 公式ダウンロードサイト(https://developer.chrome.com/docs/chromedriver/downloads?hl=ja)
 1. `Appium`をインストールします。
    - 公式サイト(http://appium.io/)
 1. `cwebp`をインストールし、パスを通します。

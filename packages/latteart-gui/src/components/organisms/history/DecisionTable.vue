@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@
               >
               <v-icon
                 v-if="header.headerProps?.notes.length > 0"
-                :title="message('common.note')"
+                :title="message('common.notice')"
                 class="mx-1"
                 color="purple-lighten-3"
                 @click="

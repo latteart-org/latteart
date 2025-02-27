@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ export default defineComponent({
       waitTimeForStartupReload: 0,
       browser: "Chrome",
       mediaType: "image",
+      captureWindowSize: { isEnabled: false, width: 800, height: 600 },
       shouldRecordTestPurpose: false,
       firstTestPurpose: "",
       firstTestPurposeDetails: ""
@@ -66,7 +67,12 @@ export default defineComponent({
       return (
         !captureOption.value.url ||
         !isUrlValid.value ||
-        (captureOption.value.shouldRecordTestPurpose && captureOption.value.firstTestPurpose === "")
+        (captureOption.value.shouldRecordTestPurpose &&
+          captureOption.value.firstTestPurpose === "") ||
+        !(captureOption.value.captureWindowSize
+          ? !isNaN(captureOption.value.captureWindowSize.height) &&
+            !isNaN(captureOption.value.captureWindowSize.width)
+          : true)
       );
     });
 

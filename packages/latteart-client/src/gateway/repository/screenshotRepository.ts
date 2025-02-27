@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,15 @@ export type ScreenshotRepository = {
   getScreenshots(
     testResultId: string
   ): Promise<RepositoryAccessResult<{ url: string }>>;
+
+  /**
+   * Get blob screenshot data.
+   * @param fileUrl  file url.
+   * @returns Blob screenshot data.
+   */
+  getScreenshotBlobData(
+    fileUrl: string
+  ): Promise<RepositoryAccessResult<Blob | null>>;
 };
 
 export class ScreenshotRepositoryImpl implements ScreenshotRepository {
@@ -51,6 +60,27 @@ export class ScreenshotRepositoryImpl implements ScreenshotRepository {
       return createRepositoryAccessSuccess({
         data: response.data as { url: string },
       });
+    } catch (error) {
+      return createConnectionRefusedFailure();
+    }
+  }
+
+  public async getScreenshotBlobData(
+    fileUrl: string
+  ): Promise<RepositoryAccessResult<Blob | null>> {
+    try {
+      const response = await this.restClient.httpGetFile(fileUrl);
+      if (response.status === 404) {
+        return createRepositoryAccessSuccess({
+          data: null as null,
+        });
+      }
+      if (response.status === 200) {
+        return createRepositoryAccessSuccess({
+          data: response.data as Blob,
+        });
+      }
+      return createRepositoryAccessFailure(response);
     } catch (error) {
       return createConnectionRefusedFailure();
     }

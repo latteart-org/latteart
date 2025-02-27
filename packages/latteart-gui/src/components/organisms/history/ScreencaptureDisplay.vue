@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,22 +19,35 @@
     <popup-image :image-file-url="imageInfo.decode"></popup-image>
 
     <a
-      ref="dllink"
+      v-if="isViewerMode"
       :href="screenshotUrl"
-      :download="screenshotName"
       target="_blank"
-      rel="noopener noreferrer"
+      rel="noopener"
       class="screenshot-button"
     >
-      <v-btn color="white" icon="image" size="small"> </v-btn
-    ></a>
+      <v-btn
+        :title="$t('screencapture-display.save-screenshot')"
+        color="white"
+        icon="image"
+        size="small"
+      />
+    </a>
+
+    <a v-else @click="downloadFile" class="screenshot-button">
+      <v-btn
+        :title="$t('screencapture-display.save-screenshot')"
+        color="white"
+        icon="image"
+        size="small"
+      />
+    </a>
   </v-container>
 </template>
 
 <script lang="ts">
 import PopupImage from "@/components/molecules/PopupImage.vue";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
-import { computed, defineComponent } from "vue";
+import { computed, defineComponent, inject } from "vue";
 
 export default defineComponent({
   components: {
@@ -43,17 +56,7 @@ export default defineComponent({
   setup() {
     const operationHistoryStore = useOperationHistoryStore();
 
-    const selectedOperationInfo = computed(() => {
-      return operationHistoryStore.selectedOperationInfo;
-    });
-
-    const screenshotName = computed((): string => {
-      const url = imageInfo.value.decode;
-      const ar = url.split(".");
-      const ext = ar[ar.length - 1];
-      const sequence = selectedOperationInfo.value.sequence;
-      return `${sequence}.${ext}`;
-    });
+    const isViewerMode: boolean = inject("isViewerMode") ?? false;
 
     const displayedScreenshotUrl = computed((): string => {
       const screenImage = operationHistoryStore.screenImage;
@@ -76,11 +79,30 @@ export default defineComponent({
       return imageInfo.value.decode ?? "";
     });
 
-    return {
-      screenshotName,
-      imageInfo,
-      screenshotUrl
+    const downloadFile = (): boolean => {
+      const url = new URL(imageInfo.value.decode);
+      const pathName = url.pathname;
+      const ar = pathName.split("/");
+      ar.shift();
+      const fileUrl = ar.join("/");
+
+      const a = document.createElement("a");
+      (async () => {
+        const fileData = await operationHistoryStore.getFileData({ fileUrl });
+        if (!fileData) {
+          return false;
+        }
+        const blobUrl = window.URL.createObjectURL(fileData);
+        a.href = blobUrl;
+        a.download = ar[ar.length - 1];
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+      })();
+
+      return false;
     };
+
+    return { isViewerMode, imageInfo, screenshotUrl, downloadFile };
   }
 });
 </script>

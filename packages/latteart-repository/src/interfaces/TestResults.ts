@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import { SequenceView, TestResult, TestResultViewOption } from "@/domain/types";
+import {
+  SequenceView,
+  TestResult,
+  TestResultViewOption,
+  TestStep,
+} from "@/domain/types";
 import { GetNoteResponse } from "./Notes";
 import { GetTestStepResponse } from "./TestSteps";
 import { VideoFrame } from "./Videos";
@@ -61,7 +66,7 @@ export interface CreateTestResultResponse {
  * Test result data for the specified ID.
  */
 export type GetTestResultResponse = Omit<TestResult, "testSteps"> & {
-  testSteps: (Pick<TestResult["testSteps"][0], "id"> & {
+  testSteps: (Pick<TestStep, "id"> & {
     operation: GetTestStepResponse["operation"];
     intention: GetNoteResponse | null;
     bugs: GetNoteResponse[];

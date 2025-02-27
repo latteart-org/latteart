@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -81,23 +81,24 @@ export default defineComponent({
       }
     }
   },
+  emits: ["close"],
   setup(props) {
     const rootStore = useRootStore();
 
     const headers = computed(() => {
       return [
         {
-          text: `${rootStore.message("comparison-result-dialog.compare-diffs-sequence")}`,
+          title: `${rootStore.message("comparison-result-dialog.compare-diffs-sequence")}`,
           value: "sequence",
           sortable: false
         },
         {
-          text: `${rootStore.message("comparison-result-dialog.compare-diffs-items")}`,
+          title: `${rootStore.message("comparison-result-dialog.compare-diffs-items")}`,
           value: "ngItemNames",
           sortable: false
         },
         {
-          text: `${rootStore.message("comparison-result-dialog.compare-diffs-remarks")}`,
+          title: `${rootStore.message("comparison-result-dialog.compare-diffs-remarks")}`,
           value: "remarks",
           sortable: false
         }
@@ -137,7 +138,7 @@ export default defineComponent({
         return [];
       }
 
-      const sequenceAndSteps = props.comparisonResult.summary.steps.map((step, index) => {
+      const sequenceAndSteps = props.comparisonResult.summary.steps.map((step) => {
         const ngItemNames = Object.entries(step.items)
           .filter(([_, value]) => !value.isOk)
           .flatMap(([name]) => {
@@ -170,7 +171,7 @@ export default defineComponent({
           }) ?? []
         ).join("\n");
 
-        return { sequence: index + 1, isOk: step.isOk, ngItemNames, remarks };
+        return { sequence: step.sequence, isOk: step.isOk, ngItemNames, remarks };
       });
 
       return sequenceAndSteps.filter(({ isOk, ngItemNames }) => !isOk && ngItemNames !== "");
@@ -191,7 +192,7 @@ export default defineComponent({
 </script>
 
 <style lang="sass" scoped>
-.hover-disabled ::v-deep
+:deep(.hover-disabled)
   tbody
     tr:hover
       background-color: transparent !important

@@ -25,7 +25,7 @@
     "test-target": "テスト対象",
     "viewpoint": "テスト観点",
     "start-capture-window-title": "テスト記録開始",
-    "record-note": "メモを残す",
+    "record-note": "気づきの記録",
     "take-screenshot": "登録するスクリーンショット",
     "previous-screen": "直前の操作時のテスト画面",
     "current-screen": "現在のテスト画面",
@@ -77,11 +77,9 @@
     "generate-test-script-succeeded": "テストスクリプトの生成が完了しました。",
     "generate-alert-info": "※コード化対象外の操作が含まれています。出力されたzip内のdoc/index.htmlをご確認ください。",
     "test-purpose": "テスト目的",
-    "purpose-of-the-test": "テストの目的",
-    "no-test-purpose": "目的なし",
+    "no-test-purpose": "テスト目的なし",
     "use-test-purpose": "テスト目的を使用してテストする",
     "first-test-purpose": "最初のテスト目的",
-    "note": "メモ",
     "notice": "気づき",
     "tags": "タグ",
     "image": "静止画",
@@ -147,7 +145,11 @@
     "os-version": "OSバージョン",
     "media-type": "メディアタイプ",
     "video-and-image": "静止画＋動画",
-    "media-config-hint": "※「プラットフォーム」が「PC」以外の場合は「静止画」が選択されます"
+    "media-config-hint": "※「プラットフォーム」が「PC」以外の場合は「静止画」が選択されます",
+    "window-size": "テスト記録開始時のウィンドウサイズ",
+    "previous-capture-window-size": "前回のキャプチャ終了時のウィンドウサイズ",
+    "window-size-preset": "プリセットから選択する",
+    "specify-window-size": "ウィンドウサイズを指定する"
   },
   "first-test-purpose-option-dialog": {
     "start-testing": "テストを始める"
@@ -173,10 +175,12 @@
     "forward": "ブラウザフォワードを行う"
   },
   "auto-operation-register-button": {
-    "register-operation": "操作の登録"
+    "title": "操作の登録",
+    "details": "自動実行する操作を登録します。登録する操作を一覧から選択してください。"
   },
   "test-hint-register-button": {
-    "register-test-hint": "テストヒントの登録"
+    "title": "テストヒントの登録",
+    "details": "バグ発見に効果的なテストをヒントとして登録します。関連する操作を一覧から選択してください。"
   },
   "comment-register-field": {
     "label": "コメント"
@@ -192,13 +196,19 @@
     "text": "text",
     "operated": "操作済"
   },
+  "screencapture-display": {
+    "save-screenshot": "スクリーンショットの保存"
+  },
+  "note-register-button": {
+    "details": "違和感やバグなどを気づきとして記録します。テスト記録中に呼び出せます。"
+  },
   "test-purpose-edit-dialog": {
-    "record-test-purpose": "テストの目的の記録",
-    "save-warning": "指定された対象操作の通番には既にテストの目的が記録されています。"
+    "record-test-purpose": "テスト目的の記録",
+    "save-warning": "指定された対象操作の通番には既にテスト目的が記録されています。"
   },
   "note-common-dialog": {
-    "record-notice": "テスト中の気づき",
-    "take-screenshots-warning": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。"
+    "take-screenshots-warning": "スクリーンショット取得対象の画面にアラート類（alert, confirm, prompt）が表示されているときはスクリーンショットを取得できません。手動でスクリーンショットを取得、もしくはバグ及び気づきのコメントに記載するなどして対応してください。",
+    "save-warning": "指定された対象操作の通番には気づきを登録できません。"
   },
   "take-note-with-purpose-dialog": {
     "no-problem": "特に問題はなかった",
@@ -209,8 +219,8 @@
   },
   "history-display": {
     "there-are-updates-on-history": "操作履歴の更新があります",
-    "delete-test-purpose": "目的の削除",
-    "delete-test-purpose-message": "目的「{value}」を削除してもよろしいですか？",
+    "delete-test-purpose": "テスト目的の削除",
+    "delete-test-purpose-message": "テスト目的「{value}」を削除してもよろしいですか？",
     "delete-note-title": "気づきの削除",
     "delete-note-message": "気づき「{value}」を削除してもよろしいですか？",
     "update-model-and-coverage": "モデル・カバレッジの更新",
@@ -223,7 +233,6 @@
   },
   "operation-list": {
     "search": "検索",
-    "test-purpose": "目的",
     "timestamp": "時刻"
   },
   "decision-table": {
@@ -235,15 +244,17 @@
     "autofill-dialog-message": "入力値セット名を入力してください。"
   },
   "note-list-dialog": {
-    "note-list": "メモ一覧"
+    "note-list": "気づき一覧"
   },
   "run-auto-operation-button": {
-    "auto-operation": "自動操作",
+    "title": "自動操作",
+    "details": "登録した操作を自動実行します。登録済みの操作セットがあるときに呼び出せます。",
     "done-title": "自動操作終了",
     "done-auto-operations": "自動操作が終了しました。"
   },
   "autofill-button": {
-    "autofill": "自動入力",
+    "title": "自動入力",
+    "details": "登録した入力を自動実行します。実行可能な入力値セットがあるときに呼び出せます。",
     "message": "入力値セット名を選択してください。"
   },
   "autofill-register-dialog": {
@@ -265,7 +276,8 @@
     "message": "自動操作する場合は操作セット名を選択してください。"
   },
   "test-hint-search-button": {
-    "search-test-hints": "テストヒントを受ける"
+    "title": "テストヒントを受ける",
+    "details": "登録されたテストヒントからヒントを検索します。テスト記録中に呼び出せます。"
   },
   "test-hint-search-dialog": {
     "title": "テストヒント:検索",
@@ -393,8 +405,8 @@
     "report": "レポート部",
     "model": "テスト実行モデル",
     "import": "実行結果の取り込み",
-    "delete-test-result-confirm": "セッションからテスト結果を取り外してもよろしいですか？",
-    "delete-test-result-confirm-message": "テスト結果そのものは削除されません。",
+    "delete-test-result-confirm": "テスト結果取り外し",
+    "delete-test-result-confirm-message": "セッションからテスト結果を取り外してもよろしいですか？\nテスト結果そのものは削除されません。",
     "result-list": "実行結果取り込み",
     "call-test-results": "実行結果一覧を取得中",
     "import-test-result": "実行結果読込中",
@@ -604,7 +616,7 @@
       "create_test_result_failed": "テスト結果の作成に失敗しました。",
       "get_test_result_list_failed": "テスト結果一覧の取得に失敗しました。",
       "get_session_ids_failed": "セッションIDの取得に失敗しました。",
-      "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できませんでした。\n非対応操作:{value}",
+      "register_failed_with_invalid_type": "自動操作非対応の操作が含まれているため、登録できません。\n以下の非対応操作の前後で分割して選択し、登録してください。\n非対応操作:{value}",
       "compare_test_results_failed": "テスト結果の比較に失敗しました。",
       "generate_sequence_view_failed": "シーケンス図モデルの生成に失敗しました。",
       "generate_graph_view_failed": "画面遷移図モデル・画面部品カバレッジの生成に失敗しました。",

@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,17 +15,10 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      :disabled="isDisabled"
-      color="blue"
-      icon="edit"
-      size="small"
-      :title="$t('autofill-button.autofill')"
-      class="mx-2"
-      @click="openDialog"
-    >
-    </v-btn>
+  <div :title="$t('autofill-button.details')">
+    <v-list-item :disabled="isDisabled" @click="openDialog">
+      <v-list-item-title>{{ $t("autofill-button.title") }}</v-list-item-title>
+    </v-list-item>
   </div>
 </template>
 
@@ -46,6 +39,9 @@ export default defineComponent({
     const autofillConditionGroup = ref<AutofillConditionGroup[] | null>(null);
 
     const isDisabled = computed((): boolean => {
+      if (captureControlStore.isRunning) {
+        return true;
+      }
       if (!captureControlStore.isCapturing) {
         setMatchedAutofillConditionGroup(null);
         return true;

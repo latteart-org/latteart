@@ -1,6 +1,6 @@
 {
   "name": "latteart-capture-cl",
-  "version": "2.15.4",
+  "version": "2.15.5",
   "private": true,
   "main": "dist/index.js",
   "scripts": {
@@ -8,11 +8,13 @@
     "build": "webpack --config webpack.prod.js",
     "watch": "webpack -w --config webpack.dev.js",
     "run": "node dist/index.js",
-    "package": "run-p package:win package:mac",
+    "package": "run-p package:win package:mac package:node",
     "package:win": "pkg -t node18-win-x64 --out-path dist/package/win/latteart/latteart-capture-cl pkg.config.json",
     "package:mac": "pkg -t node18-macos-x64 --out-path dist/package/mac/latteart/latteart-capture-cl pkg.config.json",
+    "package:node": "cpx dist/index.js dist/package/node/latteart/latteart-capture-cl/bin",
     "prepackage:win": "npm run build",
     "prepackage:mac": "npm run build",
+    "prepackage:node": "npm run build",
     "lint": "eslint src tests",
     "fix": "run-s fix:lint fix:format",
     "fix:lint": "eslint --fix src tests",
@@ -26,7 +28,7 @@
   "dependencies": {
     "encoding-japanese": "^1.0.30",
     "express": "^4.17.1",
-    "log4js": "^6.7.1",
+    "log4js": "6.7.1",
     "moment": "^2.29.0",
     "selenium-webdriver": "4.4.0",
     "socket.io": "^4.5.4"

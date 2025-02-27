@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,31 +15,24 @@
 -->
 
 <template>
-  <div>
-    <v-btn
-      :disabled="isDisabled"
-      color="blue"
-      icon="video_library"
-      size="small"
-      :title="$t('run-auto-operation-button.auto-operation')"
-      class="mx-2"
-      @click="autoOperationSelectDialogOpened = true"
-    >
-    </v-btn>
-
-    <auto-operation-select-dialog
-      :opened="autoOperationSelectDialogOpened"
-      :auto-operation-condition-groups="autoOperationConditionGroups"
-      @ok="runAutoOperations"
-      @close="autoOperationSelectDialogOpened = false"
-    />
-
-    <error-message-dialog
-      :opened="errorDialogOpened"
-      :message="errorDialogMessage"
-      @close="errorDialogOpened = false"
-    />
+  <div :title="$t('run-auto-operation-button.details')">
+    <v-list-item :disabled="isDisabled" @click="autoOperationSelectDialogOpened = true">
+      <v-list-item-title>{{ $t("run-auto-operation-button.title") }}</v-list-item-title>
+    </v-list-item>
   </div>
+
+  <auto-operation-select-dialog
+    :opened="autoOperationSelectDialogOpened"
+    :auto-operation-condition-groups="autoOperationConditionGroups"
+    @ok="runAutoOperations"
+    @close="autoOperationSelectDialogOpened = false"
+  />
+
+  <error-message-dialog
+    :opened="errorDialogOpened"
+    :message="errorDialogMessage"
+    @close="errorDialogOpened = false"
+  />
 </template>
 
 <script lang="ts">
@@ -72,13 +65,19 @@ export default defineComponent({
     });
 
     const isDisabled = computed((): boolean => {
-      return !captureControlStore.isCapturing || autoOperationConditionGroups.value.length < 1;
+      return (
+        !captureControlStore.isCapturing ||
+        autoOperationConditionGroups.value.length < 1 ||
+        captureControlStore.isRunning
+      );
     });
 
     const runAutoOperations = async (index: number) => {
       try {
-        const tempOperations = autoOperationConditionGroups.value[index].autoOperations.map(
-          (operation) => {
+        captureControlStore.isRunning = true;
+        let isPausing = false;
+        const tempOperations = autoOperationConditionGroups.value[index].autoOperations
+          .map((operation) => {
             return {
               input: operation.input,
               type: operation.type,
@@ -87,8 +86,23 @@ export default defineComponent({
               url: operation.url,
               timestamp: operation.timestamp
             };
-          }
-        );
+          })
+          .filter((target) => {
+            if (target.type === "pause_capturing") {
+              isPausing = true;
+              return false;
+            }
+
+            if (target.type === "resume_capturing") {
+              isPausing = false;
+              return false;
+            }
+
+            if (isPausing) {
+              return false;
+            }
+            return true;
+          });
 
         await captureControlStore.runAutoOperations({
           operations: tempOperations
@@ -105,6 +119,7 @@ export default defineComponent({
           throw error;
         }
       } finally {
+        captureControlStore.isRunning = false;
         autoOperationSelectDialogOpened.value = false;
       }
     };

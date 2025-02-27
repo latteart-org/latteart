@@ -14,8 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.15.0]
-        os: [win, mac]
+        node-version: [22.13.1]
+        os: [win, mac, node]
 
     steps:
       - name: Checkout Repository
@@ -56,7 +56,7 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-launch-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
@@ -66,8 +66,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.15.0]
-        os: [win, mac]
+        node-version: [22.13.1]
+        os: [win, mac, node]
 
     steps:
       - name: Checkout Repository
@@ -108,7 +108,7 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-cli-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
@@ -118,8 +118,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.15.0]
-        os: [win, mac]
+        node-version: [22.13.1]
+        os: [win, mac, node]
 
     steps:
       - name: Checkout Repository
@@ -161,7 +161,7 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-gui-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
@@ -171,8 +171,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.15.0]
-        os: [win, mac]
+        node-version: [22.13.1]
+        os: [win, mac, node]
 
     steps:
       - name: Checkout Repository
@@ -206,6 +206,12 @@ jobs:
           mkdir artifact
           cp -r packages/latteart-repository/dist/package/${{ matrix.os }}/latteart/* artifact
 
+      - name: Copy SQLite3 to Artifact
+        if: ${{ matrix.os == 'node' }}
+        run: |
+          mkdir -p artifact/node_modules/sqlite3/lib/binding
+          cp -r node_modules/sqlite3/lib/binding/* artifact/node_modules/sqlite3/lib/binding
+
       - name: Build Artifact Name
         id: build_artifact_name
         run: |
@@ -213,7 +219,7 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-repository-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
@@ -223,8 +229,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.15.0]
-        os: [win, mac]
+        node-version: [22.13.1]
+        os: [win, mac, node]
 
     steps:
       - name: Checkout Repository
@@ -265,12 +271,52 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-capture-cl-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
-  collect-packages:
+  collect_prod_dependencies:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [22.13.1]
+        os: [node]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        if: ${{ steps.cache-dependencies.outputs.cache-hit != 'true' }}
+        run: |
+          npm install --omit=dev
+          rm -rf node_modules/latteart-*
+
+      - name: Make Artifact
+        run: |
+          mkdir artifact
+          mv node_modules artifact/node_modules
+
+      - name: Build Artifact Name
+        id: build_artifact_name
+        run: |
+          ARTIFACT_NAME=$(echo ${{ github.ref_name }} | sed "s/\//-/g")
+          echo ::set-output name=artifact_name::$ARTIFACT_NAME
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: latteart-${{ steps.build_artifact_name.outputs.artifact_name }}-prod-dependencies
+          path: artifact
+
+  collect_packages:
     runs-on: ubuntu-latest
 
     needs:
@@ -280,12 +326,15 @@ jobs:
         package_gui,
         package_repository,
         package_capture_cl,
+        collect_prod_dependencies,
       ]
+
+    if: ${{ !cancelled() && !failure() }}
 
     strategy:
       matrix:
-        node-version: [18.15.0]
-        os: [win, mac]
+        node-version: [22.13.1]
+        os: [win, mac, node]
 
     steps:
       - name: Build Artifact Name
@@ -295,37 +344,44 @@ jobs:
           echo ::set-output name=artifact_name::$ARTIFACT_NAME
 
       - name: Download latteart-launch Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-launch-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
       - name: Download latteart-cli Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-cli-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
       - name: Download latteart-gui Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-gui-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
       - name: Download latteart-repository Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-repository-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
       - name: Download latteart-capture-cl Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: latteart-capture-cl-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact
 
+      - name: Download collect-prod-dependencies Artifact
+        if: ${{ matrix.os == 'node' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: latteart-${{ steps.build_artifact_name.outputs.artifact_name }}-prod-dependencies
+          path: artifact
+
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: latteart-${{ steps.build_artifact_name.outputs.artifact_name }}-${{ matrix.os }}
           path: artifact

@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -891,19 +891,30 @@ function collectRunTargets(...operations: RunnableOperation[]) {
     );
   };
 
+  let isPausing = false;
+
   return operations
     .map((operation, index) => {
       return { operation, index };
     })
     .filter((runTarget, index, array) => {
       if (
-        [
-          "start_capturing",
-          "open_window",
-          "pause_capturing",
-          "resume_capturing",
-        ].includes(runTarget.operation.type)
+        ["start_capturing", "open_window"].includes(runTarget.operation.type)
       ) {
+        return false;
+      }
+
+      if (runTarget.operation.type === "pause_capturing") {
+        isPausing = true;
+        return false;
+      }
+
+      if (runTarget.operation.type === "resume_capturing") {
+        isPausing = false;
+        return false;
+      }
+
+      if (isPausing) {
         return false;
       }
 

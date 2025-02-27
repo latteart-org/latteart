@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,132 +15,140 @@
 -->
 
 <template>
-  <v-container class="pa-8" style="background-color: #eee">
-    <v-row>
-      <v-col cols="1">
-        <v-checkbox
-          density="comfortable"
-          hide-details
-          :model-value="conditionGroup.isEnabled"
-          class="default-flex"
-          @update:model-value="
-            (isEnabled) => updateconditionGroup({ isEnabled: isEnabled ?? false })
-          "
-        >
-        </v-checkbox>
-      </v-col>
-      <v-col cols="9">
-        <v-text-field
-          variant="underlined"
-          :label="$t('common.input-value-set-name')"
-          :model-value="conditionGroup.settingName"
-          @change="(e: any) => updateconditionGroup({ settingName: e.target._value })"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="2">
-        <v-btn color="red" @click="deleteConditionGroup">{{ $t("common.delete") }}</v-btn>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="6">
-        <v-text-field
-          variant="underlined"
-          label="url"
-          :model-value="conditionGroup.url"
-          class="px-1"
-          @change="(e: any) => updateconditionGroup({ url: e.target._value })"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="6">
-        <v-text-field
-          variant="underlined"
-          label="title"
-          :model-value="conditionGroup.title"
-          class="px-1"
-          @change="(e: any) => updateconditionGroup({ title: e.target._value })"
-        ></v-text-field>
-      </v-col>
-    </v-row>
-    <div v-for="(item, i) in conditionGroup.inputValueConditions" :key="i">
-      <v-row>
-        <v-col cols="1" style="text-align: center">
-          <v-checkbox
-            density="comfortable"
-            hide-details
-            :model-value="item.isEnabled"
-            style="display: inline-block"
-            class="px-1"
-            @update:model-value="
-              (isEnabled) => updateCondition(i, { isEnabled: isEnabled ?? false })
-            "
-          ></v-checkbox>
-        </v-col>
-        <v-col cols="2">
-          <v-select
-            variant="underlined"
-            :label="$t('autofill-input-value-container.locator-type')"
-            :model-value="item.locatorType"
-            :items="locatorTypeList"
-            class="px-1"
-            @update:model-value="(locatorType) => updateCondition(i, { locatorType })"
-          ></v-select>
-        </v-col>
-        <v-col cols="2">
-          <v-select
-            variant="underlined"
-            :label="$t('autofill-input-value-container.locator-match-type')"
-            :model-value="item.locatorMatchType"
-            :items="locatorMatchType(item.locatorType)"
-            class="px-1"
-            @update:model-value="(locatorMatchType) => updateCondition(i, { locatorMatchType })"
-          ></v-select>
-        </v-col>
-        <v-col cols="2">
-          <v-text-field
-            variant="underlined"
-            :label="$t('autofill-input-value-container.locator')"
-            :model-value="item.locator"
-            class="px-1"
-            @change="(e: any) => updateCondition(i, { locator: e.target._value })"
-          ></v-text-field>
-        </v-col>
-        <v-col cols="2">
-          <number-field
-            :label="$t('autofill-input-value-container.iframe-index')"
-            :item="item.iframeIndex"
-            :value="item.iframeIndex"
-            :allow-blank="true"
-            :min-value="0"
-            class="px-1"
-            @update-number-field-value="
-              (args) =>
-                updateCondition(i, {
-                  iframeIndex: args.value === '' ? undefined : Number(args.value)
-                })
-            "
-          >
-          </number-field>
-        </v-col>
-        <v-col cols="2">
-          <v-text-field
-            variant="underlined"
-            :label="$t('common.input-value')"
-            :model-value="item.inputValue"
-            class="px-1"
-            @change="(e: any) => updateCondition(i, { inputValue: e.target._value })"
-          ></v-text-field>
-        </v-col>
-        <v-col cols="1">
-          <v-btn variant="text" icon color="red" @click="deleteCondition(i)"
-            ><v-icon>delete</v-icon></v-btn
-          >
-        </v-col>
-      </v-row>
-    </div>
-    <v-btn @click="addCondition">{{
-      $t("autofill-input-value-container.adding-autofill-values")
-    }}</v-btn>
-  </v-container>
+  <v-expansion-panel>
+    <v-expansion-panel-title>
+      <v-container class="pa-0">
+        <v-row class="align-center">
+          <v-col cols="1">
+            <v-checkbox
+              density="comfortable"
+              hide-details
+              :model-value="conditionGroup.isEnabled"
+              @click.stop
+              @update:model-value="
+                (isEnabled) => updateconditionGroup({ isEnabled: isEnabled ?? false })
+              "
+            >
+            </v-checkbox>
+          </v-col>
+          <v-col cols="9">
+            <v-text-field
+              variant="underlined"
+              :label="$t('common.input-value-set-name')"
+              :model-value="conditionGroup.settingName"
+              @change="(e: any) => updateconditionGroup({ settingName: e.target._value })"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="2">
+            <v-btn color="red" @click.stop="deleteConditionGroup">{{ $t("common.delete") }}</v-btn>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-expansion-panel-title>
+    <v-expansion-panel-text>
+      <v-container class="pa-0 ma-0">
+        <v-row>
+          <v-col cols="6">
+            <v-text-field
+              variant="underlined"
+              label="url"
+              :model-value="conditionGroup.url"
+              class="px-1"
+              @change="(e: any) => updateconditionGroup({ url: e.target._value })"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="6">
+            <v-text-field
+              variant="underlined"
+              label="title"
+              :model-value="conditionGroup.title"
+              class="px-1"
+              @change="(e: any) => updateconditionGroup({ title: e.target._value })"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <div v-for="(item, i) in conditionGroup.inputValueConditions" :key="i">
+          <v-row>
+            <v-col cols="1" style="text-align: center">
+              <v-checkbox
+                density="comfortable"
+                hide-details
+                :model-value="item.isEnabled"
+                style="display: inline-block"
+                class="px-1"
+                @update:model-value="
+                  (isEnabled) => updateCondition(i, { isEnabled: isEnabled ?? false })
+                "
+              ></v-checkbox>
+            </v-col>
+            <v-col cols="2">
+              <v-select
+                variant="underlined"
+                :label="$t('autofill-input-value-container.locator-type')"
+                :model-value="item.locatorType"
+                :items="locatorTypeList"
+                class="px-1"
+                @update:model-value="(locatorType) => updateCondition(i, { locatorType })"
+              ></v-select>
+            </v-col>
+            <v-col cols="2">
+              <v-select
+                variant="underlined"
+                :label="$t('autofill-input-value-container.locator-match-type')"
+                :model-value="item.locatorMatchType"
+                :items="locatorMatchType(item.locatorType)"
+                class="px-1"
+                @update:model-value="(locatorMatchType) => updateCondition(i, { locatorMatchType })"
+              ></v-select>
+            </v-col>
+            <v-col cols="2">
+              <v-text-field
+                variant="underlined"
+                :label="$t('autofill-input-value-container.locator')"
+                :model-value="item.locator"
+                class="px-1"
+                @change="(e: any) => updateCondition(i, { locator: e.target._value })"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="2">
+              <number-field
+                :label="$t('autofill-input-value-container.iframe-index')"
+                :item="item.iframeIndex"
+                :value="item.iframeIndex"
+                :allow-blank="true"
+                :min-value="0"
+                class="px-1"
+                @update-number-field-value="
+                  (args) =>
+                    updateCondition(i, {
+                      iframeIndex: args.value === '' ? undefined : Number(args.value)
+                    })
+                "
+              >
+              </number-field>
+            </v-col>
+            <v-col cols="2">
+              <v-text-field
+                variant="underlined"
+                :label="$t('common.input-value')"
+                :model-value="item.inputValue"
+                class="px-1"
+                @change="(e: any) => updateCondition(i, { inputValue: e.target._value })"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="1">
+              <v-btn variant="text" icon color="red" @click="deleteCondition(i)"
+                ><v-icon>delete</v-icon></v-btn
+              >
+            </v-col>
+          </v-row>
+        </div>
+        <v-btn @click="addCondition">{{
+          $t("autofill-input-value-container.adding-autofill-values")
+        }}</v-btn>
+      </v-container>
+    </v-expansion-panel-text>
+  </v-expansion-panel>
 </template>
 
 <script lang="ts">

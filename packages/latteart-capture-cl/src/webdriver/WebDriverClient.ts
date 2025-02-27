@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -214,6 +214,16 @@ export default interface WebDriverClient extends ScriptExecutor {
    * Set scroll position.
    */
   setScrollPosition(x: number, height: number): Promise<void>;
+
+  /**
+   * Do action in default frame.
+   * @param lockId  lock id
+   * @param action  action
+   */
+  doActionInDefaultFrame<T>(
+    lockId: string,
+    action: () => Promise<T>
+  ): Promise<{ result: T }>;
 
   /**
    * Do action in iframes.

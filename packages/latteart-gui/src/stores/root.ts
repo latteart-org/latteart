@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import {
   readAutofillSetting,
   readAutoOperationSetting,
   readCaptureMediaSettings,
+  readCaptureWindowSize,
   readDeviceSettings,
   readLocale,
   readTestHintSetting,
@@ -27,6 +28,7 @@ import {
   saveAutofillSetting,
   saveAutoOperationSetting,
   saveCaptureMediaSettings,
+  saveCaptureWindowSize,
   saveDeviceSettings,
   saveLocale,
   saveTestHintSetting,
@@ -112,6 +114,7 @@ export const useRootStore = defineStore("root", {
       autofillSetting: new LocalStorageSettingRepository().getAutofillSetting(),
       autoOperationSetting: new LocalStorageSettingRepository().getAutoOperationSetting(),
       captureMediaSetting: new LocalStorageSettingRepository().getCaptureMediaSetting(),
+      captureWindowSize: new LocalStorageSettingRepository().getCaptureWindowSize(),
       testHintSetting: new LocalStorageSettingRepository().getTestHintSetting(),
       deviceSettings: new LocalStorageSettingRepository().getDeviceSettings(),
       testScriptOption: new LocalStorageSettingRepository().getTestScriptOption(),
@@ -403,6 +406,16 @@ export const useRootStore = defineStore("root", {
           ...payload.userSettings.captureMediaSetting
         };
       }
+      if (payload.userSettings.captureWindowSize) {
+        const result = saveCaptureWindowSize(payload.userSettings.captureWindowSize);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.userSettings.captureWindowSize = {
+          ...payload.userSettings.captureWindowSize
+        };
+      }
+
       if (payload.userSettings.testHintSetting) {
         const result = saveTestHintSetting(payload.userSettings.testHintSetting);
         if (result.isFailure()) {
@@ -430,6 +443,17 @@ export const useRootStore = defineStore("root", {
         }
         this.userSettings.testScriptOption = {
           ...payload.userSettings.testScriptOption
+        };
+      }
+
+      if (payload.userSettings.captureWindowSize) {
+        console.log(payload.userSettings.captureWindowSize);
+        const result = saveCaptureWindowSize(payload.userSettings.captureWindowSize);
+        if (result.isFailure()) {
+          throw new Error(this.message(result.error.messageKey, result.error.variables ?? {}));
+        }
+        this.userSettings.captureWindowSize = {
+          ...payload.userSettings.captureWindowSize
         };
       }
 
@@ -479,6 +503,16 @@ export const useRootStore = defineStore("root", {
         );
       }
 
+      const captureWindowSizeResult = readCaptureWindowSize();
+      if (captureWindowSizeResult.isFailure()) {
+        throw new Error(
+          this.message(
+            captureWindowSizeResult.error.messageKey,
+            captureWindowSizeResult.error.variables ?? {}
+          )
+        );
+      }
+
       const testHintSettingResult = readTestHintSetting();
       if (testHintSettingResult.isFailure()) {
         throw new Error(
@@ -520,6 +554,7 @@ export const useRootStore = defineStore("root", {
         autofillSetting: readAutofillSettingResult.data,
         autoOperationSetting: readAutoOperationSettingResult.data,
         captureMediaSetting: captureMediaSettingResult.data,
+        captureWindowSize: captureWindowSizeResult.data,
         testHintSetting: testHintSettingResult.data,
         deviceSettings: deviceSettingResult.data,
         testScriptOption: testScriptOptionResult.data,

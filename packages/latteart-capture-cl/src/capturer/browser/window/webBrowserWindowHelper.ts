@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ export type CapturedOperation = Pick<CapturedItem["operation"], "type"> & {
 
 export function isIgnoreOperation(
   operation: CapturedOperation,
-  prevOperation?: CapturedOperation
+  prevOperations?: CapturedOperation[]
 ) {
   // Ignore the click event when dropdown list is opened because Selenium can not take a screenshot when dropdown list is opened.
   if (
@@ -41,10 +41,10 @@ export function isIgnoreOperation(
     return true;
   }
 
-  if (prevOperation) {
+  if (prevOperations && prevOperations.length > 0) {
     // Ignore the change event that is fired after the click event for radio button or checkbox.
     if (
-      hasChangeEventFiredByClickForCheckboxOrRadio(operation, prevOperation)
+      hasChangeEventFiredByClickForCheckboxOrRadio(operation, prevOperations)
     ) {
       return true;
     }
@@ -53,7 +53,7 @@ export function isIgnoreOperation(
     if (
       hasEventForCheckboxOrRadioOrTextFiredByLabelClick(
         operation,
-        prevOperation
+        prevOperations
       )
     ) {
       return true;
@@ -65,24 +65,23 @@ export function isIgnoreOperation(
 
 function hasEventForCheckboxOrRadioOrTextFiredByLabelClick(
   operation: CapturedOperation,
-  prevOperation: CapturedOperation
+  prevOperations: CapturedOperation[]
 ): boolean {
-  if (!prevOperation) {
+  if (!prevOperations || prevOperations.length === 0) {
     return false;
   }
 
-  if (prevOperation.elementInfo?.attributes.for === undefined) {
+  const target = prevOperations.find(
+    (prev) =>
+      operation.elementInfo.attributes.id &&
+      operation.elementInfo.attributes.id === prev.elementInfo.attributes.for
+  );
+
+  if (!target) {
     return false;
   }
 
-  if (
-    prevOperation.elementInfo?.attributes.for !==
-    operation.elementInfo?.attributes.id
-  ) {
-    return false;
-  }
-
-  if (prevOperation.elementInfo?.tagname.toUpperCase() !== "LABEL") {
+  if (target.elementInfo?.tagname.toUpperCase() !== "LABEL") {
     return false;
   }
 
@@ -112,7 +111,7 @@ function hasEventForCheckboxOrRadioOrTextFiredByLabelClick(
 
 function hasChangeEventFiredByClickForCheckboxOrRadio(
   operation: CapturedOperation,
-  prevOperation: CapturedOperation
+  prevOperations: CapturedOperation[]
 ) {
   if (operation.type !== "change") {
     return false;
@@ -131,11 +130,13 @@ function hasChangeEventFiredByClickForCheckboxOrRadio(
     return false;
   }
 
-  const elementXPath = operation.elementInfo.xpath;
-  const normalizedXPath = normalizeXPath(elementXPath);
-  const normalizedPrevXPath = normalizeXPath(prevOperation.elementInfo.xpath);
   if (
-    !(prevOperation.type === "click" && normalizedXPath === normalizedPrevXPath)
+    !prevOperations.find(
+      (prevOperation) =>
+        normalizeXPath(prevOperation.elementInfo.xpath) ===
+          normalizeXPath(operation.elementInfo.xpath) &&
+        prevOperation.type === "click"
+    )
   ) {
     return false;
   }

@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -28,15 +28,9 @@
 
       <v-divider vertical class="mx-3" />
 
-      <run-auto-operation-button />
-
-      <autofill-button />
-
       <note-register-button />
-
-      <test-hint-search-button />
-
       <extension-contents />
+      <footer-menu-button />
 
       <v-divider vertical class="mx-3" />
 
@@ -52,9 +46,7 @@ import CurrentWindowInfo from "./CurrentWindowInfo.vue";
 import NoteRegisterButton from "./NoteRegisterButton.vue";
 import RecordingTime from "./RecordingTime.vue";
 import SelectWindowButton from "./SelectWindowButton.vue";
-import AutofillButton from "./AutofillButton.vue";
-import RunAutoOperationButton from "./RunAutoOperationButton.vue";
-import TestHintSearchButton from "./TestHintSearchButton.vue";
+import FooterMenuButton from "./FooterMenuButton.vue";
 import { defineComponent } from "vue";
 import ExtensionContents from "../extensions/ExtensionContents.vue";
 
@@ -66,9 +58,7 @@ export default defineComponent({
     "select-window-button": SelectWindowButton,
     "note-register-button": NoteRegisterButton,
     "recording-time": RecordingTime,
-    "autofill-button": AutofillButton,
-    "run-auto-operation-button": RunAutoOperationButton,
-    "test-hint-search-button": TestHintSearchButton,
+    "footer-menu-button": FooterMenuButton,
     "extension-contents": ExtensionContents
   }
 });

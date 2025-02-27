@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
   <div>
     <execute-dialog
       :opened="opened"
-      :title="$t('note-common-dialog.record-notice')"
+      :title="$t('common.notice')"
       :accept-button-disabled="!canSave"
       :max-width="800"
       @accept="execute"
@@ -33,8 +33,11 @@
         :min-value="1"
         :max-value="maxSequence ?? undefined"
         :disabled="oldNote === ''"
-        @update-number-field-value="updateNewTargetSequence"
+        @input="updateNewTargetSequence"
       ></number-field>
+      <p v-if="isSaveWarning" class="warningMessage">
+        {{ $t("note-common-dialog.save-warning") }}
+      </p>
       <v-text-field
         v-model="newNote"
         variant="underlined"
@@ -94,6 +97,7 @@ import { useRootStore } from "@/stores/root";
 import { useCaptureControlStore } from "@/stores/captureControl";
 import { useOperationHistoryStore } from "@/stores/operationHistory";
 import NoteTagSelectBox from "../common/NoteTagSelectBox.vue";
+import { checkExcludeOperationType } from "@/lib/common/util";
 
 export default defineComponent({
   components: {
@@ -136,6 +140,8 @@ export default defineComponent({
     const isImageVisible = ref(false);
     const isVideoVisible = ref(false);
 
+    const isSaveWarning = ref(false);
+
     const initialize = () => {
       if (!props.opened) {
         return;
@@ -158,6 +164,8 @@ export default defineComponent({
       shouldTakeScreenshot.value = false;
       isImageVisible.value = false;
       isVideoVisible.value = false;
+
+      isSaveWarning.value = false;
 
       operationHistoryStore.selectedOperationNote = { sequence: null, index: null };
     };
@@ -192,9 +200,15 @@ export default defineComponent({
 
     const updateNewTargetSequence = (data: { id: string; value: number }): void => {
       newTargetSequence.value = data.value;
+      const target = operationHistoryStore.history.at(data.value - 1)?.operation.type ?? "";
+      isSaveWarning.value = checkExcludeOperationType(target);
     };
 
     const canSave = computed(() => {
+      if (isSaveWarning.value) {
+        return false;
+      }
+
       if (newNote.value === "") {
         return false;
       }
@@ -253,6 +267,7 @@ export default defineComponent({
       isAlertVisible,
       isImageVisible,
       isVideoVisible,
+      isSaveWarning,
       takeScreenshotErrorMessage,
       execute,
       cancel,
@@ -265,3 +280,10 @@ export default defineComponent({
   }
 });
 </script>
+
+<style lang="sass">
+.warningMessage
+  color: red !important
+  font-size: 11px
+  margin-top: -28px
+</style>

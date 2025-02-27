@@ -1,5 +1,5 @@
 <!--
- Copyright 2024 NTT Corporation.
+ Copyright 2025 NTT Corporation.
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 <template>
   <v-container fluid class="ma-0 pa-0 align-start">
     <v-row id="screen-transition-diagram-container" justify="end">
-      <v-col cols="12" class="pt-0">
+      <v-col cols="12" class="pt-2">
         <mermaid-graph-renderer v-if="graph" :graph="graph"></mermaid-graph-renderer>
       </v-col>
     </v-row>

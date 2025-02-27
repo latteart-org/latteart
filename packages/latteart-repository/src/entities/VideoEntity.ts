@@ -1,5 +1,5 @@
 /**
- * Copyright 2024 NTT Corporation.
+ * Copyright 2025 NTT Corporation.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,12 @@ export class VideoEntity {
   @PrimaryGeneratedColumn("uuid", { name: "video_id" })
   id!: string;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "file_url" })
   fileUrl: string = "";
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "width" })
   width: number = 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-inferrable-types
   @Column({ name: "height" })
   height: number = 0;
 
