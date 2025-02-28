@@ -276,16 +276,6 @@ export class TestResultServiceImpl implements TestResultService {
       .getRepository(TestResultEntity)
       .findOneOrFail({
         where: { id },
-        relations: [
-          "testSteps",
-          "testSteps.screenshot",
-          "testSteps.video",
-          "testSteps.notes",
-          "testSteps.notes.tags",
-          "testSteps.notes.screenshot",
-          "testSteps.notes.video",
-          "testSteps.testPurpose",
-        ],
       });
 
     const { coverageSources } = await this.dataSource
@@ -307,9 +297,25 @@ export class TestResultServiceImpl implements TestResultService {
       testResultEntity.startTimestamp = params.startTime;
     }
 
-    const updatedTestResultEntity = await this.dataSource
+    await this.dataSource
       .getRepository(TestResultEntity)
       .save(testResultEntity);
+
+    const updatedTestResultEntity = await this.dataSource
+      .getRepository(TestResultEntity)
+      .findOneOrFail({
+        where: { id },
+        relations: [
+          "testSteps",
+          "testSteps.screenshot",
+          "testSteps.video",
+          "testSteps.notes",
+          "testSteps.notes.tags",
+          "testSteps.notes.screenshot",
+          "testSteps.notes.video",
+          "testSteps.testPurpose",
+        ],
+      });
 
     const testResult = await this.convertTestResultEntityToTestResult({
       coverageSources,
