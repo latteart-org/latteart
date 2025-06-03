@@ -15,8 +15,13 @@
 -->
 
 <template>
-  <v-container id="operation-list" fluid class="px-0 fill-height">
-    <v-row class="px-2" style="height: 40px; width: 100%">
+  <v-container
+    id="operation-list"
+    fluid
+    class="px-0 fill-height"
+    :style="{ padding: showTableOnly ? 0 : undefined }"
+  >
+    <v-row v-if="!showTableOnly" class="px-2" style="height: 40px; width: 100%">
       <auto-operation-register-button v-if="!isViewerMode" />
       <test-hint-register-button v-if="!isViewerMode" />
       <comment-register-field v-if="!isViewerMode" />
@@ -25,7 +30,7 @@
     <v-row
       align-content="space-around"
       justify="end"
-      style="height: calc(100% - 90px); width: 100%"
+      :style="{ height: showTableOnly ? '100%' : 'calc(100% - 90px)', width: '100%' }"
       no-gutters
     >
       <v-container fluid class="pa-0 fill-height">
@@ -56,6 +61,7 @@
         >
           <template #[`header.data-table-select`]>
             <v-checkbox-btn
+              v-if="!showTableOnly"
               :model-value="checkboxStatus.allChecked"
               :true-value="true"
               :false-value="false"
@@ -64,7 +70,7 @@
             />
           </template>
           <template #[`item.data-table-select`]="props">
-            <td>
+            <td v-if="!showTableOnly">
               <v-checkbox-btn
                 :model-value="checkedItems.includes(props.item.index)"
                 :true-value="true"
@@ -189,6 +195,7 @@
     </v-row>
 
     <v-row
+      v-if="!showTableOnly"
       id="operation-search"
       class="mt-0"
       style="height: 50px; width: 100%"
@@ -309,7 +316,11 @@ export default defineComponent({
       required: true
     },
     message: { type: Function as PropType<MessageProvider>, required: true },
-    operationContextEnabled: { type: Boolean, default: false, required: true }
+    operationContextEnabled: { type: Boolean, default: false, required: true },
+    showTableOnly: {
+      type: Boolean,
+      default: false
+    }
   },
   setup(props) {
     const operationHistoryStore = useOperationHistoryStore();
