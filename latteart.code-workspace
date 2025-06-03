@@ -26,6 +26,7 @@
     "jestrunner.jestPath": "../../node_modules/jest/bin/jest.js",
     "jestrunner.runOptions": ["--coverage=false"],
     "npm.packageManager": "npm",
+    "npm.scriptRunner": "npm",
   },
   "extensions": {
     "recommendations": [
