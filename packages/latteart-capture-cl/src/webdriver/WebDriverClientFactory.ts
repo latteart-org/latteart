@@ -120,6 +120,8 @@ export default class WebDriverClientFactory {
       );
     }
 
+    options.addArguments("--remote-debugging-port=9222");
+
     return new Builder()
       .withCapabilities(caps)
       .forBrowser("chrome")
@@ -144,6 +146,9 @@ export default class WebDriverClientFactory {
         `--window-size=${captureWindowSize.width},${captureWindowSize.height}`
       );
     }
+
+    options.addArguments("--remote-debugging-port=9222");
+
     return new Builder()
       .withCapabilities(caps)
       .forBrowser("MicrosoftEdge")
