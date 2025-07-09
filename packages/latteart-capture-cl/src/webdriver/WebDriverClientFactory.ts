@@ -121,6 +121,7 @@ export default class WebDriverClientFactory {
     }
 
     options.addArguments("--remote-debugging-port=9222");
+    options.addArguments("--disable-back-forward-cache");
 
     return new Builder()
       .withCapabilities(caps)
@@ -148,6 +149,7 @@ export default class WebDriverClientFactory {
     }
 
     options.addArguments("--remote-debugging-port=9222");
+    options.addArguments("--disable-back-forward-cache");
 
     return new Builder()
       .withCapabilities(caps)
