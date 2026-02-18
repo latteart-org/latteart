@@ -204,5 +204,7 @@ export type CaptureCLServiceErrorCode =
   | "invalid_operation"
   | "element_not_found"
   | "element_not_interactable"
+  | "screen_transition_timeout"
   | "capture_failed"
-  | "client_side_capture_service_not_found";
+  | "client_side_capture_service_not_found"
+  | "capture_socket_disconnected";

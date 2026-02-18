@@ -342,7 +342,7 @@ export class CaptureClServerAdapter {
       if (result.status === "failure") {
         return {
           data: undefined,
-          error: result.data as CaptureCLServerError,
+          error: JSON.parse(result.data as string) as CaptureCLServerError,
         };
       }
 
@@ -378,7 +378,7 @@ export class CaptureClServerAdapter {
       if (result.status === "failure") {
         return {
           data: undefined,
-          error: result.data as CaptureCLServerError,
+          error: JSON.parse(result.data as string) as CaptureCLServerError,
         };
       }
 

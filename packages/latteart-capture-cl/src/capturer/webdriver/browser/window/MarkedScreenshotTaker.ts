@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { BoundingRect, captureScripts } from "@/capturer/captureScripts";
+import { BoundingRect } from "@/captureScripts/types";
+import { captureScripts } from "@/captureScripts/webdriver";
 import WebDriverClient from "@/webdriver/WebDriverClient";
 
 /**

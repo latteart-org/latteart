@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import { operationCapturingScripts } from "./operationCapturing";
-import { pauseScripts } from "./pause";
-import { screenTransitionDetectionScripts } from "./screenTransitionDetection";
-import { shieldScripts } from "./shield";
-import { CaptureScripts } from "./types";
-import { windowSwitchingScripts } from "./windowSwitching";
+import {
+  CapturedElementInfo,
+  Iframe,
+  ScreenMutationForScript,
+  SuspendedCapturedItem,
+} from "../types";
 
-export * from "./types";
+export type ExtendedWindowForCDP = Window & {
+  getIFrameInfo?: () => Iframe | undefined;
+  sendCapturedOperation?: (data: {
+    suspendedOperation: SuspendedCapturedItem;
+    screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
+  }) => void;
 
-/**
- * Capture scripts.
- */
-export const captureScripts: CaptureScripts = {
-  ...pauseScripts,
-  ...shieldScripts,
-  ...windowSwitchingScripts,
-  ...screenTransitionDetectionScripts,
-  ...operationCapturingScripts,
+  sendCapturedMutation?: (data: {
+    mutation: ScreenMutationForScript;
+    screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
+  }) => void;
 };

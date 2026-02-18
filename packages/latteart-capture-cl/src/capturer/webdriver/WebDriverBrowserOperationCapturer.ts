@@ -14,22 +14,32 @@
  * limitations under the License.
  */
 
-import { ElementInfo, Operation, ScreenElements } from "../Operation";
-import LoggingService from "../logger/LoggingService";
+import { ElementInfo, Operation, ScreenElements } from "../../Operation";
+import LoggingService from "../../logger/LoggingService";
 import WebBrowser from "./browser/WebBrowser";
-import { CaptureConfig } from "../CaptureConfig";
+import { CaptureConfig } from "../../CaptureConfig";
 import WebDriverClient from "@/webdriver/WebDriverClient";
-import ScreenTransition from "../ScreenTransition";
-import { SpecialOperationType } from "../SpecialOperationType";
-import Autofill from "../webdriver/autofill";
-import { TimestampImpl } from "../Timestamp";
-import { CapturedItem } from "./captureScripts";
+import ScreenTransition from "../../ScreenTransition";
+import { SpecialOperationType } from "../../SpecialOperationType";
+import Autofill from "../../webdriver/autofill";
+import { TimestampImpl } from "../../Timestamp";
+import { CapturedItem } from "../../captureScripts/types";
 import { ScreenMutation } from "@/ScreenMutation";
+import {
+  BrowserOperationCapturer,
+  BrowserOperationCapturerCallbacks,
+} from "../types";
+import {
+  createCapturedOperation,
+  padDateValue,
+} from "../common/capturingHelper";
 
 /**
- * The class for monitoring and getting browser operations.
+ * The class for monitoring and capturing browser operations via WebDriver.
  */
-export default class BrowserOperationCapturer {
+export default class WebDriverBrowserOperationCapturer
+  implements BrowserOperationCapturer
+{
   private actionQueue: Array<(capturer: WebBrowser) => Promise<void>> = [];
 
   private client: WebDriverClient;
@@ -70,23 +80,7 @@ export default class BrowserOperationCapturer {
   constructor(
     client: WebDriverClient,
     config: CaptureConfig,
-    callbacks: {
-      onGetOperation: (operation: Operation) => void;
-      onGetScreenTransition: (screenTransition: ScreenTransition) => void;
-      onGetMutation: (screenMutation: ScreenMutation[]) => void;
-      onBrowserClosed: () => void;
-      onBrowserHistoryChanged: (browserStatus: {
-        canGoBack: boolean;
-        canGoForward: boolean;
-      }) => void;
-      onBrowserWindowsChanged: (
-        windows: { windowHandle: string; url: string; title: string }[],
-        currentWindowHandle: string,
-        currentWindowHostNameChanged: boolean
-      ) => void;
-      onAlertVisibilityChanged: (isVisible: boolean) => void;
-      onError: (error: Error) => void;
-    }
+    callbacks: BrowserOperationCapturerCallbacks
   ) {
     this.client = client;
     this.config = config;
@@ -100,10 +94,6 @@ export default class BrowserOperationCapturer {
     this.onError = callbacks.onError;
   }
 
-  /**
-   * Start monitoring and capturing a page.
-   * @param url Target URL.
-   */
   public async start(url: string, onStart: () => void): Promise<void> {
     const browser = new WebBrowser(this.client, this.config, {
       onGetOperation: this.onGetOperation,
@@ -157,7 +147,14 @@ export default class BrowserOperationCapturer {
             continue;
           }
 
-          acceptAlertOperation = currentWindow.createCapturedOperation({
+          const title = currentWindow.currentScreenSummary.title;
+          const url = currentWindow.currentScreenSummary.url;
+          const imageData = currentWindow.currentScreenSummary.screenshotBase64;
+
+          acceptAlertOperation = createCapturedOperation({
+            title,
+            url,
+            imageData,
             type: SpecialOperationType.ACCEPT_ALERT,
             windowHandle: currentWindow.windowHandle,
             pageSource,
@@ -245,6 +242,7 @@ export default class BrowserOperationCapturer {
         if (
           error.name === "WebDriverError" ||
           error.name === "NoSuchWindowError" ||
+          error.name === "NoSuchSessionError" ||
           (error.name === "Error" && error.message.startsWith("ECONNREFUSED"))
         ) {
           LoggingService.debug(`${error}`);
@@ -259,23 +257,13 @@ export default class BrowserOperationCapturer {
     this.onBrowserClosed();
   }
 
-  /**
-   * Stop capturing operations.
-   */
   public quit(): void {
     this.actionQueue.push(async (browser) => {
-      this.onBrowserClosed();
-
       await browser.close();
       this.webBrowser = null;
     });
   }
 
-  /**
-   * Register captured item.
-   * @param capturedItem captured item.
-   * @param option option.
-   */
   public async registerCapturedItem(
     capturedItem: Omit<CapturedItem, "eventInfo">,
     option: {
@@ -303,12 +291,6 @@ export default class BrowserOperationCapturer {
     }
   }
 
-  /**
-   * Take a screenshot of the monitored screen.
-   * If failed to take a screenshot, call a callback function and return empty string.
-   * @param onError The callback when failed to take a screenshot.
-   * @returns Screenshot.(base64)
-   */
   public async getScreenshot(onError?: (e: Error) => void): Promise<string> {
     if (!this.isCapturing()) {
       return "";
@@ -327,18 +309,10 @@ export default class BrowserOperationCapturer {
     });
   }
 
-  /**
-   * Whether it is capturing or not.
-   * @returns 'true': It is capturing, 'false': It is not capturing.
-   */
-  public isCapturing(): boolean {
+  private isCapturing(): boolean {
     return this.webBrowser?.isOpened ?? false;
   }
 
-  /**
-   * Switch capturing window.
-   * @param destWindowHandle Destination window handle.
-   */
   public async switchCapturingWindow(destWindowHandle: string): Promise<void> {
     this.actionQueue.push(async (browser) => {
       if (!this.isCapturing) {
@@ -348,9 +322,6 @@ export default class BrowserOperationCapturer {
     });
   }
 
-  /**
-   * Go back to previous page on capturing browser.
-   */
   public browserBack(): void {
     this.actionQueue.push(async (browser) => {
       if (!this.canDoBrowserBack()) {
@@ -366,9 +337,6 @@ export default class BrowserOperationCapturer {
     });
   }
 
-  /**
-   * Go forward to next page on capturing browser.
-   */
   public browserForward(): void {
     this.actionQueue.push(async (browser) => {
       if (!this.canDoBrowserForward()) {
@@ -384,9 +352,6 @@ export default class BrowserOperationCapturer {
     });
   }
 
-  /**
-   * Pause capturing.
-   */
   public async pauseCapturing(): Promise<void> {
     const currentWindow = this.webBrowser?.currentWindow;
 
@@ -396,8 +361,15 @@ export default class BrowserOperationCapturer {
       const screenElements =
         await currentWindow.collectAllFrameScreenElements();
 
+      const title = currentWindow.currentScreenSummary.title;
+      const url = currentWindow.currentScreenSummary.url;
+      const imageData = currentWindow.currentScreenSummary.screenshotBase64;
+
       this.onGetOperation(
-        currentWindow.createCapturedOperation({
+        createCapturedOperation({
+          title,
+          url,
+          imageData,
           type: SpecialOperationType.PAUSE_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
@@ -407,9 +379,6 @@ export default class BrowserOperationCapturer {
     }
   }
 
-  /**
-   * Resume capturing.
-   */
   public async resumeCapturing(): Promise<void> {
     const currentWindow = this.webBrowser?.currentWindow;
 
@@ -419,8 +388,15 @@ export default class BrowserOperationCapturer {
       const screenElements =
         await currentWindow.collectAllFrameScreenElements();
 
+      const title = currentWindow.currentScreenSummary.title;
+      const url = currentWindow.currentScreenSummary.url;
+      const imageData = currentWindow.currentScreenSummary.screenshotBase64;
+
       this.onGetOperation(
-        currentWindow.createCapturedOperation({
+        createCapturedOperation({
+          title,
+          url,
+          imageData,
           type: SpecialOperationType.RESUME_CAPTURING,
           windowHandle: currentWindow.windowHandle,
           pageSource: await this.client.getCurrentPageText(),
@@ -448,10 +424,6 @@ export default class BrowserOperationCapturer {
     }
   }
 
-  /**
-   * Run operation.
-   * @param operation Operation.
-   */
   public async runOperation(
     operation: Pick<
       Operation,
@@ -562,7 +534,7 @@ export default class BrowserOperationCapturer {
               const inputValue =
                 attributes.type === "date" ||
                 attributes.type === "datetime-local"
-                  ? this.padDateValue(operation.input, attributes)
+                  ? padDateValue(operation.input, attributes)
                   : operation.input;
 
               await this.client.clearAndSendKeys(xpath, inputValue);
@@ -615,20 +587,5 @@ export default class BrowserOperationCapturer {
       return false;
     }
     return currentWindow.canDoBrowserForward();
-  }
-
-  private padDateValue(value: string, attributes: { [key: string]: string }) {
-    const yyyymmdd = value.split("-");
-
-    if (attributes.max) {
-      const max = attributes.max.split("-")[0].length;
-      const year =
-        max < 4 || max > 6
-          ? yyyymmdd[0].padStart(6, "0")
-          : yyyymmdd[0].padStart(max, "0");
-
-      return `${year}-${yyyymmdd[1]}-${yyyymmdd[2]}`;
-    }
-    return `${yyyymmdd[0].padStart(6, "0")}-${yyyymmdd[1]}-${yyyymmdd[2]}`;
   }
 }

@@ -1,5 +1,5 @@
-import WebBrowser from "@/capturer/browser/WebBrowser";
 import { CaptureConfig } from "@/CaptureConfig";
+import WebBrowser from "@/capturer/webdriver/browser/WebBrowser";
 
 describe("WebBrowserは", () => {
   describe("openが呼ばれるとブラウザを開き、監視を開始する", () => {

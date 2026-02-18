@@ -26,6 +26,8 @@ import WebDriverServer from "../WebDriverServer";
  * The class for creating {@link WebDriverClient}.
  */
 export default class WebDriverClientFactory {
+  constructor(private remoteDebuggingPort: number = 9222) {}
+
   /**
    * Create {@link WebDriverClient}.
    * @param params.platformName Platform name.
@@ -120,7 +122,7 @@ export default class WebDriverClientFactory {
       );
     }
 
-    options.addArguments("--remote-debugging-port=9222");
+    options.addArguments(`--remote-debugging-port=${this.remoteDebuggingPort}`);
     options.addArguments("--disable-back-forward-cache");
 
     return new Builder()
@@ -148,7 +150,7 @@ export default class WebDriverClientFactory {
       );
     }
 
-    options.addArguments("--remote-debugging-port=9222");
+    options.addArguments(`--remote-debugging-port=${this.remoteDebuggingPort}`);
     options.addArguments("--disable-back-forward-cache");
 
     return new Builder()

@@ -14,11 +14,65 @@
  * limitations under the License.
  */
 
-import { CapturedElementInfo, CapturedItem } from "@/capturer/captureScripts";
+import { CapturedElementInfo, CapturedItem } from "@/captureScripts/types";
+import { ElementInfo, Operation, ScreenElements } from "@/Operation";
 
 export type CapturedOperation = Pick<CapturedItem["operation"], "type"> & {
   elementInfo: Pick<CapturedElementInfo, "xpath" | "attributes" | "tagname">;
 };
+
+export function padDateValue(
+  value: string,
+  attributes: { [key: string]: string }
+) {
+  const yyyymmdd = value.split("-");
+
+  if (attributes.max) {
+    const max = attributes.max.split("-")[0].length;
+    const year =
+      max < 4 || max > 6
+        ? yyyymmdd[0].padStart(6, "0")
+        : yyyymmdd[0].padStart(max, "0");
+
+    return `${year}-${yyyymmdd[1]}-${yyyymmdd[2]}`;
+  }
+  return `${yyyymmdd[0].padStart(6, "0")}-${yyyymmdd[1]}-${yyyymmdd[2]}`;
+}
+
+export function createCapturedOperation(args: {
+  type: string;
+  windowHandle: string;
+  url: string;
+  title: string;
+  input?: string;
+  scrollPosition?: { x: number; y: number };
+  clientSize?: { width: number; height: number };
+  elementInfo?: ElementInfo;
+  screenElements?: ScreenElements[];
+  imageData?: string;
+  pageSource?: string;
+  timestamp?: number;
+}): Operation {
+  const baseArgs = {
+    type: args.type,
+    windowHandle: args.windowHandle,
+    title: args.title,
+    url: args.url,
+    input: args.input ?? "",
+    scrollPosition: args.scrollPosition,
+    clientSize: args.clientSize,
+    elementInfo: args.elementInfo ?? null,
+    screenElements: args.screenElements ?? [],
+    imageData: args.imageData ?? "",
+    pageSource: args.pageSource ?? "",
+  };
+
+  return new Operation(
+    args.timestamp
+      ? { ...baseArgs, timestamp: args.timestamp.toString() }
+      : { ...baseArgs }
+  );
+}
 
 export function isIgnoreOperation(
   operation: CapturedOperation,

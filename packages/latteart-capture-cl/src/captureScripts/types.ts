@@ -97,20 +97,17 @@ export type Iframe = {
   outerWidth: number;
 };
 
-export type CaptureScripts = {
-  /**
-   * Pause capturing.
-   */
-  pauseCapturing: () => void;
-  /**
-   * Resume capturing.
-   */
-  resumeCapturing: () => void;
-  /**
-   * Whether capturing is paused or not.
-   * @returns 'true': Capturing is paused, 'false': Capturing is not paused.
-   */
-  capturingIsPaused: () => boolean;
+export type CDPCaptureScripts = {
+  setupPage: ({
+    windowId,
+    iframe,
+  }: {
+    windowId: string;
+    iframe?: Iframe;
+  }) => void;
+} & CommonCaptureScripts;
+
+export type WebDriverCaptureScripts = {
   attachShield: ({ shieldId }: { shieldId: string }) => void;
   deleteCapturedItems: () => void;
   initGuard: ({
@@ -139,9 +136,41 @@ export type CaptureScripts = {
       backgroundColor: string;
     };
   }) => void;
-  refireEvent: (eventInfo: EventInfo) => void;
   detachShield: ({ shieldId }: { shieldId: string }) => void;
   getBrowsingWindowHandle: () => string;
+  isCurrentScreenObserved: () => boolean;
+  observeCurrentScreen: () => void;
+  focusWindow: (windowHandle: string) => void;
+  captureData: ({
+    captureArch,
+    shieldId,
+    iframe,
+  }: {
+    captureArch: "polling" | "push";
+    shieldId: string;
+    iframe?: Iframe;
+  }) => {
+    capturedItems: SuspendedCapturedItem[];
+    screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
+    mutatedItems: ScreenMutationForScript[];
+  };
+} & CommonCaptureScripts;
+
+export type CommonCaptureScripts = {
+  /**
+   * Pause capturing.
+   */
+  pauseCapturing: () => void;
+  /**
+   * Resume capturing.
+   */
+  resumeCapturing: () => void;
+  /**
+   * Whether capturing is paused or not.
+   * @returns 'true': Capturing is paused, 'false': Capturing is not paused.
+   */
+  capturingIsPaused: () => boolean;
+  refireEvent: (eventInfo: EventInfo) => void;
   markElement: ({
     rect,
     index,
@@ -165,23 +194,7 @@ export type CaptureScripts = {
     index: number;
     prefix: string;
   }) => void;
-  isCurrentScreenObserved: () => boolean;
-  observeCurrentScreen: () => void;
-  focusWindow: (windowHandle: string) => void;
   collectScreenElements: () => CapturedElementInfo[];
-  captureData: ({
-    captureArch,
-    shieldId,
-    iframe,
-  }: {
-    captureArch: "polling" | "push";
-    shieldId: string;
-    iframe?: Iframe;
-  }) => {
-    capturedItems: SuspendedCapturedItem[];
-    screenElements: { iframeIndex?: number; elements: CapturedElementInfo[] };
-    mutatedItems: ScreenMutationForScript[];
-  };
 };
 
 export type CapturedElementInfo = {
@@ -279,8 +292,6 @@ export type AttributeChangeForScript = {
 };
 
 export type ExtendedDocument = Document & {
-  __sendDatas?: SuspendedCapturedItem[];
-  __sendMutatedDatas?: ScreenMutationForScript[];
   __latteartEventIdToEvent?: Map<string, Event>;
   __capturingIsPaused?: boolean;
   __protected?: boolean;
