@@ -15,14 +15,15 @@
  */
 
 import WebBrowserWindow from "./window/WebBrowserWindow";
-import { Operation } from "../../Operation";
-import { CaptureConfig } from "../../CaptureConfig";
+import { Operation } from "../../../Operation";
+import { CaptureConfig } from "../../../CaptureConfig";
 import WebDriverClient from "@/webdriver/WebDriverClient";
 import WindowContainer from "./WindowContainer";
-import ScreenTransition from "../../ScreenTransition";
-import { SpecialOperationType } from "../../SpecialOperationType";
-import { captureScripts } from "../captureScripts";
+import ScreenTransition from "../../../ScreenTransition";
+import { SpecialOperationType } from "../../../SpecialOperationType";
+import { captureScripts } from "../../../captureScripts/webdriver";
 import { ScreenMutation } from "@/ScreenMutation";
+import { createCapturedOperation } from "@/capturer/common/capturingHelper";
 
 /**
  * Class for operating browser.
@@ -219,8 +220,15 @@ export default class WebBrowser {
     ) {
       const screenElements = await beforeWindow.collectAllFrameScreenElements();
 
+      const title = beforeWindow.currentScreenSummary.title;
+      const url = beforeWindow.currentScreenSummary.url;
+      const imageData = beforeWindow.currentScreenSummary.screenshotBase64;
+
       this.option.onGetOperation(
-        beforeWindow.createCapturedOperation({
+        createCapturedOperation({
+          title,
+          url,
+          imageData,
           type: SpecialOperationType.SWITCH_WINDOW,
           windowHandle: beforeWindow?.windowHandle ?? "",
           input: this.windowContainer.currentWindowHandle,

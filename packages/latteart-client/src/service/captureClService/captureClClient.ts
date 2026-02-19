@@ -218,6 +218,12 @@ class CaptureSessionImpl implements CaptureSession {
           message: "Element not interactable.",
         };
       }
+      if (serverError.code === "screen_transition_timeout") {
+        return {
+          errorCode: serverError.code,
+          message: "Screen transition timeout.",
+        };
+      }
       if (serverError.code === "client_side_capture_service_not_found") {
         return {
           errorCode: serverError.code,
@@ -648,8 +654,8 @@ class CaptureSessionImpl implements CaptureSession {
 
     if (result.error) {
       const error: ServiceError = {
-        errorCode: "run_operation_failed",
-        message: "Run Operation failed.",
+        errorCode: result.error.code ?? "run_operation_failed",
+        message: result.error.message ?? "Run Operation failed.",
         variables: {
           title: operation.title ?? "",
           input: operation.input,
@@ -677,8 +683,8 @@ class CaptureSessionImpl implements CaptureSession {
 
     if (result.error) {
       const error: ServiceError = {
-        errorCode: "run_operation_failed",
-        message: "Run Operation failed.",
+        errorCode: result.error.code ?? "run_operation_failed",
+        message: result.error.message ?? "Run Operation failed.",
         variables: {
           title: operation.title ?? "",
           input: operation.input,

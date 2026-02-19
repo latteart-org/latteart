@@ -72,6 +72,7 @@ export class CaptureConfig {
 
   /**
    * Capturing architecture type.
+   * Valid only when the server config 'captureMode' is 'webdriver'.
    */
   public captureArch: "polling" | "push" = "polling";
 

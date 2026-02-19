@@ -586,7 +586,14 @@ export class SeleniumWebDriverClient implements WebDriverClient {
 
   private async getAlert(): Promise<Alert | undefined> {
     try {
-      return await this.driver.switchTo().alert();
+      const alert = await this.driver.switchTo().alert();
+      const text = await alert.getText();
+
+      if (!text) {
+        return;
+      }
+
+      return alert;
     } catch (error) {
       return undefined;
     }

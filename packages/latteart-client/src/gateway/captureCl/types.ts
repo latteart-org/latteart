@@ -108,7 +108,8 @@ type CaptureCLServerErrorCode =
   | "device_not_connected"
   | "invalid_operation"
   | "element_not_found"
-  | "element_not_interactable";
+  | "element_not_interactable"
+  | "screen_transition_timeout";
 
 type CaptureCLConnectionErrorCode =
   | "capture_socket_disconnected"

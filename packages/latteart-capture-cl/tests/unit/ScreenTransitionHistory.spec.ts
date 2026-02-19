@@ -1,4 +1,4 @@
-import ScreenTransitionHistory from "@/capturer/browser/window/ScreenTransitionHistory";
+import ScreenTransitionHistory from "@/capturer/common/ScreenTransitionHistory";
 
 describe("ScreenTransitionHistoryは", () => {
   describe("addが呼ばれたとき、指定のURLを履歴に追加し、そのURLを新しくカレントに設定する", () => {

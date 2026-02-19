@@ -18,7 +18,7 @@
  * Special operation type that is not added by DOM event.
  */
 
-import WebBrowserWindow from "@/capturer/browser/window/WebBrowserWindow";
+import WebBrowserWindow from "@/capturer/webdriver/browser/window/WebBrowserWindow";
 import { Key, WebElement } from "selenium-webdriver";
 import WebDriverClient from "./WebDriverClient";
 import LoggingService from "../logger/LoggingService";

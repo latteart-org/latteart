@@ -1,7 +1,7 @@
 import {
   CapturedOperation,
   isIgnoreOperation,
-} from "@/capturer/browser/window/webBrowserWindowHelper";
+} from "@/capturer/common/capturingHelper";
 
 describe("isIgnoreOperation", () => {
   describe("指定の操作が記録対象外でない場合はfalseを返す", () => {

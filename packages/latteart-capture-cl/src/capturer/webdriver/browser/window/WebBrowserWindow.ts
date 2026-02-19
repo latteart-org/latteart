@@ -14,26 +14,30 @@
  * limitations under the License.
  */
 
-import { Operation, ElementInfo, ScreenElements } from "../../../Operation";
-import ScreenTransitionHistory from "./ScreenTransitionHistory";
-import LoggingService from "../../../logger/LoggingService";
+import { Operation, ElementInfo, ScreenElements } from "../../../../Operation";
+import ScreenTransitionHistory from "../../../common/ScreenTransitionHistory";
+import LoggingService from "../../../../logger/LoggingService";
 import WebDriverClient from "@/webdriver/WebDriverClient";
 import ScreenSummary from "./ScreenSummary";
 import MarkedScreenShotTaker from "./MarkedScreenshotTaker";
-import ScreenTransition from "../../../ScreenTransition";
+import ScreenTransition from "../../../../ScreenTransition";
 import WebBrowser from "../WebBrowser";
-import { SpecialOperationType } from "../../../SpecialOperationType";
+import { SpecialOperationType } from "../../../../SpecialOperationType";
 import { Key } from "selenium-webdriver";
 import {
   CapturedItem,
   CapturedElementInfo,
-  captureScripts,
   Iframe,
   SuspendedCapturedItem,
   ScreenMutationForScript,
   MutatedElementInfo,
-} from "@/capturer/captureScripts";
-import { CapturedOperation, isIgnoreOperation } from "./webBrowserWindowHelper";
+} from "@/captureScripts/types";
+import { captureScripts } from "@/captureScripts/webdriver";
+import {
+  CapturedOperation,
+  createCapturedOperation,
+  isIgnoreOperation,
+} from "../../../common/capturingHelper";
 import { ElementMutation, ScreenMutation } from "@/ScreenMutation";
 
 type CapturingAction = (iframe?: Iframe) => Promise<{
@@ -203,52 +207,20 @@ export default class WebBrowserWindow {
   }
 
   /**
-   * Create operations from specified information.
-   * @param args The information for creation.
-   * @returns Created operations.
-   */
-  public createCapturedOperation(args: {
-    type: string;
-    windowHandle: string;
-    url?: string;
-    title?: string;
-    input?: string;
-    scrollPosition?: { x: number; y: number };
-    clientSize?: { width: number; height: number };
-    elementInfo?: ElementInfo;
-    screenElements?: ScreenElements[];
-    pageSource?: string;
-    timestamp?: number;
-  }): Operation {
-    const baseArgs = {
-      type: args.type,
-      input: args.input ?? "",
-      scrollPosition: args.scrollPosition,
-      clientSize: args.clientSize,
-      elementInfo: args.elementInfo ?? null,
-      screenElements: args.screenElements ?? [],
-      windowHandle: args.windowHandle,
-      title: args.title ?? this.currentScreenSummary.title,
-      url: args.url ?? this.currentScreenSummary.url,
-      imageData: this.currentScreenSummary.screenshotBase64,
-      pageSource: args.pageSource ?? "",
-    };
-
-    return new Operation(
-      args.timestamp
-        ? { ...baseArgs, timestamp: args.timestamp.toString() }
-        : { ...baseArgs }
-    );
-  }
-
-  /**
    * Go back to previous page on monitoring browser and create a browser back operation and return it.
    * @returns The browser back operation.
    */
   public async browserBack(): Promise<Operation> {
     const screenElements = await this.collectAllFrameScreenElements();
 
-    const operation = this.createCapturedOperation({
+    const title = this.currentScreenSummary.title;
+    const url = this.currentScreenSummary.url;
+    const imageData = this.currentScreenSummary.screenshotBase64;
+
+    const operation = createCapturedOperation({
+      title,
+      url,
+      imageData,
       type: SpecialOperationType.BROWSER_BACK,
       windowHandle: this._windowHandle,
       pageSource: await this.client.getCurrentPageText(),
@@ -269,7 +241,14 @@ export default class WebBrowserWindow {
   public async browserForward(): Promise<Operation> {
     const screenElements = await this.collectAllFrameScreenElements();
 
-    const operation = this.createCapturedOperation({
+    const title = this.currentScreenSummary.title;
+    const url = this.currentScreenSummary.url;
+    const imageData = this.currentScreenSummary.screenshotBase64;
+
+    const operation = createCapturedOperation({
+      title,
+      url,
+      imageData,
       type: SpecialOperationType.BROWSER_FORWARD,
       windowHandle: this._windowHandle,
       pageSource: await this.client.getCurrentPageText(),
@@ -731,7 +710,9 @@ export default class WebBrowserWindow {
       pageSource = "";
     }
 
-    return this.createCapturedOperation({
+    const imageData = this.currentScreenSummary.screenshotBase64;
+
+    return createCapturedOperation({
       input: capturedItem.operation.input,
       type: capturedItem.operation.type,
       scrollPosition: capturedItem.operation.scrollPosition,
@@ -741,6 +722,7 @@ export default class WebBrowserWindow {
       windowHandle: this._windowHandle,
       url: capturedItem.operation.url,
       title: capturedItem.operation.title,
+      imageData,
       pageSource,
       timestamp: capturedItem.operation.timestamp,
     });

@@ -1,5 +1,5 @@
 import { Browser, PlatformName } from "@/CaptureConfig";
-import BrowserOperationCapturer from "@/capturer/BrowserOperationCapturer";
+import WebDriverBrowserOperationCapturer from "@/capturer/webdriver/WebDriverBrowserOperationCapturer";
 import { Operation } from "@/Operation";
 import ScreenTransition from "@/ScreenTransition";
 import { SeleniumWebDriverClient } from "@/webdriver/SeleniumWebDriverClient";
@@ -8,7 +8,7 @@ import { Builder, By, Capabilities, Key } from "selenium-webdriver";
 jest.setTimeout(1000 * 60 * 60);
 
 describe("動作確認用", () => {
-  let capturer: BrowserOperationCapturer;
+  let capturer: WebDriverBrowserOperationCapturer;
 
   const callbacks = {
     onGetOperation: (operation: Operation) => {
@@ -95,7 +95,11 @@ describe("動作確認用", () => {
         new Builder().withCapabilities(caps).forBrowser("chrome").build()
       );
 
-      capturer = new BrowserOperationCapturer(client, config, callbacks);
+      capturer = new WebDriverBrowserOperationCapturer(
+        client,
+        config,
+        callbacks
+      );
 
       await capturer.start(url, () => {
         /* Do nothing */
@@ -115,7 +119,11 @@ describe("動作確認用", () => {
         new Builder().withCapabilities(caps).forBrowser("chrome").build()
       );
 
-      capturer = new BrowserOperationCapturer(client, config, callbacks);
+      capturer = new WebDriverBrowserOperationCapturer(
+        client,
+        config,
+        callbacks
+      );
       const operation = new Operation({
         input: "0",
         type: "change",

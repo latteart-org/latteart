@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ExtendedDocument } from "./types";
+import { ExtendedDocument } from "../types";
 
 type ExtendedDocumentForScreenTransition = Document &
   Pick<ExtendedDocument, "extractElements"> & {

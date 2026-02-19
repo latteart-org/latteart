@@ -18,22 +18,30 @@ import packageJson from "../package.json";
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
-import BrowserOperationCapturer from "./capturer/BrowserOperationCapturer";
 import { CaptureConfig } from "./CaptureConfig";
 import LoggingService from "./logger/LoggingService";
 import StandardLogger, { RunningMode } from "./logger/StandardLogger";
 import { AndroidDeviceAccessor } from "./device/AndroidDeviceAccessor";
 import { IOSDeviceAccessor } from "./device/IOSDeviceAccessor";
-import WebDriverClientFactory from "./webdriver/WebDriverClientFactory";
 import { Operation } from "./Operation";
 import { ServerError } from "./ServerError";
 import path from "path";
 import { TimestampImpl } from "./Timestamp";
-import WebDriverClient from "./webdriver/WebDriverClient";
 import { setupWebDriverServer } from "./webdriver/setupWebDriver";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { CapturedItem } from "./capturer/captureScripts";
+import { CapturedItem } from "./captureScripts/types";
+import {
+  BrowserOperationCapturer,
+  BrowserOperationCapturerCallbacks,
+} from "./capturer/types";
+import {
+  createCDPBrowserOperationCapturer,
+  createWebDriverBrowserOperationCapturer,
+} from "./capturer/capturerFactory";
+import WebDriverServer from "./WebDriverServer";
+import { createConfigFileReader } from "./config/configFileReader";
+import { createConfigLoader } from "./config/serverConfigLoader";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const executablePath = (process as any).pkg?.entrypoint;
@@ -42,6 +50,9 @@ export const appRootPath = path.relative(
   process.cwd(),
   path.dirname(executablePath ? process.argv[0] : __dirname)
 );
+
+const configFileReader = createConfigFileReader(appRootPath);
+const configLoader = createConfigLoader(configFileReader);
 
 const app = express();
 
@@ -144,7 +155,6 @@ app.get(`${v1RootPath}/devices`, (req, res) => {
 });
 
 let capturer: BrowserOperationCapturer;
-let client: WebDriverClient;
 
 /**
  * Get server name.
@@ -176,136 +186,161 @@ io.on("connection", (socket) => {
       LoggingService.info("Start capture.");
 
       const captureConfig = new CaptureConfig(JSON.parse(config));
+      const serverConfig = await configLoader.load();
 
-      const { server, error: setupError } =
-        await setupWebDriverServer(captureConfig);
+      const captureMode = serverConfig.captureMode;
 
-      if (setupError) {
-        socket.emit(
-          ServerToClientSocketIOEvent.ERROR_OCCURRED,
-          JSON.stringify(setupError)
-        );
+      LoggingService.info(`Capture mode: ${captureMode}`);
 
-        socket.disconnect();
-        return;
-      }
-
-      try {
-        client = await new WebDriverClientFactory().create({
-          platformName: captureConfig.platformName,
-          browserName: captureConfig.browserName,
-          device: captureConfig.device,
-          browserBinaryPath: "",
-          webDriverServer: server,
-          isHeadlessMode: captureConfig.isHeadlessMode,
-          captureWindowSize: captureConfig.captureWindowSize,
-        });
-
-        capturer = new BrowserOperationCapturer(client, captureConfig, {
-          onGetOperation: (operation) => {
-            socket.emit(
-              ServerToClientSocketIOEvent.OPERATION_CAPTURED,
-              JSON.stringify(operation)
-            );
-          },
-          onGetScreenTransition: (screenTransition) => {
-            socket.emit(
-              ServerToClientSocketIOEvent.SCREEN_TRANSITION_CAPTURED,
-              JSON.stringify(screenTransition)
-            );
+      const callbacks: BrowserOperationCapturerCallbacks = {
+        onGetOperation: (operation) => {
+          socket.emit(
+            ServerToClientSocketIOEvent.OPERATION_CAPTURED,
+            JSON.stringify(operation)
+          );
+        },
+        onGetScreenTransition: (screenTransition) => {
+          socket.emit(
+            ServerToClientSocketIOEvent.SCREEN_TRANSITION_CAPTURED,
+            JSON.stringify(screenTransition)
+          );
+          if (captureMode === "webdriver") {
             socket.emit(
               ServerToClientSocketIOEvent.RUN_OPERATION_AND_SCREEN_TRANSITION_COMPLETED
             );
-          },
-          onGetMutation: (mutations) => {
-            socket.emit(
-              ServerToClientSocketIOEvent.MUTATION_CAPTURED,
-              JSON.stringify(mutations)
-            );
-          },
-          onBrowserClosed: () => {
-            capturer.resumeCapturing().catch((e) => {
-              LoggingService.debug(e);
-            });
+          }
+        },
+        onGetMutation: (mutations) => {
+          socket.emit(
+            ServerToClientSocketIOEvent.MUTATION_CAPTURED,
+            JSON.stringify(mutations)
+          );
+        },
+        onBrowserClosed: () => {
+          capturer.resumeCapturing().catch((e) => {
+            LoggingService.debug(e);
+          });
 
-            LoggingService.info("Browser closed.");
-          },
-          onBrowserHistoryChanged: (browserStatus: {
-            canGoBack: boolean;
-            canGoForward: boolean;
-          }) => {
-            LoggingService.info("Browser history changed.");
-            socket.emit(
-              ServerToClientSocketIOEvent.BROWSER_HISTORY_CHANGED,
-              JSON.stringify(browserStatus)
-            );
-          },
-          onBrowserWindowsChanged: (
-            windows: { windowHandle: string; url: string; title: string }[],
-            currentWindowHandle: string,
-            currentWindowHostNameChanged: boolean
-          ) => {
-            LoggingService.info("Browser windows changed.");
+          LoggingService.info("Browser closed.");
 
-            const updateInfo = JSON.stringify({
-              windows,
-              currentWindowHandle,
-              currentWindowHostNameChanged,
-              timestamp: new TimestampImpl().epochMilliseconds(),
-            });
-            LoggingService.debug(updateInfo);
-            socket.emit(
-              ServerToClientSocketIOEvent.BROWSER_WINDOWS_CHANGED,
-              updateInfo
-            );
-          },
-          onAlertVisibilityChanged: (isVisible: boolean) => {
-            socket.emit(
-              ServerToClientSocketIOEvent.ALERT_VISIBLE_CHANGED,
-              JSON.stringify({ isVisible: isVisible })
-            );
-          },
-          onError: (error: Error) => {
-            LoggingService.error("Capture failed.", error);
+          socket.disconnect();
+          server?.kill();
+        },
+        onBrowserHistoryChanged: (browserStatus: {
+          canGoBack: boolean;
+          canGoForward: boolean;
+        }) => {
+          LoggingService.info("Browser history changed.");
+          socket.emit(
+            ServerToClientSocketIOEvent.BROWSER_HISTORY_CHANGED,
+            JSON.stringify(browserStatus)
+          );
+        },
+        onBrowserWindowsChanged: (
+          windows: { windowHandle: string; url: string; title: string }[],
+          currentWindowHandle: string,
+          currentWindowHostNameChanged: boolean
+        ) => {
+          LoggingService.info("Browser windows changed.");
 
-            const serverError: ServerError = {
-              code: "capture_failed",
-              message: "Capture failed.",
-            };
+          const updateInfo = JSON.stringify({
+            windows,
+            currentWindowHandle,
+            currentWindowHostNameChanged,
+            timestamp: new TimestampImpl().epochMilliseconds(),
+          });
+          LoggingService.debug(updateInfo);
+          socket.emit(
+            ServerToClientSocketIOEvent.BROWSER_WINDOWS_CHANGED,
+            updateInfo
+          );
+        },
+        onAlertVisibilityChanged: (isVisible: boolean) => {
+          socket.emit(
+            ServerToClientSocketIOEvent.ALERT_VISIBLE_CHANGED,
+            JSON.stringify({ isVisible: isVisible })
+          );
+        },
+        onError: (error: Error) => {
+          LoggingService.error("Capture failed.", error);
 
-            socket.emit(
-              ServerToClientSocketIOEvent.ERROR_OCCURRED,
-              JSON.stringify(serverError)
-            );
-          },
-        });
+          const serverError: ServerError = {
+            code: "capture_failed",
+            message: "Capture failed.",
+          };
+
+          socket.emit(
+            ServerToClientSocketIOEvent.ERROR_OCCURRED,
+            JSON.stringify(serverError)
+          );
+        },
+      };
+
+      let server: WebDriverServer | undefined;
+      if (captureMode === "webdriver") {
+        const setupResult = await setupWebDriverServer(captureConfig);
+
+        if (setupResult.error) {
+          socket.emit(
+            ServerToClientSocketIOEvent.ERROR_OCCURRED,
+            JSON.stringify(setupResult.error)
+          );
+
+          socket.disconnect();
+          return;
+        }
+
+        server = setupResult.server;
+      }
+
+      try {
+        capturer =
+          captureMode === "webdriver"
+            ? await createWebDriverBrowserOperationCapturer(
+                server!,
+                serverConfig,
+                captureConfig,
+                callbacks
+              )
+            : await createCDPBrowserOperationCapturer(
+                serverConfig,
+                captureConfig,
+                callbacks
+              );
 
         socket.on(ClientToServerSocketIOEvent.STOP_CAPTURE, async () => {
+          LoggingService.info("Stop capture.");
           capturer.quit();
         });
         socket.on(ClientToServerSocketIOEvent.TAKE_SCREENSHOT, async () => {
+          LoggingService.info("Take screenshot.");
           const screenshot = await capturer.getScreenshot();
 
           socket.emit(ServerToClientSocketIOEvent.SCREENSHOT_TAKEN, screenshot);
         });
         socket.on(ClientToServerSocketIOEvent.BROWSER_BACK, () => {
+          LoggingService.info("Browser back.");
           capturer.browserBack();
         });
         socket.on(ClientToServerSocketIOEvent.BROWSER_FORWARD, () => {
+          LoggingService.info("Browser forward.");
           capturer.browserForward();
         });
         socket.on(
           ClientToServerSocketIOEvent.SWITCH_CAPTURING_WINDOW,
           async (destWindowHandle: string) => {
+            LoggingService.info(`Switch capturing window: ${destWindowHandle}`);
             capturer.switchCapturingWindow(JSON.parse(destWindowHandle));
           }
         );
         socket.on(ClientToServerSocketIOEvent.PAUSE_CAPTURE, async () => {
+          LoggingService.info("Pause capture.");
           await capturer.pauseCapturing();
 
           socket.emit(ServerToClientSocketIOEvent.CAPTURE_PAUSED);
         });
         socket.on(ClientToServerSocketIOEvent.RESUME_CAPTURE, async () => {
+          LoggingService.info("Resume capture.");
           await capturer.resumeCapturing();
 
           socket.emit(ServerToClientSocketIOEvent.CAPTURE_RESUMED);
@@ -313,6 +348,7 @@ io.on("connection", (socket) => {
         socket.on(
           ClientToServerSocketIOEvent.ENTER_VALUES,
           async (inputValueSets: string) => {
+            LoggingService.info("Enter values.");
             try {
               await capturer.autofill(JSON.parse(inputValueSets));
               socket.emit(ServerToClientSocketIOEvent.ENTER_VALUES_COMPLETED);
@@ -340,9 +376,28 @@ io.on("connection", (socket) => {
             "input" | "type" | "elementInfo" | "clientSize" | "scrollPosition"
           > = JSON.parse(operation);
           try {
-            await capturer.runOperation(targetOperation);
-            if (!shouldWaitScreenTransition) {
-              socket.emit(ServerToClientSocketIOEvent.RUN_OPERATION_COMPLETED);
+            if (captureMode === "webdriver") {
+              await capturer.runOperation(targetOperation);
+              if (!shouldWaitScreenTransition) {
+                socket.emit(
+                  ServerToClientSocketIOEvent.RUN_OPERATION_COMPLETED
+                );
+              }
+            } else {
+              if (shouldWaitScreenTransition) {
+                await capturer.runOperationAndWaitForScreenTransition?.(
+                  targetOperation
+                );
+
+                socket.emit(
+                  ServerToClientSocketIOEvent.RUN_OPERATION_AND_SCREEN_TRANSITION_COMPLETED
+                );
+              } else {
+                await capturer.runOperation(targetOperation);
+                socket.emit(
+                  ServerToClientSocketIOEvent.RUN_OPERATION_COMPLETED
+                );
+              }
             }
           } catch (error) {
             if (!(error instanceof Error)) {
@@ -375,6 +430,13 @@ io.on("connection", (socket) => {
               };
               socket.emit(channel, JSON.stringify(serverError));
             }
+            if (error.name === "ScreenTransitionTimeoutError") {
+              const serverError: ServerError = {
+                code: "screen_transition_timeout",
+                message: "Screen transition timeout.",
+              };
+              socket.emit(channel, JSON.stringify(serverError));
+            }
           }
         };
         socket.on(
@@ -398,6 +460,9 @@ io.on("connection", (socket) => {
         });
       } catch (error) {
         if (!(error instanceof Error)) {
+          socket.disconnect();
+          server?.kill();
+
           throw error;
         }
 
@@ -413,6 +478,9 @@ io.on("connection", (socket) => {
             ServerToClientSocketIOEvent.ERROR_OCCURRED,
             JSON.stringify(serverError)
           );
+
+          socket.disconnect();
+          server?.kill();
 
           return;
         }
@@ -438,6 +506,9 @@ io.on("connection", (socket) => {
             JSON.stringify(serverError)
           );
 
+          socket.disconnect();
+          server?.kill();
+
           return;
         }
 
@@ -457,6 +528,9 @@ io.on("connection", (socket) => {
             JSON.stringify(serverError)
           );
 
+          socket.disconnect();
+          server?.kill();
+
           return;
         }
 
@@ -472,9 +546,9 @@ io.on("connection", (socket) => {
           ServerToClientSocketIOEvent.ERROR_OCCURRED,
           JSON.stringify(serverError)
         );
-      } finally {
-        server.kill();
+
         socket.disconnect();
+        server?.kill();
       }
     }
   );
